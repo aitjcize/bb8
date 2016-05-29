@@ -1,5 +1,4 @@
-z# Database Schema
-
+# Database Schema
 
 ## Account
 ```javascript
@@ -13,6 +12,20 @@ z# Database Schema
 ```
 
 ## Node
+Life cycle of a node:
+1. show the leaving message of previous node based on `TODO` and the incoming message of this node based on `msg_ids`
+2. Display the dynamic content (only one of the following two will exist):
+  - display the content of this node based on url provided by client (the url provides the message in our message format)
+  - call the script in filename to return the message in our message format (the script might get the data from client's API and transform it)
+3. Call the parser to analyze the user's input (either from button or raw text input), the parser takes config and generates:
+  - `action_id` (like `content.search`)
+4. The server takes the state of the user, from:
+  - The state in payload (if exists)
+  - The global state (if global parser matches)
+  - The state saved in `BotUser.session`
+5. Based on the state and action, the node will know the next node, and direct the user to `end_node_id`
+
+
 ```javascript
 {
   "id": 1,
