@@ -13,33 +13,52 @@
 
 ## Node
 Life cycle of a node:
-1. show the leaving message of previous node based on `TODO` and the incoming message of this node based on `msg_ids`
-2. Display the dynamic content (only one of the following two will exist):
-  - display the content of this node based on url provided by client (the url provides the message in our message format)
-  - call the script in filename to return the message in our message format (the script might get the data from client's API and transform it)
-3. Call the parser to analyze the user's input (either from button or raw text input), the parser takes config and generates:
-  - `action_id` (like `content.search`)
-4. The server takes the state of the user, from:
-  - The state in payload (if exists)
-  - The global state (if global parser matches)
-  - The state saved in `BotUser.session`
-5. Based on the state and action, the node will know the next node, and direct the user to `end_node_id`
 
+1. Check if user has been idle for `session_timeout` seconds. If yes, clear the
+   user session stack entirely. Push `start_node_id` onto session stack.
+
+2. Show message of this node based on the output of content module. The
+   parameter of content module is the `[action, variables...]` of the previous
+   node. Example content modules:
+   - Fixed message: display a list of pre-defined messages. The configuration
+     requires specifying a list of msg_ids.
+   - URL Query: e.g. search for product catalogue base on the user input
+     (variables). The configuration requires specifiy query url template.
+
+3. User input. A user input could either be a regular text message or a payload
+   sent by pressing a button.
+
+4. If user input payload contains a `stored_node_id` != `active_node_id`. Then
+   unconditionally jump to the `stored_node_id` without pushing current session
+   onto session stack.
+
+5. Call the root node parser module to parser global commands from user input.
+   If there is a match on the global command action:
+   1. Push current user session (active `node_id`) onto session stack.
+   2. Jump to corresponding node.
+
+6. Call the parser module to parser the user's input. The parser module takes
+   configurationl and generates:
+  - `action_id`: e.g. `content.search`
+  - `variables`: a dictionary. e.g. `{'search_term': 'watch', 'max_result': 5}`
+
+7. Pop current session, push `end_node_id` onto session stack.
+
+8. Goto 1
 
 ```javascript
 {
   "id": 1,
   "bot_id": 1,
   "content": {
-    "msg_ids": [1, 2 ..], // list of message ID
-    "url": "http://somedoamin.com?param1=%(param1)s&param2=%(param2)s",
-    "filename": "/path/to/content_script.js"
+    "module_id": 1,
+    "config": {...}
   },
   "parser": {
     "module_id": 1,
     "config": {...}
   },
-  "action_map": {  // action_id to end node mapping
+  "linkage": {  // action_id to end node mapping
     "content.search": {
       "message": "msg",
       "end_node_id": 1
@@ -53,11 +72,24 @@ Life cycle of a node:
       "message": "msg",
       "end_node_id": 2
     }
-  }
+  },
 }
 ```
 
-## Module
+## Contend Module
+Takes input parameter (output variables of parser module) and render message.
+
+```javascript
+{
+  "id": 1,
+  "name": "Module Name",
+  "content_filename": "/path/to/content.py",
+  "ui_filename": "/path/to/react/ui/module.js",
+  "input_parameter": ["action", "var_1", "var2" ...],
+}
+```
+
+## Parser Module
 Parses user input as action.
 
 ```javascript
@@ -70,7 +102,7 @@ Parses user input as action.
     {"name": "Search Product", "id": "content.search"},
     ...
   ],
-  "parameter": ["search_term", ...],  // parameter for next node
+  "variables": ["search_term", ...],  // used as parameter for next node
 }
 ```
 
@@ -79,6 +111,7 @@ Parses user input as action.
 ```javascript
 {
   "id": 1,
+  "bot_id": 0,
   "type": 0,
   "content": {...}  // content json template depends on type
 }
@@ -108,7 +141,7 @@ Parses user input as action.
        "type": "web_url" or "postback",
        "title": "button title",
        "url": "URL",
-       "payload": "{\"node_id\": {{node_id}}, \"payload\": \"action string\"}
+       "payload": "{\"node_id\": {{node_id}}, \"payload\": \"action string\"}"
      },
      ...
      {}
@@ -117,10 +150,18 @@ Parses user input as action.
 ```
 
 ## Bot
+In event of incoming broadcast message. Check if user has been idle for
+`interaction_timeout`. If yes, send the broadcast message directly. The
+broadcast message should contain notice of itself being an out-of-context
+message to prevent user for consuing with current flow.
+
+If a user has not been interacting with a bot for `session_timeout`, clear the
+user session stack entirely.
+
 ```javascript
 {
   "platforms": [platform.id ...],
-  "interaction_timeout": 600,  // broadcast only if user is idle for X secs
+  "interaction_timeout": 120,  // broadcast only if user is idle for X secs
   "session_timeout": 86400,  // reset user state if timeout
   "root_node_id": 0,
   "start_node_id": 1,
@@ -132,6 +173,7 @@ Parses user input as action.
 ```javascript
 {
   "id": 1,
+  "bot_id": 0,
   "type": 0,
   "config": {...}  // config in json format
 }
@@ -148,7 +190,7 @@ Parses user input as action.
   "id": 1,
   "platform_type": type,  // same as Platform.type enum
   "platform_user_id": id,  // ID specific to platform: Facebook/LINE user ID
-  "session": [node_id_1, node_id_2 ... ], // a stack
+  "session_stack": [node_id_1, node_id_2 ... ], // a stack
 }
 ```
 
