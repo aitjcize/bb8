@@ -58,7 +58,7 @@ Life cycle of a node:
     "module_id": 1,
     "config": {...}
   },
-  "action_map": {  // action_id to end node mapping
+  "linkage": {  // action_id to end node mapping
     "content.search": {
       "message": "msg",
       "end_node_id": 1
@@ -111,6 +111,7 @@ Parses user input as action.
 ```javascript
 {
   "id": 1,
+  "bot_id": 0,
   "type": 0,
   "content": {...}  // content json template depends on type
 }
@@ -172,6 +173,7 @@ user session stack entirely.
 ```javascript
 {
   "id": 1,
+  "bot_id": 0,
   "type": 0,
   "config": {...}  // config in json format
 }
@@ -188,7 +190,7 @@ user session stack entirely.
   "id": 1,
   "platform_type": type,  // same as Platform.type enum
   "platform_user_id": id,  // ID specific to platform: Facebook/LINE user ID
-  "session": [node_id_1, node_id_2 ... ], // a stack
+  "session_stack": [node_id_1, node_id_2 ... ], // a stack
 }
 ```
 
