@@ -5,10 +5,12 @@ MarkupSafe==0.23
 MySQL-python==1.2.5
 PyYAML==3.11
 SQLAlchemy==1.0.13
+SQLAlchemy-Enum34==1.0.1
 Werkzeug==0.11.10
 alembic==0.8.6
 argparse==1.2.1
 click==6.6
+enum34==1.1.6
 itsdangerous==0.24
 python-editor==1.0
 python-memcached==1.58
