@@ -1,0 +1,18 @@
+#!/bin/bash
+#
+# Script of automatically running pylint
+#
+# Copyright 2016 bb8 Authors
+
+SCRIPT_DIR=$(dirname "$0")
+
+GIT_ROOT=$SCRIPT_DIR/..
+
+git fetch origin
+TARGET_BRANCH=$(git merge-base --fork-point origin/dev HEAD)
+
+SOURCES=$(git diff $TARGET_BRANCH --stat | awk '{ print $1 }' | grep '\.py' | \
+          tr '\n' ' ')
+
+cd $GIT_ROOT
+make lint "LINT_FILES=$SOURCES"
