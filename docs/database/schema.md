@@ -175,6 +175,7 @@ user session stack entirely.
   "id": 1,
   "bot_id": 0,
   "type": 0,
+  "provider_ident": "facebook_page_id or line_mid",
   "config": {...}  // config in json format
 }
 ```
