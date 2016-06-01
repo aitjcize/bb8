@@ -12,8 +12,8 @@ import unittest
 from bb8.backend.database import DatabaseManager
 from bb8.backend.database import (Account, Action, Bot, ColletedDatum,
                                   Conversation, ContentModule, Event, Linkage,
-                                  Message, MessageTypeEnum, Node, ParserModule,
-                                  Platform, PlatformTypeEnum, SenderEnum, User)
+                                  Node, ParserModule, Platform,
+                                  PlatformTypeEnum, SenderEnum, User)
 
 
 class DatabaseUnittest(unittest.TestCase):
@@ -38,10 +38,11 @@ class DatabaseUnittest(unittest.TestCase):
                           passwd='test_hashed').add()
         action = Action(name='action', description='desc').add()
 
-        bot = Bot(interaction_timeout=120, session_timeout=86400).add()
+        bot = Bot(description='test', interaction_timeout=120,
+                  session_timeout=86400).add()
 
         content = ContentModule(name='Content1', content_filename='',
-                                ui_filename='', input_parameter={}).add()
+                                ui_filename='').add()
         parser = ParserModule(name='Parser1', content_filename='',
                               ui_filename='', variables={}).add()
 
@@ -104,13 +105,6 @@ class DatabaseUnittest(unittest.TestCase):
         assert len(node1.linkages) == 1 and node1.linkages[0].id == l1.id
 
         assert len(node2.linkages) == 1 and node2.linkages[0].id == l2.id
-
-        message = Message(bot_id=bot.id, type_enum=MessageTypeEnum.Text,
-                          content={}).add()
-        self.dbm.commit()
-
-        assert Message.get_by(id=message.id, single=True) is not None
-        assert len(bot.messages) == 1 and bot.messages[0].id == message.id
 
         user = User(account_id=account.id,
                     platform_type_enum=PlatformTypeEnum.Facebook,
