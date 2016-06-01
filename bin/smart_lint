@@ -11,9 +11,8 @@ GIT_ROOT=$SCRIPT_DIR/..
 git fetch origin
 TARGET_BRANCH=$(git merge-base --fork-point origin/dev HEAD)
 
-SOURCES=$(git diff $TARGET_BRANCH --stat | awk '{ print $1 }' | grep '\.py')
+SOURCES=$(git diff $TARGET_BRANCH --stat | awk '{ print $1 }' | grep '\.py' | \
+          tr '\n' ' ')
 
 cd $GIT_ROOT
-pep8 $SOURCES
-pylint --rcfile=$SCRIPT_DIR/pylintrc \
-  --msg-template='{path}:{line}: {msg_id}: {msg}' $SOURCES
+make lint "LINT_FILES=$SOURCES"
