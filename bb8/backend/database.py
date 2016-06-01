@@ -281,12 +281,12 @@ class Bot(DeclarativeBase, QueryHelperMixin):
     __tablename__ = 'bot'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    description = Column(String(512), nullable=False)
     interaction_timeout = Column(Integer, nullable=False)
     session_timeout = Column(Integer, nullable=False)
     root_node_id = Column(Integer, nullable=True)
     start_node_id = Column(Integer, nullable=True)
 
-    messages = relationship('Message')
     orphan_nodes = relationship('Node', secondary='bot_node')
     platforms = relationship('Platform')
 
@@ -346,7 +346,6 @@ class ContentModule(DeclarativeBase, QueryHelperMixin):
     name = Column(String(256), nullable=False)
     content_filename = Column(String(256), nullable=False)
     ui_filename = Column(String(256), nullable=False)
-    input_parameter = Column(PickleType, nullable=False)
 
 
 class ParserModule(DeclarativeBase, QueryHelperMixin):
@@ -359,20 +358,6 @@ class ParserModule(DeclarativeBase, QueryHelperMixin):
     variables = Column(PickleType, nullable=False)
 
     actions = relationship('Action', secondary='parser_module_action')
-
-
-class MessageTypeEnum(enum.Enum):
-    Text = 'TEXT'
-    Card = 'CARD'
-
-
-class Message(DeclarativeBase, QueryHelperMixin):
-    __tablename__ = 'message'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    bot_id = Column(ForeignKey('bot.id'), nullable=False)
-    type_enum = Column(EnumType(MessageTypeEnum), nullable=False)
-    content = Column(PickleType, nullable=False)
 
 
 class ColletedDatum(DeclarativeBase, QueryHelperMixin):
