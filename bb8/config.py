@@ -32,6 +32,6 @@ class TestingConfig(DevelopmentConfig):
     TESTING = True
 
 
-class DeployConfig(Config):
+class DeployConfig(DevelopmentConfig):
     DEBUG = False
     DEPLOY = True
