@@ -4,7 +4,6 @@ machine:
   timezone:
     Asia/Taipei
 
-  # Version of ruby to use
   python:
     version:
       2.7.11

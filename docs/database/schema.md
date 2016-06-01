@@ -85,7 +85,6 @@ Takes input parameter (output variables of parser module) and render message.
   "name": "Module Name",
   "content_filename": "/path/to/content.py",
   "ui_filename": "/path/to/react/ui/module.js",
-  "input_parameter": ["action", "var_1", "var2" ...],
 }
 ```
 
@@ -102,9 +101,19 @@ Parses user input as action.
     {"name": "Search Product", "id": "content.search"},
     ...
   ],
-  "variables": ["search_term", ...],  // used as parameter for next node
+  "variables": [
+      {
+        "name": "search_term",
+        "type": "string",
+        "description": "Search term",
+      }, ...
+  ],  // used as parameter for next node
 }
 ```
+*type*
+- bool
+- number
+- string
 
 ## Message
 
@@ -160,12 +169,13 @@ user session stack entirely.
 
 ```javascript
 {
+  "description": "description",
   "platforms": [platform.id ...],
   "interaction_timeout": 120,  // broadcast only if user is idle for X secs
   "session_timeout": 86400,  // reset user state if timeout
   "root_node_id": 0,
   "start_node_id": 1,
-  "orphan_node_ids": [...]  // list of orphan node that does not have parent
+  "orphan_node_ids": [...]   // list of orphan node that does not have parent
 }
 ```
 
@@ -228,7 +238,7 @@ user session stack entirely.
   "bot_id": 1,
   "bot_user_id": 1,
   "event_name": "event name",
-  "event_value": "value",
+  "event_value": "value"
 }
 ```
 
