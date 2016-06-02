@@ -16,6 +16,7 @@ from sqlalchemy.orm import (scoped_session, sessionmaker, joinedload,
                             relationship, object_session)
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import has_identity
+from sqlalchemy.schema import UniqueConstraint
 
 # TODO(aitjcize): remove this when SQLA release verson 1.1
 from sqlalchemy_enum34 import EnumType
@@ -61,8 +62,8 @@ class DatabaseManager(object):
         elif not cls.engine:
             cls.create_engine()
 
-        Session = scoped_session(sessionmaker(bind=cls.engine))
-        g.db = Session()
+        ScopedSession = scoped_session(sessionmaker(bind=cls.engine))
+        g.db = ScopedSession()
 
     @classmethod
     def disconnect(cls, commit=True):
@@ -122,6 +123,10 @@ class DatabaseManager(object):
     @classmethod
     def flush(cls):
         g.db.flush()
+
+    @classmethod
+    def rollback(cls):
+        g.db.rollback()
 
 
 class QueryHelperMixin(object):
@@ -272,7 +277,7 @@ class User(DeclarativeBase, QueryHelperMixin):
     account_id = Column(ForeignKey('account.id'), nullable=False)
     platform_type_enum = Column(EnumType(PlatformTypeEnum), nullable=False)
     platform_user_id = Column(String(512), nullable=False)
-    session_stack = Column(PickleType, nullable=False)
+    last_seen = Column(Integer, nullable=False)
 
     colleted_data = relationship('ColletedDatum')
 
@@ -289,6 +294,16 @@ class Bot(DeclarativeBase, QueryHelperMixin):
 
     orphan_nodes = relationship('Node', secondary='bot_node')
     platforms = relationship('Platform')
+
+
+class Session(DeclarativeBase, QueryHelperMixin):
+    __tablename__ = 'session'
+    __table_args__ = (UniqueConstraint('bot_id', 'user_id'),)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    bot_id = Column(ForeignKey('bot.id'), nullable=False)
+    user_id = Column(ForeignKey('user.id'), nullable=False)
+    session_stack = Column(PickleType, nullable=False)
 
 
 class Node(DeclarativeBase, QueryHelperMixin):
