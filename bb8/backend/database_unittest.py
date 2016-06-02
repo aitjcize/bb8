@@ -43,10 +43,11 @@ class DatabaseUnittest(unittest.TestCase):
         bot = Bot(description='test', interaction_timeout=120,
                   session_timeout=86400).add()
 
-        content = ContentModule(name='Content1', content_filename='',
-                                ui_filename='').add()
-        parser = ParserModule(name='Parser1', content_filename='',
-                              ui_filename='', variables={}).add()
+        content = ContentModule(name='Content1', description='desc',
+                                module_name='', ui_module_name='').add()
+        parser = ParserModule(name='Parser1', module_name='',
+                              description='desc', ui_module_name='',
+                              variables={}).add()
 
         account.bots.append(bot)
 
