@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
     Database ORM definition unittest
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -9,11 +10,13 @@
 
 import unittest
 
+from sqlalchemy.exc import IntegrityError
+
 from bb8.backend.database import DatabaseManager
 from bb8.backend.database import (Account, Bot, ColletedDatum, Conversation,
                                   ContentModule, Event, Linkage, Node,
                                   ParserModule, Platform, PlatformTypeEnum,
-                                  SenderEnum, User)
+                                  SenderEnum, Session, User)
 
 
 class DatabaseUnittest(unittest.TestCase):
@@ -104,12 +107,23 @@ class DatabaseUnittest(unittest.TestCase):
 
         user = User(account_id=account.id,
                     platform_type_enum=PlatformTypeEnum.Facebook,
-                    platform_user_id='blablabla',
-                    session_stack=[]).add()
+                    platform_user_id='blablabla', last_seen=1464871496).add()
         self.dbm.commit()
 
         assert User.get_by(id=user.id, single=True) is not None
         assert len(account.users) == 1 and account.users[0].id == user.id
+
+        session = Session(bot_id=bot.id, user_id=user.id,
+                          session_stack=[]).add()
+        self.dbm.commit()
+
+        assert Session.get_by(id=session.id, single=True) is not None
+
+        # Test unique constraint
+        with self.assertRaises(IntegrityError):
+            Session(bot_id=bot.id, user_id=user.id, session_stack=[]).add()
+            self.dbm.commit()
+        self.dbm.rollback()
 
         event = Event(bot_id=bot.id, user_id=user.id, event_name='event',
                       event_value={}).add()

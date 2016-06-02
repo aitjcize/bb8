@@ -195,13 +195,23 @@ user session stack entirely.
 - 1: line
 - 2: wechat
 
-## Bot User
+## User
 ```javascript
 {
   "id": 1,
   "platform_type": type,  // same as Platform.type enum
   "platform_user_id": id,  // ID specific to platform: Facebook/LINE user ID
-  "session_stack": [node_id_1, node_id_2 ... ], // a stack
+  "last_seeen": 1464871496,  // timestamp since last seen
+}
+```
+
+## Session
+```javascript
+{
+  "id": 1,
+  "bot_id"; 1,
+  "user_id": 1,
+  "session_stack": [session_1, session_2 ... ], // a stack
 }
 ```
 
