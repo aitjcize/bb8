@@ -8,4 +8,4 @@ if [ -e $GITROOT/.env ]; then
 fi
 
 export PATH=$SCRIPT_DIR:$PATH
-export PYTHONPATH=$GITROOT
+export PYTHONPATH=$PWD/$GITROOT

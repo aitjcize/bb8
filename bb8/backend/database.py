@@ -9,7 +9,7 @@
 import enum
 
 from sqlalchemy import create_engine
-from sqlalchemy import (Column, ForeignKey, Integer, String, Table, Text,
+from sqlalchemy import (Column, Enum, ForeignKey, Integer, String, Table, Text,
                         PickleType)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (scoped_session, sessionmaker, joinedload,
@@ -18,11 +18,9 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import has_identity
 from sqlalchemy.schema import UniqueConstraint
 
-# TODO(aitjcize): remove this when SQLA release verson 1.1
-from sqlalchemy_enum34 import EnumType
-
 from bb8 import config
 
+from bb8.backend.metadata import MutableList
 
 DeclarativeBase = declarative_base()
 metadata = DeclarativeBase.metadata
@@ -184,7 +182,7 @@ class QueryHelperMixin(object):
 
         if single:
             try:
-                return query_object.one()
+                return query_object.limit(1).one()
             except NoResultFound:
                 return None
         return query_object.all()
@@ -275,7 +273,7 @@ class User(DeclarativeBase, QueryHelperMixin):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     account_id = Column(ForeignKey('account.id'), nullable=False)
-    platform_type_enum = Column(EnumType(PlatformTypeEnum), nullable=False)
+    platform_type_enum = Column(Enum(PlatformTypeEnum), nullable=False)
     platform_user_id = Column(String(512), nullable=False)
     last_seen = Column(Integer, nullable=False)
 
@@ -326,7 +324,7 @@ class Platform(DeclarativeBase, QueryHelperMixin):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     bot_id = Column(ForeignKey('bot.id'), nullable=False)
-    type_enum = Column(EnumType(PlatformTypeEnum), nullable=False)
+    type_enum = Column(Enum(PlatformTypeEnum), nullable=False)
     provider_ident = Column(String(512), nullable=False)
     configuration = Column(PickleType, nullable=False)
 
@@ -387,7 +385,7 @@ class Conversation(DeclarativeBase, QueryHelperMixin):
     id = Column(Integer, primary_key=True, autoincrement=True)
     bot_id = Column(ForeignKey('bot.id'), nullable=False)
     user_id = Column(ForeignKey('user.id'), nullable=False)
-    sender_enum = Column(EnumType(SenderEnum), nullable=False)
+    sender_enum = Column(Enum(SenderEnum), nullable=False)
     msg = Column(PickleType, nullable=False)
 
     user = relationship('User')
