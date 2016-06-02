@@ -83,8 +83,8 @@ Takes input parameter (output variables of parser module) and render message.
 {
   "id": 1,
   "name": "Module Name",
-  "content_filename": "/path/to/content.py",
-  "ui_filename": "/path/to/react/ui/module.js",
+  "module_name": "module_name",
+  "ui_module_name": "module.js",
 }
 ```
 
@@ -95,8 +95,8 @@ Parses user input as action.
 {
   "id": 1,
   "name": "Module Name",
-  "parser_filename": "/path/to/parser.py",
-  "ui_filename": "/path/to/react/ui/module.js",
+  "module_name": "module_name",
+  "ui_module_name": "module.js",
   "actions": [
     {"name": "Search Product", "id": "content.search"},
     ...

@@ -350,8 +350,9 @@ class ContentModule(DeclarativeBase, QueryHelperMixin):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(256), nullable=False)
-    content_filename = Column(String(256), nullable=False)
-    ui_filename = Column(String(256), nullable=False)
+    description = Column(Text, nullable=False)
+    module_name = Column(String(256), nullable=False)
+    ui_module_name = Column(String(256), nullable=False)
 
 
 class ParserModule(DeclarativeBase, QueryHelperMixin):
@@ -359,8 +360,9 @@ class ParserModule(DeclarativeBase, QueryHelperMixin):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(256), nullable=False)
-    content_filename = Column(String(256), nullable=False)
-    ui_filename = Column(String(256), nullable=False)
+    description = Column(Text, nullable=False)
+    module_name = Column(String(256), nullable=False)
+    ui_module_name = Column(String(256), nullable=False)
     variables = Column(PickleType, nullable=False)
 
 
