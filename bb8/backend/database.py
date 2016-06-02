@@ -316,27 +316,18 @@ class Platform(DeclarativeBase, QueryHelperMixin):
     configuration = Column(PickleType, nullable=False)
 
 
-class Action(DeclarativeBase, QueryHelperMixin):
-    __tablename__ = 'action'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(256), nullable=False)
-    description = Column(String(512), nullable=False)
-
-
 class Linkage(DeclarativeBase, QueryHelperMixin):
     __tablename__ = 'linkage'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     start_node_id = Column(ForeignKey('node.id'), nullable=False)
     end_node_id = Column(ForeignKey('node.id'), nullable=False)
-    action_id = Column(ForeignKey('action.id'), nullable=False)
+    action_ident = Column(String(256), nullable=False)
     ack_message = Column(Text, nullable=False)
 
     start_node = relationship('Node', foreign_keys=[start_node_id],
                               backref='linkages')
     end_node = relationship('Node', foreign_keys=[end_node_id])
-    action = relationship('Action')
 
 
 class ContentModule(DeclarativeBase, QueryHelperMixin):
@@ -356,8 +347,6 @@ class ParserModule(DeclarativeBase, QueryHelperMixin):
     content_filename = Column(String(256), nullable=False)
     ui_filename = Column(String(256), nullable=False)
     variables = Column(PickleType, nullable=False)
-
-    actions = relationship('Action', secondary='parser_module_action')
 
 
 class ColletedDatum(DeclarativeBase, QueryHelperMixin):
@@ -408,11 +397,4 @@ t_bot_node = Table(
     'bot_node', metadata,
     Column('bot_id', ForeignKey('bot.id'), nullable=False),
     Column('node_id', ForeignKey('node.id'), nullable=False)
-)
-
-
-t_parser_module_action = Table(
-    'parser_module_action', metadata,
-    Column('parser_module_id', ForeignKey('parser_module.id'), nullable=False),
-    Column('action_id', ForeignKey('action.id'), nullable=False)
 )

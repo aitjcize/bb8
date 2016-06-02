@@ -10,10 +10,10 @@
 import unittest
 
 from bb8.backend.database import DatabaseManager
-from bb8.backend.database import (Account, Action, Bot, ColletedDatum,
-                                  Conversation, ContentModule, Event, Linkage,
-                                  Node, ParserModule, Platform,
-                                  PlatformTypeEnum, SenderEnum, User)
+from bb8.backend.database import (Account, Bot, ColletedDatum, Conversation,
+                                  ContentModule, Event, Linkage, Node,
+                                  ParserModule, Platform, PlatformTypeEnum,
+                                  SenderEnum, User)
 
 
 class DatabaseUnittest(unittest.TestCase):
@@ -36,7 +36,6 @@ class DatabaseUnittest(unittest.TestCase):
 
         account = Account(name='Test Account', email='test@test.com',
                           passwd='test_hashed').add()
-        action = Action(name='action', description='desc').add()
 
         bot = Bot(description='test', interaction_timeout=120,
                   session_timeout=86400).add()
@@ -51,7 +50,6 @@ class DatabaseUnittest(unittest.TestCase):
         self.dbm.commit()
 
         assert Account.get_by(id=account.id, single=True) is not None
-        assert Action.get_by(id=action.id, single=True) is not None
         assert Bot.get_by(id=bot.id, single=True) is not None
         assert ContentModule.get_by(id=content.id, single=True) is not None
         assert ParserModule.get_by(id=parser.id, single=True) is not None
@@ -91,11 +89,9 @@ class DatabaseUnittest(unittest.TestCase):
         assert bot.orphan_nodes[0].id == node3.id
 
         l1 = Linkage(start_node_id=node1.id, end_node_id=node2.id,
-                     action_id=action.id,
-                     ack_message='').add()
+                     action_ident='action0', ack_message='').add()
         l2 = Linkage(start_node_id=node2.id, end_node_id=node1.id,
-                     action_id=action.id,
-                     ack_message='').add()
+                     action_ident='action1', ack_message='').add()
 
         self.dbm.commit()
 
