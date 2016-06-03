@@ -19,8 +19,8 @@ from sqlalchemy.orm.util import has_identity
 from sqlalchemy.schema import UniqueConstraint
 
 from bb8 import config
+from bb8.backend.metadata import SessionStack
 
-from bb8.backend.metadata import MutableList
 
 DeclarativeBase = declarative_base()
 metadata = DeclarativeBase.metadata
@@ -275,7 +275,6 @@ class User(DeclarativeBase, QueryHelperMixin):
     account_id = Column(ForeignKey('account.id'), nullable=False)
     platform_type_enum = Column(Enum(PlatformTypeEnum), nullable=False)
     platform_user_id = Column(String(512), nullable=False)
-    last_seen = Column(Integer, nullable=False)
 
     colleted_data = relationship('ColletedDatum')
 
@@ -301,7 +300,16 @@ class Session(DeclarativeBase, QueryHelperMixin):
     id = Column(Integer, primary_key=True, autoincrement=True)
     bot_id = Column(ForeignKey('bot.id'), nullable=False)
     user_id = Column(ForeignKey('user.id'), nullable=False)
-    session_stack = Column(PickleType, nullable=False)
+    last_seen = Column(Integer, nullable=False)
+    session_stack = Column(SessionStack.as_mutable(PickleType), nullable=False)
+
+    def find_or_add(self, bot_id, user_id):
+        """Find a record from table or add one if it does not exist."""
+        s = self.get_by(bot_id=bot_id, user_id=user_id, single=True)
+        if not s:
+            s = Session(bot_id=bot_id, user_id=user_id, session_stack=[]).add()
+            s.commit()
+        return s
 
 
 class Node(DeclarativeBase, QueryHelperMixin):
