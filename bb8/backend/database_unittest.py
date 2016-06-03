@@ -108,13 +108,13 @@ class DatabaseUnittest(unittest.TestCase):
 
         user = User(account_id=account.id,
                     platform_type_enum=PlatformTypeEnum.Facebook,
-                    platform_user_id='blablabla', last_seen=1464871496).add()
+                    platform_user_id='blablabla').add()
         self.dbm.commit()
 
         assert User.get_by(id=user.id, single=True) is not None
         assert len(account.users) == 1 and account.users[0].id == user.id
 
-        session = Session(bot_id=bot.id, user_id=user.id,
+        session = Session(bot_id=bot.id, user_id=user.id, last_seen=1464871496,
                           session_stack=[]).add()
         self.dbm.commit()
 
@@ -122,7 +122,8 @@ class DatabaseUnittest(unittest.TestCase):
 
         # Test unique constraint
         with self.assertRaises(IntegrityError):
-            Session(bot_id=bot.id, user_id=user.id, session_stack=[]).add()
+            Session(bot_id=bot.id, user_id=user.id, last_seen=1464871496,
+                    session_stack=[]).add()
             self.dbm.commit()
         self.dbm.rollback()
 
@@ -147,6 +148,23 @@ class DatabaseUnittest(unittest.TestCase):
         assert (Conversation.get_by(id=conversation.id, single=True)
                 is not None)
 
+    def testSessionMutableTracking(self):
+        # Exploit the fact that SQLite foreign key constraint has really no
+        # effect on insert/deletion. see: # http://docs.sqlalchemy.org/en/\
+        # latest/dialects/sqlite.html#foreign-key-support
+        session = Session(bot_id=1, user_id=2, last_seen=1464871496,
+                          session_stack=[1]).add()
+        self.dbm.commit()
+
+        assert Session.get_by(id=session.id, single=True) is not None
+
+        s = Session.get_by(id=session.id, single=True)
+        s.session_stack[0].message_sent = True
+        s.session_stack.refresh(0)
+        s.commit()
+
+        s = Session.get_by(id=session.id, single=True)
+        assert s.session_stack[0].message_sent is True
 
 if __name__ == '__main__':
     unittest.main()
