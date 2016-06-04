@@ -9,17 +9,16 @@
 import enum
 
 from sqlalchemy import create_engine
-from sqlalchemy import (Column, Enum, ForeignKey, Integer, String, Table, Text,
-                        PickleType)
+from sqlalchemy import (Boolean, Column, Enum, ForeignKey, Integer, String,
+                        Table, Text, PickleType)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (scoped_session, sessionmaker, joinedload,
                             relationship, object_session)
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import has_identity
-from sqlalchemy.schema import UniqueConstraint
 
 from bb8 import config
-from bb8.backend.metadata import SessionStack
+from bb8.backend.metadata import SessionRecord
 
 
 DeclarativeBase = declarative_base()
@@ -260,7 +259,6 @@ class Account(DeclarativeBase, QueryHelperMixin):
     passwd = Column(String(256), nullable=False)
 
     bots = relationship('Bot', secondary='account_bot')
-    users = relationship('User')
 
 
 class PlatformTypeEnum(enum.Enum):
@@ -268,21 +266,11 @@ class PlatformTypeEnum(enum.Enum):
     Line = 'LINE'
 
 
-class User(DeclarativeBase, QueryHelperMixin):
-    __tablename__ = 'user'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    account_id = Column(ForeignKey('account.id'), nullable=False)
-    platform_type_enum = Column(Enum(PlatformTypeEnum), nullable=False)
-    platform_user_id = Column(String(512), nullable=False)
-
-    colleted_data = relationship('ColletedDatum')
-
-
 class Bot(DeclarativeBase, QueryHelperMixin):
     __tablename__ = 'bot'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(256), nullable=False)
     description = Column(String(512), nullable=False)
     interaction_timeout = Column(Integer, nullable=False)
     session_timeout = Column(Integer, nullable=False)
@@ -292,24 +280,28 @@ class Bot(DeclarativeBase, QueryHelperMixin):
     orphan_nodes = relationship('Node', secondary='bot_node')
     platforms = relationship('Platform')
 
+    @property
+    def root_node(self):
+        return Node.get_by(id=self.root_node_id, single=True)
 
-class Session(DeclarativeBase, QueryHelperMixin):
-    __tablename__ = 'session'
-    __table_args__ = (UniqueConstraint('bot_id', 'user_id'),)
+
+class User(DeclarativeBase, QueryHelperMixin):
+    __tablename__ = 'user'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     bot_id = Column(ForeignKey('bot.id'), nullable=False)
-    user_id = Column(ForeignKey('user.id'), nullable=False)
+    platform_id = Column(ForeignKey('platform.id'), nullable=False)
+    platform_user_ident = Column(String(512), nullable=False)
     last_seen = Column(Integer, nullable=False)
-    session_stack = Column(SessionStack.as_mutable(PickleType), nullable=False)
+    login_token = Column(String(512), nullable=True)
+    session = Column(SessionRecord.as_mutable(PickleType), nullable=True)
 
-    def find_or_add(self, bot_id, user_id):
-        """Find a record from table or add one if it does not exist."""
-        s = self.get_by(bot_id=bot_id, user_id=user_id, single=True)
-        if not s:
-            s = Session(bot_id=bot_id, user_id=user_id, session_stack=[]).add()
-            s.commit()
-        return s
+    platform = relationship('Platform')
+    colleted_data = relationship('ColletedDatum')
+
+    def goto(self, node_id):
+        """Goto a node."""
+        self.session = SessionRecord(node_id)
 
 
 class Node(DeclarativeBase, QueryHelperMixin):
@@ -317,14 +309,33 @@ class Node(DeclarativeBase, QueryHelperMixin):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     bot_id = Column(ForeignKey('bot.id'), nullable=False)
+    expect_input = Column(Boolean, nullable=False)
     content_module_id = Column(ForeignKey('content_module.id'), nullable=False)
     content_config = Column(PickleType, nullable=False)
-    parser_module_id = Column(ForeignKey('parser_module.id'), nullable=False)
-    parser_config = Column(PickleType, nullable=False)
+    parser_module_id = Column(ForeignKey('parser_module.id'), nullable=True)
+    parser_config = Column(PickleType, nullable=True)
 
     bot = relationship('Bot')
     content_module = relationship('ContentModule')
     parser_module = relationship('ParserModule')
+
+    def __repr__(self):
+        return '<Node(%d)>' % self.bot_id
+
+    def build_linkages(self, links):
+        """Build linkage according to links.
+
+        Args:
+            links: is a list of bb8.backend.module_api.LinkageItem
+        """
+
+        for link in links:
+            end_node_id = link.end_node_id if link.end_node_id else self.id
+            Linkage(start_node_id=self.id,
+                    end_node_id=end_node_id,
+                    action_ident=link.action_ident,
+                    ack_message=link.ack_message).add()
+        self.commit()
 
 
 class Platform(DeclarativeBase, QueryHelperMixin):
@@ -334,7 +345,7 @@ class Platform(DeclarativeBase, QueryHelperMixin):
     bot_id = Column(ForeignKey('bot.id'), nullable=False)
     type_enum = Column(Enum(PlatformTypeEnum), nullable=False)
     provider_ident = Column(String(512), nullable=False)
-    configuration = Column(PickleType, nullable=False)
+    config = Column(PickleType, nullable=False)
 
 
 class Linkage(DeclarativeBase, QueryHelperMixin):

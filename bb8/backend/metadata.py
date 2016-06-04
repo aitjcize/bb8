@@ -8,37 +8,12 @@
     Copyright 2016 bb8 Authors
 """
 
-from sqlalchemy.ext.mutable import Mutable, MutableList, MutableComposite
+import json
+
+from sqlalchemy.ext.mutable import Mutable
 
 
-class SessionStack(MutableList):
-    @classmethod
-    def coerce(cls, key, value):
-        if not isinstance(value, cls):
-            if isinstance(value, list):
-                s = SessionStack()
-                for i, x in enumerate(value):
-                    s.append(SessionRecord.coerce(i, x))
-                return s
-            return MutableList.coerce(key, value)
-        else:
-            return value
-
-    def __repr__(self):
-        return '<SessionStack(%s)>' % (super(SessionStack, self).__repr__())
-
-    def __hash__(self):
-        return hash(str(self))
-
-    def refresh(self, index):
-        """Temporarily solution for force update of list value...
-        Remove this until we can figure out a better way to perform mutation
-        tracking on list."""
-        # TODO(aitjcize): remove this and replace with mutation tracking
-        self[index] = self[index]
-
-
-class SessionRecord(MutableComposite):
+class SessionRecord(Mutable):
     def __init__(self, node_id):
         self._node_id = node_id
         self._message_sent = False
@@ -73,3 +48,18 @@ class SessionRecord(MutableComposite):
 
     def __setstate__(self, state):
         self._node_id, self._message_sent = state
+
+
+class UserInput(object):
+    def __init__(self, data):
+        self.jump_node_id = None
+        self.text = data
+        try:
+            obj = json.loads(data)
+            self.jump_node_id = obj['node_id']
+            self.text = obj['payload']
+        except Exception:
+            self.is_text = False
+
+    def jump(self):
+        return self.jump_node_id is not None

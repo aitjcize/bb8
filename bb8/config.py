@@ -18,7 +18,7 @@ class Config(object):
     LOCK_DIR = BB8_ROOT + '/lock'
     RECORDS_PER_PAGE = 50
 
-    #: Log
+    # Log
     LOG_DIR = BB8_ROOT + '/log'
     LOG_FILE = LOG_DIR + '/message.log'
 

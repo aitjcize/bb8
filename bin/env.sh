@@ -7,5 +7,5 @@ if [ -e $GITROOT/.env ]; then
   source $GITROOT/.env/bin/activate
 fi
 
-export PATH=$SCRIPT_DIR:$PATH
+export PATH=$PWD/$SCRIPT_DIR:$PATH
 export PYTHONPATH=$PWD/$GITROOT
