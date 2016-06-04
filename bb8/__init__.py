@@ -9,6 +9,7 @@
 import os
 
 from bb8 import config as Config
+from bb8.logger import Logger
 
 config = None
 
@@ -16,3 +17,5 @@ if not os.getenv('CIRCLE_CI', '') == 'true':
     config = Config.TestingConfig()
 else:
     config = Config.DevelopmentConfig()  # pylint: disable=R0204
+
+logger = Logger(config)
