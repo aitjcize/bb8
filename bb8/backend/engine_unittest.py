@@ -71,8 +71,8 @@ class EngineUnittest(unittest.TestCase):
                        `----------`
         """
 
-        content = ContentModule(name='Empty', description='empty',
-                                module_name='test.empty',
+        content = ContentModule(name='Empty', description='Send text message',
+                                module_name='text_message',
                                 ui_module_name='').add()
         parser = ParserModule(name='Literal', module_name='test.literal',
                               description='Return user input as action_ident',
@@ -221,15 +221,11 @@ class EngineUnittest(unittest.TestCase):
 
         # Try normal path
         engine.step(self.bot, self.user, UserInput('gotoB'))
-        self.assertEquals(self.user.session.message_sent, False)
         self.assertEquals(self.user.session.node_id, node_B.id)
-        engine.step(self.bot, self.user)
 
         # Another normal path try
         engine.step(self.bot, self.user, UserInput('gotoC'))
-        self.assertEquals(self.user.session.message_sent, False)
         self.assertEquals(self.user.session.node_id, node_C.id)
-        engine.step(self.bot, self.user)
 
         # Try global command
         engine.step(self.bot, self.user, UserInput('help'))
@@ -251,8 +247,6 @@ class EngineUnittest(unittest.TestCase):
         self.assertEquals(self.user.session.node_id, node_D.id)
 
         engine.step(self.bot, self.user, UserInput('gotoE'))
-        self.assertEquals(self.user.session.node_id, node_E.id)
-        engine.step(self.bot, self.user)  # E display
         self.assertEquals(self.user.session.message_sent, True)
         self.assertEquals(self.user.session.node_id, node_root.id)
 
