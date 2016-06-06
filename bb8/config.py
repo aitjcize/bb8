@@ -22,6 +22,11 @@ class Config(object):
     LOG_DIR = BB8_ROOT + '/log'
     LOG_FILE = LOG_DIR + '/message.log'
 
+    # Webhooks
+    BOT_WEBHOOOK_ROOT = '/bot'
+    FACEBOOK_WEBHOOK_PATH = BOT_WEBHOOOK_ROOT + "/facebook"
+    LINE_WEBHOOK_PATH = BOT_WEBHOOOK_ROOT + "/line"
+
 
 class DevelopmentConfig(Config):
     DEBUG = True

@@ -11,12 +11,18 @@
 from bb8.backend.module_api import LinkageItem
 
 
-def run(unused_parser_config, user_input):
-    return user_input.text
+def run(parser_config, user_input):
+    action_idents = [x['action_ident'] for x in parser_config['links']]
+
+    if user_input.text in action_idents:
+        return user_input.text
+    return '$error'
 
 
 def get_linkages(parser_config):
     links = []
+    links.append(LinkageItem('$error', None,
+                             'Invalid command, please re-enter'))
     for link in parser_config['links']:
         links.append(LinkageItem(link['action_ident'], link['end_node_id'],
                                  link['ack_message']))
