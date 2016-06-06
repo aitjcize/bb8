@@ -98,6 +98,8 @@ class Engine(object):
             else:
                 link = self.run_parser_module(bot.root_node, user_input)
                 if link:  # There is a global command match
+                    messaging.send_message(
+                        user, messaging.Message(link.ack_message))
                     user.goto(link.end_node_id)
                     self.step(bot, user, user_input)
                     return
@@ -115,13 +117,16 @@ class Engine(object):
 
                 user.goto(link.end_node_id)
 
+                messaging.send_message(
+                    user, messaging.Message(link.ack_message))
+
                 # If we are going back the same node, assume there is an error
                 # and we want to retry. Don't send message in this case.
                 if link.end_node_id == node.id and node.id != bot.root_node_id:
                     user.session.message_sent = True
+                    return
 
-                if link.ack_message:
-                    messaging.send_message(user,
-                                           messaging.Message(link.ack_message))
+                self.step(bot, user)
         finally:
+            user.last_seen = time.time()
             user.commit()

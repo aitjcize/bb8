@@ -41,7 +41,12 @@ class G(object):
 
 
 # Global object for managing session
-g = G()
+try:
+    # Use flask's global object if available
+    from flask import g  # pylint: disable=C0411,C0413
+    g.db = None
+except Exception:
+    g = G()
 
 
 class DatabaseManager(object):
@@ -128,6 +133,9 @@ class DatabaseManager(object):
 
 class QueryHelperMixin(object):
     db_manager = DatabaseManager()
+
+    def __repr__(self):
+        return '<%s(\'%d\')>' % (type(self).__name__, self.id)
 
     @classmethod
     def commit(cls):
@@ -319,9 +327,6 @@ class Node(DeclarativeBase, QueryHelperMixin):
     content_module = relationship('ContentModule')
     parser_module = relationship('ParserModule')
 
-    def __repr__(self):
-        return '<Node(%d)>' % self.bot_id
-
     def build_linkages(self, links):
         """Build linkage according to links.
 
@@ -346,6 +351,8 @@ class Platform(DeclarativeBase, QueryHelperMixin):
     type_enum = Column(Enum(PlatformTypeEnum), nullable=False)
     provider_ident = Column(String(512), nullable=False)
     config = Column(PickleType, nullable=False)
+
+    bot = relationship('Bot')
 
 
 class Linkage(DeclarativeBase, QueryHelperMixin):
