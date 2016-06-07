@@ -75,6 +75,10 @@ class PopulateTestDataUnitTest(unittest.TestCase):
                                       description='Imgur',
                                       module_name='imgur',
                                       ui_module_name='').add()
+        youbike_content = ContentModule(name='Youbike',
+                                        description='Youbike',
+                                        module_name='youbike',
+                                        ui_module_name='').add()
         parser = ParserModule(name='Literal', module_name='test.literal',
                               description='Return user input as action_ident',
                               ui_module_name='').add()
@@ -102,10 +106,16 @@ class PopulateTestDataUnitTest(unittest.TestCase):
                              'text': 'Type "help" for command usage. You are '
                                      'now in root node, available global '
                                      'commands: "help", "globalA", "globalD", '
-                                     '"imgur".'
+                                     '"imgur", "youbike".'
                          },
                          parser_module_id=global_parser.id,
                          parser_config={}).add()
+
+        node_loc = Node(bot_id=self.bot.id, expect_input=True,
+                        content_module_id=content.id, content_config={
+                            'text': 'Where are you at?'
+                        }, parser_module_id=response_parser.id,
+                        parser_config={}).add()
 
         node_res = Node(bot_id=self.bot.id, expect_input=True,
                         content_module_id=content.id, content_config={
@@ -123,6 +133,11 @@ class PopulateTestDataUnitTest(unittest.TestCase):
                                                    'f76a313bb835148'
                               }
                           }).add()
+        node_youbike = Node(bot_id=self.bot.id, expect_input=False,
+                            content_module_id=youbike_content.id,
+                            content_config={
+                                'location': '{{response}},{{location}}',
+                            }).add()
         node_A = Node(bot_id=self.bot.id, expect_input=True,
                       content_module_id=content.id, content_config={
                           'text': 'You are in node A. Available command: '
@@ -179,7 +194,22 @@ class PopulateTestDataUnitTest(unittest.TestCase):
                     'end_node_id': node_res.id,
                     'ack_message': '',
                 },
+                {
+                    'action_ident': 'youbike',
+                    'end_node_id': node_loc.id,
+                    'ack_message': '',
+                },
+                {
+                    'action_ident': '$location',
+                    'end_node_id': node_youbike.id,
+                    'ack_message': 'Got your location.',
+                },
             ]
+        }
+        node_loc.parser_config = {
+            'type': 'location',
+            'end_node_id': node_youbike.id,
+            'ack_message': 'Got it.',
         }
         node_res.parser_config = {
             'type': 'text',
@@ -239,8 +269,8 @@ class PopulateTestDataUnitTest(unittest.TestCase):
         self.bot.start_node_id = node_start.id
 
 
-        nodes = [node_start, node_root, node_res, node_imgur, node_A, node_B,
-                 node_C, node_D, node_E]
+        nodes = [node_start, node_root, node_loc, node_res, node_imgur,
+                 node_youbike, node_A, node_B, node_C, node_D, node_E]
 
         for node in nodes:
             if node.parser_module:
