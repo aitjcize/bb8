@@ -12,7 +12,8 @@ import re
 from messaging import Message  # pylint: disable=W0611
 
 
-variables_extract = re.compile("{{(.*?)}}")
+variable_re = re.compile("^{{(.*?)}}$")
+has_variable_re = re.compile("{{(.*?)}}")
 
 
 class LinkageItem(object):
@@ -35,11 +36,11 @@ def Render(template, variables):
     """Render template with variables."""
     def replace(m):
         return variables.get(m.group(1), m.group(0))
-    return variables_extract.sub(replace, template)
+    return has_variable_re.sub(replace, template)
 
 
 def IsVariable(text):
-    return variables_extract.search(text) is not None
+    return variable_re.search(text) is not None
 
 
 def Resolve(text, variables):
@@ -50,7 +51,7 @@ def Resolve(text, variables):
         options = [text]
 
     for option in options:
-        m = variables_extract.search(option)
+        m = variable_re.match(option)
         if m and m.group(1) in variables:
             return variables[m.group(1)]
     return text
