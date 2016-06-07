@@ -32,10 +32,11 @@ class Message(object):
             self._type = b_type
             self._title = title
             self._url = url
+            self._payload = None
 
             if payload:
-                if isinstance(payload, str):
-                    self._payload = payload
+                if isinstance(payload, str) or isinstance(payload, unicode):
+                    self._payload = str(payload)
                 elif isinstance(payload, dict):
                     self._payload = json.dumps(payload)
 
@@ -50,7 +51,7 @@ class Message(object):
             if self._type == Message.ButtonType.WEB_URL:
                 data['url'] = self._url
             else:
-                data['postback'] = self._payload
+                data['payload'] = self._payload
             return data
 
     class Bubble(object):

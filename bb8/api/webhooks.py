@@ -30,8 +30,7 @@ def receive(platform_id):
     engine = Engine()
 
     for entry in request.json['entry']:
-        messagings = entry['messaging']
-        for message in messagings:
+        for message in entry['messaging']:
             sender = message['sender']['id']
 
             user = User.get_by(bot_id=bot.id, platform_id=platform.id,
@@ -41,10 +40,17 @@ def receive(platform_id):
                             platform_user_ident=sender, last_seen=0).add()
                 user.commit()
 
-            if message.get('message'):
-                text = message['message'].get('text')
-                if text:
-                    engine.step(bot, user, UserInput(text))
+            user_input = None
+            postback = message.get('postback')
+            if postback:
+                user_input = UserInput(postback=postback)
+
+            msg = message.get('message')
+            if msg:
+                user_input = UserInput(msg)
+
+            if user_input:
+                engine.step(bot, user, user_input)
 
     return 'ok'
 

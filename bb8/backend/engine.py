@@ -67,18 +67,31 @@ class Engine(object):
                 user.goto(bot.start_node_id)
 
             if user_input and user_input.jump():
+                node = Node.get_by(id=user_input.jump_node_id, bot_id=bot.id,
+                                   single=True)
+                # Check if the node belongs to current bot
+                if node is None:
+                    logger.critical('Invalid jump node_id %d' %
+                                    user_input.jump_node_id)
                 # If payload button is pressed, we need to jump to the
                 # corresponding node if payload's node_id != current_node_id
-                if user_input.jump_node_id != user.session.node_id:
+                elif user_input.jump_node_id != user.session.node_id:
                     user.goto(user_input.jump_node_id)
+                    user.session.message_sent = True
 
             node = Node.get_by(id=user.session.node_id,
                                eager=['content_module', 'parser_module'],
                                single=True)
 
+            if node is None:
+                logger.critical('Invalid node_id %d' % user.session.node_id)
+                user.goto(bot.start_node_id)
+                return self.step(bot, user, user_input)
+
             if not user.session.message_sent:
+                env = {'node_id': node.id}
                 cm = self.get_content_module(node.content_module.module_name)
-                messages = cm.run(node.content_config)
+                messages = cm.run(node.content_config, env)
                 messaging.send_message(user, messages)
 
                 user.session.message_sent = True
@@ -93,23 +106,28 @@ class Engine(object):
                         return
                     # Has parser module, parser module should be a passthrough
                     # module
-                    self.step(bot, user, user_input)
-                    return
+                    return self.step(bot, user)
             else:
                 link = self.run_parser_module(bot.root_node, user_input)
                 if link:  # There is a global command match
-                    messaging.send_message(
-                        user, messaging.Message(link.ack_message))
+                    if link.ack_message:
+                        messaging.send_message(
+                            user, messaging.Message(link.ack_message))
                     user.goto(link.end_node_id)
-                    self.step(bot, user, user_input)
-                    return
+                    return self.step(bot, user, user_input)
 
                 # We are already at root node and there is no match on global
                 # command. Display root node again.
                 if node.id == bot.root_node_id:
                     user.session.message_sent = False
-                    self.step(bot, user, user_input)
-                    return
+                    return self.step(bot, user, user_input)
+
+                # No parser module associate with this node, go back to root
+                # node.
+                if node.parser_module is None:
+                    user.goto(bot.root_node_id)
+                    user.session.message_sent = True
+                    return self.step(bot, user)
 
                 link = self.run_parser_module(node, user_input)
                 if link is None:  # No matching linkage, we have a bug here.
@@ -117,8 +135,9 @@ class Engine(object):
 
                 user.goto(link.end_node_id)
 
-                messaging.send_message(
-                    user, messaging.Message(link.ack_message))
+                if link.ack_message:
+                    messaging.send_message(
+                        user, messaging.Message(link.ack_message))
 
                 # If we are going back the same node, assume there is an error
                 # and we want to retry. Don't send message in this case.

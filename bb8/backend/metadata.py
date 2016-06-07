@@ -51,15 +51,26 @@ class SessionRecord(Mutable):
 
 
 class UserInput(object):
-    def __init__(self, data):
+    def __init__(self, message=None, postback=None):
+        self.text = None
+        self.attachments = None
         self.jump_node_id = None
-        self.text = data
-        try:
-            obj = json.loads(data)
-            self.jump_node_id = obj['node_id']
-            self.text = obj['payload']
-        except Exception:
-            self.is_text = False
+
+        if message:
+            self.text = message.get('text')
+            self.attachments = message.get('attachments')
+
+        if postback:
+            try:
+                payload = json.loads(postback['payload'])
+                self.text = payload['payload']
+                self.jump_node_id = int(payload['node_id'])
+            except ValueError:
+                pass
+
+    @classmethod
+    def Text(cls, text):
+        return UserInput({'text': text})
 
     def jump(self):
         return self.jump_node_id is not None
