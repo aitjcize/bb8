@@ -31,7 +31,26 @@ def Payload(payload, env):
     return {'node_id': env['node_id'], 'payload': payload}
 
 
-def Resolve(text, variables):
+def Render(template, variables):
+    """Render template with variables."""
     def replace(m):
         return variables.get(m.group(1), m.group(0))
-    return variables_extract.sub(replace, text)
+    return variables_extract.sub(replace, template)
+
+
+def IsVariable(text):
+    return variables_extract.search(text) is not None
+
+
+def Resolve(text, variables):
+    """Resolve text into variable value."""
+    if ',' in text:
+        options = text.split(',')
+    else:
+        options = [text]
+
+    for option in options:
+        m = variables_extract.search(option)
+        if m and m.group(1) in variables:
+            return variables[m.group(1)]
+    return text
