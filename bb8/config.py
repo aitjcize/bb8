@@ -24,7 +24,11 @@ class Config(object):
 
     # Webhooks
     BOT_WEBHOOOK_ROOT = '/bot'
+
+    # Facebook
     FACEBOOK_WEBHOOK_PATH = BOT_WEBHOOOK_ROOT + "/facebook"
+    FACEBOOK_WEBHOOK_VALIDATION_TOKEN = "meow_meow_meow"
+
     LINE_WEBHOOK_PATH = BOT_WEBHOOOK_ROOT + "/line"
 
 
