@@ -6,21 +6,21 @@
     Copyright 2016 bb8 Authors
 """
 
+import importlib
+
 import enum
 
 from sqlalchemy import create_engine
-from sqlalchemy import (Column, ForeignKey, Integer, String, Table, Text,
-                        PickleType)
+from sqlalchemy import (Boolean, Column, Enum, ForeignKey, Integer, String,
+                        Table, Text, PickleType)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (scoped_session, sessionmaker, joinedload,
                             relationship, object_session)
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import has_identity
 
-# TODO(aitjcize): remove this when SQLA release verson 1.1
-from sqlalchemy_enum34 import EnumType
-
 from bb8 import config
+from bb8.backend.metadata import SessionRecord
 
 
 DeclarativeBase = declarative_base()
@@ -43,7 +43,12 @@ class G(object):
 
 
 # Global object for managing session
-g = G()
+try:
+    # Use flask's global object if available
+    from flask import g  # pylint: disable=C0411,C0413
+    g.db = None
+except Exception:
+    g = G()
 
 
 class DatabaseManager(object):
@@ -61,8 +66,8 @@ class DatabaseManager(object):
         elif not cls.engine:
             cls.create_engine()
 
-        Session = scoped_session(sessionmaker(bind=cls.engine))
-        g.db = Session()
+        ScopedSession = scoped_session(sessionmaker(bind=cls.engine))
+        g.db = ScopedSession()
 
     @classmethod
     def disconnect(cls, commit=True):
@@ -123,9 +128,16 @@ class DatabaseManager(object):
     def flush(cls):
         g.db.flush()
 
+    @classmethod
+    def rollback(cls):
+        g.db.rollback()
+
 
 class QueryHelperMixin(object):
     db_manager = DatabaseManager()
+
+    def __repr__(self):
+        return '<%s(\'%d\')>' % (type(self).__name__, self.id)
 
     @classmethod
     def commit(cls):
@@ -179,7 +191,7 @@ class QueryHelperMixin(object):
 
         if single:
             try:
-                return query_object.one()
+                return query_object.limit(1).one()
             except NoResultFound:
                 return None
         return query_object.all()
@@ -257,7 +269,6 @@ class Account(DeclarativeBase, QueryHelperMixin):
     passwd = Column(String(256), nullable=False)
 
     bots = relationship('Bot', secondary='account_bot')
-    users = relationship('User')
 
 
 class PlatformTypeEnum(enum.Enum):
@@ -265,22 +276,11 @@ class PlatformTypeEnum(enum.Enum):
     Line = 'LINE'
 
 
-class User(DeclarativeBase, QueryHelperMixin):
-    __tablename__ = 'user'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    account_id = Column(ForeignKey('account.id'), nullable=False)
-    platform_type_enum = Column(EnumType(PlatformTypeEnum), nullable=False)
-    platform_user_id = Column(String(512), nullable=False)
-    session_stack = Column(PickleType, nullable=False)
-
-    colleted_data = relationship('ColletedDatum')
-
-
 class Bot(DeclarativeBase, QueryHelperMixin):
     __tablename__ = 'bot'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(256), nullable=False)
     description = Column(String(512), nullable=False)
     interaction_timeout = Column(Integer, nullable=False)
     session_timeout = Column(Integer, nullable=False)
@@ -290,20 +290,59 @@ class Bot(DeclarativeBase, QueryHelperMixin):
     orphan_nodes = relationship('Node', secondary='bot_node')
     platforms = relationship('Platform')
 
+    @property
+    def root_node(self):
+        return Node.get_by(id=self.root_node_id, single=True)
+
+
+class User(DeclarativeBase, QueryHelperMixin):
+    __tablename__ = 'user'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    bot_id = Column(ForeignKey('bot.id'), nullable=False)
+    platform_id = Column(ForeignKey('platform.id'), nullable=False)
+    platform_user_ident = Column(String(512), nullable=False)
+    last_seen = Column(Integer, nullable=False)
+    login_token = Column(String(512), nullable=True)
+    session = Column(SessionRecord.as_mutable(PickleType), nullable=True)
+
+    platform = relationship('Platform')
+    colleted_data = relationship('ColletedDatum')
+
+    def goto(self, node_id):
+        """Goto a node."""
+        self.session = SessionRecord(node_id)
+
 
 class Node(DeclarativeBase, QueryHelperMixin):
     __tablename__ = 'node'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     bot_id = Column(ForeignKey('bot.id'), nullable=False)
+    expect_input = Column(Boolean, nullable=False)
     content_module_id = Column(ForeignKey('content_module.id'), nullable=False)
     content_config = Column(PickleType, nullable=False)
-    parser_module_id = Column(ForeignKey('parser_module.id'), nullable=False)
-    parser_config = Column(PickleType, nullable=False)
+    parser_module_id = Column(ForeignKey('parser_module.id'), nullable=True)
+    parser_config = Column(PickleType, nullable=True)
 
     bot = relationship('Bot')
     content_module = relationship('ContentModule')
     parser_module = relationship('ParserModule')
+
+    def build_linkages(self, links):
+        """Build linkage according to links.
+
+        Args:
+            links: is a list of bb8.backend.module_api.LinkageItem
+        """
+
+        for link in links:
+            end_node_id = link.end_node_id if link.end_node_id else self.id
+            Linkage(start_node_id=self.id,
+                    end_node_id=end_node_id,
+                    action_ident=link.action_ident,
+                    ack_message=link.ack_message).add()
+        self.commit()
 
 
 class Platform(DeclarativeBase, QueryHelperMixin):
@@ -311,17 +350,11 @@ class Platform(DeclarativeBase, QueryHelperMixin):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     bot_id = Column(ForeignKey('bot.id'), nullable=False)
-    type_enum = Column(EnumType(PlatformTypeEnum), nullable=False)
+    type_enum = Column(Enum(PlatformTypeEnum), nullable=False)
     provider_ident = Column(String(512), nullable=False)
-    configuration = Column(PickleType, nullable=False)
+    config = Column(PickleType, nullable=False)
 
-
-class Action(DeclarativeBase, QueryHelperMixin):
-    __tablename__ = 'action'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(256), nullable=False)
-    description = Column(String(512), nullable=False)
+    bot = relationship('Bot')
 
 
 class Linkage(DeclarativeBase, QueryHelperMixin):
@@ -330,13 +363,12 @@ class Linkage(DeclarativeBase, QueryHelperMixin):
     id = Column(Integer, primary_key=True, autoincrement=True)
     start_node_id = Column(ForeignKey('node.id'), nullable=False)
     end_node_id = Column(ForeignKey('node.id'), nullable=False)
-    action_id = Column(ForeignKey('action.id'), nullable=False)
+    action_ident = Column(String(256), nullable=False)
     ack_message = Column(Text, nullable=False)
 
     start_node = relationship('Node', foreign_keys=[start_node_id],
                               backref='linkages')
     end_node = relationship('Node', foreign_keys=[end_node_id])
-    action = relationship('Action')
 
 
 class ContentModule(DeclarativeBase, QueryHelperMixin):
@@ -344,8 +376,15 @@ class ContentModule(DeclarativeBase, QueryHelperMixin):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(256), nullable=False)
-    content_filename = Column(String(256), nullable=False)
-    ui_filename = Column(String(256), nullable=False)
+    description = Column(Text, nullable=False)
+    module_name = Column(String(256), nullable=False)
+    ui_module_name = Column(String(256), nullable=False)
+
+    CONTENT_MODULES = 'bb8.backend.content_modules'
+
+    def get_module(self):
+        return importlib.import_module(
+            '%s.%s' % (self.CONTENT_MODULES, self.module_name))
 
 
 class ParserModule(DeclarativeBase, QueryHelperMixin):
@@ -353,11 +392,24 @@ class ParserModule(DeclarativeBase, QueryHelperMixin):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(256), nullable=False)
-    content_filename = Column(String(256), nullable=False)
-    ui_filename = Column(String(256), nullable=False)
+    description = Column(Text, nullable=False)
+    module_name = Column(String(256), nullable=False)
+    ui_module_name = Column(String(256), nullable=False)
     variables = Column(PickleType, nullable=False)
 
-    actions = relationship('Action', secondary='parser_module_action')
+    PARSER_MODULES = 'bb8.backend.parser_modules'
+
+    def __init__(self, **kwargs):
+        pm = self.get_module(kwargs['module_name'])
+        kwargs['variables'] = pm.get_variables()
+
+        super(ParserModule, self).__init__(**kwargs)
+
+    def get_module(self, name=None):
+        if name is None:
+            name = self.module_name
+        return importlib.import_module(
+            '%s.%s' % (self.PARSER_MODULES, name))
 
 
 class ColletedDatum(DeclarativeBase, QueryHelperMixin):
@@ -381,7 +433,7 @@ class Conversation(DeclarativeBase, QueryHelperMixin):
     id = Column(Integer, primary_key=True, autoincrement=True)
     bot_id = Column(ForeignKey('bot.id'), nullable=False)
     user_id = Column(ForeignKey('user.id'), nullable=False)
-    sender_enum = Column(EnumType(SenderEnum), nullable=False)
+    sender_enum = Column(Enum(SenderEnum), nullable=False)
     msg = Column(PickleType, nullable=False)
 
     user = relationship('User')
@@ -408,11 +460,4 @@ t_bot_node = Table(
     'bot_node', metadata,
     Column('bot_id', ForeignKey('bot.id'), nullable=False),
     Column('node_id', ForeignKey('node.id'), nullable=False)
-)
-
-
-t_parser_module_action = Table(
-    'parser_module_action', metadata,
-    Column('parser_module_id', ForeignKey('parser_module.id'), nullable=False),
-    Column('action_id', ForeignKey('action.id'), nullable=False)
 )
