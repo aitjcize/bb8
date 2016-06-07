@@ -69,7 +69,7 @@ class SchemaUnittest(unittest.TestCase):
         content = ContentModule(name='Content1', description='desc',
                                 module_name='', ui_module_name='').add()
         parser = ParserModule(name='Parser1', description='desc',
-                              module_name='', ui_module_name='',
+                              module_name='passthrough', ui_module_name='',
                               variables={}).add()
 
         account.bots.append(bot)

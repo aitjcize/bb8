@@ -57,7 +57,7 @@ class EngineUnittest(unittest.TestCase):
         self.passthrough = ParserModule(name='Passthrough',
                                         module_name='passthrough',
                                         description='Passthrough to some node',
-                                        ui_module_name='', variables={}).add()
+                                        ui_module_name='').add()
         self.dbm.commit()
 
     def test_simple_graph(self):
@@ -76,11 +76,11 @@ class EngineUnittest(unittest.TestCase):
                                 ui_module_name='').add()
         parser = ParserModule(name='Literal', module_name='test.literal',
                               description='Return user input as action_ident',
-                              ui_module_name='', variables={}).add()
+                              ui_module_name='').add()
         global_parser = ParserModule(name='Global command',
                                      module_name='test.literal_root',
                                      description='Global command parser',
-                                     ui_module_name='', variables={}).add()
+                                     ui_module_name='').add()
         self.dbm.commit()
 
         # Build test graph
@@ -185,10 +185,10 @@ class EngineUnittest(unittest.TestCase):
 
         engine = Engine()
 
-        pm = engine.get_parser_module(self.passthrough.module_name)
+        pm = self.passthrough.get_module()
         node_start.build_linkages(pm.get_linkages(node_start.parser_config))
 
-        pm = engine.get_parser_module(parser.module_name)
+        pm = parser.get_module()
         for n in [node_root, node_A, node_B, node_C, node_D]:
             n.build_linkages(pm.get_linkages(n.parser_config))
 

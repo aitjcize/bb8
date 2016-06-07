@@ -13,9 +13,6 @@ from bb8.backend.database import DatabaseManager
 from bb8.backend.database import (Account, Bot, ContentModule, Node,
                                   ParserModule, Platform, PlatformTypeEnum)
 
-from bb8.backend.engine import Engine
-
-
 class PopulateTestDataUnitTest(unittest.TestCase):
     def setUp(self):
         self.dbm = DatabaseManager()
@@ -80,11 +77,15 @@ class PopulateTestDataUnitTest(unittest.TestCase):
                                       ui_module_name='').add()
         parser = ParserModule(name='Literal', module_name='test.literal',
                               description='Return user input as action_ident',
-                              ui_module_name='', variables={}).add()
+                              ui_module_name='').add()
         global_parser = ParserModule(name='Global command',
                                      module_name='test.literal_root',
                                      description='Global command parser',
-                                     ui_module_name='', variables={}).add()
+                                     ui_module_name='').add()
+        response_parser = ParserModule(name='response',
+                                       module_name='get_response',
+                                       description='Get user reponse',
+                                       ui_module_name='').add()
         self.dbm.commit()
 
         # Build test graph
@@ -105,10 +106,16 @@ class PopulateTestDataUnitTest(unittest.TestCase):
                          },
                          parser_module_id=global_parser.id,
                          parser_config={}).add()
+
+        node_res = Node(bot_id=self.bot.id, expect_input=True,
+                        content_module_id=content.id, content_config={
+                            'text': 'What kind of image do you like?'
+                        }, parser_module_id=response_parser.id,
+                        parser_config={}).add()
         node_imgur = Node(bot_id=self.bot.id, expect_input=False,
                           content_module_id=imgur_content.id, content_config={
-                              'type': 'random',
-                              'term': 'bb8',
+                              'type': 'query',
+                              'term': '{{response}}',
                               'max_count': 5,
                               'auth': {
                                   'client_id': '1c98ef2ca07eff6',
@@ -169,10 +176,15 @@ class PopulateTestDataUnitTest(unittest.TestCase):
                 },
                 {
                     'action_ident': 'imgur',
-                    'end_node_id': node_imgur.id,
+                    'end_node_id': node_res.id,
                     'ack_message': '',
                 },
             ]
+        }
+        node_res.parser_config = {
+            'type': 'text',
+            'end_node_id': node_imgur.id,
+            'ack_message': 'Got it.',
         }
         node_A.parser_config = {
             'links': [
@@ -226,14 +238,16 @@ class PopulateTestDataUnitTest(unittest.TestCase):
         self.bot.root_node_id = node_root.id
         self.bot.start_node_id = node_start.id
 
-        engine = Engine()
 
-        pm = engine.get_parser_module(self.passthrough.module_name)
-        node_start.build_linkages(pm.get_linkages(node_start.parser_config))
+        nodes = [node_start, node_root, node_res, node_imgur, node_A, node_B,
+                 node_C, node_D, node_E]
 
-        pm = engine.get_parser_module(parser.module_name)
-        for n in [node_root, node_A, node_B, node_C, node_D]:
-            n.build_linkages(pm.get_linkages(n.parser_config))
+        for node in nodes:
+            if node.parser_module:
+                pm = node.parser_module.get_module()
+                node.build_linkages(pm.get_linkages(node.parser_config))
+
+        self.dbm.commit()
 
 
 if __name__ == '__main__':
