@@ -36,16 +36,15 @@ class PopulateTestDataUnitTest(unittest.TestCase):
         self.dbm.commit()
 
         config = {
-            "validation_token": "meow_meow_meow",
-            "access_token": "EAAP0okfsZCVkBANNgGSRPG0fsOWJKSQCNegqX8s1qxS7bVd"
-                            "AIsfofqEeoiTtVm11Xgy5vm0MQGHyGtji5AwAXSQTQMAfZBua"
-                            "wZCfy4prQ7IZBoTFyu8EGAYRGFZBwcgBjU2sXUtFMNbzp1M9m"
-                            "MfTNZBdfjjRe3S0PM08vvCYkQ6QZDZD"
+            "access_token": "EAAP0okfsZCVkBANNgGSRPG0fsOWJKSQCNegqX8s1qxS7bVdA"
+                            "IsfofqEeoiTtVm11Xgy5vm0MQGHyGtji5AwAXSQTQMAfZBuaw"
+                            "ZCfy4prQ7IZBoTFyu8EGAYRGFZBwcgBjU2sXUtFMNbzp1M9mM"
+                            "fTNZBdfjjRe3S0PM08vvCYkQ6QZDZD"
         }
 
         self.platform = Platform(bot_id=self.bot.id,
                                  type_enum=PlatformTypeEnum.Facebook,
-                                 provider_ident='facebook_page_id',
+                                 provider_ident='1155924351125985',
                                  config=config).add()
         self.dbm.commit()
 
