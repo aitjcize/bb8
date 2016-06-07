@@ -16,6 +16,9 @@ BB8_GLOBAL_NOMATCH_IDENT = '$bb8.global.nomatch'
 
 
 def run(parser_config, user_input):
+    if user_input.location:
+        return '$location', {'location': user_input.location}
+
     text = user_input.text
     if text in [x['action_ident'] for x in parser_config['links']]:
         return text, {}
@@ -31,4 +34,4 @@ def get_linkages(parser_config):
 
 
 def get_variables():
-    return []
+    return ['location']
