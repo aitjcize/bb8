@@ -40,18 +40,29 @@ def Render(template, variables):
 
 
 def IsVariable(text):
+    if not isinstance(text, str) and not isinstance(text, unicode):
+        return False
     return variable_re.search(text) is not None
 
 
-def Resolve(text, variables):
+def Resolve(obj, variables):
     """Resolve text into variable value."""
-    if ',' in text:
-        options = text.split(',')
+    if not IsVariable(obj):
+        return obj
+
+    m = variable_re.match(str(obj))
+    if not m:
+        return obj
+
+    names = m.group(1)
+
+    if ',' in names:
+        options = names.split(',')
     else:
-        options = [text]
+        options = [names]
 
     for option in options:
-        m = variable_re.match(option)
-        if m and m.group(1) in variables:
-            return variables[m.group(1)]
-    return text
+        if option in variables:
+            return variables[option]
+
+    return obj

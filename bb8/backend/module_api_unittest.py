@@ -34,8 +34,8 @@ class MessageUnittest(unittest.TestCase):
         self.assertEquals(Resolve('{{a}}', variables), 'A')
 
         variables = {'b': 'B'}
-        self.assertEquals(Resolve('{{a}},{{b}}', variables), 'B')
-        self.assertEquals(Resolve('{{a}},{{b}}', {}), '{{a}},{{b}}')
+        self.assertEquals(Resolve('{{a,b}}', variables), 'B')
+        self.assertEquals(Resolve('{{a,b}}', {}), '{{a,b}}')
 
 
 if __name__ == '__main__':
