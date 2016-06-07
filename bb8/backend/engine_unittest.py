@@ -209,44 +209,44 @@ class EngineUnittest(unittest.TestCase):
 
         # Try global gotoA command
         context['message_sent'] = False
-        engine.step(self.bot, self.user, UserInput('gotoA'))
+        engine.step(self.bot, self.user, UserInput.Text('gotoA'))
         self.assertEquals(self.user.session.node_id, node_A.id)
         self.assertEquals(self.user.session.message_sent, True)
         self.assertEquals(context['message_sent'], True)
 
         # Try error path: go back to current node
-        engine.step(self.bot, self.user, UserInput('error'))
+        engine.step(self.bot, self.user, UserInput.Text('error'))
         self.assertEquals(self.user.session.message_sent, True)
         self.assertEquals(self.user.session.node_id, node_A.id)
 
         # Try normal path
-        engine.step(self.bot, self.user, UserInput('gotoB'))
+        engine.step(self.bot, self.user, UserInput.Text('gotoB'))
         self.assertEquals(self.user.session.node_id, node_B.id)
 
         # Another normal path try
-        engine.step(self.bot, self.user, UserInput('gotoC'))
+        engine.step(self.bot, self.user, UserInput.Text('gotoC'))
         self.assertEquals(self.user.session.node_id, node_C.id)
 
         # Try global command
-        engine.step(self.bot, self.user, UserInput('help'))
+        engine.step(self.bot, self.user, UserInput.Text('help'))
         self.assertEquals(self.user.session.node_id, node_root.id)
         self.assertEquals(self.user.session.message_sent, True)
 
         # Try invalid global command in root_node_id
-        engine.step(self.bot, self.user, UserInput('blablabla'))
+        engine.step(self.bot, self.user, UserInput.Text('blablabla'))
         self.assertEquals(self.user.session.node_id, node_root.id)
         self.assertEquals(self.user.session.message_sent, True)
 
         # Try global gotoA command
-        engine.step(self.bot, self.user, UserInput('gotoA'))
+        engine.step(self.bot, self.user, UserInput.Text('gotoA'))
         self.assertEquals(self.user.session.node_id, node_A.id)
         self.assertEquals(self.user.session.message_sent, True)
 
         # Try global gotoD command
-        engine.step(self.bot, self.user, UserInput('gotoD'))
+        engine.step(self.bot, self.user, UserInput.Text('gotoD'))
         self.assertEquals(self.user.session.node_id, node_D.id)
 
-        engine.step(self.bot, self.user, UserInput('gotoE'))
+        engine.step(self.bot, self.user, UserInput.Text('gotoE'))
         self.assertEquals(self.user.session.message_sent, True)
         self.assertEquals(self.user.session.node_id, node_root.id)
 

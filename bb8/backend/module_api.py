@@ -20,3 +20,7 @@ class LinkageItem(object):
         self.action_ident = action_ident
         self.end_node_id = end_node_id
         self.ack_message = ack_message
+
+
+def Payload(payload, env):
+    return {'node_id': env['node_id'], 'payload': payload}
