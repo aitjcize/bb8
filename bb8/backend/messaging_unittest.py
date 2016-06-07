@@ -40,8 +40,8 @@ class MessageUnittest(unittest.TestCase):
                                     payload='payload'))
         self.assertEquals(str(b), '{"buttons": [{"url": "http://test.com", '
                           '"type": "web_url", "title": "test"}, '
-                          '{"postback": "payload", "type": '
-                          '"postback", "title": "test"}], '
+                          '{"type": "postback", "payload": "payload", '
+                          '"title": "test"}], '
                           '"subtitle": "subtitle", "item_url": '
                           '"http://test.com/item_url", "image_url": '
                           '"http://test.com/image_url", "title": "title"}')
@@ -66,8 +66,8 @@ class MessageUnittest(unittest.TestCase):
         self.assertEquals(str(m), '{"attachment": {"type": "template", '
                           '"payload": {"template_type": "generic", "elements":'
                           ' [{"buttons": [{"url": "http://test.com", "type": '
-                          '"web_url", "title": "test"}, {"postback": '
-                          '"payload", "type": "postback", "title": "test"}], '
+                          '"web_url", "title": "test"}, {"type": "postback", '
+                          '"payload": "payload", "title": "test"}], '
                           '"subtitle": "subtitle", '
                           '"item_url": "http://test.com/item_url", '
                           '"image_url": "http://test.com/image_url", '

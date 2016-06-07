@@ -11,8 +11,7 @@ import unittest
 
 from bb8.backend.database import DatabaseManager
 from bb8.backend.database import (Account, Bot, ContentModule, Node,
-                                  ParserModule, Platform, PlatformTypeEnum,
-                                  User)
+                                  ParserModule, Platform, PlatformTypeEnum)
 
 from bb8.backend.engine import Engine
 
@@ -75,6 +74,10 @@ class PopulateTestDataUnitTest(unittest.TestCase):
         content = ContentModule(name='Empty', description='Send text message',
                                 module_name='text_message',
                                 ui_module_name='').add()
+        imgur_content = ContentModule(name='Imgur',
+                                      description='Imgur',
+                                      module_name='imgur',
+                                      ui_module_name='').add()
         parser = ParserModule(name='Literal', module_name='test.literal',
                               description='Return user input as action_ident',
                               ui_module_name='', variables={}).add()
@@ -97,10 +100,22 @@ class PopulateTestDataUnitTest(unittest.TestCase):
                          content_config={
                              'text': 'Type "help" for command usage. You are '
                                      'now in root node, available global '
-                                     'commands: "help", "globalA", "globalD".'
+                                     'commands: "help", "globalA", "globalD", '
+                                     '"imgur".'
                          },
                          parser_module_id=global_parser.id,
                          parser_config={}).add()
+        node_imgur = Node(bot_id=self.bot.id, expect_input=False,
+                          content_module_id=imgur_content.id, content_config={
+                              'type': 'random',
+                              'term': 'bb8',
+                              'max_count': 5,
+                              'auth': {
+                                  'client_id': '1c98ef2ca07eff6',
+                                  'client_secret': 'a804baeb1e569521d27cf914f'
+                                                   'f76a313bb835148'
+                              }
+                          }).add()
         node_A = Node(bot_id=self.bot.id, expect_input=True,
                       content_module_id=content.id, content_config={
                           'text': 'You are in node A. Available command: '
@@ -151,6 +166,11 @@ class PopulateTestDataUnitTest(unittest.TestCase):
                     'action_ident': 'globalD',
                     'end_node_id': node_D.id,
                     'ack_message': 'Goto global command D',
+                },
+                {
+                    'action_ident': 'imgur',
+                    'end_node_id': node_imgur.id,
+                    'ack_message': '',
                 },
             ]
         }
