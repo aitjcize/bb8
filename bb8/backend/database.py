@@ -6,6 +6,8 @@
     Copyright 2016 bb8 Authors
 """
 
+import importlib
+
 import enum
 
 from sqlalchemy import create_engine
@@ -378,6 +380,12 @@ class ContentModule(DeclarativeBase, QueryHelperMixin):
     module_name = Column(String(256), nullable=False)
     ui_module_name = Column(String(256), nullable=False)
 
+    CONTENT_MODULES = 'bb8.backend.content_modules'
+
+    def get_module(self):
+        return importlib.import_module(
+            '%s.%s' % (self.CONTENT_MODULES, self.module_name))
+
 
 class ParserModule(DeclarativeBase, QueryHelperMixin):
     __tablename__ = 'parser_module'
@@ -388,6 +396,20 @@ class ParserModule(DeclarativeBase, QueryHelperMixin):
     module_name = Column(String(256), nullable=False)
     ui_module_name = Column(String(256), nullable=False)
     variables = Column(PickleType, nullable=False)
+
+    PARSER_MODULES = 'bb8.backend.parser_modules'
+
+    def __init__(self, **kwargs):
+        pm = self.get_module(kwargs['module_name'])
+        kwargs['variables'] = pm.get_variables()
+
+        super(ParserModule, self).__init__(**kwargs)
+
+    def get_module(self, name=None):
+        if name is None:
+            name = self.module_name
+        return importlib.import_module(
+            '%s.%s' % (self.PARSER_MODULES, name))
 
 
 class ColletedDatum(DeclarativeBase, QueryHelperMixin):

@@ -7,7 +7,12 @@
     Copyright 2016 bb8 Authors
 """
 
+import re
+
 from messaging import Message  # pylint: disable=W0611
+
+
+variables_extract = re.compile("{{(.*?)}}")
 
 
 class LinkageItem(object):
@@ -24,3 +29,9 @@ class LinkageItem(object):
 
 def Payload(payload, env):
     return {'node_id': env['node_id'], 'payload': payload}
+
+
+def Resolve(text, variables):
+    def replace(m):
+        return variables.get(m.group(1), m.group(0))
+    return variables_extract.sub(replace, text)

@@ -12,10 +12,10 @@ import imgurpython
 
 from imgurpython.imgur.models.gallery_image import GalleryImage
 
-from bb8.backend.module_api import Message, Payload
+from bb8.backend.module_api import Message, Payload, Resolve
 
 
-def run(content_config, env):
+def run(content_config, env, variables):
     """
     content_config schema:
 
@@ -29,7 +29,6 @@ def run(content_config, env):
        }
     }
     """
-
     client = imgurpython.ImgurClient(content_config['auth']['client_id'],
                                      content_config['auth']['client_secret'])
 
@@ -37,7 +36,7 @@ def run(content_config, env):
         images = [x for x in client.gallery_random() if
                   isinstance(x, GalleryImage)]
     else:
-        term = content_config['term']
+        term = Resolve(content_config['term'], variables)
         images = [x for x in client.gallery_search(term) if
                   isinstance(x, GalleryImage)]
 
@@ -53,4 +52,4 @@ def run(content_config, env):
                                     payload=Payload('like %s' % i.link, env)))
         m.add_bubble(c)
 
-    return [m]
+    return [Message('Here are the images you requested'), m]
