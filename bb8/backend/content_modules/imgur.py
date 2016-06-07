@@ -18,7 +18,6 @@ from bb8.backend.module_api import Message, Payload, Resolve
 def run(content_config, env, variables):
     """
     content_config schema:
-
     {
        "type": "random or query",
        "term": "query term if type is query",
