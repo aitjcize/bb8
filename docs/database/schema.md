@@ -14,8 +14,8 @@
 ## Node
 Life cycle of a node:
 
-1. Check if user has been idle for `session_timeout` seconds. If yes, clear the
-   user session stack entirely. Push `start_node_id` onto session stack.
+1. Check if user has been idle for `session_timeout` seconds. If yes, Goto
+   `start_node_id`.
 
 2. Show message of this node based on the output of content module. The
    parameter of content module is the `[action, variables...]` of the previous
@@ -25,26 +25,35 @@ Life cycle of a node:
    - URL Query: e.g. search for product catalogue base on the user input
      (variables). The configuration requires specifiy query url template.
 
+    If there is no parser module or no outgoing links associated with this
+    node. This means that we are at the end of this subgraph. Go to the root
+    node.
+
 3. User input. A user input could either be a regular text message or a payload
    sent by pressing a button.
 
 4. If user input payload contains a `stored_node_id` != `active_node_id`. Then
-   unconditionally jump to the `stored_node_id` without pushing current session
-   onto session stack.
+   unconditionally jump to the `stored_node_id`.
 
 5. Call the root node parser module to parser global commands from user input.
    If there is a match on the global command action:
-   1. Push current user session (active `node_id`) onto session stack.
-   2. Jump to corresponding node.
+   1. Goto target jump `node_id`), then immediately run the next node for
+      displaying message.
 
 6. Call the parser module to parser the user's input. The parser module takes
-   configurationl and generates:
-  - `action_id`: e.g. `content.search`
-  - `variables`: a dictionary. e.g. `{'search_term': 'watch', 'max_result': 5}`
+   configuration and generates:
+   - `action_ident`: e.g. `content.search`
+   - `variables`: a dictionary. e.g. `{'search_term': 'watch', 'max_result': 5}`
 
-7. Pop current session, push `end_node_id` onto session stack.
+   If we are already at root node, it means there are no global command match.
+   In this case we should display the root node again then exit.
 
-8. Goto 1
+   Find the link according to `action_ident`.
+   1. If there are no match, then we have a bug here
+   2. If `link.end_node_id` equals current `node_id`, assuming we are doing a
+      retry, in this case don't display the message again.
+
+7. Goto 1
 
 ```javascript
 {
@@ -83,8 +92,8 @@ Takes input parameter (output variables of parser module) and render message.
 {
   "id": 1,
   "name": "Module Name",
-  "content_filename": "/path/to/content.py",
-  "ui_filename": "/path/to/react/ui/module.js",
+  "module_name": "module_name",
+  "ui_module_name": "module.js",
 }
 ```
 
@@ -95,8 +104,8 @@ Parses user input as action.
 {
   "id": 1,
   "name": "Module Name",
-  "parser_filename": "/path/to/parser.py",
-  "ui_filename": "/path/to/react/ui/module.js",
+  "module_name": "module_name",
+  "ui_module_name": "module.js",
   "actions": [
     {"name": "Search Product", "id": "content.search"},
     ...
@@ -169,6 +178,7 @@ user session stack entirely.
 
 ```javascript
 {
+  "name": "name",
   "description": "description",
   "platforms": [platform.id ...],
   "interaction_timeout": 120,  // broadcast only if user is idle for X secs
@@ -195,13 +205,23 @@ user session stack entirely.
 - 1: line
 - 2: wechat
 
-## Bot User
+## User
 ```javascript
 {
   "id": 1,
   "platform_type": type,  // same as Platform.type enum
   "platform_user_id": id,  // ID specific to platform: Facebook/LINE user ID
-  "session_stack": [node_id_1, node_id_2 ... ], // a stack
+  "last_seeen": 1464871496,  // timestamp since last seen
+}
+```
+
+## Session
+```javascript
+{
+  "id": 1,
+  "bot_id"; 1,
+  "user_id": 1,
+  "session_stack": [session_1, session_2 ... ], // a stack
 }
 ```
 
