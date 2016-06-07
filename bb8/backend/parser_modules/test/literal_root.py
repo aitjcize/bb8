@@ -16,11 +16,10 @@ BB8_GLOBAL_NOMATCH_IDENT = '$bb8.global.nomatch'
 
 
 def run(parser_config, user_input):
-    if user_input:
-        text = user_input.text
-        if text in [x['action_ident'] for x in parser_config['links']]:
-            return text
-    return BB8_GLOBAL_NOMATCH_IDENT
+    text = user_input.text
+    if text in [x['action_ident'] for x in parser_config['links']]:
+        return text, {}
+    return BB8_GLOBAL_NOMATCH_IDENT, {}
 
 
 def get_linkages(parser_config):
@@ -29,3 +28,7 @@ def get_linkages(parser_config):
         links.append(LinkageItem(link['action_ident'], link['end_node_id'],
                                  link['ack_message']))
     return links
+
+
+def get_variables():
+    return []

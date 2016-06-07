@@ -12,11 +12,10 @@ from bb8.backend.module_api import LinkageItem
 
 
 def run(parser_config, user_input):
-    action_idents = [x['action_ident'] for x in parser_config['links']]
-
-    if user_input.text in action_idents:
-        return user_input.text
-    return '$error'
+    text = user_input.text
+    if text in [x['action_ident'] for x in parser_config['links']]:
+        return text, {}
+    return '$error', {}
 
 
 def get_linkages(parser_config):
@@ -27,3 +26,7 @@ def get_linkages(parser_config):
         links.append(LinkageItem(link['action_ident'], link['end_node_id'],
                                  link['ack_message']))
     return links
+
+
+def get_variables():
+    return []

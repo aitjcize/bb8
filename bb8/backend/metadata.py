@@ -54,11 +54,12 @@ class UserInput(object):
     def __init__(self, message=None, postback=None):
         self.text = None
         self.attachments = None
+        self.location = None
         self.jump_node_id = None
 
         if message:
             self.text = message.get('text')
-            self.attachments = message.get('attachments')
+            self.parse_attachments(message.get('attachments'))
 
         if postback:
             try:
@@ -71,6 +72,14 @@ class UserInput(object):
     @classmethod
     def Text(cls, text):
         return UserInput({'text': text})
+
+    def parse_attachments(self, attachments):
+        if not attachments:
+            return
+
+        for att in attachments:
+            if att['type'] == 'location':
+                self.location = att.get('payload')
 
     def jump(self):
         return self.jump_node_id is not None

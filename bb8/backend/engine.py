@@ -6,7 +6,6 @@
     Copyright 2016 bb8 Authors
 """
 
-import importlib
 import time
 
 from bb8 import logger
@@ -16,20 +15,10 @@ from bb8.backend.database import Linkage, Node
 
 
 class Engine(object):
-    CONTENT_MODULES = 'bb8.backend.content_modules'
-    PARSER_MODULES = 'bb8.backend.parser_modules'
     BB8_GLOBAL_NOMATCH_IDENT = '$bb8.global.nomatch'
 
     def __init__(self):
         pass
-
-    @classmethod
-    def get_content_module(cls, name):
-        return importlib.import_module('%s.%s' % (cls.CONTENT_MODULES, name))
-
-    @classmethod
-    def get_parser_module(cls, name):
-        return importlib.import_module('%s.%s' % (cls.PARSER_MODULES, name))
 
     def run_parser_module(self, node, user_input):
         """Execute a parser module of a node, then return linkage.
@@ -38,20 +27,19 @@ class Engine(object):
         of running root parser modele (global command). Return without
         attempting to find a linkage.
         """
-        pm = self.get_parser_module(node.parser_module.module_name)
-
-        action_ident = pm.run(node.parser_config, user_input)
+        pm = node.parser_module.get_module()
+        action_ident, variables = pm.run(node.parser_config, user_input)
         if action_ident == self.BB8_GLOBAL_NOMATCH_IDENT:
-            return None
+            return None, {}
 
         linkage = Linkage.get_by(start_node_id=node.id,
                                  action_ident=action_ident, single=True)
         if linkage is None:
             logger.critical('No machting linkage found for %s with '
                             'action = "%s"' % (node, action_ident))
-        return linkage
+        return linkage, variables
 
-    def step(self, bot, user, user_input=None):
+    def step(self, bot, user, user_input=None, input_variables=None):
         """Main function for executing a node."""
 
         try:
@@ -90,10 +78,9 @@ class Engine(object):
 
             if not user.session.message_sent:
                 env = {'node_id': node.id}
-                cm = self.get_content_module(node.content_module.module_name)
-                messages = cm.run(node.content_config, env)
+                cm = node.content_module.get_module()
+                messages = cm.run(node.content_config, env, input_variables)
                 messaging.send_message(user, messages)
-
                 user.session.message_sent = True
 
                 if not node.expect_input:
@@ -108,13 +95,15 @@ class Engine(object):
                     # module
                     return self.step(bot, user)
             else:
-                link = self.run_parser_module(bot.root_node, user_input)
-                if link:  # There is a global command match
-                    if link.ack_message:
-                        messaging.send_message(
-                            user, messaging.Message(link.ack_message))
-                    user.goto(link.end_node_id)
-                    return self.step(bot, user, user_input)
+                if user_input:
+                    link, variables = self.run_parser_module(bot.root_node,
+                                                             user_input)
+                    if link:  # There is a global command match
+                        if link.ack_message:
+                            messaging.send_message(
+                                user, messaging.Message(link.ack_message))
+                        user.goto(link.end_node_id)
+                        return self.step(bot, user, user_input, variables)
 
                 # We are already at root node and there is no match on global
                 # command. Display root node again.
@@ -127,9 +116,9 @@ class Engine(object):
                 if node.parser_module is None:
                     user.goto(bot.root_node_id)
                     user.session.message_sent = True
-                    return self.step(bot, user)
+                    return self.step(bot, user, variables)
 
-                link = self.run_parser_module(node, user_input)
+                link, variables = self.run_parser_module(node, user_input)
                 if link is None:  # No matching linkage, we have a bug here.
                     return
 
@@ -145,7 +134,8 @@ class Engine(object):
                     user.session.message_sent = True
                     return
 
-                self.step(bot, user)
+                # Run next content module
+                self.step(bot, user, None, variables)
         finally:
             user.last_seen = time.time()
             user.commit()
