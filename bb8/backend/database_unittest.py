@@ -97,15 +97,15 @@ class SchemaUnittest(unittest.TestCase):
         self.assertEquals(len(bot.platforms), 1)
         self.assertEquals(bot.platforms[0].id, platform.id)
 
-        node1 = Node(bot_id=bot.id, expect_input=True,
+        node1 = Node(name='1', bot_id=bot.id, expect_input=True,
                      content_module_id=content.id, content_config={},
                      parser_module_id=parser.id, parser_config={}).add()
 
-        node2 = Node(bot_id=bot.id, expect_input=True,
+        node2 = Node(name='2', bot_id=bot.id, expect_input=True,
                      content_module_id=content.id, content_config={},
                      parser_module_id=parser.id, parser_config={}).add()
 
-        node3 = Node(bot_id=bot.id, expect_input=True,
+        node3 = Node(name='3', bot_id=bot.id, expect_input=True,
                      content_module_id=content.id, content_config={},
                      parser_module_id=parser.id, parser_config={}).add()
 

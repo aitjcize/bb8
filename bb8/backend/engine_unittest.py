@@ -68,37 +68,37 @@ class EngineUnittest(unittest.TestCase):
                       .           ^
                        `----------`
         """
-        node_start = Node(bot_id=self.bot.id, expect_input=False,
+        node_start = Node(name='start', bot_id=self.bot.id, expect_input=False,
                           content_module_id='ai.compose.core.text_message',
                           content_config={},
                           parser_module_id='ai.compose.core.passthrough',
                           parser_config={}).add()
-        node_root = Node(bot_id=self.bot.id, expect_input=True,
+        node_root = Node(name='root', bot_id=self.bot.id, expect_input=True,
                          content_module_id='ai.compose.core.text_message',
                          content_config={},
                          parser_module_id='ai.compose.test.literal_root',
                          parser_config={}).add()
-        node_A = Node(bot_id=self.bot.id, expect_input=True,
+        node_A = Node(name='A', bot_id=self.bot.id, expect_input=True,
                       content_module_id='ai.compose.core.text_message',
                       content_config={},
                       parser_module_id='ai.compose.test.literal',
                       parser_config={}).add()
-        node_B = Node(bot_id=self.bot.id, expect_input=True,
+        node_B = Node(name='B', bot_id=self.bot.id, expect_input=True,
                       content_module_id='ai.compose.core.text_message',
                       content_config={},
                       parser_module_id='ai.compose.test.literal',
                       parser_config={}).add()
-        node_C = Node(bot_id=self.bot.id, expect_input=True,
+        node_C = Node(name='C', bot_id=self.bot.id, expect_input=True,
                       content_module_id='ai.compose.core.text_message',
                       content_config={},
                       parser_module_id='ai.compose.test.literal',
                       parser_config={}).add()
-        node_D = Node(bot_id=self.bot.id, expect_input=True,
+        node_D = Node(name='D', bot_id=self.bot.id, expect_input=True,
                       content_module_id='ai.compose.core.text_message',
                       content_config={},
                       parser_module_id='ai.compose.test.literal',
                       parser_config={}).add()
-        node_E = Node(bot_id=self.bot.id, expect_input=False,
+        node_E = Node(name='E', bot_id=self.bot.id, expect_input=False,
                       content_module_id='ai.compose.core.text_message',
                       content_config={}).add()
         self.dbm.commit()

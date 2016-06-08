@@ -59,6 +59,8 @@ Life cycle of a node:
 {
   "id": 1,
   "bot_id": 1,
+  "name": "name",
+  "description": "description",
   "content": {
     "module_id": 1,
     "config": {...}
