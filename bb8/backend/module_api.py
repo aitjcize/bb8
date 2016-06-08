@@ -28,8 +28,25 @@ class LinkageItem(object):
         self.ack_message = ack_message
 
 
-def Payload(payload, env):
-    return {'node_id': env['node_id'], 'payload': payload}
+def TextPayload(text, env):
+    return {'node_id': env['node_id'], 'message': {'text': text}}
+
+
+def LocationPayload(coordinate, env):
+    return {
+        'node_id': env['node_id'],
+        'message': {
+            'attachments': [{
+                'type': 'location',
+                'payload': {
+                    'coordinates': {
+                        'lat': coordinate[0],
+                        'long': coordinate[1]
+                    }
+                }
+            }]
+        }
+    }
 
 
 def Render(template, variables):
