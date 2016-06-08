@@ -78,6 +78,7 @@ class Engine(object):
 
             if not user.session.message_sent:
                 env = {'node_id': node.id}
+                # TODO(aitjcize): figure out how to deal with cm exceptions
                 cm = node.content_module.get_module()
                 messages = cm.run(node.content_config, env, input_variables)
                 messaging.send_message(user, messages)
