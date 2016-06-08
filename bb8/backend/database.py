@@ -339,6 +339,8 @@ class Node(DeclarativeBase, QueryHelperMixin):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     bot_id = Column(ForeignKey('bot.id'), nullable=False)
+    name = Column(String(128), nullable=False)
+    description = Column(String(512), nullable=True)
     expect_input = Column(Boolean, nullable=False)
     content_module_id = Column(ForeignKey('content_module.id'), nullable=False)
     content_config = Column(PickleType, nullable=False)

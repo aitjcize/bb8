@@ -64,14 +64,14 @@ class PopulateTestDataUnitTest(unittest.TestCase):
                        `----------`
         """
         # Build test graph
-        node_start = Node(bot_id=self.bot.id, expect_input=False,
+        node_start = Node(name='start', bot_id=self.bot.id, expect_input=False,
                           content_module_id='ai.compose.core.text_message',
                           content_config={
                               'text': 'Hi there, this is a demo bot.'
                           },
                           parser_module_id='ai.compose.core.passthrough',
                           parser_config={}).add()
-        node_root = Node(bot_id=self.bot.id, expect_input=True,
+        node_root = Node(name='root', bot_id=self.bot.id, expect_input=True,
                          content_module_id='ai.compose.core.text_message',
                          content_config={
                              'text': 'Type "help" for command usage. You are '
@@ -83,20 +83,20 @@ class PopulateTestDataUnitTest(unittest.TestCase):
                          parser_module_id='ai.compose.test.literal_root',
                          parser_config={}).add()
 
-        node_loc = Node(bot_id=self.bot.id, expect_input=True,
+        node_loc = Node(name='loc', bot_id=self.bot.id, expect_input=True,
                         content_module_id='ai.compose.core.text_message',
                         content_config={
                             'text': 'Where are you at?'
                         }, parser_module_id='ai.compose.core.get_response',
                         parser_config={}).add()
 
-        node_res = Node(bot_id=self.bot.id, expect_input=True,
+        node_res = Node(name='res', bot_id=self.bot.id, expect_input=True,
                         content_module_id='ai.compose.core.text_message',
                         content_config={
                             'text': 'What kind of image do you like?'
                         }, parser_module_id='ai.compose.core.get_response',
                         parser_config={}).add()
-        node_imgur = Node(bot_id=self.bot.id, expect_input=False,
+        node_imgur = Node(name='imgur', bot_id=self.bot.id, expect_input=False,
                           content_module_id='ai.compose.third_party.imgur',
                           content_config={
                               'type': 'query',
@@ -108,13 +108,14 @@ class PopulateTestDataUnitTest(unittest.TestCase):
                                                    'f76a313bb835148'
                               }
                           }).add()
-        node_youbike = Node(bot_id=self.bot.id, expect_input=False,
+        node_youbike = Node(name='youbike', bot_id=self.bot.id,
+                            expect_input=False,
                             content_module_id='ai.compose.third_party.youbike',
                             content_config={
                                 'location': '{{response,location}}',
                                 'max_count': 5,
                             }).add()
-        node_A = Node(bot_id=self.bot.id, expect_input=True,
+        node_A = Node(name='A', bot_id=self.bot.id, expect_input=True,
                       content_module_id='ai.compose.core.text_message',
                       content_config={
                           'text': 'You are in node A. Available command: '
@@ -122,7 +123,7 @@ class PopulateTestDataUnitTest(unittest.TestCase):
                       },
                       parser_module_id='ai.compose.test.literal',
                       parser_config={}).add()
-        node_B = Node(bot_id=self.bot.id, expect_input=True,
+        node_B = Node(name='B', bot_id=self.bot.id, expect_input=True,
                       content_module_id='ai.compose.core.text_message',
                       content_config={
                           'text': 'You are in node B. Available command: '
@@ -130,7 +131,7 @@ class PopulateTestDataUnitTest(unittest.TestCase):
                       },
                       parser_module_id='ai.compose.test.literal',
                       parser_config={}).add()
-        node_C = Node(bot_id=self.bot.id, expect_input=True,
+        node_C = Node(name='C', bot_id=self.bot.id, expect_input=True,
                       content_module_id='ai.compose.core.text_message',
                       content_config={
                           'text': 'You are in node C. Available command: '
@@ -138,7 +139,7 @@ class PopulateTestDataUnitTest(unittest.TestCase):
                       },
                       parser_module_id='ai.compose.test.literal',
                       parser_config={}).add()
-        node_D = Node(bot_id=self.bot.id, expect_input=True,
+        node_D = Node(name='D', bot_id=self.bot.id, expect_input=True,
                       content_module_id='ai.compose.core.text_message',
                       content_config={
                           'text': 'You are in node D. Available command: '
@@ -146,7 +147,7 @@ class PopulateTestDataUnitTest(unittest.TestCase):
                       },
                       parser_module_id='ai.compose.test.literal',
                       parser_config={}).add()
-        node_E = Node(bot_id=self.bot.id, expect_input=False,
+        node_E = Node(name='E', bot_id=self.bot.id, expect_input=False,
                       content_module_id='ai.compose.core.text_message',
                       content_config={
                           'text': 'You are in node E'
