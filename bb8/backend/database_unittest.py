@@ -66,9 +66,9 @@ class SchemaUnittest(unittest.TestCase):
         bot = Bot(name='test', description='test', interaction_timeout=120,
                   session_timeout=86400).add()
 
-        content = ContentModule(name='Content1', description='desc',
+        content = ContentModule(id='test', name='Content1', description='desc',
                                 module_name='', ui_module_name='').add()
-        parser = ParserModule(name='Parser1', description='desc',
+        parser = ParserModule(id='test', name='Parser1', description='desc',
                               module_name='passthrough', ui_module_name='',
                               variables={}).add()
 

@@ -15,6 +15,16 @@ from imgurpython.imgur.models.gallery_image import GalleryImage
 from bb8.backend.module_api import Message, Payload, Resolve
 
 
+def get_module_info():
+    return {
+        'id': 'ai.compose.third_party.imgur',
+        'name': 'Imgur',
+        'description': 'Imgur image search and listing.',
+        'module_name': 'imgur',
+        'ui_module_name': 'imgur',
+    }
+
+
 def run(content_config, env, variables):
     """
     content_config schema:

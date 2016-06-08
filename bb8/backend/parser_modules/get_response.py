@@ -11,6 +11,17 @@
 from bb8.backend.module_api import LinkageItem
 
 
+def get_module_info():
+    return {
+        'id': 'ai.compose.core.get_response',
+        'name': 'User Response',
+        'description': 'Get reponse from user.',
+        'module_name': 'get_response',
+        'ui_module_name': 'get_response',
+        'variables': ['response'],
+    }
+
+
 def run(parser_config, user_input):
     if parser_config['type'] == 'text' and user_input.text:
         return 'next', {'response': user_input.text}
@@ -38,7 +49,3 @@ def get_linkages(parser_config):
                                  'Invalid location, pelase re-send.'))
 
     return links
-
-
-def get_variables():
-    return ['response']
