@@ -15,17 +15,28 @@ def run(parser_config, user_input):
     if parser_config['type'] == 'text' and user_input.text:
         return 'next', {'response': user_input.text}
     elif parser_config['type'] == 'location':
-        return 'next', {'response': user_input.location}
+        if user_input.location:
+            return 'next', {'response': user_input.location}
+        return '$wrong_location', {}
     else:
         return '$error', {}
 
 
 def get_linkages(parser_config):
     links = []
-    links.append(LinkageItem('$error', None,
-                             'Invalid reponse, please re-enter'))
-    links.append(LinkageItem('next', parser_config['end_node_id'],
-                             parser_config['ack_message']))
+
+    for link in parser_config['links']:
+        links.append(LinkageItem(link['action_ident'], link['end_node_id'],
+                                 link['ack_message']))
+
+    if '$error' not in parser_config['links']:
+        links.append(LinkageItem('$error', None,
+                                 'Invalid reponse, please re-enter.'))
+
+    if '$wrong_location' not in parser_config['links']:
+        links.append(LinkageItem('$wrong_location', None,
+                                 'Invalid location, pelase re-send.'))
+
     return links
 
 
