@@ -47,7 +47,7 @@ def IsVariable(text):
 
 def Resolve(obj, variables):
     """Resolve text into variable value."""
-    if not IsVariable(obj):
+    if not IsVariable(obj) or variables is None:
         return obj
 
     m = variable_re.match(str(obj))
