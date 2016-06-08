@@ -21,7 +21,7 @@ def run(parser_config, user_input):
 def get_linkages(parser_config):
     links = []
     links.append(LinkageItem('$error', None,
-                             'Invalid command, please re-enter'))
+                             'Invalid command, please re-enter.'))
     for link in parser_config['links']:
         links.append(LinkageItem(link['action_ident'], link['end_node_id'],
                                  link['ack_message']))
