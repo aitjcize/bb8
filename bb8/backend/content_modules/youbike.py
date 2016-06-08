@@ -14,7 +14,7 @@ import json
 import tempfile
 import urllib
 
-from bb8.backend.module_api import Message, Resolve
+from bb8.backend.module_api import Message, LocationPayload, Resolve
 
 
 GOOGLE_STATIC_MAP_API_KEY = 'AIzaSyBumjctKrdC-SQIITfoJakEffPIz4vR87A'
@@ -112,7 +112,7 @@ class UbikeAPIParser(object):
                                  for x in self._stations.values())
 
 
-def run(content_config, unused_env, variables):
+def run(content_config, env, variables):
     """
     content_config schema:
     {
@@ -122,7 +122,7 @@ def run(content_config, unused_env, variables):
     """
     location = Resolve(content_config['location'], variables)
     if 'coordinates' not in location:
-        return [Message('This is not a valid location!')]
+        return [Message('不正確的輸入，請重新輸入')]
 
     c = (location['coordinates']['lat'], location['coordinates']['long'])
     youbike = UbikeAPIParser()
@@ -137,9 +137,12 @@ def run(content_config, unused_env, variables):
         m.add_marker((float(s['lat']), float(s['lng'])))
 
     msg = Message()
-    msg.add_bubble(Message.Bubble(u'附近的 Ubike 站點',
-                                  image_url=m.build_url(),
-                                  subtitle=u'以下是最近的 %d 個站點' % k))
+    b = Message.Bubble(u'附近的 Ubike 站點',
+                       image_url=m.build_url(),
+                       subtitle=u'以下是最近的 %d 個站點' % k)
+    b.add_button(Message.Button(Message.ButtonType.POSTBACK, u'再次搜尋',
+                                payload=LocationPayload(c, env)))
+    msg.add_bubble(b)
 
     for s in stations:
         m.clear_markers()
