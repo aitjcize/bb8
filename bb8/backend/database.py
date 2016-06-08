@@ -60,6 +60,13 @@ class DatabaseManager(object):
     @classmethod
     def connect(cls, engine=None):
         """Return a SQLAlchemy engine connection."""
+        try:
+            _ = g.db
+        except RuntimeError:
+            pass
+        else:
+            return
+
         if engine:
             cls.engine = engine
             DeclarativeBase.metadata.bind = engine
@@ -133,11 +140,24 @@ class DatabaseManager(object):
         g.db.rollback()
 
 
+class DatabaseSession(object):
+    def __init__(self, disconnect=True):
+        self._disconnect = disconnect
+
+    def __enter__(self):
+        DatabaseManager.connect()
+
+    def __exit__(self, exc_type, exc_value, tb):
+        DatabaseManager.commit()
+        if self._disconnect:
+            DatabaseManager.disconnect()
+
+
 class QueryHelperMixin(object):
     db_manager = DatabaseManager()
 
     def __repr__(self):
-        return '<%s(\'%d\')>' % (type(self).__name__, self.id)
+        return '<%s(\'%s\')>' % (type(self).__name__, self.id)
 
     @classmethod
     def commit(cls):
@@ -374,7 +394,7 @@ class Linkage(DeclarativeBase, QueryHelperMixin):
 class ContentModule(DeclarativeBase, QueryHelperMixin):
     __tablename__ = 'content_module'
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(String(128), primary_key=True)
     name = Column(String(256), nullable=False)
     description = Column(Text, nullable=False)
     module_name = Column(String(256), nullable=False)
@@ -390,7 +410,7 @@ class ContentModule(DeclarativeBase, QueryHelperMixin):
 class ParserModule(DeclarativeBase, QueryHelperMixin):
     __tablename__ = 'parser_module'
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(String(128), primary_key=True)
     name = Column(String(256), nullable=False)
     description = Column(Text, nullable=False)
     module_name = Column(String(256), nullable=False)
@@ -398,12 +418,6 @@ class ParserModule(DeclarativeBase, QueryHelperMixin):
     variables = Column(PickleType, nullable=False)
 
     PARSER_MODULES = 'bb8.backend.parser_modules'
-
-    def __init__(self, **kwargs):
-        pm = self.get_module(kwargs['module_name'])
-        kwargs['variables'] = pm.get_variables()
-
-        super(ParserModule, self).__init__(**kwargs)
 
     def get_module(self, name=None):
         if name is None:

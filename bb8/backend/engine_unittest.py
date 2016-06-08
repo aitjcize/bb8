@@ -10,13 +10,13 @@
 import unittest
 
 from bb8.backend.database import DatabaseManager
-from bb8.backend.database import (Account, Bot, ContentModule, Node,
-                                  ParserModule, Platform, PlatformTypeEnum,
-                                  User)
+from bb8.backend.database import (Account, Bot, Node, Platform,
+                                  PlatformTypeEnum, User)
 
 from bb8.backend import messaging
 from bb8.backend.engine import Engine
 from bb8.backend.metadata import UserInput
+from bb8.backend.module_registration import register_all_modules
 
 
 class EngineUnittest(unittest.TestCase):
@@ -54,11 +54,9 @@ class EngineUnittest(unittest.TestCase):
 
         self.account.bots.append(self.bot)
 
-        self.passthrough = ParserModule(name='Passthrough',
-                                        module_name='passthrough',
-                                        description='Passthrough to some node',
-                                        ui_module_name='').add()
         self.dbm.commit()
+
+        register_all_modules()
 
     def test_simple_graph(self):
         """Test a simple graph
@@ -70,42 +68,39 @@ class EngineUnittest(unittest.TestCase):
                       .           ^
                        `----------`
         """
-
-        content = ContentModule(name='Empty', description='Send text message',
-                                module_name='text_message',
-                                ui_module_name='').add()
-        parser = ParserModule(name='Literal', module_name='test.literal',
-                              description='Return user input as action_ident',
-                              ui_module_name='').add()
-        global_parser = ParserModule(name='Global command',
-                                     module_name='test.literal_root',
-                                     description='Global command parser',
-                                     ui_module_name='').add()
-        self.dbm.commit()
-
-        # Build test graph
         node_start = Node(bot_id=self.bot.id, expect_input=False,
-                          content_module_id=content.id, content_config={},
-                          parser_module_id=self.passthrough.id,
+                          content_module_id='ai.compose.core.text_message',
+                          content_config={},
+                          parser_module_id='ai.compose.core.passthrough',
                           parser_config={}).add()
         node_root = Node(bot_id=self.bot.id, expect_input=True,
-                         content_module_id=content.id,
-                         content_config={}, parser_module_id=global_parser.id,
+                         content_module_id='ai.compose.core.text_message',
+                         content_config={},
+                         parser_module_id='ai.compose.test.literal_root',
                          parser_config={}).add()
         node_A = Node(bot_id=self.bot.id, expect_input=True,
-                      content_module_id=content.id, content_config={},
-                      parser_module_id=parser.id, parser_config={}).add()
+                      content_module_id='ai.compose.core.text_message',
+                      content_config={},
+                      parser_module_id='ai.compose.test.literal',
+                      parser_config={}).add()
         node_B = Node(bot_id=self.bot.id, expect_input=True,
-                      content_module_id=content.id, content_config={},
-                      parser_module_id=parser.id, parser_config={}).add()
+                      content_module_id='ai.compose.core.text_message',
+                      content_config={},
+                      parser_module_id='ai.compose.test.literal',
+                      parser_config={}).add()
         node_C = Node(bot_id=self.bot.id, expect_input=True,
-                      content_module_id=content.id, content_config={},
-                      parser_module_id=parser.id, parser_config={}).add()
+                      content_module_id='ai.compose.core.text_message',
+                      content_config={},
+                      parser_module_id='ai.compose.test.literal',
+                      parser_config={}).add()
         node_D = Node(bot_id=self.bot.id, expect_input=True,
-                      content_module_id=content.id, content_config={},
-                      parser_module_id=parser.id, parser_config={}).add()
+                      content_module_id='ai.compose.core.text_message',
+                      content_config={},
+                      parser_module_id='ai.compose.test.literal',
+                      parser_config={}).add()
         node_E = Node(bot_id=self.bot.id, expect_input=False,
-                      content_module_id=content.id, content_config={}).add()
+                      content_module_id='ai.compose.core.text_message',
+                      content_config={}).add()
         self.dbm.commit()
 
         node_start.parser_config = {
@@ -185,12 +180,11 @@ class EngineUnittest(unittest.TestCase):
 
         engine = Engine()
 
-        pm = self.passthrough.get_module()
-        node_start.build_linkages(pm.get_linkages(node_start.parser_config))
-
-        pm = parser.get_module()
-        for n in [node_root, node_A, node_B, node_C, node_D]:
-            n.build_linkages(pm.get_linkages(n.parser_config))
+        nodes = [node_root, node_A, node_B, node_C, node_D, node_E]
+        for node in nodes:
+            if node.parser_module:
+                pm = node.parser_module.get_module()
+                node.build_linkages(pm.get_linkages(node.parser_config))
 
         # Override module API method for testing
         context = {'message_sent': False}

@@ -3,6 +3,8 @@
     Search for Youbike Info
     ~~~~~~~~~~~~~~~~~~~~~~~
 
+    Youbike info search according to location.
+
     Copyright 2016 bb8 Authors
 """
 
@@ -16,6 +18,16 @@ from bb8.backend.module_api import Message, Resolve
 
 
 GOOGLE_STATIC_MAP_API_KEY = 'AIzaSyBumjctKrdC-SQIITfoJakEffPIz4vR87A'
+
+
+def get_module_info():
+    return {
+        'id': 'ai.compose.third_party.youbike',
+        'name': 'Youbike',
+        'description': 'Youbike info search according to location.',
+        'module_name': 'youbike',
+        'ui_module_name': 'youbike',
+    }
 
 
 class GoogleStaticMapAPIRequestBuilder(object):

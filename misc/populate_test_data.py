@@ -12,6 +12,7 @@ import unittest
 from bb8.backend.database import DatabaseManager
 from bb8.backend.database import (Account, Bot, ContentModule, Node,
                                   ParserModule, Platform, PlatformTypeEnum)
+from bb8.backend.module_registration import register_all_modules
 
 class PopulateTestDataUnitTest(unittest.TestCase):
     def setUp(self):
@@ -50,11 +51,7 @@ class PopulateTestDataUnitTest(unittest.TestCase):
 
         self.account.bots.append(self.bot)
 
-        self.passthrough = ParserModule(name='Passthrough',
-                                        module_name='passthrough',
-                                        description='Passthrough to some node',
-                                        ui_module_name='', variables={}).add()
-        self.dbm.commit()
+        register_all_modules()
 
     def test_populate(self):
         """Test a simple graph
@@ -66,63 +63,42 @@ class PopulateTestDataUnitTest(unittest.TestCase):
                       .           ^
                        `----------`
         """
-
-        content = ContentModule(name='Empty', description='Send text message',
-                                module_name='text_message',
-                                ui_module_name='').add()
-        imgur_content = ContentModule(name='Imgur',
-                                      description='Imgur',
-                                      module_name='imgur',
-                                      ui_module_name='').add()
-        youbike_content = ContentModule(name='Youbike',
-                                        description='Youbike',
-                                        module_name='youbike',
-                                        ui_module_name='').add()
-        parser = ParserModule(name='Literal', module_name='test.literal',
-                              description='Return user input as action_ident',
-                              ui_module_name='').add()
-        global_parser = ParserModule(name='Global command',
-                                     module_name='test.literal_root',
-                                     description='Global command parser',
-                                     ui_module_name='').add()
-        response_parser = ParserModule(name='response',
-                                       module_name='get_response',
-                                       description='Get user reponse',
-                                       ui_module_name='').add()
-        self.dbm.commit()
-
         # Build test graph
         node_start = Node(bot_id=self.bot.id, expect_input=False,
-                          content_module_id=content.id,
+                          content_module_id='ai.compose.core.text_message',
                           content_config={
                               'text': 'Hi there, this is a demo bot.'
                           },
-                          parser_module_id=self.passthrough.id,
+                          parser_module_id='ai.compose.core.passthrough',
                           parser_config={}).add()
         node_root = Node(bot_id=self.bot.id, expect_input=True,
-                         content_module_id=content.id,
+                         content_module_id='ai.compose.core.text_message',
                          content_config={
                              'text': 'Type "help" for command usage. You are '
                                      'now in root node, available global '
                                      'commands: "help", "globalA", "globalD", '
-                                     '"imgur", "youbike".'
+                                     '"imgur", "youbike" or send a GPS '
+                                     'coordinate.'
                          },
-                         parser_module_id=global_parser.id,
+                         parser_module_id='ai.compose.test.literal_root',
                          parser_config={}).add()
 
         node_loc = Node(bot_id=self.bot.id, expect_input=True,
-                        content_module_id=content.id, content_config={
+                        content_module_id='ai.compose.core.text_message',
+                        content_config={
                             'text': 'Where are you at?'
-                        }, parser_module_id=response_parser.id,
+                        }, parser_module_id='ai.compose.core.get_response',
                         parser_config={}).add()
 
         node_res = Node(bot_id=self.bot.id, expect_input=True,
-                        content_module_id=content.id, content_config={
+                        content_module_id='ai.compose.core.text_message',
+                        content_config={
                             'text': 'What kind of image do you like?'
-                        }, parser_module_id=response_parser.id,
+                        }, parser_module_id='ai.compose.core.get_response',
                         parser_config={}).add()
         node_imgur = Node(bot_id=self.bot.id, expect_input=False,
-                          content_module_id=imgur_content.id, content_config={
+                          content_module_id='ai.compose.third_party.imgur',
+                          content_config={
                               'type': 'query',
                               'term': '{{response}}',
                               'max_count': 5,
@@ -133,37 +109,46 @@ class PopulateTestDataUnitTest(unittest.TestCase):
                               }
                           }).add()
         node_youbike = Node(bot_id=self.bot.id, expect_input=False,
-                            content_module_id=youbike_content.id,
+                            content_module_id='ai.compose.third_party.youbike',
                             content_config={
                                 'location': '{{response,location}}',
                                 'max_count': 5,
                             }).add()
         node_A = Node(bot_id=self.bot.id, expect_input=True,
-                      content_module_id=content.id, content_config={
+                      content_module_id='ai.compose.core.text_message',
+                      content_config={
                           'text': 'You are in node A. Available command: '
                                   '"error", "gotoB", "gotoC"'
                       },
-                      parser_module_id=parser.id, parser_config={}).add()
+                      parser_module_id='ai.compose.test.literal',
+                      parser_config={}).add()
         node_B = Node(bot_id=self.bot.id, expect_input=True,
-                      content_module_id=content.id, content_config={
+                      content_module_id='ai.compose.core.text_message',
+                      content_config={
                           'text': 'You are in node B. Available command: '
                                   '"gotoC"'
                       },
-                      parser_module_id=parser.id, parser_config={}).add()
+                      parser_module_id='ai.compose.test.literal',
+                      parser_config={}).add()
         node_C = Node(bot_id=self.bot.id, expect_input=True,
-                      content_module_id=content.id, content_config={
+                      content_module_id='ai.compose.core.text_message',
+                      content_config={
                           'text': 'You are in node C. Available command: '
                                   '"gotoA"'
                       },
-                      parser_module_id=parser.id, parser_config={}).add()
+                      parser_module_id='ai.compose.test.literal',
+                      parser_config={}).add()
         node_D = Node(bot_id=self.bot.id, expect_input=True,
-                      content_module_id=content.id, content_config={
+                      content_module_id='ai.compose.core.text_message',
+                      content_config={
                           'text': 'You are in node D. Available command: '
                                   '"gotoE"'
                       },
-                      parser_module_id=parser.id, parser_config={}).add()
+                      parser_module_id='ai.compose.test.literal',
+                      parser_config={}).add()
         node_E = Node(bot_id=self.bot.id, expect_input=False,
-                      content_module_id=content.id, content_config={
+                      content_module_id='ai.compose.core.text_message',
+                      content_config={
                           'text': 'You are in node E'
                       }).add()
         self.dbm.commit()
@@ -282,7 +267,6 @@ class PopulateTestDataUnitTest(unittest.TestCase):
         # Bot setup
         self.bot.root_node_id = node_root.id
         self.bot.start_node_id = node_start.id
-
 
         nodes = [node_start, node_root, node_loc, node_res, node_imgur,
                  node_youbike, node_A, node_B, node_C, node_D, node_E]
