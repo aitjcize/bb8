@@ -41,6 +41,8 @@ def register_content_modules():
             m = importlib.import_module('%s.%s' %
                                         (ContentModule.CONTENT_MODULES, name))
             info = m.get_module_info()
+            assert info['module_name'] == name
+
             cm = ContentModule.get_by(id=info['id'], single=True)
             if cm:
                 cm.delete().commit()
@@ -58,6 +60,8 @@ def register_parser_modules():
             m = importlib.import_module('%s.%s' %
                                         (ParserModule.PARSER_MODULES, name))
             info = m.get_module_info()
+            assert info['module_name'] == name
+
             pm = ParserModule.get_by(id=info['id'], single=True)
             if pm:
                 pm.delete().commit()
