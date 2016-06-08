@@ -7,13 +7,16 @@
 """
 
 import logging
+import urllib
 
-from flask import request
+from flask import request, make_response
 
 from bb8 import config, app
 from bb8.backend.database import User, Platform, PlatformTypeEnum
 from bb8.backend.engine import Engine
 from bb8.backend.metadata import UserInput
+
+from bb8.backend.content_modules.youbike import GOOGLE_STATIC_MAP_API_KEY
 
 
 @app.route(config.FACEBOOK_WEBHOOK_PATH, methods=['GET'])
@@ -66,6 +69,20 @@ def receive():
     return 'ok'
 
 
-@app.route('/')
-def index():
-    return 'Hello, world!'
+@app.route('/render_map')
+def redirect_url():
+    """Workaround facebooks 'bug', wher it remove multiple value with same key.
+    We use facebook to pass the arguments, then request render from Google on
+    behalf of it."""
+    # TODO(aitjcize): move this else where... this is not part of bb8
+
+    url = request.args.get('url', None)
+    if not url:
+        return 'No URL specified'
+
+    url = urllib.unquote(url + '&key=' + GOOGLE_STATIC_MAP_API_KEY)
+    h = urllib.urlopen(url)
+    response = make_response(h.read())
+    response.headers['content-type'] = h.headers['content-type']
+
+    return response

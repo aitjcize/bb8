@@ -32,23 +32,33 @@ def get_module_info():
 
 class GoogleStaticMapAPIRequestBuilder(object):
     API_ENDPOINT = 'https://maps.googleapis.com/maps/api/staticmap'
+    REDIRECT_URL = 'https://bot.azhuang.me:7000/render_map?url='
 
     def __init__(self, api_key, size):
         self._api_key = api_key
         self._size = '%dx%d' % size
         self._maptype = 'roadmap'
-        self._markers = []
+        self._markers = {}
 
-    def add_marker(self, coordinate):
-        self._markers.append('%3.8f,%3.8f' % coordinate)
+    def add_marker(self, coordinate, color='red'):
+        self._markers[coordinate] = color
+
+    def remove_marker(self, coordinate):
+        del self._markers[coordinate]
 
     def clear_markers(self):
-        self._markers = []
+        self._markers = {}
+
+    def _markers_string(self):
+        return '&'.join(['markers=color:%s|%3.8f,%3.8f' %
+                         ((color,) + coordinate)
+                         for coordinate, color in self._markers.iteritems()])
 
     def build_url(self):
-        return ('%s?key=%s&size=%s&maptype=%s&markers=color:red|%s' %
-                (self.API_ENDPOINT, self._api_key, self._size, self._maptype,
-                 '|'.join(self._markers)))
+        url = ('%s?size=%s&maptype=%s&' %
+               (self.API_ENDPOINT, self._size, self._maptype) +
+               self._markers_string())
+        return self.REDIRECT_URL + urllib.quote(url)
 
     @classmethod
     def build_navigation_url(cls, c):
@@ -118,10 +128,11 @@ def run(content_config, unused_env, variables):
     youbike = UbikeAPIParser()
     youbike.refresh_data()
 
-    k = content_config.get('max_count', 3)
+    k = content_config.get('max_count', 5)
     stations = youbike.find_knn(k, c)
 
-    m = GoogleStaticMapAPIRequestBuilder(GOOGLE_STATIC_MAP_API_KEY, (600, 300))
+    m = GoogleStaticMapAPIRequestBuilder(GOOGLE_STATIC_MAP_API_KEY, (500, 260))
+    m.add_marker(c, 'purple')
     for s in stations:
         m.add_marker((float(s['lat']), float(s['lng'])))
 
@@ -132,8 +143,11 @@ def run(content_config, unused_env, variables):
 
     for s in stations:
         m.clear_markers()
+        m.add_marker(c, 'purple')
+
         gps_coord = (float(s['lat']), float(s['lng']))
-        m.add_marker(gps_coord)
+        m.add_marker(gps_coord, color='red')
+
         b = Message.Bubble(s['ar'], image_url=m.build_url(),
                            subtitle=u'剩餘車數量: %s\n空位數量: %s\n' %
                            (s['sbi'], s['bemp']))
