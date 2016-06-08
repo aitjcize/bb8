@@ -196,12 +196,12 @@ class PopulateTestDataUnitTest(unittest.TestCase):
             'type': 'location',
             'links': [
                 {
-                    'action_ident': 'next',
+                    'action_ident': 'got_location',
                     'end_node_id': node_youbike.id,
                     'ack_message': 'Got it.',
                 },
                 {
-                    'action_ident': '$wrong_location',
+                    'action_ident': 'no_location',
                     'end_node_id': None,
                     'ack_message': 'Please send your GPS location.',
                 }
@@ -211,9 +211,15 @@ class PopulateTestDataUnitTest(unittest.TestCase):
             'type': 'text',
             'links': [
                 {
-                    'action_ident': 'next',
+                    'action_ident': 'got_text',
                     'end_node_id': node_imgur.id,
                     'ack_message': 'Got it.',
+                },
+                {
+                    'action_ident': 'no_text',
+                    'end_node_id': None,
+                    'ack_message': 'I don\'t understand. What kind of image '
+                                   'you want?',
                 }
             ]
         }

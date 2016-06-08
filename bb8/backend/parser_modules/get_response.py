@@ -23,14 +23,35 @@ def get_module_info():
 
 
 def run(parser_config, user_input):
-    if parser_config['type'] == 'text' and user_input.text:
-        return 'next', {'response': user_input.text}
-    elif parser_config['type'] == 'location':
+    """
+    parser_config schema:
+    {
+       "type": "text, location or all",
+       "max_count": 3
+    }
+
+    action_ident:
+    - got_text
+    - got_location
+    - no_text
+    - no_location
+    - $error
+    """
+    r_type = parser_config['type']
+
+    if r_type == 'text' or r_type == 'all':
+        if user_input.text:
+            return 'got_text', {'response': user_input.text}
+        elif r_type == 'text':
+            return 'no_text', {}
+
+    if r_type == 'location' or r_type == 'all':
         if user_input.location:
-            return 'next', {'response': user_input.location}
-        return '$wrong_location', {}
-    else:
-        return '$error', {}
+            return 'got_location', {'response': user_input.location}
+        elif r_type == 'location':
+            return 'no_location', {}
+
+    return '$error', {}
 
 
 def get_linkages(parser_config):
@@ -43,9 +64,4 @@ def get_linkages(parser_config):
     if '$error' not in parser_config['links']:
         links.append(LinkageItem('$error', None,
                                  'Invalid reponse, please re-enter.'))
-
-    if '$wrong_location' not in parser_config['links']:
-        links.append(LinkageItem('$wrong_location', None,
-                                 'Invalid location, pelase re-send.'))
-
     return links
