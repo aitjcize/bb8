@@ -203,18 +203,33 @@ class PopulateTestDataUnitTest(unittest.TestCase):
                     'action_ident': '$location',
                     'end_node_id': node_youbike.id,
                     'ack_message': 'Got your location.',
-                },
+                }
             ]
         }
         node_loc.parser_config = {
             'type': 'location',
-            'end_node_id': node_youbike.id,
-            'ack_message': 'Got it.',
+            'links': [
+                {
+                    'action_ident': 'next',
+                    'end_node_id': node_youbike.id,
+                    'ack_message': 'Got it.',
+                },
+                {
+                    'action_ident': '$wrong_location',
+                    'end_node_id': None,
+                    'ack_message': 'Please send your GPS location.',
+                }
+            ]
         }
         node_res.parser_config = {
             'type': 'text',
-            'end_node_id': node_imgur.id,
-            'ack_message': 'Got it.',
+            'links': [
+                {
+                    'action_ident': 'next',
+                    'end_node_id': node_imgur.id,
+                    'ack_message': 'Got it.',
+                }
+            ]
         }
         node_A.parser_config = {
             'links': [
