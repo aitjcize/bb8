@@ -136,6 +136,7 @@ class PopulateTestDataUnitTest(unittest.TestCase):
                             content_module_id=youbike_content.id,
                             content_config={
                                 'location': '{{response,location}}',
+                                'max_count': 5,
                             }).add()
         node_A = Node(bot_id=self.bot.id, expect_input=True,
                       content_module_id=content.id, content_config={
