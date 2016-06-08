@@ -27,8 +27,6 @@ class PopulateTestDataUnitTest(unittest.TestCase):
         self.dbm.disconnect()
 
     def setup_prerequisite(self):
-        self.dbm.reset()
-
         self.account = Account(name='Test Account', email='test@test.com',
                                passwd='test_hashed').add()
 
