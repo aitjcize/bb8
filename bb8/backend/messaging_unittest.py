@@ -9,6 +9,8 @@
 
 import unittest
 
+import jsonschema
+
 from bb8.backend.database import DatabaseManager
 from bb8.backend.database import Bot, Platform, PlatformTypeEnum, User
 from bb8.backend.messaging import Message, broadcast_message
@@ -20,20 +22,29 @@ class MessageUnittest(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             Message.Button('wrong_type', 'test', 'http://test.com')
 
+        with self.assertRaises(jsonschema.exceptions.ValidationError):
+            b = Message.Button(Message.ButtonType.WEB_URL, 'test',
+                               payload='payload')
+            jsonschema.validate(b.as_dict(), Message.Button.schema())
+
         b = Message.Button(Message.ButtonType.WEB_URL, 'test',
                            url='http://test.com')
         self.assertEquals(str(b), '{"url": "http://test.com", "type": '
                                   '"web_url", "title": "test"}')
+        jsonschema.validate(b.as_dict(), Message.Button.schema())
 
     def test_Bubble(self):
         b = Message.Bubble('title')
         self.assertEquals(str(b), '{"title": "title"}')
+        jsonschema.validate(b.as_dict(), Message.Bubble.schema())
 
         b = Message.Bubble('title', 'http://test.com/item_url',
                            'http://test.com/image_url', 'subtitle')
         self.assertEquals(str(b), '{"subtitle": "subtitle", "item_url": '
                           '"http://test.com/item_url", "image_url": '
                           '"http://test.com/image_url", "title": "title"}')
+        jsonschema.validate(b.as_dict(), Message.Bubble.schema())
+
         b.add_button(Message.Button(Message.ButtonType.WEB_URL, 'test',
                                     url='http://test.com'))
         b.add_button(Message.Button(Message.ButtonType.POSTBACK, 'test',
@@ -45,6 +56,7 @@ class MessageUnittest(unittest.TestCase):
                           '"subtitle": "subtitle", "item_url": '
                           '"http://test.com/item_url", "image_url": '
                           '"http://test.com/image_url", "title": "title"}')
+        jsonschema.validate(b.as_dict(), Message.Bubble.schema())
 
     def test_Message(self):
         b = Message.Bubble('title', 'http://test.com/item_url',
@@ -56,10 +68,12 @@ class MessageUnittest(unittest.TestCase):
 
         m = Message('test')
         self.assertEquals(str(m), '{"text": "test"}')
+        jsonschema.validate(m.as_dict(), Message.schema())
 
         m = Message(image_url='http://test.com/image_url')
         self.assertEquals(str(m), '{"attachment": {"type": "image", "payload":'
                           ' {"url": "http://test.com/image_url"}}}')
+        jsonschema.validate(m.as_dict(), Message.schema())
 
         m = Message()
         m.add_bubble(b)
@@ -72,6 +86,7 @@ class MessageUnittest(unittest.TestCase):
                           '"item_url": "http://test.com/item_url", '
                           '"image_url": "http://test.com/image_url", '
                           '"title": "title"}]}}}')
+        jsonschema.validate(m.as_dict(), Message.schema())
 
         with self.assertRaises(RuntimeError):
             m = Message('test', 'url')
@@ -81,9 +96,6 @@ class MessagingUnittest(unittest.TestCase):
     def setUp(self):
         self.dbm = DatabaseManager()
         self.dbm.connect()
-        self.account = None
-        self.bot = None
-        self.platform = None
         self.setup_prerequisite()
 
     def tearDown(self):

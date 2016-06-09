@@ -43,6 +43,28 @@ class Message(object):
         def __str__(self):
             return json.dumps(self.as_dict())
 
+        @classmethod
+        def schema(cls):
+            return {
+                "oneOf": [{
+                    "required": ["type", "title", "url"],
+                    "type": "object",
+                    "properties": {
+                        "type": {"enum": ["web_url"]},
+                        "title": {"type": "string"},
+                        "url": {"type": "string"}
+                    }
+                }, {
+                    "required": ["type", "title", "postback"],
+                    "type": "object",
+                    "properties": {
+                        "type": {"enum": ["postback"]},
+                        "title": {"type": "string"},
+                        "postback": {"type": "string"}
+                    }
+                }]
+            }
+
         def as_dict(self):
             data = {
                 'type': self._type.value,
@@ -65,6 +87,26 @@ class Message(object):
 
         def __str__(self):
             return json.dumps(self.as_dict())
+
+        @classmethod
+        def schema(cls):
+            return {
+                "required": ["title"],
+                "type": "object",
+                "properties": {
+                    "buttons": {
+                        "type": "array",
+                        "items": [{"$ref": "#/definitions/button"}]
+                    },
+                    "image_url": {"type": "string"},
+                    "item_url": {"type": "string"},
+                    "subtitle": {"type": "string"},
+                    "title": {"type": "string"}
+                },
+                "definitions": {
+                    "button": Message.Button.schema()
+                }
+            }
 
         def add_button(self, button):
             if not isinstance(button, Message.Button):
@@ -115,6 +157,65 @@ class Message(object):
             self._constructed = True
 
     def __str__(self):
+        return json.dumps(self.as_dict())
+
+    @classmethod
+    def schema(cls):
+        return {
+            "oneOf": [{
+                "required": ["text"],
+                "type": "object",
+                "properties": {
+                    "text": {"type": "string"}
+                }
+            }, {
+                "required": ["attachment"],
+                "type": "object",
+                "properties": {
+                    "attachment": {
+                        "required": ["type", "payload"],
+                        "type": "object",
+                        "oneOf": [{
+                            "properties": {
+                                "type": {"enum": ["image"]},
+                                "payload": {
+                                    "required": ["url"],
+                                    "type": "object",
+                                    "properties": {
+                                        "url": {"type": "string"}
+                                    }
+                                }
+                            }
+                        }, {
+                            "properties": {
+                                "type": {"enum": ["template"]},
+                                "payload": {
+                                    "required": ["template_type", "elements"],
+                                    "type": "object",
+                                    "properties": {
+                                        "template_type": {
+                                            "enum": ["generic"]
+                                        },
+                                        "elements": {
+                                            "type": "array",
+                                            "items": [{
+                                                "$ref": "#/definitions/bubble"
+                                            }]
+                                        }
+                                    }
+                                }
+                            }
+                        }]
+                    }
+                }
+            }],
+            "definitions": {
+                "button": Message.Button.schema(),
+                "bubble": Message.Bubble.schema()
+            }
+        }
+
+    def as_dict(self):
         data = {}
 
         if self._text:
@@ -132,7 +233,7 @@ class Message(object):
                     'elements': [x.as_dict() for x in self._bubbles]
                 }
             }
-        return json.dumps(data)
+        return data
 
     @property
     def notification_type(self):
