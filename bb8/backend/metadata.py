@@ -64,7 +64,9 @@ class UserInput(object):
         if postback:
             try:
                 payload = json.loads(postback['payload'])
-                self.text = payload['payload']
+                message = payload['message']
+                self.text = message.get('text')
+                self.parse_attachments(message.get('attachments'))
                 self.jump_node_id = int(payload['node_id'])
             except ValueError:
                 pass
