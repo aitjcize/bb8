@@ -20,10 +20,26 @@ import jsonschema
 from bb8.backend.database import Bot, DatabaseSession, Node, Platform
 
 
-def parse_bot(filename, schema):
+def get_bots_dir():
+    """Get directory contains bot definitions."""
+    backend_dir = os.path.dirname(__file__)
+    bots_dir = os.path.normpath(os.path.join(backend_dir, '../../bots'))
+    return bots_dir
+
+
+def get_bot_filename(filename):
+    """Get complete filename of bot file."""
+    return os.path.join(get_bots_dir(), filename)
+
+
+def parse_bot(filename):
     """Parse bot from bot definition."""
+    schema = None
     bot_json = None
     bot_json_text = None
+
+    with open(get_bot_filename('schema.bot.json'), 'r') as f:
+        schema = json.load(f)
 
     with open(filename, 'r') as f:
         try:
@@ -90,19 +106,11 @@ def parse_bot(filename, schema):
             pm = n.parser_module.get_module()
             n.build_linkages(pm.get_linkages(n.parser_config))
 
+    bot.commit()
+
 
 def build_all_bots():
     """Re-build all bots from bot definitions."""
-    backend_dir = os.path.dirname(__file__)
-    bots_dir = os.path.normpath(os.path.join(backend_dir, '../../bots'))
-
-    bots = glob.glob(bots_dir + '/*.bot')
-    schema_file = os.path.join(bots_dir, 'schema.bot.json')
-    schema = None
-
-    with open(schema_file, 'r') as f:
-        schema = json.load(f)
-
     with DatabaseSession():
-        for bot in bots:
-            parse_bot(bot, schema)
+        for bot in glob.glob(get_bots_dir() + '/*.bot'):
+            parse_bot(bot)
