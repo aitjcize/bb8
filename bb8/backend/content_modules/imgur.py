@@ -12,7 +12,7 @@ import imgurpython
 
 from imgurpython.imgur.models.gallery_image import GalleryImage
 
-from bb8.backend.module_api import Message, Payload, Resolve
+from bb8.backend.module_api import Message, TextPayload, Resolve
 
 
 def get_module_info():
@@ -57,8 +57,9 @@ def run(content_config, env, variables):
                            i.description)
         c.add_button(Message.Button(Message.ButtonType.WEB_URL, 'Source',
                                     url=i.link[:-4]))
-        c.add_button(Message.Button(Message.ButtonType.POSTBACK, 'Like',
-                                    payload=Payload('like %s' % i.link, env)))
+        c.add_button(Message.Button(
+            Message.ButtonType.POSTBACK, 'Like',
+            payload=TextPayload('like %s' % i.link, env)))
         m.add_bubble(c)
 
     return [Message('Here are the images you requested'), m]

@@ -9,14 +9,33 @@
 
 import unittest
 
-from bb8.backend.module_api import Payload, Render, IsVariable, Resolve
+from bb8.backend.module_api import (TextPayload, LocationPayload, Render,
+                                    IsVariable, Resolve)
 
 
-class MessageUnittest(unittest.TestCase):
-    def test_Payload(self):
+class ModuleAPIUnittest(unittest.TestCase):
+    def test_TextPayload(self):
         env = {'node_id': 1}
-        self.assertEquals(Payload('test', env),
-                          {'node_id': 1, 'payload': 'test'})
+        self.assertEquals(TextPayload('test', env),
+                          {'message': {'text': 'test'}, 'node_id': 1})
+
+    def test_LocationPayload(self):
+        env = {'node_id': 1}
+        ans = {
+            'message': {
+                'attachments': [{
+                    'type': 'location',
+                    'payload': {
+                        'coordinates': {
+                            'lat': 1,
+                            'long': 1
+                        }
+                    }
+                }]
+            },
+            'node_id': 1
+        }
+        self.assertEquals(LocationPayload((1, 1), env), ans)
 
     def test_Render(self):
         variables = {'name': 'bb8', 'age': '100'}
