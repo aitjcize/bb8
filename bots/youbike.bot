@@ -1,76 +1,76 @@
 {
-	"platform": {
-		"type_enum": "Facebook",
-		"provider_ident": "1764704343742166",
-		"config": {
-			"access_token": "EAAP0okfsZCVkBAOGj6UmZBiS7EZAZAEYdPy7mL1nnppsbibefNPZA0uawbKwHcToZAczHD5ihSt8CkZCGZASI4NRrpSh33KWQIZBLrDYZAOQKXQAi3ZCxYnF0YgOERZBBYVUjMfg2dfk12kn8rwRb0GRazfWR8sHvX9DIOZAgRLW7dCs4agZDZD"
-		}
-	},
-	"bot": {
-		"name": "Youbike",
-		"description": "Provide location-based youbike info",
-		"interaction_timeout": 120,
-		"session_timeout": 864000,
-		"nodes": {
-			"start": {
-				"name": "Greet",
-				"description": "Great user",
-				"expect_input": false,
-				"content_module": {
-					"id": "ai.compose.core.text_message",
-					"config": {
-						"text": "歡迎使用 Ubike 小幫手"
-					}
-				},
-				"parser_module": {
-					"id": "ai.compose.core.passthrough",
-					"config": {
-						"end_node_id": "[[root]]",
-						"ack_message": ""
-					}
-				}
-			},
-			"root": {
-				"name": "Usage",
-				"description": "Show usage",
-				"expect_input": true,
-				"content_module": {
-					"id": "ai.compose.core.text_message",
-					"config": {
-						"text": "請用手機送出你現在的位置，我們會會為您找出附近的 Ubike 站點資訊！"
-					}
-				},
-				"parser_module": {
-					"id": "ai.compose.core.get_response",
-					"config": {
-						"type": "location",
-						"links": [
-							{
-								"action_ident": "got_location",
-								"end_node_id": "[[youbike]]",
-								"ack_message": "收到~"
-							},
-							{
-								"action_ident": "no_location",
-								"end_node_id": null,
-								"ack_message": "這不是位置哦~"
-							}
-						]
-					}
-				}
-			},
-			"youbike": {
-				"name": "Youbike",
-				"description": "Show youbike search result",
-				"expect_input": false,
-				"content_module": {
-					"id": "ai.compose.third_party.youbike",
-					"config": {
-						"location": "{{response}}",
-						"max_count": 5
-					}
-				}
-			}
-		}
-	}
+  "platform": {
+    "type_enum": "Facebook",
+    "provider_ident": "1764704343742166",
+    "config": {
+      "access_token": "EAAP0okfsZCVkBAOGj6UmZBiS7EZAZAEYdPy7mL1nnppsbibefNPZA0uawbKwHcToZAczHD5ihSt8CkZCGZASI4NRrpSh33KWQIZBLrDYZAOQKXQAi3ZCxYnF0YgOERZBBYVUjMfg2dfk12kn8rwRb0GRazfWR8sHvX9DIOZAgRLW7dCs4agZDZD"
+    }
+  },
+  "bot": {
+    "name": "Youbike",
+    "description": "Provide location-based youbike info",
+    "interaction_timeout": 120,
+    "session_timeout": 864000,
+    "nodes": {
+      "start": {
+        "name": "Greet",
+        "description": "Great user",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": "歡迎使用 Ubike 小幫手"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.passthrough",
+          "config": {
+            "end_node_id": "[[root]]",
+            "ack_message": ""
+          }
+        }
+      },
+      "root": {
+        "name": "Usage",
+        "description": "Show usage",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": "請用手機送出你現在的位置，我們會會為您找出附近的 Ubike 站點資訊！"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.get_response",
+          "config": {
+            "type": "location",
+            "links": [
+              {
+                "action_ident": "got_location",
+                "end_node_id": "[[youbike]]",
+                "ack_message": "收到~"
+              },
+              {
+                "action_ident": "no_location",
+                "end_node_id": null,
+                "ack_message": "這不是位置哦~"
+              }
+            ]
+          }
+        }
+      },
+      "youbike": {
+        "name": "Youbike",
+        "description": "Show youbike search result",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.third_party.youbike",
+          "config": {
+            "location": "{{response}}",
+            "max_count": 5
+          }
+        }
+      }
+    }
+  }
 }

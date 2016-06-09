@@ -10,16 +10,18 @@
 
 import glob
 import json
+import logging
 import os
 import re
+import sys
+
+import jsonschema
 
 from bb8.backend.database import Bot, DatabaseSession, Node, Platform
 
 
-def parse_bot(filename):
+def parse_bot(filename, schema):
     """Parse bot from bot definition."""
-    # TODO(aitjcize): add *.bot schema and schema validation
-
     bot_json = None
     bot_json_text = None
 
@@ -29,6 +31,12 @@ def parse_bot(filename):
             bot_json = json.loads(bot_json_text, encoding='utf8')
         except ValueError:
             raise RuntimeError('Invalid JSON file')
+
+    try:
+        jsonschema.validate(bot_json, schema)
+    except jsonschema.exceptions.ValidationError:
+        logging.exception('Validation failed for %s!', filename)
+        sys.exit(1)
 
     platform_desc = bot_json['platform']
     bot_desc = bot_json['bot']
@@ -89,7 +97,12 @@ def build_all_bots():
     bots_dir = os.path.normpath(os.path.join(backend_dir, '../../bots'))
 
     bots = glob.glob(bots_dir + '/*.bot')
+    schema_file = os.path.join(bots_dir, 'schema.bot.json')
+    schema = None
+
+    with open(schema_file, 'r') as f:
+        schema = json.load(f)
 
     with DatabaseSession():
         for bot in bots:
-            parse_bot(bot)
+            parse_bot(bot, schema)

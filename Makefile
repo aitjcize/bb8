@@ -6,7 +6,7 @@ UNITTESTS=$(shell find bb8 -name '*_unittest.py' | sort)
 LINT_OPTIONS=--rcfile=bin/pylintrc \
 	     --msg-template='{path}:{line}: {msg_id}: {msg}'
 
-all: test lint
+all: test lint validate-bots
 
 test:
 	@export PYTHONPATH=$$PWD; \
@@ -17,3 +17,6 @@ test:
 lint:
 	@pep8 $(LINT_FILES)
 	@pylint $(LINT_OPTIONS) $(LINT_FILES)
+
+validate-bots:
+	@make -C bots
