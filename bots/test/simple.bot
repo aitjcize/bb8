@@ -1,0 +1,186 @@
+{
+  "platform": {
+    "type_enum": "Facebook",
+    "provider_ident": "facebook_page_id",
+    "config": {
+      "access_token": "access_token"
+    }
+  },
+  "bot": {
+    "name": "test",
+    "description": "test graph",
+    "interaction_timeout": 120,
+    "session_timeout": 864000,
+    "nodes": {
+      "start": {
+        "name": "start",
+        "description": "start",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": "In start"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.passthrough",
+          "config": {
+            "end_node_id": "[[root]]",
+            "ack_message": "Goto root"
+          }
+        }
+      },
+      "root": {
+        "name": "root",
+        "description": "root",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": "In root"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.test.literal_root",
+          "config": {
+            "type": "location",
+            "links": [
+              {
+                "action_ident": "help",
+                "end_node_id": "[[root]]",
+                "ack_message": "Goto help"
+              },
+              {
+                "action_ident": "gotoA",
+                "end_node_id": "[[nodeA]]",
+                "ack_message": "Goto A"
+              },
+              {
+                "action_ident": "gotoD",
+                "end_node_id": "[[nodeD]]",
+                "ack_message": "Goto D"
+              }
+            ]
+          }
+        }
+      },
+      "nodeA": {
+        "name": "nodeA",
+        "description": "nodeA",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": "In A"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.test.literal",
+          "config": {
+            "type": "location",
+            "links": [
+              {
+                "action_ident": "error",
+                "end_node_id": null,
+                "ack_message": "Goto A"
+              },
+              {
+                "action_ident": "gotoB",
+                "end_node_id": "[[nodeB]]",
+                "ack_message": "Goto B"
+              },
+              {
+                "action_ident": "gotoC",
+                "end_node_id": "[[nodeC]]",
+                "ack_message": "Goto C"
+              }
+            ]
+          }
+        }
+      },
+      "nodeB": {
+        "name": "nodeB",
+        "description": "nodeB",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": "In B"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.test.literal",
+          "config": {
+            "type": "location",
+            "links": [
+              {
+                "action_ident": "gotoC",
+                "end_node_id": "[[nodeC]]",
+                "ack_message": "Goto C"
+              }
+            ]
+          }
+        }
+      },
+      "nodeC": {
+        "name": "nodeC",
+        "description": "nodeC",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": "In C"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.test.literal",
+          "config": {
+            "type": "location",
+            "links": [
+              {
+                "action_ident": "default",
+                "end_node_id": "[[nodeA]]",
+                "ack_message": "Goto A"
+              }
+            ]
+          }
+        }
+      },
+      "nodeD": {
+        "name": "nodeD",
+        "description": "nodeD",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": "In D"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.test.literal",
+          "config": {
+            "type": "location",
+            "links": [
+              {
+                "action_ident": "gotoE",
+                "end_node_id": "[[nodeE]]",
+                "ack_message": "Goto E"
+              }
+            ]
+          }
+        }
+      },
+      "nodeE": {
+        "name": "nodeE",
+        "description": "nodeE",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": "In E"
+          }
+        }
+      }
+    }
+  }
+}
