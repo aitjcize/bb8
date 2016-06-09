@@ -8,12 +8,15 @@
 """
 
 import unittest
+import datetime
 
 from bb8.backend.database import DatabaseManager
 from bb8.backend.database import (Account, Bot, ColletedDatum, Conversation,
                                   ContentModule, Event, Linkage, Node,
                                   ParserModule, Platform, PlatformTypeEnum,
-                                  SenderEnum, User)
+                                  SenderEnum, User, FeedEnum, Feed, PublicFeed,
+                                  Entry, Broadcast, Tag, OAuthInfo,
+                                  OAuthProviderEnum)
 
 
 class UserUnittest(unittest.TestCase):
@@ -164,6 +167,76 @@ class SchemaUnittest(unittest.TestCase):
         self.dbm.commit()
         self.assertNotEquals(Conversation.get_by(id=conversation.id,
                                                  single=True), None)
+
+    def test_schema_feed(self):
+        """test for Feed, PublicFeed, Entry, Broadcast, Tag"""
+        self.dbm.reset()
+
+        feed = Feed(url='example.com/rss', type=FeedEnum.RSS,
+                    title='example.com', image='example.com/logo').add()
+
+        self.dbm.commit()
+        self.assertNotEquals(Feed.get_by(id=feed.id, single=True), None)
+
+        pfeed = PublicFeed(url='example.com/rss', type=FeedEnum.RSS,
+                           title='example.com', image='example.com/logo').add()
+
+        self.dbm.commit()
+        self.assertNotEquals(PublicFeed.get_by(id=pfeed.id, single=True), None)
+
+        tag1 = Tag(name='product').add()
+        tag2 = Tag(name='article').add()
+
+        entry = Entry(title='mock-title',
+                      link='mock-link',
+                      description='mock-desc',
+                      publish_time=datetime.datetime.utcnow(),
+                      source='mock-source',
+                      author='mock-author',
+                      image='mock-image',
+                      content='mock-content').add()
+
+        self.dbm.commit()
+        entry.tags.append(tag1)
+        entry.tags.append(tag2)
+
+        entry_ = Entry.get_by(id=entry.id, single=True)
+        self.assertNotEquals(entry_, None)
+        self.assertEquals(len(entry_.tags), 2)
+        self.assertEquals(entry_.tags[0].name, 'product')
+
+        bc = Broadcast(message='mock-message',
+                       scheduled_time=datetime.datetime.utcnow()).add()
+
+        self.dbm.commit()
+        self.assertNotEquals(Broadcast.get_by(id=bc.id, single=True), None)
+
+    def test_oauth(self):
+
+        self.dbm.reset()
+
+        account = Account(name='Test Account 2', email='test2@test.com',
+                          passwd='test_hashed').add()
+
+        oauth1 = OAuthInfo(provider=OAuthProviderEnum.Facebook,
+                           provider_ident='mock-facebook-id').add()
+
+        oauth2 = OAuthInfo(provider=OAuthProviderEnum.Github,
+                           provider_ident='mock-github-id').add()
+
+        account.oauth_infos.append(oauth1)
+        account.oauth_infos.append(oauth2)
+        self.dbm.commit()
+
+        account_ = Account.get_by(id=account.id, single=True)
+        self.assertNotEquals(account_, None)
+        self.assertEquals(len(account_.oauth_infos), 2)
+
+        oauth_ = OAuthInfo.get_by(provider_ident='mock-facebook-id',
+                                  single=True)
+        self.assertNotEquals(oauth_, None)
+        self.assertNotEquals(oauth_.account, None)
+        self.assertEquals(oauth_.account.id, account.id)
 
 
 if __name__ == '__main__':

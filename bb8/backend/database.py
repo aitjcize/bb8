@@ -12,7 +12,7 @@ import enum
 
 from sqlalchemy import create_engine
 from sqlalchemy import (Boolean, Column, Enum, ForeignKey, Integer, String,
-                        Table, Text, PickleType)
+                        DateTime, Table, Text, PickleType)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (scoped_session, sessionmaker, joinedload,
                             relationship, object_session)
@@ -287,9 +287,30 @@ class Account(DeclarativeBase, QueryHelperMixin):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(256), nullable=False)
     email = Column(String(256), nullable=False)
+    email_verified = Column(Boolean, nullable=False, default=False)
     passwd = Column(String(256), nullable=False)
 
     bots = relationship('Bot', secondary='account_bot')
+
+    oauth_infos = relationship('OAuthInfo', back_populates="account")
+
+
+class OAuthProviderEnum(enum.Enum):
+    Facebook = 'FACEBOOK'
+    Google = 'GOOGLE'
+    Github = 'GITHUB'
+
+
+class OAuthInfo(DeclarativeBase, QueryHelperMixin):
+    __tablename__ = 'oauth_info'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    account_id = Column(ForeignKey('account.id'), nullable=False)
+
+    provider = Column(Enum(OAuthProviderEnum), nullable=False)
+    provider_ident = Column(String(256), nullable=False)
+
+    account = relationship('Account', back_populates="oauth_infos")
 
 
 class PlatformTypeEnum(enum.Enum):
@@ -466,6 +487,71 @@ class Event(DeclarativeBase, QueryHelperMixin):
     event_name = Column(String(512), nullable=False)
     event_value = Column(PickleType, nullable=False)
 
+
+class FeedEnum(enum.Enum):
+    RSS = 'RSS'
+    ATOM = 'ATOM'
+    CSV = 'CSV'
+    JSON = 'JSON'
+    XML = 'XML'
+
+
+class Feed(DeclarativeBase, QueryHelperMixin):
+    __tablename__ = 'feed'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    url = Column(String(512), nullable=False)
+    type = Column(Enum(FeedEnum), nullable=False)
+    title = Column(String(512), nullable=False)
+    image = Column(String(512), nullable=False)
+
+
+class PublicFeed(DeclarativeBase, QueryHelperMixin):
+    __tablename__ = 'public_feed'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    url = Column(String(512), nullable=False)
+    type = Column(Enum(FeedEnum), nullable=False)
+    title = Column(String(512), nullable=False)
+    image = Column(String(512), nullable=False)
+
+
+class Entry(DeclarativeBase, QueryHelperMixin):
+    __tablename__ = 'entry'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    title = Column(String(512), nullable=False)
+    link = Column(String(512), nullable=False)
+    description = Column(String(512), nullable=False)
+    publish_time = Column(DateTime, nullable=False)
+    source = Column(String(512), nullable=False)
+    author = Column(String(512), nullable=False)
+    image = Column(String(512), nullable=False)
+    content = Column(String(512), nullable=False)
+
+    tags = relationship('Tag', secondary='entry_tag')
+
+
+class Broadcast(DeclarativeBase, QueryHelperMixin):
+    __tablename__ = 'broadcast'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    message = Column(Text, nullable=False)
+    scheduled_time = Column(DateTime, nullable=False)
+
+
+class Tag(DeclarativeBase, QueryHelperMixin):
+    __tablename__ = 'tag'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(512), nullable=False)
+
+
+t_entry_tag = Table(
+    'entry_tag', metadata,
+    Column('entry_id', ForeignKey('entry.id'), nullable=False),
+    Column('tag_id', ForeignKey('tag.id'), nullable=False)
+)
 
 t_account_bot = Table(
     'account_bot', metadata,
