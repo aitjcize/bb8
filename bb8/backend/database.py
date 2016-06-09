@@ -18,6 +18,7 @@ from sqlalchemy.orm import (scoped_session, sessionmaker, joinedload,
                             relationship, object_session)
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import has_identity
+from sqlalchemy.schema import UniqueConstraint
 
 from bb8 import config
 from bb8.backend.metadata import SessionRecord
@@ -339,6 +340,8 @@ class Node(DeclarativeBase, QueryHelperMixin):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     bot_id = Column(ForeignKey('bot.id'), nullable=False)
+    name = Column(String(128), nullable=False)
+    description = Column(String(512), nullable=True)
     expect_input = Column(Boolean, nullable=False)
     content_module_id = Column(ForeignKey('content_module.id'), nullable=False)
     content_config = Column(PickleType, nullable=False)
@@ -367,6 +370,7 @@ class Node(DeclarativeBase, QueryHelperMixin):
 
 class Platform(DeclarativeBase, QueryHelperMixin):
     __tablename__ = 'platform'
+    __table_args__ = (UniqueConstraint('provider_ident'),)
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     bot_id = Column(ForeignKey('bot.id'), nullable=False)
