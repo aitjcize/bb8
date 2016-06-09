@@ -1,0 +1,111 @@
+{
+  "required": [
+    "bot",
+    "platform"
+  ],
+  "type": "object",
+  "properties": {
+    "platform": {
+      "required": [
+        "config",
+        "provider_ident",
+        "type_enum"
+      ],
+      "type": "object",
+      "properties": {
+        "type_enum": {
+          "type": "string"
+        },
+        "config": {
+          "type": "object"
+        },
+        "provider_ident": {
+          "type": "string"
+        }
+      }
+    },
+    "bot": {
+      "required": [
+        "description",
+        "interaction_timeout",
+        "name",
+        "nodes",
+        "session_timeout"
+      ],
+      "type": "object",
+      "properties": {
+        "nodes": {
+          "required": [
+            "root",
+            "start"
+          ],
+          "type": "object",
+          "properties": {
+            "start": { "$ref": "#/definitions/node" },
+            "root": { "$ref": "#/definitions/node" }
+          }
+        },
+        "session_timeout": {
+          "type": "integer"
+        },
+        "description": {
+          "type": "string"
+        },
+        "interaction_timeout": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "node": {
+      "required": [
+        "name",
+        "description",
+        "expect_input",
+        "content_module"
+      ],
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "expect_input": {
+          "type": "boolean"
+        },
+        "content_module": {
+          "required": [
+            "config",
+            "id"
+          ],
+          "type": "object",
+          "properties": {
+            "config": {
+              "type": "object"
+            },
+            "id": {
+              "type": "string"
+            }
+          }
+        },
+        "parser_module": {
+          "type": "object",
+          "properties": {
+            "config": {
+              "type": "object"
+            },
+            "id": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}
