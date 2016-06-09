@@ -117,7 +117,7 @@ class Engine(object):
                 if node.parser_module is None:
                     user.goto(bot.root_node_id)
                     user.session.message_sent = True
-                    return self.step(bot, user, variables)
+                    return self.step(bot, user, None, variables)
 
                 link, variables = self.run_parser_module(node, user_input)
                 if link is None:  # No matching linkage, we have a bug here.
