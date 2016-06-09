@@ -37,7 +37,7 @@
         "content_module": {
           "id": "ai.compose.core.text_message",
           "config": {
-            "text": "請用手機送出你現在的位置，我們會會為您找出附近的 Ubike 站點資訊！"
+            "text": "請用手機送出你現在的位置，我們會為您找出附近的 Ubike 站點資訊！"
           }
         },
         "parser_module": {
@@ -68,6 +68,24 @@
           "config": {
             "location": "{{response}}",
             "max_count": 5
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.passthrough",
+          "config": {
+            "end_node_id": "[[hint]]",
+            "ack_message": ""
+          }
+        }
+      },
+      "hint": {
+        "name": "Hint",
+        "description": "Hint user",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": "您可以繼續送出位置查詢，或按「再次查詢」"
           }
         }
       }

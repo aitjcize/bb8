@@ -140,7 +140,7 @@ def run(content_config, env, variables):
     b = Message.Bubble(u'附近的 Ubike 站點',
                        image_url=m.build_url(),
                        subtitle=u'以下是最近的 %d 個站點' % k)
-    b.add_button(Message.Button(Message.ButtonType.POSTBACK, u'再次搜尋',
+    b.add_button(Message.Button(Message.ButtonType.POSTBACK, u'再次查詢',
                                 payload=LocationPayload(c, env)))
     msg.add_bubble(b)
 
