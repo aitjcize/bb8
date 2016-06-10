@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    Handlers for
+    handlers for accounts
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Copyright 2016 bb8 Authors
@@ -8,22 +8,36 @@
 
 from flask import jsonify
 
-from bb8 import app
-from bb8 import AppError
+from bb8 import app, AppError
+from bb8.constant import HTTPStatus, CustomError
+from bb8.api.forms import RegistrationForm, SocialRegistrationForm, LoginForm
+
 
 @app.route('/email_register', methods=['POST'])
 def email_register():
-    return jsonify(message='ok')
+    form = RegistrationForm(csrf_enabled=False)
+    if form.validate_on_submit():
+        return jsonify(message='ok')
+    raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
+                   CustomError.ERR_FORM_VALIDATION, form.errors)
 
 
 @app.route('/social_register', methods=['POST'])
 def social_register():
-    return jsonify(message='ok')
+    form = SocialRegistrationForm(csrf_enabled=False)
+    if form.validate_on_submit():
+        return jsonify(message='ok')
+    raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
+                   CustomError.ERR_FORM_VALIDATION, form.errors)
 
 
 @app.route('/login', methods=['POST'])
 def login():
-    return jsonify(message='ok')
+    form = LoginForm(csrf_enabled=False)
+    if form.validate_on_submit():
+        return jsonify(message='ok')
+    raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
+                   CustomError.ERR_FORM_VALIDATION, form.errors)
 
 
 @app.route('/social_login', methods=['POST'])
