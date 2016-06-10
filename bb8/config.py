@@ -18,6 +18,10 @@ class Config(object):
     LOCK_DIR = BB8_ROOT + '/lock'
     RECORDS_PER_PAGE = 50
 
+    # Secrets
+    # TODO: Replace this in production
+    JWT_SECRET = 'JWT_SECRET_REPLACE_ME'
+
     # Log
     LOG_DIR = BB8_ROOT + '/log'
     LOG_FILE = LOG_DIR + '/message.log'
