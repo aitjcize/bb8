@@ -26,9 +26,9 @@ app.config.from_object(config)
 
 logger = Logger(config)
 
-def on_app_error(e):
 
+def on_app_error(e):
     logger.error(str(e))
-    return jsonify(dict(message=e.message, error_code=e.error_code)), e.status_code
+    return jsonify(message=e.message, error_code=e.error_code), e.status_code
 
 app.errorhandler(AppError)(on_app_error)

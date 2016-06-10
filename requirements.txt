@@ -36,3 +36,7 @@ traitlets==4.2.1
 Werkzeug==0.11.10
 wrapt==1.10.8
 git+https://github.com/zzzeek/sqlalchemy.git
+flask_wtf==0.9
+passlib==1.6
+py-bcrypt==0.4
+pyjwt==1.4.0

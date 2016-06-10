@@ -7,9 +7,14 @@
     Copyright 2016 bb8 Authors
 """
 
+import uuid
 import unittest
 import datetime
 
+import jwt
+
+from bb8 import config
+from bb8.error import AppError
 from bb8.backend.database import DatabaseManager
 from bb8.backend.database import (Account, Bot, ColletedDatum, Conversation,
                                   ContentModule, Event, Linkage, Node,
@@ -237,6 +242,47 @@ class SchemaUnittest(unittest.TestCase):
         self.assertNotEquals(oauth_, None)
         self.assertNotEquals(oauth_.account, None)
         self.assertEquals(oauth_.account.id, account.id)
+
+    def test_auth(self):
+
+        self.dbm.reset()
+        account = Account(name='Test Account 3', email='test3@test.com').add()
+
+        some_passwd = 'abcdefg'
+        account.set_passwd(some_passwd)
+
+        self.dbm.commit()
+        account_ = Account.get_by(id=account.id, single=True)
+        self.assertNotEquals(account_.passwd, some_passwd)
+        self.assertEquals(account_.verify_passwd(some_passwd), True)
+        self.assertEquals(account_.verify_passwd('should be wrong'), False)
+
+        token = account_.auth_token
+
+        account_t = Account.from_auth_token(token)
+        self.assertEquals(account_.id, account_t.id)
+
+        fake_token = jwt.encode({
+            'iss': 'compose.ai',
+            'sub': account_.id,
+            'jti': str(uuid.uuid4()),
+            'iat': datetime.datetime.utcnow(),
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=14)
+        }, 'im fake secret')
+
+        with self.assertRaises(AppError):
+            Account.from_auth_token(fake_token)
+
+        outdated_token = jwt.encode({
+            'iss': 'compose.ai',
+            'sub': account_.id,
+            'jti': str(uuid.uuid4()),
+            'iat': datetime.datetime.utcnow() - datetime.timedelta(days=30),
+            'exp': datetime.datetime.utcnow() - datetime.timedelta(days=15)
+        }, config.JWT_SECRET)
+
+        with self.assertRaises(AppError):
+            Account.from_auth_token(outdated_token)
 
 
 if __name__ == '__main__':

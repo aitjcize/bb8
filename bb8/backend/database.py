@@ -6,9 +6,13 @@
     Copyright 2016 bb8 Authors
 """
 
+import uuid
 import importlib
+from datetime import datetime, timedelta
 
+import jwt
 import enum
+from passlib.hash import bcrypt  # pylint: disable=E0611
 
 from sqlalchemy import create_engine
 from sqlalchemy import (Boolean, Column, Enum, ForeignKey, Integer, String,
@@ -22,6 +26,8 @@ from sqlalchemy.schema import UniqueConstraint
 
 from bb8 import config
 from bb8.backend.metadata import SessionRecord
+from bb8.error import AppError
+from bb8.constant import HTTPStatus, CustomError
 
 
 DeclarativeBase = declarative_base()
@@ -293,6 +299,38 @@ class Account(DeclarativeBase, QueryHelperMixin):
     bots = relationship('Bot', secondary='account_bot')
 
     oauth_infos = relationship('OAuthInfo', back_populates="account")
+
+    def set_passwd(self, passwd):
+        self.passwd = bcrypt.encrypt(passwd)
+
+    def verify_passwd(self, passwd):
+        return bcrypt.verify(passwd, self.passwd)
+
+    @property
+    def auth_token(self, expiration=30):
+        payload = {
+            'iss': 'compose.ai',
+            'sub': self.id,
+            'jti': str(uuid.uuid4()),  # unique identifier of the token
+            'iat': datetime.utcnow(),
+            'exp': datetime.utcnow() + timedelta(days=expiration)
+        }
+        token = jwt.encode(payload, config.JWT_SECRET)
+        return token.decode('unicode_escape')
+
+    @classmethod
+    def from_auth_token(cls, token):
+        try:
+            payload = jwt.decode(token, config.JWT_SECRET)
+        except jwt.DecodeError:
+            raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
+                           CustomError.ERR_UNAUTHENTICATED,
+                           'The token %s is invalid' % token)
+        except jwt.ExpiredSignature:
+            raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
+                           CustomError.ERR_UNAUTHENTICATED,
+                           'The token %s is invalid' % token)
+        return cls.get_by(id=payload['sub'], single=True)
 
 
 class OAuthProviderEnum(enum.Enum):
