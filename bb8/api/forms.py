@@ -14,7 +14,7 @@ from wtforms.validators import Required, Email, AnyOf, Length
 class RegistrationForm(Form):
     email = StringField('email', [Required(), Email()])
     username = StringField('username', [Required()])
-    passwd = PasswordField('', [Required(), Length(min=6, max=25)])
+    passwd = PasswordField('passwd', [Required(), Length(min=6, max=25)])
 
 
 class SocialRegistrationForm(Form):
@@ -25,4 +25,4 @@ class SocialRegistrationForm(Form):
 
 class LoginForm(Form):
     email = StringField('email', [Required(), Email()])
-    passwd = PasswordField('', [Required(), Length(min=6, max=25)])
+    passwd = PasswordField('passwd', [Required(), Length(min=6, max=25)])

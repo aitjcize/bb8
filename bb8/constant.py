@@ -38,3 +38,4 @@ class CustomError(object):
     ERR_UNAUTHORIZED = 101
     ERR_FORM_VALIDATION = 102
     ERR_USER_EXISTED = 103
+    ERR_WRONG_PASSWD = 104
