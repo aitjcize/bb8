@@ -6,7 +6,7 @@
     Copyright 2016 bb8 Authors
 """
 
-from flask import jsonify, session
+from flask import g, jsonify, session
 
 from bb8 import app, AppError
 from bb8.constant import HTTPStatus, CustomError, Key
@@ -38,7 +38,7 @@ def email_register():
 
         session[Key.ACCESS_TOKEN] = account.auth_token
 
-        # TODO: Send a email confirmation
+        # TODO: Send an email confirmation
         return jsonify(account.to_json())
     raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
                    CustomError.ERR_FORM_VALIDATION, form.errors)
@@ -57,9 +57,21 @@ def social_register():
 def login():
     form = LoginForm(csrf_enabled=False)
     if form.validate_on_submit():
-        account = Account.get_by(id=1, single=True)
+        email = form.data['email']
+        passwd = form.data['passwd']
+        account = Account.get_by(email=email, single=True)
+        if not account:
+            raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
+                           CustomError.ERR_WRONG_PASSWD,
+                           'Invalid combination of email and password')
+
+        if not account.verify_passwd(passwd):
+            raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
+                           CustomError.ERR_WRONG_PASSWD,
+                           'Invalid combination of email and password')
+
         session[Key.ACCESS_TOKEN] = account.auth_token
-        return jsonify(message='ok')
+        return jsonify(account.to_json())
     raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
                    CustomError.ERR_FORM_VALIDATION, form.errors)
 
@@ -77,4 +89,4 @@ def verify_email():
 @app.route('/me', methods=['GET'])
 @login_required
 def get_me():
-    return jsonify(message='ok')
+    return jsonify(g.account.to_json())
