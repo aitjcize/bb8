@@ -290,9 +290,11 @@ class QueryHelperMixin(object):
 
 
 class JSONSerializer(object):
+    __json_public__ = None
+    __json_hidden__ = None
 
     def unix_timestamp(self, dt):
-        " Return the time in seconds since the epoch as an integer "
+        """ Return the time in seconds since the epoch as an integer """
 
         _EPOCH = datetime(1970, 1, 1, tzinfo=pytz.utc)
         if dt.tzinfo is None:
@@ -301,9 +303,6 @@ class JSONSerializer(object):
                                     -1, -1, -1)) + dt.microsecond / 1e6)
         else:
             return int((dt - _EPOCH).total_seconds())
-
-    __json_public__ = None
-    __json_hidden__ = None
 
     def get_field_names(self):
         for p in self.__mapper__.iterate_properties:
@@ -364,11 +363,7 @@ class Account(DeclarativeBase, QueryHelperMixin, JSONSerializer):
     def from_auth_token(cls, token):
         try:
             payload = jwt.decode(token, config.JWT_SECRET)
-        except jwt.DecodeError:
-            raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
-                           CustomError.ERR_UNAUTHENTICATED,
-                           'The token %s is invalid' % token)
-        except jwt.ExpiredSignature:
+        except (jwt.DecodeError, jwt.ExpiredSignature):
             raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
                            CustomError.ERR_UNAUTHENTICATED,
                            'The token %s is invalid' % token)
@@ -400,6 +395,10 @@ class PlatformTypeEnum(enum.Enum):
 
 class Bot(DeclarativeBase, QueryHelperMixin):
     __tablename__ = 'bot'
+
+    __json_public__ = ['id', 'name', 'description',
+                       'root_node_id', 'start_node_id',
+                       'platforms']
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(256), nullable=False)

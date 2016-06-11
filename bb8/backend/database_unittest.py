@@ -258,7 +258,6 @@ class SchemaUnittest(unittest.TestCase):
         self.assertEquals(d['email'], 'test@test.com')
 
     def test_auth(self):
-
         self.dbm.reset()
         account = Account(name='Test Account 3', email='test3@test.com').add()
 
