@@ -8,6 +8,9 @@
 """
 
 import unittest
+import datetime
+
+import pytz
 
 from bb8.backend.database import DatabaseManager
 from bb8.backend.database import Bot, Node, Platform, User
@@ -42,7 +45,8 @@ class EngineUnittest(unittest.TestCase):
         self.user = User(bot_id=self.bot.id,
                          platform_id=Platform.get_by(id=1, single=True).id,
                          platform_user_ident='blablabla',
-                         last_seen=1464871496).add()
+                         last_seen=datetime.datetime(2016, 6, 2, 12, 44, 56,
+                                                     tzinfo=pytz.utc)).add()
 
         self.dbm.commit()
 

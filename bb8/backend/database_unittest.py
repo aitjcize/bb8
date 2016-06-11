@@ -38,7 +38,9 @@ class UserUnittest(unittest.TestCase):
         # effect on insert/deletion. see: # http://docs.sqlalchemy.org/en/\
         # latest/dialects/sqlite.html#foreign-key-support
         user = User(bot_id=1, platform_id=2, platform_user_ident='',
-                    last_seen=1464871496, session=1).add()
+                    last_seen=datetime.datetime(2016, 6, 2, 12, 44, 56,
+                                                tzinfo=pytz.utc),
+                    session=1).add()
         self.dbm.commit()
 
         self.assertNotEquals(User.get_by(id=user.id, single=True), None)
@@ -81,6 +83,28 @@ class SchemaUnittest(unittest.TestCase):
                               module_name='passthrough', ui_module_name='',
                               variables={}).add()
 
+        # Test for oauth schema
+        oauth1 = OAuthInfo(provider=OAuthProviderEnum.Facebook,
+                           provider_ident='mock-facebook-id').add()
+
+        oauth2 = OAuthInfo(provider=OAuthProviderEnum.Github,
+                           provider_ident='mock-github-id').add()
+
+        account.oauth_infos.append(oauth1)
+        account.oauth_infos.append(oauth2)
+        self.dbm.commit()
+
+        account_ = Account.get_by(id=account.id, single=True)
+        self.assertNotEquals(account_, None)
+        self.assertEquals(len(account_.oauth_infos), 2)
+
+        oauth_ = OAuthInfo.get_by(provider_ident='mock-facebook-id',
+                                  single=True)
+        self.assertNotEquals(oauth_, None)
+        self.assertNotEquals(oauth_.account, None)
+        self.assertEquals(oauth_.account.id, account.id)
+
+        # Test for bot
         account.bots.append(bot)
 
         self.dbm.commit()
@@ -148,7 +172,9 @@ class SchemaUnittest(unittest.TestCase):
         self.dbm.commit()
 
         user = User(bot_id=bot.id, platform_id=platform.id,
-                    platform_user_ident='', last_seen=1464871496).add()
+                    platform_user_ident='',
+                    last_seen=datetime.datetime(2016, 6, 2, 12, 44, 56,
+                                                tzinfo=pytz.utc)).add()
         self.dbm.commit()
 
         self.assertNotEquals(User.get_by(id=user.id, single=True), None)
@@ -174,10 +200,7 @@ class SchemaUnittest(unittest.TestCase):
         self.assertNotEquals(Conversation.get_by(id=conversation.id,
                                                  single=True), None)
 
-    def test_schema_feed(self):
-        """test for Feed, PublicFeed, Entry, Broadcast, Tag"""
-        self.dbm.reset()
-
+        # Test Feed, PublicFeed, Entry, Broadcast, Tag
         feed = Feed(url='example.com/rss', type=FeedEnum.RSS,
                     title='example.com', image='example.com/logo').add()
 
@@ -217,35 +240,7 @@ class SchemaUnittest(unittest.TestCase):
         self.dbm.commit()
         self.assertNotEquals(Broadcast.get_by(id=bc.id, single=True), None)
 
-    def test_oauth(self):
-
-        self.dbm.reset()
-
-        account = Account(name='Test Account 2', email='test2@test.com',
-                          passwd='test_hashed').add()
-
-        oauth1 = OAuthInfo(provider=OAuthProviderEnum.Facebook,
-                           provider_ident='mock-facebook-id').add()
-
-        oauth2 = OAuthInfo(provider=OAuthProviderEnum.Github,
-                           provider_ident='mock-github-id').add()
-
-        account.oauth_infos.append(oauth1)
-        account.oauth_infos.append(oauth2)
-        self.dbm.commit()
-
-        account_ = Account.get_by(id=account.id, single=True)
-        self.assertNotEquals(account_, None)
-        self.assertEquals(len(account_.oauth_infos), 2)
-
-        oauth_ = OAuthInfo.get_by(provider_ident='mock-facebook-id',
-                                  single=True)
-        self.assertNotEquals(oauth_, None)
-        self.assertNotEquals(oauth_.account, None)
-        self.assertEquals(oauth_.account.id, account.id)
-
     def test_json_serializer(self):
-
         self.dbm.reset()
         account = Account(username='test1',
                           name='tester',
