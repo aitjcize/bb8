@@ -424,7 +424,7 @@ class User(DeclarativeBase, QueryHelperMixin):
     bot_id = Column(ForeignKey('bot.id'), nullable=False)
     platform_id = Column(ForeignKey('platform.id'), nullable=False)
     platform_user_ident = Column(String(512), nullable=False)
-    last_seen = Column(Integer, nullable=False)
+    last_seen = Column(DateTime, nullable=False)
     login_token = Column(String(512), nullable=True)
     session = Column(SessionRecord.as_mutable(PickleType), nullable=True)
 
