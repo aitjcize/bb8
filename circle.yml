@@ -17,4 +17,4 @@ dependencies:
 test:
   override:
     - make lint
-    - make test
+    - make coverage && mv htmlcov/* $CIRCLE_ARTIFACTS/

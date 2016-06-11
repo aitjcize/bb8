@@ -14,6 +14,15 @@ test:
 	   echo Running $$test ...; $$test; \
 	 done
 
+coverage:
+	@export PYTHONPATH=$$PWD; \
+	 for test in $(UNITTESTS); do \
+	   COVER=$$(echo $$test | tr '/' '_'); \
+	   echo Running $$test ...; COVERAGE_FILE=.coverage_$$COVER coverage run $$test; \
+	 done
+	 @coverage combine .coverage_*
+	 @coverage html --include=bb8/*
+
 lint:
 	@pep8 $(LINT_FILES)
 	@pylint $(LINT_OPTIONS) $(LINT_FILES)

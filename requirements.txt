@@ -41,3 +41,4 @@ passlib==1.6
 py-bcrypt==0.4
 pyjwt==1.4.0
 pytz==2016.4
+coverage==4.1
