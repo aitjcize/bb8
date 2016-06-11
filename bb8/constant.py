@@ -7,6 +7,10 @@
 """
 
 
+class Key(object):
+    ACCESS_TOKEN = 'access_token'
+
+
 class HTTPStatus(object):
     STATUS_OK = 200
     STATUS_CREATED = 201
@@ -33,3 +37,4 @@ class CustomError(object):
     ERR_UNAUTHENTICATED = 100
     ERR_UNAUTHORIZED = 101
     ERR_FORM_VALIDATION = 102
+    ERR_USER_EXISTED = 103

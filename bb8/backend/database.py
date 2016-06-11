@@ -6,12 +6,14 @@
     Copyright 2016 bb8 Authors
 """
 
+import time
 import uuid
 import importlib
 from datetime import datetime, timedelta
 
 import jwt
 import enum
+import pytz
 from passlib.hash import bcrypt  # pylint: disable=E0611
 
 from sqlalchemy import create_engine
@@ -287,11 +289,50 @@ class QueryHelperMixin(object):
         return self
 
 
-class Account(DeclarativeBase, QueryHelperMixin):
+class JSONSerializer(object):
+
+    def unix_timestamp(self, dt):
+        " Return the time in seconds since the epoch as an integer "
+
+        _EPOCH = datetime(1970, 1, 1, tzinfo=pytz.utc)
+        if dt.tzinfo is None:
+            return int(time.mktime((dt.year, dt.month, dt.day,
+                                    dt.hour, dt.minute, dt.second,
+                                    -1, -1, -1)) + dt.microsecond / 1e6)
+        else:
+            return int((dt - _EPOCH).total_seconds())
+
+    __json_public__ = None
+    __json_hidden__ = None
+
+    def get_field_names(self):
+        for p in self.__mapper__.iterate_properties:
+            yield p.key
+
+    def to_json(self):
+        field_names = self.get_field_names()
+
+        public = self.__json_public__ or field_names
+        hidden = self.__json_hidden__ or []
+
+        rv = dict()
+        for key in public:
+            rv[key] = getattr(self, key)
+            if isinstance(rv[key], datetime):
+                rv[key] = self.unix_timestamp(rv[key])
+        for key in hidden:
+            rv.pop(key, None)
+        return rv
+
+
+class Account(DeclarativeBase, QueryHelperMixin, JSONSerializer):
     __tablename__ = 'account'
 
+    __json_public__ = ['name', 'username', 'email']
+
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(256), nullable=False)
+    name = Column(String(256), nullable=False, default="")
+    username = Column(String(256), nullable=False, default="")
     email = Column(String(256), nullable=False)
     email_verified = Column(Boolean, nullable=False, default=False)
     passwd = Column(String(256), nullable=False)
@@ -302,6 +343,7 @@ class Account(DeclarativeBase, QueryHelperMixin):
 
     def set_passwd(self, passwd):
         self.passwd = bcrypt.encrypt(passwd)
+        return self
 
     def verify_passwd(self, passwd):
         return bcrypt.verify(passwd, self.passwd)

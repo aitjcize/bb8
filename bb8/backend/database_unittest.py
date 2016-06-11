@@ -12,6 +12,7 @@ import unittest
 import datetime
 
 import jwt
+import pytz
 
 from bb8 import config
 from bb8.error import AppError
@@ -242,6 +243,24 @@ class SchemaUnittest(unittest.TestCase):
         self.assertNotEquals(oauth_, None)
         self.assertNotEquals(oauth_.account, None)
         self.assertEquals(oauth_.account.id, account.id)
+
+    def test_json_serializer(self):
+
+        self.dbm.reset()
+        account = Account(username='test1',
+                          name='tester',
+                          email='test@test.com')
+
+        dt = datetime.datetime(2010, 1, 1, 0, 0, tzinfo=pytz.utc)
+        account.created_at = dt
+
+        account.__json_public__.append('created_at')
+
+        d = account.to_json()
+        self.assertEquals(d['created_at'], 1262304000)
+        self.assertEquals(d['username'], 'test1')
+        self.assertEquals(d['name'], 'tester')
+        self.assertEquals(d['email'], 'test@test.com')
 
     def test_auth(self):
 
