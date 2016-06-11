@@ -60,16 +60,10 @@ def login():
         email = form.data['email']
         passwd = form.data['passwd']
         account = Account.get_by(email=email, single=True)
-        if not account:
+        if not account or not account.verify_passwd(passwd):
             raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
                            CustomError.ERR_WRONG_PASSWD,
                            'Invalid combination of email and password')
-
-        if not account.verify_passwd(passwd):
-            raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
-                           CustomError.ERR_WRONG_PASSWD,
-                           'Invalid combination of email and password')
-
         session[Key.ACCESS_TOKEN] = account.auth_token
         return jsonify(account.to_json())
     raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
