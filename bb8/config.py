@@ -18,6 +18,12 @@ class Config(object):
     LOCK_DIR = BB8_ROOT + '/lock'
     RECORDS_PER_PAGE = 50
 
+    # Secrets
+    # FIXME: Replace these secrets in production
+    JWT_SECRET = 'JWT_SECRET_REPLACE_ME'
+    # Secret key for Flask session
+    SECRET_KEY = 'SECRET_KEY_REPLACE_ME'
+
     # Log
     LOG_DIR = BB8_ROOT + '/log'
     LOG_FILE = LOG_DIR + '/message.log'

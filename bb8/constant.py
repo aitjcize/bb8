@@ -1,0 +1,41 @@
+# -*- coding: utf-8 -*-
+"""
+    contants
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Copyright 2016 bb8 Authors
+"""
+
+
+class Key(object):
+    ACCESS_TOKEN = 'access_token'
+
+
+class HTTPStatus(object):
+    STATUS_OK = 200
+    STATUS_CREATED = 201
+    STATUS_ACCEPTED = 202
+    STATUS_NON_AUTHORITATIVE_INFO = 203
+    STATUS_NO_CONTENT = 204
+    STATUS_RESET_CONTENT = 205
+    STATUS_PARTIAL_CONTENT = 206
+
+    STATUS_BAD_REQUEST = 400
+    STATUS_UNAUTHORIZED = 401
+    STATUS_FORBIDDEN = 403
+    STATUS_NOT_FOUND = 404
+
+    STATUS_CLIENT_ERROR = 420
+
+    STATUS_INTERNAL_SERVER_ERROR = 500
+    STATUS_SERVICE_UNAVAILABLE = 503
+
+    STATUS_SERVER_ERROR = 520
+
+
+class CustomError(object):
+    ERR_UNAUTHENTICATED = 100
+    ERR_UNAUTHORIZED = 101
+    ERR_FORM_VALIDATION = 102
+    ERR_USER_EXISTED = 103
+    ERR_WRONG_PASSWD = 104
