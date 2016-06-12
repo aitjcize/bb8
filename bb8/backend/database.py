@@ -6,13 +6,19 @@
     Copyright 2016 bb8 Authors
 """
 
+import time
+import uuid
 import importlib
+from datetime import datetime, timedelta
 
+import jwt
 import enum
+import pytz
+from passlib.hash import bcrypt  # pylint: disable=E0611
 
 from sqlalchemy import create_engine
 from sqlalchemy import (Boolean, Column, Enum, ForeignKey, Integer, String,
-                        Table, Text, PickleType)
+                        DateTime, Table, Text, PickleType)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (scoped_session, sessionmaker, joinedload,
                             relationship, object_session)
@@ -22,6 +28,8 @@ from sqlalchemy.schema import UniqueConstraint
 
 from bb8 import config
 from bb8.backend.metadata import SessionRecord
+from bb8.error import AppError
+from bb8.constant import HTTPStatus, CustomError
 
 
 DeclarativeBase = declarative_base()
@@ -281,15 +289,103 @@ class QueryHelperMixin(object):
         return self
 
 
-class Account(DeclarativeBase, QueryHelperMixin):
+class JSONSerializer(object):
+    __json_public__ = None
+    __json_hidden__ = None
+
+    def unix_timestamp(self, dt):
+        """ Return the time in seconds since the epoch as an integer """
+
+        _EPOCH = datetime(1970, 1, 1, tzinfo=pytz.utc)
+        if dt.tzinfo is None:
+            return int(time.mktime((dt.year, dt.month, dt.day,
+                                    dt.hour, dt.minute, dt.second,
+                                    -1, -1, -1)) + dt.microsecond / 1e6)
+        else:
+            return int((dt - _EPOCH).total_seconds())
+
+    def get_field_names(self):
+        for p in self.__mapper__.iterate_properties:
+            yield p.key
+
+    def to_json(self):
+        field_names = self.get_field_names()
+
+        public = self.__json_public__ or field_names
+        hidden = self.__json_hidden__ or []
+
+        rv = dict()
+        for key in public:
+            rv[key] = getattr(self, key)
+            if isinstance(rv[key], datetime):
+                rv[key] = self.unix_timestamp(rv[key])
+        for key in hidden:
+            rv.pop(key, None)
+        return rv
+
+
+class Account(DeclarativeBase, QueryHelperMixin, JSONSerializer):
     __tablename__ = 'account'
 
+    __json_public__ = ['name', 'username', 'email']
+
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(256), nullable=False)
+    name = Column(String(256), nullable=False, default="")
+    username = Column(String(256), nullable=False, default="")
     email = Column(String(256), nullable=False)
+    email_verified = Column(Boolean, nullable=False, default=False)
     passwd = Column(String(256), nullable=False)
 
     bots = relationship('Bot', secondary='account_bot')
+
+    oauth_infos = relationship('OAuthInfo', back_populates="account")
+
+    def set_passwd(self, passwd):
+        self.passwd = bcrypt.encrypt(passwd)
+        return self
+
+    def verify_passwd(self, passwd):
+        return bcrypt.verify(passwd, self.passwd)
+
+    @property
+    def auth_token(self, expiration=30):
+        payload = {
+            'iss': 'compose.ai',
+            'sub': self.id,
+            'jti': str(uuid.uuid4()),  # unique identifier of the token
+            'iat': datetime.utcnow(),
+            'exp': datetime.utcnow() + timedelta(days=expiration)
+        }
+        token = jwt.encode(payload, config.JWT_SECRET)
+        return token.decode('unicode_escape')
+
+    @classmethod
+    def from_auth_token(cls, token):
+        try:
+            payload = jwt.decode(token, config.JWT_SECRET)
+        except (jwt.DecodeError, jwt.ExpiredSignature):
+            raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
+                           CustomError.ERR_UNAUTHENTICATED,
+                           'The token %s is invalid' % token)
+        return cls.get_by(id=payload['sub'], single=True)
+
+
+class OAuthProviderEnum(enum.Enum):
+    Facebook = 'FACEBOOK'
+    Google = 'GOOGLE'
+    Github = 'GITHUB'
+
+
+class OAuthInfo(DeclarativeBase, QueryHelperMixin):
+    __tablename__ = 'oauth_info'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    account_id = Column(ForeignKey('account.id'), nullable=False)
+
+    provider = Column(Enum(OAuthProviderEnum), nullable=False)
+    provider_ident = Column(String(256), nullable=False)
+
+    account = relationship('Account', back_populates="oauth_infos")
 
 
 class PlatformTypeEnum(enum.Enum):
@@ -299,6 +395,10 @@ class PlatformTypeEnum(enum.Enum):
 
 class Bot(DeclarativeBase, QueryHelperMixin):
     __tablename__ = 'bot'
+
+    __json_public__ = ['id', 'name', 'description',
+                       'root_node_id', 'start_node_id',
+                       'platforms']
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(256), nullable=False)
@@ -323,7 +423,7 @@ class User(DeclarativeBase, QueryHelperMixin):
     bot_id = Column(ForeignKey('bot.id'), nullable=False)
     platform_id = Column(ForeignKey('platform.id'), nullable=False)
     platform_user_ident = Column(String(512), nullable=False)
-    last_seen = Column(Integer, nullable=False)
+    last_seen = Column(DateTime, nullable=False)
     login_token = Column(String(512), nullable=True)
     session = Column(SessionRecord.as_mutable(PickleType), nullable=True)
 
@@ -466,6 +566,71 @@ class Event(DeclarativeBase, QueryHelperMixin):
     event_name = Column(String(512), nullable=False)
     event_value = Column(PickleType, nullable=False)
 
+
+class FeedEnum(enum.Enum):
+    RSS = 'RSS'
+    ATOM = 'ATOM'
+    CSV = 'CSV'
+    JSON = 'JSON'
+    XML = 'XML'
+
+
+class Feed(DeclarativeBase, QueryHelperMixin):
+    __tablename__ = 'feed'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    url = Column(String(512), nullable=False)
+    type = Column(Enum(FeedEnum), nullable=False)
+    title = Column(String(512), nullable=False)
+    image = Column(String(512), nullable=False)
+
+
+class PublicFeed(DeclarativeBase, QueryHelperMixin):
+    __tablename__ = 'public_feed'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    url = Column(String(512), nullable=False)
+    type = Column(Enum(FeedEnum), nullable=False)
+    title = Column(String(512), nullable=False)
+    image = Column(String(512), nullable=False)
+
+
+class Entry(DeclarativeBase, QueryHelperMixin):
+    __tablename__ = 'entry'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    title = Column(String(512), nullable=False)
+    link = Column(String(512), nullable=False)
+    description = Column(String(512), nullable=False)
+    publish_time = Column(DateTime, nullable=False)
+    source = Column(String(512), nullable=False)
+    author = Column(String(512), nullable=False)
+    image = Column(String(512), nullable=False)
+    content = Column(String(512), nullable=False)
+
+    tags = relationship('Tag', secondary='entry_tag')
+
+
+class Broadcast(DeclarativeBase, QueryHelperMixin):
+    __tablename__ = 'broadcast'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    message = Column(Text, nullable=False)
+    scheduled_time = Column(DateTime, nullable=False)
+
+
+class Tag(DeclarativeBase, QueryHelperMixin):
+    __tablename__ = 'tag'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(512), nullable=False)
+
+
+t_entry_tag = Table(
+    'entry_tag', metadata,
+    Column('entry_id', ForeignKey('entry.id'), nullable=False),
+    Column('tag_id', ForeignKey('tag.id'), nullable=False)
+)
 
 t_account_bot = Table(
     'account_bot', metadata,

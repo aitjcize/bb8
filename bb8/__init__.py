@@ -8,10 +8,11 @@
 
 import os
 
-from flask import Flask
+from flask import Flask, jsonify
 
 from bb8 import config as Config
 from bb8.logger import Logger
+from bb8.error import AppError
 
 config = None
 
@@ -24,3 +25,10 @@ app = Flask(__name__)
 app.config.from_object(config)
 
 logger = Logger(config)
+
+
+def on_app_error(e):
+    logger.error(str(e))
+    return jsonify(message=e.message, error_code=e.error_code), e.status_code
+
+app.errorhandler(AppError)(on_app_error)

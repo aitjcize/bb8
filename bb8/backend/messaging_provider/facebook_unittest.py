@@ -8,6 +8,9 @@
 """
 
 import unittest
+import datetime
+
+import pytz
 
 from bb8.backend.database import DatabaseManager
 from bb8.backend.database import Bot, Platform, PlatformTypeEnum, User
@@ -49,7 +52,8 @@ class Facebook(unittest.TestCase):
         self.user = User(bot_id=self.bot.id,
                          platform_id=self.platform.id,
                          platform_user_ident='1153206858057166',
-                         last_seen=1464871496).add()
+                         last_seen=datetime.datetime(2016, 6, 2, 12, 44, 56,
+                                                     tzinfo=pytz.utc)).add()
 
         self.dbm.commit()
 
