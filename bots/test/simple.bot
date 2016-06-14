@@ -7,8 +7,8 @@
     }
   },
   "bot": {
-    "name": "test",
-    "description": "test graph",
+    "name": "simple",
+    "description": "test simple graph",
     "interaction_timeout": 120,
     "session_timeout": 864000,
     "nodes": {

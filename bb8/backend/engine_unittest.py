@@ -25,20 +25,22 @@ from bb8.backend.bot_parser import get_bot_filename, parse_bot
 class EngineUnittest(unittest.TestCase):
     def setUp(self):
         self.dbm = DatabaseManager()
+        self.bot = None
+        self.user = None
+
         self.dbm.connect()
-        self.setup_prerequisite()
 
     def tearDown(self):
         self.dbm.disconnect()
 
-    def setup_prerequisite(self):
+    def setup_prerequisite(self, bot_file):
         self.dbm.reset()
 
         # Register all modules
         register_all_modules()
 
         # Construct test bot
-        parse_bot(get_bot_filename('test/simple.bot'))
+        parse_bot(get_bot_filename(bot_file))
 
         self.bot = Bot.get_by(id=1, single=True)
 
@@ -60,6 +62,8 @@ class EngineUnittest(unittest.TestCase):
                       .           ^
                        `----------`
         """
+        self.setup_prerequisite('test/simple.bot')
+
         engine = Engine()
 
         # Override module API method for testing
@@ -122,6 +126,53 @@ class EngineUnittest(unittest.TestCase):
         engine.step(self.bot, self.user, UserInput.Text('gotoE'))
         self.assertEquals(self.user.session.message_sent, True)
         self.assertEquals(self.user.session.node_id, get_node_id('root'))
+
+    def test_postback(self):
+        self.setup_prerequisite('test/postback.bot')
+
+        engine = Engine()
+
+        context = {}
+
+        def send_message_mock(unused_user, messages):
+            context['message'] = messages
+
+        messaging.send_message = send_message_mock
+
+        def get_node_id(name):
+            return Node.get_by(name=name, single=True).id
+
+        engine.step(self.bot, self.user)  # start display
+        self.assertEquals(self.user.session.node_id, get_node_id('root'))
+
+        # We should now be in root node
+        engine.step(self.bot, self.user)  # root display
+        self.assertEquals(self.user.session.message_sent, True)
+
+        postback = {
+            'type': 'postback',
+            'payload': '{"message": {"text": "PAYLOAD_TEXT"}, '
+                       '"node_id": %d}' % get_node_id('postback'),
+            'title': 'Postback'
+        }
+
+        # Try postback
+        engine.step(self.bot, self.user, UserInput(postback=postback))
+        self.assertEquals(self.user.session.node_id, get_node_id('show'))
+        self.assertEquals(self.user.session.message_sent, True)
+        self.assertEquals(context['message'][0].as_dict()['text'],
+                          'PAYLOAD_TEXT')
+
+        # Use global postback command to goto postback node
+        engine.step(self.bot, self.user, UserInput.Text('postback'))
+        self.assertEquals(self.user.session.node_id, get_node_id('postback'))
+        self.assertEquals(self.user.session.message_sent, True)
+
+        engine.step(self.bot, self.user, UserInput.Text('TEXT'))
+        self.assertEquals(self.user.session.node_id, get_node_id('show'))
+        self.assertEquals(self.user.session.message_sent, True)
+
+        self.assertEquals(context['message'][0].as_dict()['text'], 'TEXT')
 
 
 if __name__ == '__main__':
