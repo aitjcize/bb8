@@ -1,0 +1,106 @@
+{
+  "platform": {
+    "type_enum": "Facebook",
+    "provider_ident": "facebook_page_id",
+    "config": {
+      "access_token": "access_token"
+    }
+  },
+  "bot": {
+    "name": "postback",
+    "description": "test postback",
+    "interaction_timeout": 120,
+    "session_timeout": 864000,
+    "nodes": {
+      "start": {
+        "name": "start",
+        "description": "start",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": "In start"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.passthrough",
+          "config": {
+            "end_node_id": "[[root]]",
+            "ack_message": "Goto root"
+          }
+        }
+      },
+      "root": {
+        "name": "root",
+        "description": "root",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": "In root"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.test.literal_root",
+          "config": {
+            "type": "location",
+            "links": [
+              {
+                "action_ident": "postback",
+                "end_node_id": "[[postback]]",
+                "ack_message": "Goto postback"
+              }
+            ]
+          }
+        }
+      },
+      "postback": {
+        "name": "postback",
+        "description": "show and parse postback",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.test.postback",
+          "config": {
+            "text": "In postback"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.get_response",
+          "config": {
+            "type": "text",
+            "links": [
+              {
+                "action_ident": "got_text",
+                "end_node_id": "[[show]]",
+                "ack_message": "Goto show"
+              },
+              {
+                "action_ident": "no_text",
+                "end_node_id": "[[root]]",
+                "ack_message": "Goto root"
+              }
+            ]
+          }
+        }
+      },
+      "show": {
+        "name": "show",
+        "description": "show response",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.test.show_response",
+          "config": {
+            "response": "{{response}}"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.passthrough",
+          "config": {
+            "end_node_id": "[[root]]",
+            "ack_message": "Goto root"
+          }
+        }
+      }
+    }
+  }
+}
