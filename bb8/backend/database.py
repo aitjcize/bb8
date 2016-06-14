@@ -393,7 +393,7 @@ class PlatformTypeEnum(enum.Enum):
     Line = 'LINE'
 
 
-class Bot(DeclarativeBase, QueryHelperMixin):
+class Bot(JSONSerializer, DeclarativeBase, QueryHelperMixin):
     __tablename__ = 'bot'
 
     __json_public__ = ['id', 'name', 'description',
@@ -403,8 +403,8 @@ class Bot(DeclarativeBase, QueryHelperMixin):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(256), nullable=False)
     description = Column(String(512), nullable=False)
-    interaction_timeout = Column(Integer, nullable=False)
-    session_timeout = Column(Integer, nullable=False)
+    interaction_timeout = Column(Integer, nullable=False, default=120)
+    session_timeout = Column(Integer, nullable=False, default=86400)
     root_node_id = Column(Integer, nullable=True)
     start_node_id = Column(Integer, nullable=True)
 
