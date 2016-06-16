@@ -16,8 +16,10 @@ from bb8.error import AppError
 
 config = None
 
-if not os.getenv('CIRCLE_CI', '') == 'true':
-    config = Config.TestingConfig()
+if os.getenv('CIRCLE_CI', '') == 'true':
+    config = Config.TestingConfig()  # pylint: disable=R0204
+elif os.getenv('BB8_DEPLOY', '') == 'true':
+    config = Config.DeployConfig()  # pylint: disable=R0204
 else:
     config = Config.DevelopmentConfig()  # pylint: disable=R0204
 

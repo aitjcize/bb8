@@ -11,7 +11,7 @@ import os
 
 from flask_script import Server, Manager
 
-from bb8 import app
+from bb8 import config, app
 from bb8.api import requests
 
 from bb8.commands import shell
@@ -23,7 +23,7 @@ context = (
     os.path.join(bb8_root, 'certs/key.pem')
 )
 
-server = Server(host='0.0.0.0', port=7000, ssl_context=context)
+server = Server(host='0.0.0.0', port=config.PORT, ssl_context=context)
 
 manager = Manager(app)
 manager.add_command('runserver', server)

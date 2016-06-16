@@ -9,11 +9,16 @@
 
 import re
 
-from messaging import Message  # pylint: disable=W0611
+from bb8 import config
+from bb8.backend.messaging import Message  # pylint: disable=W0611
 
 
 variable_re = re.compile("^{{(.*?)}}$")
 has_variable_re = re.compile("{{(.*?)}}")
+
+CONFIG = {
+    'HTTP_ROOT': 'https://%s:%d/' % (config.HOSTNAME, config.PORT)
+}
 
 
 class LinkageItem(object):
@@ -28,11 +33,18 @@ class LinkageItem(object):
         self.ack_message = ack_message
 
 
+def Config(key):
+    """Return a config value given."""
+    return CONFIG.get(key, None)
+
+
 def TextPayload(text, env):
+    """Create a text payload representation given text."""
     return {'node_id': env['node_id'], 'message': {'text': text}}
 
 
 def LocationPayload(coordinate, env):
+    """Create a location payload representation given coordinate."""
     return {
         'node_id': env['node_id'],
         'message': {
@@ -57,6 +69,7 @@ def Render(template, variables):
 
 
 def IsVariable(text):
+    """Test if given text is a variable."""
     if not isinstance(text, str) and not isinstance(text, unicode):
         return False
     return variable_re.search(text) is not None
