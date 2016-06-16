@@ -52,7 +52,7 @@
               },
               {
                 "action_ident": "no_location",
-                "end_node_id": null,
+                "end_node_id": "[[hint_location]]",
                 "ack_message": "這不是位置哦~"
               }
             ]
@@ -73,12 +73,12 @@
         "parser_module": {
           "id": "ai.compose.core.passthrough",
           "config": {
-            "end_node_id": "[[hint]]",
+            "end_node_id": "[[hint_action]]",
             "ack_message": ""
           }
         }
       },
-      "hint": {
+      "hint_action": {
         "name": "Hint",
         "description": "Hint user",
         "expect_input": false,
@@ -86,6 +86,29 @@
           "id": "ai.compose.core.text_message",
           "config": {
             "text": "您可以繼續送出位置查詢，或按「再次查詢」"
+          }
+        }
+      },
+      "hint_location": {
+        "name": "Hint Location",
+        "description": "Hint user about how to send location",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.generic_message",
+          "config": {
+            "messages": [
+              {
+                "text": "請按下手機版 Messenger 上的位置按鍵"
+              },
+              {
+                "attachment": {
+                  "type": "image",
+                  "payload": {
+                    "url": "http://i.imgur.com/CdxCWXd.png"
+                  }
+                }
+              }
+            ]
           }
         }
       }

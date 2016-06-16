@@ -9,6 +9,7 @@
 import json
 
 import enum
+import jsonschema
 
 from bb8.backend.database import User, PlatformTypeEnum
 from bb8.backend.messaging_provider import facebook, line
@@ -152,9 +153,17 @@ class Message(object):
         self._text = text
         self._image_url = image_url
         self._bubbles = []
+        self.from_dict = None
 
         if self._text:
             self._constructed = True
+
+    @classmethod
+    def FromDict(cls, data):
+        jsonschema.validate(data, cls.schema())
+        m = Message()
+        m.from_dict = data
+        return m
 
     def __str__(self):
         return json.dumps(self.as_dict())
@@ -216,6 +225,9 @@ class Message(object):
         }
 
     def as_dict(self):
+        if self.from_dict:
+            return self.from_dict
+
         data = {}
 
         if self._text:

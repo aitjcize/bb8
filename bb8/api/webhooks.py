@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-    Common handler for requests
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Chatbot webhooks
+    ~~~~~~~~~~~~~~~~
 
     Copyright 2016 bb8 Authors
 """
 
+import datetime
 import logging
-import urllib
 
-from flask import request, make_response
+from flask import request
 
 from bb8 import config, app
 from bb8.backend.database import User, Platform, PlatformTypeEnum
 from bb8.backend.engine import Engine
 from bb8.backend.metadata import UserInput
-
-from bb8.backend.content_modules.youbike import GOOGLE_STATIC_MAP_API_KEY
 
 
 @app.route(config.FACEBOOK_WEBHOOK_PATH, methods=['GET'])
@@ -29,7 +27,7 @@ def challenge():
 
 @app.route(config.FACEBOOK_WEBHOOK_PATH, methods=['POST'])
 def receive():
-    # TODO(wnhuang): remove this in production
+    # TODO(aitjcize): remove this in production
     # Facebook throttles message sending when it found out webhook fails. To
     # prevent throttling, let's catch all exception and manually log them for
     # now.
@@ -49,7 +47,8 @@ def receive():
                                    platform_user_ident=sender, single=True)
                 if not user:
                     user = User(bot_id=bot.id, platform_id=platform.id,
-                                platform_user_ident=sender, last_seen=0).add()
+                                platform_user_ident=sender,
+                                last_seen=datetime.datetime.now()).add()
                     user.commit()
 
                 user_input = None
@@ -67,22 +66,3 @@ def receive():
         logging.exception(e)
 
     return 'ok'
-
-
-@app.route('/render_map')
-def redirect_url():
-    """Workaround facebooks 'bug', wher it remove multiple value with same key.
-    We use facebook to pass the arguments, then request render from Google on
-    behalf of it."""
-    # TODO(aitjcize): move this else where... this is not part of bb8
-
-    url = request.args.get('url', None)
-    if not url:
-        return 'No URL specified'
-
-    url = urllib.unquote(url + '&key=' + GOOGLE_STATIC_MAP_API_KEY)
-    h = urllib.urlopen(url)
-    response = make_response(h.read())
-    response.headers['content-type'] = h.headers['content-type']
-
-    return response

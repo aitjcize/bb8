@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-    bb8 application error
-    ~~~~~~~~~~~~~~~
+    Application Error
+    ~~~~~~~~~~~~~~~~~
 
     Copyright 2016 bb8 Authors
 """
 
 
 class AppError(Exception):
-    """ Custom application error """
+    """Custom application error."""
 
     def __init__(self, status_code, error_code, message):
         super(AppError, self).__init__(status_code, error_code, message)
@@ -19,5 +19,5 @@ class AppError(Exception):
         self.message = message
 
     def __str__(self):
-        return "status_code: %d, error_code: %d, message: %s" % \
+        return 'status_code: %d, error_code: %d, message: %s' % \
                 (self.status_code, self.error_code, self.message)
