@@ -8,13 +8,12 @@ machine:
     version:
       2.7.11
 
-## Customize dependencies
-dependencies:
-  pre:
-    - pip install -r requirements.txt
-
 ## Customize test commands
 test:
   override:
     - make lint
     - make coverage && mv htmlcov/* $CIRCLE_ARTIFACTS/
+
+notify:
+  webhooks:
+    - url: https://compose.phacility.com/harbormaster/hook/circleci/
