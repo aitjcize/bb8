@@ -28,6 +28,10 @@ class Config(object):
     LOG_DIR = BB8_ROOT + '/log'
     LOG_FILE = LOG_DIR + '/message.log'
 
+    # Server
+    HOSTNAME = 'bot.azhuang.me'
+    PORT = 7000
+
     # Webhooks
     BOT_WEBHOOOK_ROOT = '/bot'
 
@@ -40,6 +44,8 @@ class Config(object):
 
 class DevelopmentConfig(Config):
     DEBUG = True
+
+    # Database
     DATABASE = 'sqlite:////tmp/bb8.db'
 
 
@@ -50,3 +56,10 @@ class TestingConfig(DevelopmentConfig):
 class DeployConfig(DevelopmentConfig):
     DEBUG = False
     DEPLOY = True
+
+    # Database
+    # TODO(aitjcize): switch to MySQL in production
+    DATABASE = 'sqlite:////tmp/bb8.deploy.db'
+
+    # Server
+    PORT = 5000
