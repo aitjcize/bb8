@@ -60,10 +60,10 @@ def parse_bot(filename):
     bot = Bot(name=bot_desc['name'], description=bot_desc['description'],
               interaction_timeout=bot_desc['interaction_timeout'],
               session_timeout=bot_desc['session_timeout']).add()
-    bot.commit()
+    bot.flush()
 
     platform = Platform(bot_id=bot.id, **platform_desc).add()
-    platform.commit()
+    platform.flush()
 
     nodes = bot_desc['nodes']
     name_id_map = {}
@@ -79,7 +79,7 @@ def parse_bot(filename):
         if 'parser_module' in node:
             n.parser_module_id = node['parser_module']['id']
 
-        n.commit()
+        n.flush()
         name_id_map[name] = n.id
 
     # Set bot start, root node
@@ -106,7 +106,7 @@ def parse_bot(filename):
             pm = n.parser_module.get_module()
             n.build_linkages(pm.get_linkages(n.parser_config))
 
-    bot.commit()
+    bot.flush()
 
 
 def build_all_bots():

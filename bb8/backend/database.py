@@ -25,6 +25,7 @@ from sqlalchemy.orm import (scoped_session, sessionmaker, joinedload,
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import has_identity
 from sqlalchemy.schema import UniqueConstraint
+from sqlalchemy.exc import IntegrityError
 
 from bb8 import config
 from bb8.backend.metadata import SessionRecord
@@ -88,10 +89,7 @@ class DatabaseManager(object):
     @classmethod
     def disconnect(cls, commit=True):
         if commit:
-            try:
-                g.db.commit()
-            except Exception:
-                pass
+            g.db.commit()
         g.db.close()
         g.db = None
 
@@ -157,6 +155,10 @@ class DatabaseSession(object):
         DatabaseManager.connect()
 
     def __exit__(self, exc_type, exc_value, tb):
+        if exc_type == IntegrityError:
+            DatabaseManager.rollback()
+            return
+
         DatabaseManager.commit()
         if self._disconnect:
             DatabaseManager.disconnect()
