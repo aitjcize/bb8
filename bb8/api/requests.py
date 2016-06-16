@@ -11,7 +11,7 @@ from bb8 import app
 from bb8.backend.database import DatabaseManager
 
 # Register request handlers
-from bb8.api import webhooks  # pylint: disable=W0611
+from bb8.api import webhooks, third_party  # pylint: disable=W0611
 
 
 @app.before_request

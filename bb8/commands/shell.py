@@ -14,7 +14,7 @@ from flask_script import Shell
 
 from bb8 import app
 # Register request handlers, pylint: disable=W0611
-from bb8.api import requests, account
+from bb8.api import requests
 from bb8.backend import database
 
 

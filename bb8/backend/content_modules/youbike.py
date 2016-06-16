@@ -32,7 +32,8 @@ def get_module_info():
 
 class GoogleStaticMapAPIRequestBuilder(object):
     API_ENDPOINT = 'https://maps.googleapis.com/maps/api/staticmap'
-    REDIRECT_URL = 'https://bot.azhuang.me:7000/render_map?url='
+    REDIRECT_URL = ('https://bot.azhuang.me:7000/third_party/youbike/'
+                    'render_map?url=')
 
     def __init__(self, api_key, size):
         self._api_key = api_key
