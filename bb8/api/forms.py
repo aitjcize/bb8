@@ -11,6 +11,7 @@ from wtforms import StringField, PasswordField
 from wtforms.validators import Required, Email, AnyOf, Length
 
 
+# Account Forms:
 class RegistrationForm(Form):
     email = StringField('email', [Required(), Email()])
     username = StringField('username', [Required()])
@@ -26,3 +27,10 @@ class SocialRegistrationForm(Form):
 class LoginForm(Form):
     email = StringField('email', [Required(), Email()])
     passwd = PasswordField('passwd', [Required(), Length(min=6, max=25)])
+
+
+# Bot Forms:
+class CreateBotForm(Form):
+    name = StringField('name', [Required(), Length(min=2, max=256)])
+    description = StringField('description',
+                              [Required(), Length(min=0, max=512)])
