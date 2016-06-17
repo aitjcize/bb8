@@ -33,7 +33,13 @@ class MessageUnittest(unittest.TestCase):
         b = Message.Button(Message.ButtonType.WEB_URL, 'test',
                            url='http://test.com')
         self.assertEquals(str(b), '{"url": "http://test.com", "type": '
-                                  '"web_url", "title": "test"}')
+                          '"web_url", "title": "test"}')
+        jsonschema.validate(b.as_dict(), Message.Button.schema())
+
+        b = Message.Button(Message.ButtonType.POSTBACK, 'postback',
+                           payload='postback')
+        self.assertEquals(str(b), '{"type": "postback", "payload": '
+                          '"postback", "title": "postback"}')
         jsonschema.validate(b.as_dict(), Message.Button.schema())
 
     def test_Bubble(self):
@@ -80,14 +86,21 @@ class MessageUnittest(unittest.TestCase):
 
         m = Message()
         m.add_bubble(b)
+        m.add_bubble(b)
         self.assertEquals(str(m), '{"attachment": {"type": "template", '
-                          '"payload": {"template_type": "generic", "elements":'
-                          ' [{"buttons": [{"url": "http://test.com", "type": '
+                          '"payload": {"template_type": "generic", "elements"'
+                          ': [{"buttons": [{"url": "http://test.com", '
+                          '"type": "web_url", "title": "test"}, {"type": '
+                          '"postback", "payload": "payload", "title": '
+                          '"test"}], "subtitle": "subtitle", "item_url": '
+                          '"http://test.com/item_url", "image_url": '
+                          '"http://test.com/image_url", "title": "title"}, '
+                          '{"buttons": [{"url": "http://test.com", "type": '
                           '"web_url", "title": "test"}, {"type": "postback", '
                           '"payload": "payload", "title": "test"}], '
-                          '"subtitle": "subtitle", '
-                          '"item_url": "http://test.com/item_url", '
-                          '"image_url": "http://test.com/image_url", '
+                          '"subtitle": "subtitle", "item_url": '
+                          '"http://test.com/item_url", "image_url": '
+                          '"http://test.com/image_url", '
                           '"title": "title"}]}}}')
         jsonschema.validate(m.as_dict(), Message.schema())
 
