@@ -56,12 +56,12 @@ class Message(object):
                         "url": {"type": "string"}
                     }
                 }, {
-                    "required": ["type", "title", "postback"],
+                    "required": ["type", "title", "payload"],
                     "type": "object",
                     "properties": {
                         "type": {"enum": ["postback"]},
                         "title": {"type": "string"},
-                        "postback": {"type": "string"}
+                        "payload": {"type": "string"}
                     }
                 }]
             }
@@ -97,7 +97,7 @@ class Message(object):
                 "properties": {
                     "buttons": {
                         "type": "array",
-                        "items": [{"$ref": "#/definitions/button"}]
+                        "items": {"$ref": "#/definitions/button"}
                     },
                     "image_url": {"type": "string"},
                     "item_url": {"type": "string"},
@@ -207,9 +207,9 @@ class Message(object):
                                         },
                                         "elements": {
                                             "type": "array",
-                                            "items": [{
+                                            "items": {
                                                 "$ref": "#/definitions/bubble"
-                                            }]
+                                            }
                                         }
                                     }
                                 }
