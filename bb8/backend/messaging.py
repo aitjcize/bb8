@@ -16,6 +16,12 @@ from bb8.backend.messaging_provider import facebook, line
 
 
 class Message(object):
+    """The Message class is a representation of messages.
+
+    We use Facebook's message format as our internal/intermediate
+    representation.
+    """
+
     class NotificationType(enum.Enum):
         REGULAR = 'REGULAR'
         SILENT_PUSH = 'SLIENT_PUSH'
@@ -247,6 +253,16 @@ class Message(object):
             }
         return data
 
+    def as_facebook_dict(self):
+        """Return message as Facebook message dictionary."""
+        return self.as_dict()
+
+    def as_line_dict(self):
+        """Return message as Line message dictionary."""
+        if self._text:
+            return {'contentType': 1, 'toType': 1, 'text': self._text}
+        return {'contentType': 1, 'toType': 1, 'text': 'stub'}
+
     @property
     def notification_type(self):
         return self._notification_type
@@ -259,6 +275,9 @@ class Message(object):
         self._notification_type = value
 
     def add_bubble(self, bubble):
+        if len(self._bubbles) == 7:
+            raise RuntimeError('maxium allowed bubbles reached')
+
         if not isinstance(bubble, Message.Bubble):
             raise RuntimeError('object is not a Message.Bubble object')
 

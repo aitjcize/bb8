@@ -1,11 +1,13 @@
 {
-  "platform": {
-    "type_enum": "Facebook",
-    "provider_ident": "facebook_page_id",
-    "config": {
-      "access_token": "access_token"
+  "platforms": [
+    {
+      "type_enum": "Facebook",
+      "provider_ident": "facebook_page_id",
+      "config": {
+        "access_token": "access_token"
+      }
     }
-  },
+  ],
   "bot": {
     "name": "simple",
     "description": "test simple graph",

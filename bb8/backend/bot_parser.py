@@ -54,16 +54,14 @@ def parse_bot(filename):
         logging.exception('Validation failed for %s!', filename)
         sys.exit(1)
 
-    platform_desc = bot_json['platform']
     bot_desc = bot_json['bot']
-
     bot = Bot(name=bot_desc['name'], description=bot_desc['description'],
               interaction_timeout=bot_desc['interaction_timeout'],
               session_timeout=bot_desc['session_timeout']).add()
     bot.flush()
 
-    platform = Platform(bot_id=bot.id, **platform_desc).add()
-    platform.flush()
+    for platform_desc in bot_json['platforms']:
+        Platform(bot_id=bot.id, **platform_desc).add()
 
     nodes = bot_desc['nodes']
     name_id_map = {}
