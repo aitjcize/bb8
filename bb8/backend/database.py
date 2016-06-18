@@ -340,6 +340,8 @@ class Account(DeclarativeBase, QueryHelperMixin, JSONSerializer):
 
     bots = relationship('Bot', secondary='account_bot')
 
+    feeds = relationship('Feed')
+    entries = relationship('Entry')
     oauth_infos = relationship('OAuthInfo', back_populates="account")
 
     def set_passwd(self, passwd):
@@ -581,10 +583,15 @@ class Feed(DeclarativeBase, QueryHelperMixin):
     __tablename__ = 'feed'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    account_id = Column(ForeignKey('account.id'), nullable=False)
     url = Column(String(512), nullable=False)
     type = Column(Enum(FeedEnum), nullable=False)
     title = Column(String(512), nullable=False)
     image = Column(String(512), nullable=False)
+
+    @classmethod
+    def search_title(cls, query):
+        return cls.query(cls).filter(cls.title.like('%' + query + '%'))
 
 
 class PublicFeed(DeclarativeBase, QueryHelperMixin):
@@ -601,6 +608,7 @@ class Entry(DeclarativeBase, QueryHelperMixin):
     __tablename__ = 'entry'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    account_id = Column(ForeignKey('account.id'), nullable=False)
     title = Column(String(512), nullable=False)
     link = Column(String(512), nullable=False)
     description = Column(String(512), nullable=False)
