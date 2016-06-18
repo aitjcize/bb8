@@ -14,7 +14,8 @@ import json
 import tempfile
 import urllib
 
-from bb8.backend.module_api import Config, Message, LocationPayload, Resolve
+from bb8.backend.module_api import (Config, Message, LocationPayload, Resolve,
+                                    SupportedPlatform)
 
 
 GOOGLE_STATIC_MAP_API_KEY = 'AIzaSyBumjctKrdC-SQIITfoJakEffPIz4vR87A'
@@ -25,8 +26,42 @@ def get_module_info():
         'id': 'ai.compose.third_party.youbike',
         'name': 'Youbike',
         'description': 'Youbike info search according to location.',
+        'supported_platform': SupportedPlatform.All,
         'module_name': 'youbike',
         'ui_module_name': 'youbike',
+    }
+
+
+def schema():
+    return {
+        'type': 'object',
+        'required': ['max_count', 'location'],
+        'additionalProperties': False,
+        'properties': {
+            'max_count': {
+                'type': 'integer',
+                'minimum': 1,
+                'maximum': 7
+            },
+            'location': {
+                'oneOf': [{
+                    'type': 'string'
+                }, {
+                    'type': 'object',
+                    'required': ['coordinates'],
+                    'properties': {
+                        'coordinates': {
+                            'type': 'object',
+                            'required': ['lat', 'long'],
+                            'properties': {
+                                'lat': {'type': 'number'},
+                                'long': {'type': 'number'}
+                            }
+                        }
+                    }
+                }]
+            }
+        }
     }
 
 

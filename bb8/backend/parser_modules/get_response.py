@@ -8,7 +8,7 @@
     Copyright 2016 bb8 Authors
 """
 
-from bb8.backend.module_api import LinkageItem
+from bb8.backend.module_api import LinkageItem, SupportedPlatform
 
 
 def get_module_info():
@@ -16,9 +16,34 @@ def get_module_info():
         'id': 'ai.compose.core.get_response',
         'name': 'User Response',
         'description': 'Get reponse from user.',
+        'supported_platform': SupportedPlatform.All,
         'module_name': 'get_response',
         'ui_module_name': 'get_response',
         'variables': ['response'],
+    }
+
+
+def schema():
+    return {
+        'type': 'object',
+        'required': ['type', 'links'],
+        'additionalProperties': False,
+        'properties': {
+            'type': {'enum': ['text', 'location', 'all']},
+            'links': {
+                'type': 'array',
+                'items': {
+                    'type': 'object',
+                    'required': ['action_ident', 'end_node_id', 'ack_message'],
+                    'additionalProperties': False,
+                    'properties': {
+                        'action_ident': {'type': 'string'},
+                        'end_node_id': {'type': 'integer'},
+                        'ack_message': {'type': 'string'}
+                    }
+                }
+            }
+        }
     }
 
 
@@ -27,7 +52,6 @@ def run(parser_config, user_input):
     parser_config schema:
     {
        "type": "text, location or all",
-       "max_count": 3
     }
 
     action_ident:

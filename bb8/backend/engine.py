@@ -77,7 +77,10 @@ class Engine(object):
                 return self.step(bot, user, user_input)
 
             if not user.session.message_sent:
-                env = {'node_id': node.id}
+                env = {
+                    'node_id': node.id,
+                    'platform_type': user.platform.type_enum.value
+                }
                 # TODO(aitjcize): figure out how to deal with cm exceptions
                 cm = node.content_module.get_module()
                 messages = cm.run(node.content_config, env, input_variables)

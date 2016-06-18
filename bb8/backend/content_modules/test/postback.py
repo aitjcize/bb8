@@ -6,7 +6,7 @@
     Copyright 2016 bb8 Authors
 """
 
-from bb8.backend.module_api import Message, TextPayload
+from bb8.backend.module_api import Message, TextPayload, SupportedPlatform
 
 
 def get_module_info():
@@ -14,9 +14,14 @@ def get_module_info():
         'id': 'ai.compose.test.postback',
         'name': 'show and parse postback',
         'description': 'show and parse postback',
+        'supported_platform': SupportedPlatform.All,
         'module_name': 'test.postback',
         'ui_module_name': 'postback',
     }
+
+
+def schema():
+    return {}
 
 
 def run(unused_content_config, env, unused_variables):

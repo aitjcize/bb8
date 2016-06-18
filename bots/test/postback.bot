@@ -45,7 +45,6 @@
         "parser_module": {
           "id": "ai.compose.test.literal_root",
           "config": {
-            "type": "location",
             "links": [
               {
                 "action_ident": "postback",

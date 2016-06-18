@@ -8,7 +8,7 @@
     Copyright 2016 bb8 Authors
 """
 
-from bb8.backend.module_api import LinkageItem
+from bb8.backend.module_api import LinkageItem, SupportedPlatform
 
 
 def get_module_info():
@@ -16,9 +16,33 @@ def get_module_info():
         'id': 'ai.compose.test.literal',
         'name': 'Literal',
         'description': 'Return user input as action_ident.',
+        'supported_platform': SupportedPlatform.All,
         'module_name': 'test.literal',
         'ui_module_name': 'literal',
         'variables': [],
+    }
+
+
+def schema():
+    return {
+        'type': 'object',
+        'required': ['links'],
+        'additionalProperties': False,
+        'properties': {
+            'links': {
+                'type': 'array',
+                'items': {
+                    'type': 'object',
+                    'required': ['action_ident', 'end_node_id', 'ack_message'],
+                    'additionalProperties': False,
+                    'properties': {
+                        'action_ident': {'type': 'string'},
+                        'end_node_id': {'type': ['integer', 'null']},
+                        'ack_message': {'type': 'string'}
+                    }
+                }
+            }
+        }
     }
 
 

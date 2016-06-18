@@ -53,21 +53,23 @@ class Message(object):
         @classmethod
         def schema(cls):
             return {
-                "oneOf": [{
-                    "required": ["type", "title", "url"],
-                    "type": "object",
-                    "properties": {
-                        "type": {"enum": ["web_url"]},
-                        "title": {"type": "string"},
-                        "url": {"type": "string"}
+                'oneOf': [{
+                    'required': ['type', 'title', 'url'],
+                    'additionalProperties': False,
+                    'type': 'object',
+                    'properties': {
+                        'type': {'enum': ['web_url']},
+                        'title': {'type': 'string'},
+                        'url': {'type': 'string'}
                     }
                 }, {
-                    "required": ["type", "title", "payload"],
-                    "type": "object",
-                    "properties": {
-                        "type": {"enum": ["postback"]},
-                        "title": {"type": "string"},
-                        "payload": {"type": "string"}
+                    'required': ['type', 'title', 'payload'],
+                    'additionalProperties': False,
+                    'type': 'object',
+                    'properties': {
+                        'type': {'enum': ['postback']},
+                        'title': {'type': 'string'},
+                        'payload': {'type': 'string'}
                     }
                 }]
             }
@@ -98,20 +100,21 @@ class Message(object):
         @classmethod
         def schema(cls):
             return {
-                "required": ["title"],
-                "type": "object",
-                "properties": {
-                    "buttons": {
-                        "type": "array",
-                        "items": {"$ref": "#/definitions/button"}
+                'required': ['title'],
+                'additionalProperties': False,
+                'type': 'object',
+                'properties': {
+                    'buttons': {
+                        'type': 'array',
+                        'items': {'$ref': '#/definitions/button'}
                     },
-                    "image_url": {"type": "string"},
-                    "item_url": {"type": "string"},
-                    "subtitle": {"type": "string"},
-                    "title": {"type": "string"}
+                    'image_url': {'type': 'string'},
+                    'item_url': {'type': 'string'},
+                    'subtitle': {'type': 'string'},
+                    'title': {'type': 'string'}
                 },
-                "definitions": {
-                    "button": Message.Button.schema()
+                'definitions': {
+                    'button': Message.Button.schema()
                 }
             }
 
@@ -177,44 +180,48 @@ class Message(object):
     @classmethod
     def schema(cls):
         return {
-            "oneOf": [{
-                "required": ["text"],
-                "type": "object",
-                "properties": {
-                    "text": {"type": "string"}
+            'oneOf': [{
+                'required': ['text'],
+                'additionalProperties': False,
+                'type': 'object',
+                'properties': {
+                    'text': {'type': 'string'}
                 }
             }, {
-                "required": ["attachment"],
-                "type": "object",
-                "properties": {
-                    "attachment": {
-                        "required": ["type", "payload"],
-                        "type": "object",
-                        "oneOf": [{
-                            "properties": {
-                                "type": {"enum": ["image"]},
-                                "payload": {
-                                    "required": ["url"],
-                                    "type": "object",
-                                    "properties": {
-                                        "url": {"type": "string"}
+                'required': ['attachment'],
+                'additionalProperties': False,
+                'type': 'object',
+                'properties': {
+                    'attachment': {
+                        'required': ['type', 'payload'],
+                        'type': 'object',
+                        'oneOf': [{
+                            'properties': {
+                                'type': {'enum': ['image']},
+                                'payload': {
+                                    'type': 'object',
+                                    'required': ['url'],
+                                    'additionalProperties': False,
+                                    'properties': {
+                                        'url': {'type': 'string'}
                                     }
                                 }
                             }
                         }, {
-                            "properties": {
-                                "type": {"enum": ["template"]},
-                                "payload": {
-                                    "required": ["template_type", "elements"],
-                                    "type": "object",
-                                    "properties": {
-                                        "template_type": {
-                                            "enum": ["generic"]
+                            'properties': {
+                                'type': {'enum': ['template']},
+                                'payload': {
+                                    'type': 'object',
+                                    'required': ['template_type', 'elements'],
+                                    'additionalProperties': False,
+                                    'properties': {
+                                        'template_type': {
+                                            'enum': ['generic']
                                         },
-                                        "elements": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/bubble"
+                                        'elements': {
+                                            'type': 'array',
+                                            'items': {
+                                                '$ref': '#/definitions/bubble'
                                             }
                                         }
                                     }
@@ -224,9 +231,9 @@ class Message(object):
                     }
                 }
             }],
-            "definitions": {
-                "button": Message.Button.schema(),
-                "bubble": Message.Bubble.schema()
+            'definitions': {
+                'button': Message.Button.schema(),
+                'bubble': Message.Bubble.schema()
             }
         }
 

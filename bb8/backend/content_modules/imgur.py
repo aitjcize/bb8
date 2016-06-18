@@ -12,7 +12,8 @@ import imgurpython
 
 from imgurpython.imgur.models.gallery_image import GalleryImage
 
-from bb8.backend.module_api import Message, TextPayload, Resolve
+from bb8.backend.module_api import (Message, TextPayload, Resolve,
+                                    SupportedPlatform)
 
 
 def get_module_info():
@@ -20,8 +21,50 @@ def get_module_info():
         'id': 'ai.compose.third_party.imgur',
         'name': 'Imgur',
         'description': 'Imgur image search and listing.',
+        'supported_platform': SupportedPlatform.All,
         'module_name': 'imgur',
         'ui_module_name': 'imgur',
+    }
+
+
+def schema():
+    return {
+        'oneOf': [{
+            'type': 'object',
+            'required': ['type', 'max_count', 'auth'],
+            'additionalProperties': False,
+            'properties': {
+                'type': {'enum': ['random']},
+                'max_count': {'$ref': '#/definitions/max_count'},
+                'auth': {'$ref': '#/definitions/auth'}
+            }
+        }, {
+            'type': 'object',
+            'required': ['type', 'term', 'max_count', 'auth'],
+            'additionalProperties': False,
+            'properties': {
+                'type': {'enum': ['query']},
+                'term': {'type': 'string'},
+                'max_count': {'$ref': '#/definitions/max_count'},
+                'auth': {'$ref': '#/definitions/auth'}
+            }
+        }],
+        "definitions": {
+            'max_count': {
+                'type': 'integer',
+                'minimum': 1,
+                'maximum': 7
+            },
+            'auth': {
+                'type': 'object',
+                'required': ['client_id', 'client_secret'],
+                'additionalProperties': False,
+                'properties': {
+                    'client_id': {'type': 'string'},
+                    'client_secret': {'type': 'string'}
+                }
+            }
+        }
     }
 
 

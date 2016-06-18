@@ -375,9 +375,9 @@ class Account(DeclarativeBase, QueryHelperMixin, JSONSerializer):
 
 
 class OAuthProviderEnum(enum.Enum):
-    Facebook = 'FACEBOOK'
-    Google = 'GOOGLE'
-    Github = 'GITHUB'
+    Facebook = 'Facebook'
+    Google = 'Google'
+    Github = 'Github'
 
 
 class OAuthInfo(DeclarativeBase, QueryHelperMixin):
@@ -393,8 +393,8 @@ class OAuthInfo(DeclarativeBase, QueryHelperMixin):
 
 
 class PlatformTypeEnum(enum.Enum):
-    Facebook = 'FACEBOOK'
-    Line = 'LINE'
+    Facebook = 'Facebook'
+    Line = 'Line'
 
 
 class Bot(JSONSerializer, DeclarativeBase, QueryHelperMixin):
@@ -499,12 +499,20 @@ class Linkage(DeclarativeBase, QueryHelperMixin):
     end_node = relationship('Node', foreign_keys=[end_node_id])
 
 
+class SupportedPlatform(enum.Enum):
+    All = 'All'
+    Facebook = 'Facebook'
+    Line = 'Line'
+
+
 class ContentModule(DeclarativeBase, QueryHelperMixin):
     __tablename__ = 'content_module'
 
     id = Column(String(128), primary_key=True)
     name = Column(String(256), nullable=False)
     description = Column(Text, nullable=False)
+    supported_platform = Column(Enum(SupportedPlatform), nullable=False,
+                                default=SupportedPlatform.All)
     module_name = Column(String(256), nullable=False)
     ui_module_name = Column(String(256), nullable=False)
 
@@ -521,6 +529,8 @@ class ParserModule(DeclarativeBase, QueryHelperMixin):
     id = Column(String(128), primary_key=True)
     name = Column(String(256), nullable=False)
     description = Column(Text, nullable=False)
+    supported_platform = Column(Enum(SupportedPlatform), nullable=False,
+                                default=SupportedPlatform.All)
     module_name = Column(String(256), nullable=False)
     ui_module_name = Column(String(256), nullable=False)
     variables = Column(PickleType, nullable=False)

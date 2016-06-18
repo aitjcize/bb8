@@ -8,8 +8,11 @@
     Copyright 2016 bb8 Authors
 """
 
-import os
 import importlib
+import logging
+import os
+
+from jsonschema import Draft4Validator
 
 from bb8.backend.database import DatabaseSession, ContentModule, ParserModule
 
@@ -43,6 +46,12 @@ def register_content_modules():
             info = m.get_module_info()
             assert info['module_name'] == name
 
+            try:
+                Draft4Validator.check_schema(m.schema())
+            except Exception:
+                logging.error('module %s schema check failed', name)
+                raise
+
             cm = ContentModule.get_by(id=info['id'], single=True)
             if cm:
                 cm.delete().commit()
@@ -61,6 +70,12 @@ def register_parser_modules():
                                         (ParserModule.PARSER_MODULES, name))
             info = m.get_module_info()
             assert info['module_name'] == name
+
+            try:
+                Draft4Validator.check_schema(m.schema())
+            except Exception:
+                logging.error('module %s schema check failed', name)
+                raise
 
             pm = ParserModule.get_by(id=info['id'], single=True)
             if pm:
