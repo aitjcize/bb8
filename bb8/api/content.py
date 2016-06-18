@@ -12,6 +12,7 @@ from bb8 import app, AppError
 from bb8.constant import HTTPStatus, CustomError
 from bb8.api.middlewares import login_required
 from bb8.api.forms import CreateFeedForm
+from bb8.api.util import validate_uint
 from bb8.backend.database import Feed
 
 
@@ -31,8 +32,10 @@ def search_public_feeds():
 def create_feed():
     form = CreateFeedForm(csrf_enabled=False)
     if form.validate_on_submit():
-        Feed(**form.data).add()
+        feed = Feed(**form.data).add()
+        g.account.feeds.append(feed)
         Feed.commit()
+        return jsonify(feed=feed.to_json())
     raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
                    CustomError.ERR_FORM_VALIDATION,
                    form.errors)
@@ -41,7 +44,11 @@ def create_feed():
 @app.route('/feeds', methods=['GET'])
 @login_required
 def get_feeds():
-    return jsonify(g.account.to_json())
+    limit = validate_uint(request.args.get('limit', 10), 0, 50, 10)
+    offset = validate_uint(request.args.get('offset', 0), 0, -1, 0)
+
+    feeds = g.account.feeds.limit(limit).offset(offset).all()
+    return jsonify(feeds=[f.to_json() for f in feeds])
 
 
 @app.route('/feeds/<int:feed_id>', methods=['GET'])

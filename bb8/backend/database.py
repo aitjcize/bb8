@@ -321,6 +321,8 @@ class JSONSerializer(object):
             rv[key] = getattr(self, key)
             if isinstance(rv[key], datetime):
                 rv[key] = self.unix_timestamp(rv[key])
+            elif isinstance(rv[key], enum.Enum):
+                rv[key] = rv[key].value
         for key in hidden:
             rv.pop(key, None)
         return rv
@@ -340,7 +342,7 @@ class Account(DeclarativeBase, QueryHelperMixin, JSONSerializer):
 
     bots = relationship('Bot', secondary='account_bot')
 
-    feeds = relationship('Feed')
+    feeds = relationship('Feed', lazy='dynamic')
     entries = relationship('Entry')
     oauth_infos = relationship('OAuthInfo', back_populates="account")
 
@@ -397,7 +399,7 @@ class PlatformTypeEnum(enum.Enum):
     Line = 'Line'
 
 
-class Bot(JSONSerializer, DeclarativeBase, QueryHelperMixin):
+class Bot(DeclarativeBase, QueryHelperMixin, JSONSerializer):
     __tablename__ = 'bot'
 
     __json_public__ = ['id', 'name', 'description',
@@ -589,8 +591,10 @@ class FeedEnum(enum.Enum):
     XML = 'XML'
 
 
-class Feed(DeclarativeBase, QueryHelperMixin):
+class Feed(DeclarativeBase, QueryHelperMixin, JSONSerializer):
     __tablename__ = 'feed'
+
+    __json_hidden__ = ['account_id']
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     account_id = Column(ForeignKey('account.id'), nullable=False)
