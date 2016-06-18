@@ -201,11 +201,24 @@ class SchemaUnittest(unittest.TestCase):
                                                  single=True), None)
 
         # Test Feed, PublicFeed, Entry, Broadcast, Tag
-        feed = Feed(url='example.com/rss', type=FeedEnum.RSS,
-                    title='example.com', image='example.com/logo').add()
+        account = Account(name='Test Account - 1', email='test1@test.com',
+                          passwd='test_hashed').add()
+        feed1 = Feed(url='example.com/rss', type=FeedEnum.RSS,
+                     title='foo.com', image='foo.com/logo').add()
+        feed2 = Feed(url='example.com/rss', type=FeedEnum.RSS,
+                     title='bar.com', image='bar.com/logo').add()
+        feed3 = Feed(url='example.com/rss', type=FeedEnum.RSS,
+                     title='baz.com', image='baz.com/logo').add()
+
+        account.feeds.append(feed1)
+        account.feeds.append(feed2)
+        account.feeds.append(feed3)
 
         self.dbm.commit()
-        self.assertNotEquals(Feed.get_by(id=feed.id, single=True), None)
+        self.assertNotEquals(Feed.get_by(id=feed1.id, single=True), None)
+
+        feeds = Feed.search_title('ba')
+        self.assertEquals(len(list(feeds)), 2)
 
         pfeed = PublicFeed(url='example.com/rss', type=FeedEnum.RSS,
                            title='example.com', image='example.com/logo').add()
@@ -216,6 +229,9 @@ class SchemaUnittest(unittest.TestCase):
         tag1 = Tag(name='product').add()
         tag2 = Tag(name='article').add()
 
+        account = Account(name='Test Account - 3', email='test3@test.com',
+                          passwd='test_hashed').add()
+
         entry = Entry(title='mock-title',
                       link='mock-link',
                       description='mock-desc',
@@ -224,6 +240,8 @@ class SchemaUnittest(unittest.TestCase):
                       author='mock-author',
                       image='mock-image',
                       content='mock-content').add()
+
+        account.entries.append(entry)
 
         self.dbm.commit()
         entry.tags.append(tag1)

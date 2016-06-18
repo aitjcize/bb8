@@ -33,7 +33,7 @@ def email_register():
             raise AppError(
                 HTTPStatus.STATUS_CLIENT_ERROR,
                 CustomError.ERR_USER_EXISTED,
-                "username {username} or email {email} is already taken"
+                'username {username} or email {email} is already taken'
                 .format(**user_info))
 
         session[Key.ACCESS_TOKEN] = account.auth_token
