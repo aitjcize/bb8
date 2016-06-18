@@ -17,7 +17,8 @@ import sys
 
 import jsonschema
 
-from bb8.backend.database import Bot, DatabaseSession, Node, Platform
+from bb8.backend.database import (Bot, ContentModule, DatabaseSession, Node,
+                                  Platform)
 
 
 def get_bots_dir():
@@ -68,6 +69,16 @@ def parse_bot(filename):
 
     # Build node
     for name, node in nodes.iteritems():
+        try:
+            cm = ContentModule.get_by(id=node['content_module']['id'],
+                                      single=True)
+            jsonschema.validate(node['content_module']['config'],
+                                cm.get_module().schema())
+        except jsonschema.exceptions.ValidationError:
+            logging.error('Node \'%s\' content module config validation '
+                          'failed', node['name'])
+            raise
+
         n = Node(bot_id=bot.id, name=node['name'],
                  description=node['description'],
                  expect_input=node['expect_input'],
@@ -102,6 +113,13 @@ def parse_bot(filename):
             nodes = bot_json['bot']['nodes']
             n.parser_config = nodes[name]['parser_module']['config']
             pm = n.parser_module.get_module()
+            try:
+                jsonschema.validate(n.parser_config, pm.schema())
+            except jsonschema.exceptions.ValidationError:
+                logging.error('Node \'%s\' parser module config validation '
+                              'failed', node['name'])
+                raise
+
             n.build_linkages(pm.get_linkages(n.parser_config))
 
     bot.flush()

@@ -8,7 +8,7 @@
     Copyright 2016 bb8 Authors
 """
 
-from bb8.backend.module_api import LinkageItem
+from bb8.backend.module_api import LinkageItem, SupportedPlatform
 
 
 def get_module_info():
@@ -16,9 +16,22 @@ def get_module_info():
         'id': 'ai.compose.core.passthrough',
         'name': 'Passthrough',
         'description': 'Passthrough to the next node without any response.',
+        'supported_platform': SupportedPlatform.All,
         'module_name': 'passthrough',
         'ui_module_name': 'passthrough',
         'variables': [],
+    }
+
+
+def schema():
+    return {
+        'type': 'object',
+        'required': ['end_node_id', 'ack_message'],
+        'additionalProperties': False,
+        'properties': {
+            'end_node_id': {'type': 'integer'},
+            'ack_message': {'type': 'string'}
+        }
     }
 
 
