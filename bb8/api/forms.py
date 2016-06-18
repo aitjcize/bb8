@@ -20,10 +20,11 @@ class RegistrationForm(Form):
 
 
 class SocialRegistrationForm(Form):
-    provider = StringField('provider', [Required(),
-                                        AnyOf([OAuthProviderEnum.Facebook,
-                                               OAuthProviderEnum.Google,
-                                               OAuthProviderEnum.Github])])
+    provider = StringField('provider',
+                           [Required(),
+                            AnyOf([OAuthProviderEnum.Facebook.value,
+                                   OAuthProviderEnum.Google.value,
+                                   OAuthProviderEnum.Github.value])])
     provider_token = StringField('provider_ident', [Required()])
 
 
@@ -43,10 +44,10 @@ class CreateBotForm(Form):
 class CreateFeedForm(Form):
     url = StringField('url', [Required()])
     type = StringField('type', [Required(),
-                                AnyOf([FeedEnum.RSS,
-                                       FeedEnum.ATOM,
-                                       FeedEnum.CSV,
-                                       FeedEnum.JSON,
-                                       FeedEnum.XML])])
+                                AnyOf([FeedEnum.RSS.value,
+                                       FeedEnum.ATOM.value,
+                                       FeedEnum.CSV.value,
+                                       FeedEnum.JSON.value,
+                                       FeedEnum.XML.value])])
     title = StringField('title', [Required()])
     image = StringField('image', [Required()])
