@@ -1,11 +1,22 @@
 {
-  "platform": {
-    "type_enum": "Facebook",
-    "provider_ident": "1764704343742166",
-    "config": {
-      "access_token": "EAAZAi0GnycPEBAEwZBg2jYhZAtfjHXUhFtOdC5JLoBicWkSzp3GC2wE9U7NXD5MBPuUxNWTOfD7AWxTSoKZC9gcovxbmd7rC0wdGUo0eZBkOAGyZBRJWLW4e7QUZCmxHKXaQu1BNch52kEslZAx5kaOtDjygfxZC1NMdZAOfQDZAkxGFQZDZD"
+  "platforms": [
+    {
+      "type_enum": "Facebook",
+      "provider_ident": "1764704343742166",
+      "config": {
+        "access_token": "EAAZAi0GnycPEBAEwZBg2jYhZAtfjHXUhFtOdC5JLoBicWkSzp3GC2wE9U7NXD5MBPuUxNWTOfD7AWxTSoKZC9gcovxbmd7rC0wdGUo0eZBkOAGyZBRJWLW4e7QUZCmxHKXaQu1BNch52kEslZAx5kaOtDjygfxZC1NMdZAOfQDZAkxGFQZDZD"
+      }
+    },
+    {
+      "type_enum": "Line",
+      "provider_ident": "u5526efbbc9c7ad1b3375c5102c276e68",
+      "config": {
+        "channel_id": "1468633788",
+        "channel_secret": "70a5bfd80b2cf26e387b83aa836fc884",
+        "mid": "u5526efbbc9c7ad1b3375c5102c276e68"
+      }
     }
-  },
+  ],
   "bot": {
     "name": "Youbike",
     "description": "Provide location-based youbike info",

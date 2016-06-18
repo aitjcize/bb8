@@ -1,26 +1,29 @@
 {
   "required": [
     "bot",
-    "platform"
+    "platforms"
   ],
   "type": "object",
   "properties": {
-    "platform": {
-      "required": [
-        "config",
-        "provider_ident",
-        "type_enum"
-      ],
-      "type": "object",
-      "properties": {
-        "type_enum": {
-          "type": "string"
-        },
-        "config": {
-          "type": "object"
-        },
-        "provider_ident": {
-          "type": "string"
+    "platforms": {
+      "type": "array",
+      "items": {
+        "required": [
+          "type_enum",
+          "provider_ident",
+          "config"
+        ],
+        "type": "object",
+        "properties": {
+          "type_enum": {
+            "type": "string"
+          },
+          "provider_ident": {
+            "type": "string"
+          },
+          "config": {
+            "type": "object"
+          }
         }
       }
     },

@@ -16,11 +16,11 @@ def send_message(user, messages):
     for message in messages:
         response = requests.request(
             'POST',
-            url=FACEBOOK_MESSAGING_API_URL,
+            FACEBOOK_MESSAGING_API_URL,
             params={'access_token': user.platform.config['access_token']},
             json={
                 'recipient': {'id': user.platform_user_ident},
-                'message': str(message),
+                'message': message.as_facebook_dict(),
                 'notification_type': message.notification_type.value
             }
         )

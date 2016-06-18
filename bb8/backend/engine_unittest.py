@@ -150,14 +150,15 @@ class EngineUnittest(unittest.TestCase):
         self.assertEquals(self.user.session.message_sent, True)
 
         postback = {
-            'type': 'postback',
-            'payload': '{"message": {"text": "PAYLOAD_TEXT"}, '
-                       '"node_id": %d}' % get_node_id('postback'),
-            'title': 'Postback'
+            'postback': {
+                'payload': '{"message": {"text": "PAYLOAD_TEXT"}, '
+                           '"node_id": %d}' % get_node_id('postback')
+            }
         }
 
         # Try postback
-        engine.step(self.bot, self.user, UserInput(postback=postback))
+        engine.step(self.bot, self.user,
+                    UserInput.FromFacebookMessage(postback))
         self.assertEquals(self.user.session.node_id, get_node_id('show'))
         self.assertEquals(self.user.session.message_sent, True)
         self.assertEquals(context['message'][0].as_dict()['text'],

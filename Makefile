@@ -11,7 +11,8 @@ all: test lint validate-bots
 test:
 	@export PYTHONPATH=$$PWD; \
 	 for test in $(UNITTESTS); do \
-	   echo Running $$test ...; $$test; \
+	   echo Running $$test ...; \
+	   $$test || exit 1; \
 	 done
 
 coverage:

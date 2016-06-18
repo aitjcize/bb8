@@ -51,37 +51,68 @@ class SessionRecord(Mutable):
 
 
 class UserInput(object):
-    def __init__(self, message=None, postback=None):
+    def __init__(self):
         self.text = None
-        self.attachments = None
         self.location = None
         self.jump_node_id = None
 
-        if message:
-            self.text = message.get('text')
-            self.parse_attachments(message.get('attachments'))
+    @classmethod
+    def Text(cls, text):
+        u = UserInput()
+        u.text = text
+        return u
 
+    @classmethod
+    def FromFacebookMessage(cls, messaging):
+        u = UserInput()
+        message = messaging.get('message')
+        if message:
+            u.text = message.get('text')
+            u.parse_facebook_attachments(message.get('attachments'))
+            return u
+
+        postback = messaging.get('postback')
         if postback:
             try:
                 payload = json.loads(postback['payload'])
                 message = payload['message']
-                self.text = message.get('text')
-                self.parse_attachments(message.get('attachments'))
-                self.jump_node_id = int(payload['node_id'])
+                u.text = message.get('text')
+                u.parse_facebook_attachments(message.get('attachments'))
+                u.jump_node_id = int(payload['node_id'])
             except ValueError:
                 pass
+            else:
+                return u
 
-    @classmethod
-    def Text(cls, text):
-        return UserInput({'text': text})
+        return None
 
-    def parse_attachments(self, attachments):
+    def parse_facebook_attachments(self, attachments):
+        """Helper function for parsing facebook attachments."""
         if not attachments:
             return
 
         for att in attachments:
             if att['type'] == 'location':
                 self.location = att.get('payload')
+
+    @classmethod
+    def FromLineMessage(cls, content):
+        u = UserInput()
+        if content['contentType'] == 1:  # Text Message
+            u.text = content['text']
+        elif content['contentType'] == 7:  # Location Message
+            loc = content['location']
+            u.location = {
+                'title': loc['title'],
+                'coordinates': {
+                    'lat': loc['latitude'],
+                    'long': loc['longitude']
+                }
+            }
+        else:
+            return None
+
+        return u
 
     def jump(self):
         return self.jump_node_id is not None
