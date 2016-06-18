@@ -175,6 +175,16 @@ def run(content_config, env, variables):
     b = Message.Bubble(u'附近的 Ubike 站點',
                        image_url=m.build_url(),
                        subtitle=u'以下是最近的 %d 個站點' % k)
+
+    best = stations[0]
+    for s in stations:
+        if s['sbi'] > 0:
+            best = s
+            break
+
+    best_gps_coord = (float(best['lat']), float(best['lng']))
+    b.add_button(Message.Button(Message.ButtonType.WEB_URL, u'好手氣',
+                                url=m.build_navigation_url(best_gps_coord)))
     b.add_button(Message.Button(Message.ButtonType.POSTBACK, u'再次查詢',
                                 payload=LocationPayload(c, env)))
     msg.add_bubble(b)
@@ -187,7 +197,7 @@ def run(content_config, env, variables):
         m.add_marker(gps_coord, color='red')
 
         b = Message.Bubble(s['ar'], image_url=m.build_url(),
-                           subtitle=u'剩餘車數量: %s\n空位數量: %s\n' %
+                           subtitle=u'剩餘數量: %s\n空位數量: %s\n' %
                            (s['sbi'], s['bemp']))
         b.add_button(Message.Button(Message.ButtonType.WEB_URL,
                                     u'地圖導航',
