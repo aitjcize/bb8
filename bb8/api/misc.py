@@ -9,7 +9,7 @@
 import base64
 import urllib2
 
-from StringIO import StringIO
+from cStringIO import StringIO
 
 from flask import request, make_response
 from PIL import Image
