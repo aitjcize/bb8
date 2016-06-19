@@ -9,11 +9,14 @@
 
 import unittest
 
-from bb8.backend.module_api import (TextPayload, LocationPayload, Render,
-                                    IsVariable, Resolve)
+from bb8.backend.module_api import (Config, TextPayload, LocationPayload,
+                                    Render, IsVariable, Resolve)
 
 
 class ModuleAPIUnittest(unittest.TestCase):
+    def test_Config(self):
+        self.assertIsNotNone(Config('HTTP_ROOT'))
+
     def test_TextPayload(self):
         env = {'node_id': 1}
         self.assertEquals(TextPayload('test', env),

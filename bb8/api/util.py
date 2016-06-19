@@ -1,3 +1,12 @@
+# -*- coding: utf-8 -*-
+"""
+    Misc API Utility
+    ~~~~~~~~~~~~~~~~
+
+    Copyright 2016 bb8 Authors
+"""
+
+
 def validate_uint(val, min_val, max_val, default_val):
     try:
         val = int(val)

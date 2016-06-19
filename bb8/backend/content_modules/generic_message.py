@@ -27,24 +27,54 @@ def schema():
         'additionalProperties': False,
         'properties': {
             'messages': {
-                'type': 'array',
-                'items': Message.schema()
+                'oneOf': [{
+                    'type': 'array',
+                    'items': Message.schema()
+                }, {
+                    'type': 'object',
+                    'required': ['Facebook', 'Line'],
+                    'additionalProperties': False,
+                    'properties': {
+                        'Facebook': {
+                            'type': 'array',
+                            'items': Message.schema()
+                        },
+                        'Line': {
+                            'type': 'array',
+                            'items': Message.schema()
+                        }
+                    }
+                }]
             }
         }
     }
 
 
-def run(content_config, unused_env, unused_variables):
+def run(content_config, env, unused_variables):
     """
-    content_config schema
+    content_config schema:
 
+    Platform independent message:
     {
-        'messages': [Message schema, ...]
+        'messages': [Message, ...]
+    }
+
+    Platform dependent message:
+    {
+        'message': {
+            'Facebook': [Message,  ... ]
+            'Line': [Message, ... ]
+            ...
+        }
     }
     """
     messages = content_config.get('messages', None)
     msgs = []
-    if messages:
-        for message in messages:
-            msgs.append(Message.FromDict(message))
+
+    if not isinstance(messages, list):
+        platform_type = env['platform_type'].value
+        messages = messages[platform_type]
+
+    for message in messages:
+        msgs.append(Message.FromDict(message))
     return msgs

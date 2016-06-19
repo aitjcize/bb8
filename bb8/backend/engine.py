@@ -11,7 +11,7 @@ import datetime
 from bb8 import logger
 
 from bb8.backend import messaging
-from bb8.backend.database import Linkage, Node
+from bb8.backend.database import Linkage, Node, SupportedPlatform
 
 
 class Engine(object):
@@ -79,7 +79,8 @@ class Engine(object):
             if not user.session.message_sent:
                 env = {
                     'node_id': node.id,
-                    'platform_type': user.platform.type_enum.value
+                    'platform_type': SupportedPlatform(
+                        user.platform.type_enum.value)
                 }
                 # TODO(aitjcize): figure out how to deal with cm exceptions
                 cm = node.content_module.get_module()
