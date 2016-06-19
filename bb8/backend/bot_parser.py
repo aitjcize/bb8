@@ -79,8 +79,8 @@ def parse_bot(filename):
                           'failed', node['name'])
             raise
 
-        n = Node(bot_id=bot.id, name=node['name'],
-                 description=node['description'],
+        n = Node(bot_id=bot.id, name=unicode(node['name']),
+                 description=unicode(node['description']),
                  expect_input=node['expect_input'],
                  content_module_id=node['content_module']['id'],
                  content_config=node['content_module']['config']).add()

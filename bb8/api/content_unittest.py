@@ -32,7 +32,7 @@ class ContentAPIUnittest(unittest.TestCase):
         self.dbm.disconnect()
 
     def setup_prerequisite(self):
-        acc = Account(name='test',
+        acc = Account(name=u'test',
                       username='test-account-1',
                       email='test@gmail.com') \
             .set_passwd('12345678') \
@@ -40,8 +40,8 @@ class ContentAPIUnittest(unittest.TestCase):
         for i in range(50):
             feed = Feed(url='example%d.com' % i,
                         type=FeedEnum.RSS,
-                        title='example%d.com' % i,
-                        image='example%d.com/logo' % i).add()
+                        title=u'example%d.com' % i,
+                        image_url='example%d.com/logo' % i).add()
             acc.feeds.append(feed)
         self.dbm.commit()
 
@@ -80,8 +80,8 @@ class ContentAPIUnittest(unittest.TestCase):
         rv = self.app.post('/feeds', data=dict(
             url='www.appledaily.com',
             type='RSS',
-            title='apple daily',
-            image='appledaily.com/logo'
+            title=u'apple daily',
+            image_url='appledaily.com/logo'
         ))
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
 
