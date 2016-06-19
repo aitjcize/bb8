@@ -17,11 +17,11 @@ import pytz
 from passlib.hash import bcrypt  # pylint: disable=E0611
 
 from sqlalchemy import create_engine
-from sqlalchemy import (Boolean, Column, Enum, ForeignKey, Integer, String,
-                        DateTime, Table, Text, PickleType)
+from sqlalchemy import (Boolean, Column, DateTime, Enum, ForeignKey, Integer,
+                        PickleType, Table, Text, String, Unicode, UnicodeText)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (scoped_session, sessionmaker, joinedload,
-                            relationship, object_session)
+                            relationship, object_session, deferred)
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import has_identity
 from sqlalchemy.schema import UniqueConstraint
@@ -334,8 +334,8 @@ class Account(DeclarativeBase, QueryHelperMixin, JSONSerializer):
     __json_public__ = ['name', 'username', 'email']
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(256), nullable=False, default="")
-    username = Column(String(256), nullable=False, default="")
+    name = Column(Unicode(256), nullable=False, default=u'')
+    username = Column(String(256), nullable=False)
     email = Column(String(256), nullable=False)
     email_verified = Column(Boolean, nullable=False, default=False)
     passwd = Column(String(256), nullable=False)
@@ -407,8 +407,8 @@ class Bot(DeclarativeBase, QueryHelperMixin, JSONSerializer):
                        'platforms']
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(256), nullable=False)
-    description = Column(String(512), nullable=False)
+    name = Column(Unicode(256), nullable=False)
+    description = Column(UnicodeText, nullable=False)
     interaction_timeout = Column(Integer, nullable=False, default=120)
     session_timeout = Column(Integer, nullable=False, default=86400)
     root_node_id = Column(Integer, nullable=True)
@@ -428,9 +428,9 @@ class User(DeclarativeBase, QueryHelperMixin):
     id = Column(Integer, primary_key=True, autoincrement=True)
     bot_id = Column(ForeignKey('bot.id'), nullable=False)
     platform_id = Column(ForeignKey('platform.id'), nullable=False)
-    platform_user_ident = Column(String(512), nullable=False)
+    platform_user_ident = Column(String(128), nullable=False)
     last_seen = Column(DateTime, nullable=False)
-    login_token = Column(String(512), nullable=True)
+    login_token = deferred(Column(Text, nullable=True))
     session = Column(SessionRecord.as_mutable(PickleType), nullable=True)
 
     platform = relationship('Platform')
@@ -446,8 +446,8 @@ class Node(DeclarativeBase, QueryHelperMixin):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     bot_id = Column(ForeignKey('bot.id'), nullable=False)
-    name = Column(String(128), nullable=False)
-    description = Column(String(512), nullable=True)
+    name = Column(Unicode(128), nullable=False)
+    description = Column(UnicodeText, nullable=True)
     expect_input = Column(Boolean, nullable=False)
     content_module_id = Column(ForeignKey('content_module.id'), nullable=False)
     content_config = Column(PickleType, nullable=False)
@@ -481,7 +481,7 @@ class Platform(DeclarativeBase, QueryHelperMixin):
     id = Column(Integer, primary_key=True, autoincrement=True)
     bot_id = Column(ForeignKey('bot.id'), nullable=False)
     type_enum = Column(Enum(PlatformTypeEnum), nullable=False)
-    provider_ident = Column(String(512), nullable=False)
+    provider_ident = Column(String(128), nullable=False)
     config = Column(PickleType, nullable=False)
 
     bot = relationship('Bot')
@@ -493,8 +493,8 @@ class Linkage(DeclarativeBase, QueryHelperMixin):
     id = Column(Integer, primary_key=True, autoincrement=True)
     start_node_id = Column(ForeignKey('node.id'), nullable=False)
     end_node_id = Column(ForeignKey('node.id'), nullable=False)
-    action_ident = Column(String(256), nullable=False)
-    ack_message = Column(Text, nullable=False)
+    action_ident = Column(String(128), nullable=False)
+    ack_message = Column(UnicodeText, nullable=False)
 
     start_node = relationship('Node', foreign_keys=[start_node_id],
                               backref='linkages')
@@ -552,7 +552,7 @@ class ColletedDatum(DeclarativeBase, QueryHelperMixin):
     id = Column(Integer, primary_key=True, autoincrement=True)
     account_id = Column(ForeignKey('account.id'), nullable=False)
     user_id = Column(ForeignKey('user.id'), nullable=False)
-    key = Column(String(512), nullable=False)
+    key = Column(String(128), nullable=False)
     value = Column(PickleType, nullable=False)
 
 
@@ -579,7 +579,7 @@ class Event(DeclarativeBase, QueryHelperMixin):
     id = Column(Integer, primary_key=True, autoincrement=True)
     bot_id = Column(ForeignKey('bot.id'), nullable=False)
     user_id = Column(ForeignKey('user.id'), nullable=False)
-    event_name = Column(String(512), nullable=False)
+    event_name = Column(String(128), nullable=False)
     event_value = Column(PickleType, nullable=False)
 
 
@@ -598,24 +598,24 @@ class Feed(DeclarativeBase, QueryHelperMixin, JSONSerializer):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     account_id = Column(ForeignKey('account.id'), nullable=False)
-    url = Column(String(512), nullable=False)
+    url = Column(String(256), nullable=False)
     type = Column(Enum(FeedEnum), nullable=False)
-    title = Column(String(512), nullable=False)
-    image = Column(String(512), nullable=False)
+    title = Column(Unicode(128), nullable=False)
+    image_url = Column(String(256), nullable=False)
 
     @classmethod
-    def search_title(cls, query):
-        return cls.query(cls).filter(cls.title.like('%' + query + '%'))
+    def search_title(cls, term):
+        return cls.query(cls).filter(cls.title.like(unicode('%' + term + '%')))
 
 
 class PublicFeed(DeclarativeBase, QueryHelperMixin):
     __tablename__ = 'public_feed'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    url = Column(String(512), nullable=False)
+    url = Column(String(256), nullable=False)
     type = Column(Enum(FeedEnum), nullable=False)
-    title = Column(String(512), nullable=False)
-    image = Column(String(512), nullable=False)
+    title = Column(Unicode(128), nullable=False)
+    image_url = Column(String(256), nullable=False)
 
 
 class Entry(DeclarativeBase, QueryHelperMixin):
@@ -623,14 +623,14 @@ class Entry(DeclarativeBase, QueryHelperMixin):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     account_id = Column(ForeignKey('account.id'), nullable=False)
-    title = Column(String(512), nullable=False)
-    link = Column(String(512), nullable=False)
-    description = Column(String(512), nullable=False)
+    title = Column(Unicode(128), nullable=False)
+    link = Column(Unicode(256), nullable=False)
+    description = Column(UnicodeText, nullable=False)
     publish_time = Column(DateTime, nullable=False)
-    source = Column(String(512), nullable=False)
-    author = Column(String(512), nullable=False)
-    image = Column(String(512), nullable=False)
-    content = Column(String(512), nullable=False)
+    source_name = Column(Unicode(64), nullable=False)
+    image_url = Column(String(256), nullable=False)
+    author = Column(Unicode(64), nullable=False)
+    content = Column(UnicodeText, nullable=False)
 
     tags = relationship('Tag', secondary='entry_tag')
 
@@ -639,7 +639,7 @@ class Broadcast(DeclarativeBase, QueryHelperMixin):
     __tablename__ = 'broadcast'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    message = Column(Text, nullable=False)
+    message = Column(PickleType, nullable=False)
     scheduled_time = Column(DateTime, nullable=False)
 
 
@@ -647,7 +647,7 @@ class Tag(DeclarativeBase, QueryHelperMixin):
     __tablename__ = 'tag'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(512), nullable=False)
+    name = Column(Unicode(64), nullable=False)
 
 
 t_entry_tag = Table(

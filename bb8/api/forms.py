@@ -50,4 +50,4 @@ class CreateFeedForm(Form):
                                        FeedEnum.JSON.value,
                                        FeedEnum.XML.value])])
     title = StringField('title', [Required()])
-    image = StringField('image', [Required()])
+    image_url = StringField('image_url', [Required()])
