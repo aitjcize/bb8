@@ -32,7 +32,7 @@ class BotAPIUnittest(unittest.TestCase):
         self.dbm.disconnect()
 
     def setup_prerequisite(self):
-        Account(name='test',
+        Account(name=u'test',
                 username='test-account-1',
                 email='test@gmail.com') \
             .set_passwd('12345678') \

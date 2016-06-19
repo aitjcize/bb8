@@ -87,5 +87,5 @@ def get_linkages(parser_config):
 
     if '$error' not in parser_config['links']:
         links.append(LinkageItem('$error', None,
-                                 'Invalid reponse, please re-enter.'))
+                                 'Invalid response, please re-enter.'))
     return links
