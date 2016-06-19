@@ -8,6 +8,8 @@
     Copyright 2016 bb8 Authors
 """
 
+import os
+
 
 class Config(object):
     DEBUG = True
@@ -46,7 +48,7 @@ class DevelopmentConfig(Config):
     DEBUG = True
 
     # Database
-    DATABASE = 'sqlite:////tmp/bb8.db'
+    DATABASE = os.getenv('DATABASE', 'sqlite:////tmp/bb8.db')
 
 
 class TestingConfig(DevelopmentConfig):
@@ -56,10 +58,6 @@ class TestingConfig(DevelopmentConfig):
 class DeployConfig(DevelopmentConfig):
     DEBUG = False
     DEPLOY = True
-
-    # Database
-    # TODO(aitjcize): switch to MySQL in production
-    DATABASE = 'sqlite:////tmp/bb8.deploy.db'
 
     # Server
     PORT = 5000
