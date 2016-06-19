@@ -37,6 +37,24 @@ DeclarativeBase = declarative_base()
 metadata = DeclarativeBase.metadata
 
 
+try:
+    """
+    The pooled connection can not share accross process. We need to create a
+    new engine after fork.
+
+    See: http://docs.sqlalchemy.org/en/latest/core/pooling.html#
+        using-connection-pools-with-multiprocessing
+    """
+    import uwsgi  # pylint: disable=E0401,C0413
+
+    def create_new_connection():
+        DatabaseManager.create_engine()
+
+    uwsgi.post_fork_hook = create_new_connection
+except Exception:
+    pass
+
+
 class G(object):
     def __init__(self):
         self._db = None
