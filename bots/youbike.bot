@@ -107,19 +107,34 @@
         "content_module": {
           "id": "ai.compose.core.generic_message",
           "config": {
-            "messages": [
-              {
-                "text": "請按下手機版 Messenger 上的位置按鍵"
-              },
-              {
-                "attachment": {
-                  "type": "image",
-                  "payload": {
-                    "url": "http://i.imgur.com/CdxCWXd.png"
+            "messages": {
+              "Facebook": [
+                {
+                  "text": "請按下手機版 Messenger 上的位置按鍵"
+                },
+                {
+                  "attachment": {
+                    "type": "image",
+                    "payload": {
+                      "url": "http://i.imgur.com/CdxCWXd.png"
+                    }
                   }
                 }
-              }
-            ]
+              ],
+              "Line": [
+                {
+                  "text": "請按下手機版 Line 上的傳送位置訊息"
+                },
+                {
+                  "attachment": {
+                    "type": "image",
+                    "payload": {
+                      "url": "http://i.imgur.com/FiLEltL.png"
+                    }
+                  }
+                }
+              ]
+            }
           }
         }
       }

@@ -35,17 +35,20 @@ class MessageUnittest(unittest.TestCase):
         self.assertEquals(str(b), '{"url": "http://test.com", "type": '
                           '"web_url", "title": "test"}')
         jsonschema.validate(b.as_dict(), Message.Button.schema())
+        self.assertEquals(b, b.FromDict(b.as_dict()))
 
         b = Message.Button(Message.ButtonType.POSTBACK, 'postback',
                            payload='postback')
         self.assertEquals(str(b), '{"type": "postback", "payload": '
                           '"postback", "title": "postback"}')
         jsonschema.validate(b.as_dict(), Message.Button.schema())
+        self.assertEquals(b, b.FromDict(b.as_dict()))
 
     def test_Bubble(self):
         b = Message.Bubble('title')
         self.assertEquals(str(b), '{"title": "title"}')
         jsonschema.validate(b.as_dict(), Message.Bubble.schema())
+        self.assertEquals(b, b.FromDict(b.as_dict()))
 
         b = Message.Bubble('title', 'http://test.com/item_url',
                            'http://test.com/image_url', 'subtitle')
@@ -53,6 +56,7 @@ class MessageUnittest(unittest.TestCase):
                           '"http://test.com/item_url", "image_url": '
                           '"http://test.com/image_url", "title": "title"}')
         jsonschema.validate(b.as_dict(), Message.Bubble.schema())
+        self.assertEquals(b, b.FromDict(b.as_dict()))
 
         b.add_button(Message.Button(Message.ButtonType.WEB_URL, 'test',
                                     url='http://test.com'))
@@ -66,6 +70,7 @@ class MessageUnittest(unittest.TestCase):
                           '"http://test.com/item_url", "image_url": '
                           '"http://test.com/image_url", "title": "title"}')
         jsonschema.validate(b.as_dict(), Message.Bubble.schema())
+        self.assertEquals(b, b.FromDict(b.as_dict()))
 
     def test_Message(self):
         b = Message.Bubble('title', 'http://test.com/item_url',
@@ -78,11 +83,13 @@ class MessageUnittest(unittest.TestCase):
         m = Message('test')
         self.assertEquals(str(m), '{"text": "test"}')
         jsonschema.validate(m.as_dict(), Message.schema())
+        self.assertEquals(m, m.FromDict(m.as_dict()))
 
         m = Message(image_url='http://test.com/image_url')
         self.assertEquals(str(m), '{"attachment": {"type": "image", "payload":'
                           ' {"url": "http://test.com/image_url"}}}')
         jsonschema.validate(m.as_dict(), Message.schema())
+        self.assertEquals(m, m.FromDict(m.as_dict()))
 
         m = Message()
         m.add_bubble(b)
@@ -103,6 +110,7 @@ class MessageUnittest(unittest.TestCase):
                           '"http://test.com/image_url", '
                           '"title": "title"}]}}}')
         jsonschema.validate(m.as_dict(), Message.schema())
+        self.assertEquals(m, m.FromDict(m.as_dict()))
 
         with self.assertRaises(RuntimeError):
             m = Message('test', 'url')

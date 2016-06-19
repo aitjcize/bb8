@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-    Facebook Messaging unittest
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Line Messaging unittest
+    ~~~~~~~~~~~~~~~~~~~~~~~
 
     Copyright 2016 bb8 Authors
 """
@@ -13,7 +13,7 @@ import datetime
 from bb8.backend.database import DatabaseManager
 from bb8.backend.database import Bot, Platform, PlatformTypeEnum, User
 from bb8.backend.messaging import Message
-from bb8.backend.messaging_provider import facebook
+from bb8.backend.messaging_provider import line
 
 
 class Facebook(unittest.TestCase):
@@ -35,34 +35,34 @@ class Facebook(unittest.TestCase):
         self.dbm.commit()
 
         config = {
-            'access_token': 'EAAP0okfsZCVkBANNgGSRPG0fsOWJKSQCNegqX8s1qxS7bVd'
-                            'AIsfofqEeoiTtVm11Xgy5vm0MQGHyGtji5AwAXSQTQMAfZBu'
-                            'awZCfy4prQ7IZBoTFyu8EGAYRGFZBwcgBjU2sXUtFMNbzp1M'
-                            '9mMfTNZBdfjjRe3S0PM08vvCYkQ6QZDZD'
+            'channel_id': '1468633788',
+            'channel_secret': '70a5bfd80b2cf26e387b83aa836fc884',
+            'mid': 'u5526efbbc9c7ad1b3375c5102c276e68'
         }
         platform = Platform(bot_id=self.bot.id,
-                            type_enum=PlatformTypeEnum.Facebook,
-                            provider_ident='facebook_page_id',
+                            type_enum=PlatformTypeEnum.Line,
+                            provider_ident='u5526efbbc9c7ad1b3375c5102c276e68',
                             config=config).add()
         self.dbm.commit()
 
-        self.user = User(bot_id=self.bot.id,
-                         platform_id=platform.id,
-                         platform_user_ident='1153206858057166',
-                         last_seen=datetime.datetime.now()).add()
+        self.user = User(
+            bot_id=self.bot.id,
+            platform_id=platform.id,
+            platform_user_ident='ua5afdc200e1fd44a748f6896376b9076',
+            last_seen=datetime.datetime.now()).add()
 
         self.dbm.commit()
 
     def test_send_message(self):
-        """Test facebook message sending."""
+        """Test line message sending."""
 
         # Test simple text message
         m = Message('test')
-        facebook.send_message(self.user, [m])
+        line.send_message(self.user, [m])
 
         # Test image message
         m = Message(image_url='http://i.imgur.com/4loi6PJ.jpg')
-        facebook.send_message(self.user, [m])
+        line.send_message(self.user, [m])
 
         # Test card message
         m = Message()
@@ -83,7 +83,7 @@ class Facebook(unittest.TestCase):
         m.add_bubble(bubble)
         m.add_bubble(bubble)
 
-        facebook.send_message(self.user, [m])
+        line.send_message(self.user, [m])
 
 
 if __name__ == '__main__':

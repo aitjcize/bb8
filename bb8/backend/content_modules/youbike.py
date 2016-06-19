@@ -166,7 +166,11 @@ def run(content_config, env, variables):
     k = content_config.get('max_count', 5)
     stations = youbike.find_knn(k, c)
 
-    m = GoogleStaticMapAPIRequestBuilder(GOOGLE_STATIC_MAP_API_KEY, (500, 260))
+    size = (500, 260)
+    if env['platform_type'] == SupportedPlatform.Line:
+        size = (1000, 1000)
+
+    m = GoogleStaticMapAPIRequestBuilder(GOOGLE_STATIC_MAP_API_KEY, size)
     m.add_marker(c, 'purple')
     for s in stations:
         m.add_marker((float(s['lat']), float(s['lng'])))
@@ -197,7 +201,7 @@ def run(content_config, env, variables):
         m.add_marker(gps_coord, color='red')
 
         b = Message.Bubble(s['ar'], image_url=m.build_url(),
-                           subtitle=u'剩餘數量: %s\n空位數量: %s\n' %
+                           subtitle=u'剩餘數量: %s\n空位數量: %s' %
                            (s['sbi'], s['bemp']))
         b.add_button(Message.Button(Message.ButtonType.WEB_URL,
                                     u'地圖導航',

@@ -46,12 +46,13 @@ def schema():
 def run(content_config, env, unused_variables):
     """
     content_config schema:
-    Platform independent message
+
+    Platform independent message:
     {
         'text': 'text to send'
     }
 
-    Platform dependent
+    Platform dependent message:
     {
         'text': {
             'Facebook': 'text to send',
@@ -67,5 +68,5 @@ def run(content_config, env, unused_variables):
         return [Message(text)]
 
     # Platform dependent message
-    platform_type = env['platform_type']
+    platform_type = env['platform_type'].value
     return [Message(text[platform_type])]

@@ -28,8 +28,8 @@ def send_message(user, messages):
             json={
                 'to': [user.platform_user_ident],
                 'toChannel': 1383378250,  # Fixed value
-                'eventType': '138311608800106203',  # Fixed value
-                'content': message.as_line_dict()
+                'eventType': '140177271400161403',  # Fixed value
+                'content': message.as_line_message()
             }
         )
 

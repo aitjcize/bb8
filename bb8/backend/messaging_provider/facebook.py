@@ -20,7 +20,7 @@ def send_message(user, messages):
             params={'access_token': user.platform.config['access_token']},
             json={
                 'recipient': {'id': user.platform_user_ident},
-                'message': message.as_facebook_dict(),
+                'message': message.as_facebook_message(),
                 'notification_type': message.notification_type.value
             }
         )
