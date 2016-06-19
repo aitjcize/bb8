@@ -75,7 +75,7 @@ class EngineUnittest(unittest.TestCase):
         messaging.send_message = send_message_mock
 
         def get_node_id(name):
-            return Node.get_by(name=name, single=True).id
+            return Node.get_by(name=unicode(name), single=True).id
 
         engine.step(self.bot, self.user)  # start display
         self.assertEquals(self.user.session.node_id, get_node_id('root'))
@@ -140,7 +140,7 @@ class EngineUnittest(unittest.TestCase):
         messaging.send_message = send_message_mock
 
         def get_node_id(name):
-            return Node.get_by(name=name, single=True).id
+            return Node.get_by(name=unicode(name), single=True).id
 
         engine.step(self.bot, self.user)  # start display
         self.assertEquals(self.user.session.node_id, get_node_id('root'))

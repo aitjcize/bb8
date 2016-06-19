@@ -71,10 +71,10 @@ class SchemaUnittest(unittest.TestCase):
         """Populate data into all tables and make sure there are no error."""
         self.dbm.reset()
 
-        account = Account(name='Test Account', email='test@test.com',
-                          passwd='test_hashed').add()
+        account = Account(name=u'Test Account', username='test',
+                          email='test@test.com', passwd='test_hashed').add()
 
-        bot = Bot(name='test', description='test', interaction_timeout=120,
+        bot = Bot(name=u'test', description=u'test', interaction_timeout=120,
                   session_timeout=86400).add()
 
         content = ContentModule(id='test', name='Content1', description='desc',
@@ -130,15 +130,15 @@ class SchemaUnittest(unittest.TestCase):
         self.assertEquals(len(bot.platforms), 1)
         self.assertEquals(bot.platforms[0].id, platform.id)
 
-        node1 = Node(name='1', bot_id=bot.id, expect_input=True,
+        node1 = Node(name=u'1', bot_id=bot.id, expect_input=True,
                      content_module_id=content.id, content_config={},
                      parser_module_id=parser.id, parser_config={}).add()
 
-        node2 = Node(name='2', bot_id=bot.id, expect_input=True,
+        node2 = Node(name=u'2', bot_id=bot.id, expect_input=True,
                      content_module_id=content.id, content_config={},
                      parser_module_id=parser.id, parser_config={}).add()
 
-        node3 = Node(name='3', bot_id=bot.id, expect_input=True,
+        node3 = Node(name=u'3', bot_id=bot.id, expect_input=True,
                      content_module_id=content.id, content_config={},
                      parser_module_id=parser.id, parser_config={}).add()
 
@@ -154,9 +154,9 @@ class SchemaUnittest(unittest.TestCase):
         self.assertEquals(bot.orphan_nodes[0].id, node3.id)
 
         l1 = Linkage(start_node_id=node1.id, end_node_id=node2.id,
-                     action_ident='action0', ack_message='').add()
+                     action_ident='action0', ack_message=u'').add()
         l2 = Linkage(start_node_id=node2.id, end_node_id=node1.id,
-                     action_ident='action1', ack_message='').add()
+                     action_ident='action1', ack_message=u'').add()
 
         self.dbm.commit()
 
@@ -201,14 +201,14 @@ class SchemaUnittest(unittest.TestCase):
                                                  single=True), None)
 
         # Test Feed, PublicFeed, Entry, Broadcast, Tag
-        account = Account(name='Test Account - 1', email='test1@test.com',
-                          passwd='test_hashed').add()
+        account = Account(name=u'Test Account - 1', username='test1',
+                          email='test1@test.com', passwd='test_hashed').add()
         feed1 = Feed(url='example.com/rss', type=FeedEnum.RSS,
-                     title='foo.com', image='foo.com/logo').add()
+                     title=u'foo.com', image_url='foo.com/logo').add()
         feed2 = Feed(url='example.com/rss', type=FeedEnum.RSS,
-                     title='bar.com', image='bar.com/logo').add()
+                     title=u'bar.com', image_url='bar.com/logo').add()
         feed3 = Feed(url='example.com/rss', type=FeedEnum.RSS,
-                     title='baz.com', image='baz.com/logo').add()
+                     title=u'baz.com', image_url='baz.com/logo').add()
 
         account.feeds.append(feed1)
         account.feeds.append(feed2)
@@ -221,25 +221,26 @@ class SchemaUnittest(unittest.TestCase):
         self.assertEquals(len(list(feeds)), 2)
 
         pfeed = PublicFeed(url='example.com/rss', type=FeedEnum.RSS,
-                           title='example.com', image='example.com/logo').add()
+                           title=u'example.com',
+                           image_url='example.com/logo').add()
 
         self.dbm.commit()
         self.assertNotEquals(PublicFeed.get_by(id=pfeed.id, single=True), None)
 
-        tag1 = Tag(name='product').add()
-        tag2 = Tag(name='article').add()
+        tag1 = Tag(name=u'product').add()
+        tag2 = Tag(name=u'article').add()
 
-        account = Account(name='Test Account - 3', email='test3@test.com',
-                          passwd='test_hashed').add()
+        account = Account(name=u'Test Account - 3', username='test3',
+                          email='test3@test.com', passwd='test_hashed').add()
 
-        entry = Entry(title='mock-title',
-                      link='mock-link',
-                      description='mock-desc',
+        entry = Entry(title=u'mock-title',
+                      link=u'mock-link',
+                      description=u'mock-desc',
                       publish_time=datetime.datetime.utcnow(),
-                      source='mock-source',
-                      author='mock-author',
-                      image='mock-image',
-                      content='mock-content').add()
+                      source_name=u'mock-source',
+                      author=u'mock-author',
+                      image_url='mock-image',
+                      content=u'mock-content').add()
 
         account.entries.append(entry)
 
@@ -252,7 +253,7 @@ class SchemaUnittest(unittest.TestCase):
         self.assertEquals(len(entry_.tags), 2)
         self.assertEquals(entry_.tags[0].name, 'product')
 
-        bc = Broadcast(message='mock-message',
+        bc = Broadcast(message={},
                        scheduled_time=datetime.datetime.utcnow()).add()
 
         self.dbm.commit()
@@ -260,8 +261,7 @@ class SchemaUnittest(unittest.TestCase):
 
     def test_json_serializer(self):
         self.dbm.reset()
-        account = Account(username='test1',
-                          name='tester',
+        account = Account(name=u'tester', username='test1',
                           email='test@test.com')
 
         dt = datetime.datetime(2010, 1, 1, 0, 0, tzinfo=pytz.utc)
@@ -277,7 +277,8 @@ class SchemaUnittest(unittest.TestCase):
 
     def test_auth(self):
         self.dbm.reset()
-        account = Account(name='Test Account 3', email='test3@test.com').add()
+        account = Account(name=u'Test Account 3', username='test3',
+                          email='test3@test.com').add()
 
         some_passwd = 'abcdefg'
         account.set_passwd(some_passwd)

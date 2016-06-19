@@ -37,7 +37,7 @@ class AccountAPIUnittest(unittest.TestCase):
         os.unlink(app.config['DATABASE'])
 
     def setup_prerequisite(self):
-        Account(name='test',
+        Account(name=u'test',
                 username='test-account-1',
                 email='test@gmail.com') \
             .set_passwd('12345678') \

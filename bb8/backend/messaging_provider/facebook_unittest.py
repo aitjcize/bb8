@@ -30,7 +30,7 @@ class Facebook(unittest.TestCase):
     def setup_prerequisite(self):
         self.dbm.reset()
 
-        self.bot = Bot(name='test', description='test',
+        self.bot = Bot(name=u'test', description=u'test',
                        interaction_timeout=120, session_timeout=86400).add()
         self.dbm.commit()
 
