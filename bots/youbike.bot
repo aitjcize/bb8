@@ -96,7 +96,10 @@
         "content_module": {
           "id": "ai.compose.core.text_message",
           "config": {
-            "text": "您可以繼續送出位置查詢，或按「再次查詢」"
+            "text": {
+                "Facebook": "您可以繼續送出位置查詢，或按「再次查詢」",
+                "Line": "您可以繼續送出位置查詢"
+            }
           }
         }
       },
