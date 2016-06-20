@@ -164,11 +164,13 @@ def run(content_config, env, variables):
     youbike.refresh_data()
 
     k = content_config.get('max_count', 5)
-    stations = youbike.find_knn(k, c)
-
     size = (500, 260)
+
     if env['platform_type'] == SupportedPlatform.Line:
+        k = 2
         size = (1000, 1000)
+
+    stations = youbike.find_knn(k, c)
 
     m = GoogleStaticMapAPIRequestBuilder(GOOGLE_STATIC_MAP_API_KEY, size)
     m.add_marker(c, 'purple')
@@ -187,10 +189,13 @@ def run(content_config, env, variables):
             break
 
     best_gps_coord = (float(best['lat']), float(best['lng']))
-    b.add_button(Message.Button(Message.ButtonType.WEB_URL, u'好手氣',
+    b.add_button(Message.Button(Message.ButtonType.WEB_URL, u'帶我去',
                                 url=m.build_navigation_url(best_gps_coord)))
-    b.add_button(Message.Button(Message.ButtonType.POSTBACK, u'再次查詢',
-                                payload=LocationPayload(c, env)))
+
+    # Only facebook have postback button for now
+    if env['platform_type'] == SupportedPlatform.Facebook:
+        b.add_button(Message.Button(Message.ButtonType.POSTBACK, u'再次查詢',
+                                    payload=LocationPayload(c, env)))
     msg.add_bubble(b)
 
     for s in stations:
