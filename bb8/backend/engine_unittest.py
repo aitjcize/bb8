@@ -10,16 +10,13 @@
 import unittest
 import datetime
 
-import pytz
-
 from bb8.backend.database import DatabaseManager
-from bb8.backend.database import Bot, Node, Platform, User
+from bb8.backend.database import Node, Platform, User
 
 from bb8.backend import messaging
 from bb8.backend.engine import Engine
 from bb8.backend.metadata import UserInput
-from bb8.backend.module_registration import register_all_modules
-from bb8.backend.bot_parser import get_bot_filename, parse_bot
+from bb8.backend.test_utils import reset_and_setup_bots
 
 
 class EngineUnittest(unittest.TestCase):
@@ -35,20 +32,11 @@ class EngineUnittest(unittest.TestCase):
 
     def setup_prerequisite(self, bot_file):
         self.dbm.reset()
-
-        # Register all modules
-        register_all_modules()
-
-        # Construct test bot
-        parse_bot(get_bot_filename(bot_file))
-
-        self.bot = Bot.get_by(id=1, single=True)
-
+        self.bot = reset_and_setup_bots([bot_file])[0]
         self.user = User(bot_id=self.bot.id,
                          platform_id=Platform.get_by(id=1, single=True).id,
                          platform_user_ident='blablabla',
-                         last_seen=datetime.datetime(2016, 6, 2, 12, 44, 56,
-                                                     tzinfo=pytz.utc)).add()
+                         last_seen=datetime.datetime.now()).add()
 
         self.dbm.commit()
 

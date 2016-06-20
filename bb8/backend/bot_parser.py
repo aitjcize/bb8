@@ -33,8 +33,12 @@ def get_bot_filename(filename):
     return os.path.join(get_bots_dir(), filename)
 
 
-def parse_bot(filename):
-    """Parse bot from bot definition."""
+def parse_bot(filename, to_bot_id=None):
+    """Parse bot from bot definition.
+
+    If to_bot_id is specified, update existing bot specified by *to_bot_id*
+    instead of creating a new bot.
+    """
     schema = None
     bot_json = None
     bot_json_text = None
@@ -56,9 +60,22 @@ def parse_bot(filename):
         sys.exit(1)
 
     bot_desc = bot_json['bot']
-    bot = Bot(name=bot_desc['name'], description=bot_desc['description'],
-              interaction_timeout=bot_desc['interaction_timeout'],
-              session_timeout=bot_desc['session_timeout']).add()
+
+    if to_bot_id:  # Update existing bot
+        bot = Bot.get_by(id=to_bot_id, single=True)
+        bot.delete_all_node_and_links()  # Delete all previous node and links
+
+        bot.name = bot_desc['name']
+        bot.description = bot_desc['description']
+        bot.interaction_timeout = bot_desc['interaction_timeout']
+        bot.session_timeout = bot_desc['session_timeout']
+    else:  # Create a new bot
+        bot = Bot(
+            name=bot_desc['name'],
+            description=bot_desc['description'],
+            interaction_timeout=bot_desc['interaction_timeout'],
+            session_timeout=bot_desc['session_timeout']).add()
+
     bot.flush()
 
     for platform_desc in bot_json['platforms']:
@@ -123,6 +140,7 @@ def parse_bot(filename):
             n.build_linkages(pm.get_linkages(n.parser_config))
 
     bot.flush()
+    return bot
 
 
 def build_all_bots():

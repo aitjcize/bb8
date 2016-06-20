@@ -14,8 +14,11 @@ import datetime
 import jwt
 import pytz
 
+from sqlalchemy.exc import IntegrityError
+
 from bb8 import config
 from bb8.error import AppError
+from bb8.backend.bot_parser import get_bot_filename, parse_bot
 from bb8.backend.database import DatabaseManager
 from bb8.backend.database import (Account, Bot, ColletedDatum, Conversation,
                                   ContentModule, Event, Linkage, Node,
@@ -23,6 +26,8 @@ from bb8.backend.database import (Account, Bot, ColletedDatum, Conversation,
                                   SenderEnum, User, FeedEnum, Feed, PublicFeed,
                                   Entry, Broadcast, Tag, OAuthInfo,
                                   OAuthProviderEnum)
+
+from bb8.backend.test_utils import reset_and_setup_bots
 
 
 class UserUnittest(unittest.TestCase):
@@ -34,13 +39,10 @@ class UserUnittest(unittest.TestCase):
         self.dbm.disconnect()
 
     def test_session_mutable_tracking(self):
-        # Exploit the fact that SQLite foreign key constraint has really no
-        # effect on insert/deletion. see: # http://docs.sqlalchemy.org/en/\
-        # latest/dialects/sqlite.html#foreign-key-support
-        user = User(bot_id=1, platform_id=2, platform_user_ident='',
-                    last_seen=datetime.datetime(2016, 6, 2, 12, 44, 56,
-                                                tzinfo=pytz.utc),
-                    session=1).add()
+        bot = reset_and_setup_bots(['test/simple.bot'])[0]
+        user = User(bot_id=bot.id, platform_id=bot.platforms[0].id,
+                    platform_user_ident='',
+                    last_seen=datetime.datetime.now(), session=1).add()
         self.dbm.commit()
 
         self.assertNotEquals(User.get_by(id=user.id, single=True), None)
@@ -153,10 +155,12 @@ class SchemaUnittest(unittest.TestCase):
         # Test bot_node association table
         self.assertEquals(bot.orphan_nodes[0].id, node3.id)
 
-        l1 = Linkage(start_node_id=node1.id, end_node_id=node2.id,
-                     action_ident='action0', ack_message=u'').add()
-        l2 = Linkage(start_node_id=node2.id, end_node_id=node1.id,
-                     action_ident='action1', ack_message=u'').add()
+        l1 = Linkage(bot_id=bot.id, start_node_id=node1.id,
+                     end_node_id=node2.id, action_ident='action0',
+                     ack_message=u'').add()
+        l2 = Linkage(bot_id=bot.id, start_node_id=node2.id,
+                     end_node_id=node1.id, action_ident='action1',
+                     ack_message=u'').add()
 
         self.dbm.commit()
 
@@ -173,8 +177,7 @@ class SchemaUnittest(unittest.TestCase):
 
         user = User(bot_id=bot.id, platform_id=platform.id,
                     platform_user_ident='',
-                    last_seen=datetime.datetime(2016, 6, 2, 12, 44, 56,
-                                                tzinfo=pytz.utc)).add()
+                    last_seen=datetime.datetime.now()).add()
         self.dbm.commit()
 
         self.assertNotEquals(User.get_by(id=user.id, single=True), None)
@@ -258,6 +261,53 @@ class SchemaUnittest(unittest.TestCase):
 
         self.dbm.commit()
         self.assertNotEquals(Broadcast.get_by(id=bc.id, single=True), None)
+
+    def test_Bot_API(self):
+        self.dbm.reset()
+
+        bots = reset_and_setup_bots(['test/simple.bot', 'test/postback.bot'])
+        bot1 = bots[0]
+        bot2 = bots[1]
+
+        bot2_node_len = len(bot2.nodes)
+        bot2_linkage_len = len(bot2.linkages)
+        bot2_platform_len = len(bot2.platforms)
+
+        bot1.delete_all_node_and_links()
+
+        # All nodes and links related to this bot should be gone.
+        self.assertEquals(bot1.nodes, [])
+        self.assertEquals(bot1.linkages, [])
+        self.assertEquals(bot1.platforms, [])
+
+        # Make sure delete_all_node_and_links does not accidentally delete node
+        # of other bot
+        self.assertEquals(len(bot2.nodes), bot2_node_len)
+        self.assertEquals(len(bot2.linkages), bot2_linkage_len)
+        self.assertEquals(len(bot2.platforms), bot2_platform_len)
+
+        # Test bot reconstruction
+        parse_bot(get_bot_filename('test/simple.bot'), bot1.id)
+
+        self.assertNotEquals(bot1.nodes, [])
+        self.assertNotEquals(bot1.linkages, [])
+
+        user = User(bot_id=bot1.id,
+                    platform_id=bot1.platforms[0].id,
+                    platform_user_ident='blablabla',
+                    last_seen=datetime.datetime.now()).add()
+
+        # Delete should fail because of foreign key constraint
+        with self.assertRaises(IntegrityError):
+            bot1.delete()
+
+        user.delete()
+        self.dbm.commit()
+
+        bot1_id = bot1.id
+        bot1.delete()
+        self.dbm.commit()
+        self.assertEquals(Bot.get_by(id=bot1_id, single=True), None)
 
     def test_json_serializer(self):
         self.dbm.reset()

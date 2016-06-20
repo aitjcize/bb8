@@ -432,12 +432,25 @@ class Bot(DeclarativeBase, QueryHelperMixin, JSONSerializer):
     root_node_id = Column(Integer, nullable=True)
     start_node_id = Column(Integer, nullable=True)
 
-    orphan_nodes = relationship('Node', secondary='bot_node')
+    nodes = relationship('Node')
+    linkages = relationship('Linkage')
     platforms = relationship('Platform')
+
+    orphan_nodes = relationship('Node', secondary='bot_node')
 
     @property
     def root_node(self):
         return Node.get_by(id=self.root_node_id, single=True)
+
+    def delete(self):
+        self.delete_all_node_and_links()
+        super(Bot, self).delete()
+
+    def delete_all_node_and_links(self):
+        """Delete all associated node and links of this bot."""
+        Linkage.delete_by(bot_id=self.id)
+        Node.delete_by(bot_id=self.id)
+        Platform.delete_by(bot_id=self.id)
 
 
 class User(DeclarativeBase, QueryHelperMixin):
@@ -485,7 +498,8 @@ class Node(DeclarativeBase, QueryHelperMixin):
 
         for link in links:
             end_node_id = link.end_node_id if link.end_node_id else self.id
-            Linkage(start_node_id=self.id,
+            Linkage(bot_id=self.bot_id,
+                    start_node_id=self.id,
                     end_node_id=end_node_id,
                     action_ident=link.action_ident,
                     ack_message=link.ack_message).add()
@@ -509,6 +523,7 @@ class Linkage(DeclarativeBase, QueryHelperMixin):
     __tablename__ = 'linkage'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    bot_id = Column(ForeignKey('bot.id'), nullable=False)
     start_node_id = Column(ForeignKey('node.id'), nullable=False)
     end_node_id = Column(ForeignKey('node.id'), nullable=False)
     action_ident = Column(String(128), nullable=False)
