@@ -30,4 +30,9 @@ lint:
 	@pylint $(LINT_OPTIONS) $(LINT_FILES)
 
 validate-bots:
-	@make -C bots
+	make -C bots
+
+deploy:
+	sudo docker build -t bb8 .
+	sudo docker rm -f bb8
+	sudo docker run -p 5000:5000 -p 2222:22 -d --name bb8 bb8
