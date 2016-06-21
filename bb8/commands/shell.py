@@ -28,7 +28,7 @@ def _make_context():
     for obj_name in dir(database):
         obj = getattr(database, obj_name)
         if (inspect.isclass(obj) and
-                (issubclass(obj, database.QueryHelperMixin) or
+                (issubclass(obj, database.ModelMixin) or
                  issubclass(obj, enum.Enum))):
             env[obj_name] = obj
     return dict(app=app, **env)
