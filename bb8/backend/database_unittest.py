@@ -262,7 +262,24 @@ class SchemaUnittest(unittest.TestCase):
         self.dbm.commit()
         self.assertNotEquals(Broadcast.get_by(id=bc.id, single=True), None)
 
+    def test_timestamp_update(self):
+        """Make sure the updated_at timestamp automatically updates on
+        commit."""
+        account = Account(username=u'user', email='test@test.com',
+                          passwd='test_hashed').add()
+        account.commit()
+
+        account.refresh()
+        self.assertEquals(account.created_at, account.updated_at)
+
+        account.username = 'user2'
+        account.commit()
+
+        account.refresh()
+        self.assertNotEquals(account.created_at, account.updated_at)
+
     def test_Bot_API(self):
+        """Test Bot model APIs."""
         self.dbm.reset()
 
         bots = reset_and_setup_bots(['test/simple.bot', 'test/postback.bot'])

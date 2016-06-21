@@ -11,14 +11,20 @@ DB_URI='mysql+pymysql://bb8:bb8test@127.0.0.1:3307/bb8?charset=utf8mb4'
 all: test lint validate-bots
 
 setup-database:
-	@sudo docker rm -f bb8_mysql 2>/dev/null || true
-	sudo docker run --name bb8_mysql -p 3307:3306 \
-	    -e MYSQL_ROOT_PASSWORD=root \
-	    -e MYSQL_USER=bb8 \
-	    -e MYSQL_PASSWORD=bb8test \
-	    -e MYSQL_DATABASE=bb8 \
-	    -d mysql:latest
-	@echo 'Waiting 20 sec for MySQL to initialize ...'; sleep 20
+	@if ! sudo docker ps | grep bb8_mysql; then \
+	   sudo docker run --name bb8_mysql -p 3307:3306 \
+	       -v $(CURDIR)/conf/mysql:/etc/mysql/conf.d \
+	       -e MYSQL_ROOT_PASSWORD=root \
+	       -e MYSQL_USER=bb8 \
+	       -e MYSQL_PASSWORD=bb8test \
+	       -e MYSQL_DATABASE=bb8 \
+	       -d mysql:latest; \
+	   echo 'Waiting 20 sec for MySQL to initialize ...'; \
+	   sleep 20; \
+	 fi
+
+remove-database:
+	@sudo docker rm -f bb8_mysql
 
 test: setup-database
 	@export PYTHONPATH=$$PWD; \
