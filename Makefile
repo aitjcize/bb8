@@ -13,6 +13,7 @@ all: test lint validate-bots
 setup-database:
 	@if ! sudo docker ps | grep bb8_mysql; then \
 	   sudo docker run --name bb8_mysql -p 3307:3306 \
+	       -v $(CURDIR)/conf/mysql:/etc/mysql/conf.d \
 	       -e MYSQL_ROOT_PASSWORD=root \
 	       -e MYSQL_USER=bb8 \
 	       -e MYSQL_PASSWORD=bb8test \
