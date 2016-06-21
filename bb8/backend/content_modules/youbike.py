@@ -151,8 +151,8 @@ class UbikeAPIParser(object):
     def _parse_data(self):
         self._stations = self._data['retVal']
         self._coordinates = dict(
-                (str(x['sno']), (float(x['lat']), float(x['lng'])))
-                for x in self._stations.values())
+            (str(x['sno']), (float(x['lat']), float(x['lng'])))
+            for x in self._stations.values())
 
 
 def run(content_config, env, variables):
