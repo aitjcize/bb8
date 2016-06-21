@@ -11,6 +11,7 @@
 import gzip
 import heapq
 import json
+import re
 import tempfile
 import urllib
 
@@ -102,15 +103,15 @@ class GoogleStaticMapAPIRequestBuilder(object):
 
 class UbikeAPIParser(object):
     API_ENDPOINT = 'http://data.taipei/youbike'
+    YOUBIKE_PHP = 'http://taipei.youbike.com.tw/cht/f11.php'
 
     def __init__(self):
         self._data = None
-        self._ids = []
         self._stations = []
         self._coordinates = {}
 
     def refresh_data(self):
-        self._fetch_data()
+        self._fetch_data_youbike_php()
         self._parse_data()
 
     def find_knn(self, k, coordinate):
@@ -128,7 +129,15 @@ class UbikeAPIParser(object):
 
         return knn
 
-    def _fetch_data(self):
+    def _fetch_data_youbike_php(self):
+        data = urllib.urlopen(self.YOUBIKE_PHP).read()
+        r = re.search('siteContent=\'(.*?)\'', data, re.S)
+        if r:
+            self._data = {'retVal': json.loads(r.group(1))}
+        else:
+            self._fetch_data_taipei_data()
+
+    def _fetch_data_taipei_data(self):
         unused_fd, filename = tempfile.mkstemp()
 
         with open(filename, 'w') as f:
@@ -140,11 +149,10 @@ class UbikeAPIParser(object):
         self._data = json.loads(data)
 
     def _parse_data(self):
-        self._ids = self._data['retVal'].keys()
         self._stations = self._data['retVal']
-
-        self._coordinates = dict((x['sno'], (float(x['lat']), float(x['lng'])))
-                                 for x in self._stations.values())
+        self._coordinates = dict(
+                (str(x['sno']), (float(x['lat']), float(x['lng'])))
+                for x in self._stations.values())
 
 
 def run(content_config, env, variables):
