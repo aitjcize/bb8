@@ -16,7 +16,7 @@ import enum
 import pytz
 from passlib.hash import bcrypt  # pylint: disable=E0611
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy import (Boolean, Column, DateTime, Enum, ForeignKey, Integer,
                         PickleType, Table, Text, String, Unicode, UnicodeText)
 from sqlalchemy.ext.declarative import declarative_base
@@ -104,6 +104,12 @@ class DatabaseManager(object):
         ScopedSession = scoped_session(sessionmaker(bind=cls.engine))
         g.db = ScopedSession()
 
+        # pylint: disable=W0612
+        @event.listens_for(g.db, 'before_flush')
+        def receive_before_flush(session, unused_context, unused_instances):
+            for row in session.dirty:
+                row.touch()
+
     @classmethod
     def disconnect(cls, commit=True):
         if commit:
@@ -182,8 +188,12 @@ class DatabaseSession(object):
             DatabaseManager.disconnect()
 
 
-class QueryHelperMixin(object):
+class ModelMixin(object):
+    """Provides common field and methods for models."""
     db_manager = DatabaseManager()
+
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow())
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow())
 
     def __repr__(self):
         return '<%s(\'%s\')>' % (type(self).__name__, self.id)
@@ -274,6 +284,10 @@ class QueryHelperMixin(object):
         """Get images count by condition."""
         return cls.query(cls).filter_by(**kwargs).count()
 
+    def touch(self):
+        """Update update_at timestamp."""
+        self.updated_at = datetime.utcnow()
+
     def add(self):
         """Register object."""
         g.db.add(self)
@@ -346,7 +360,7 @@ class JSONSerializer(object):
         return rv
 
 
-class Account(DeclarativeBase, QueryHelperMixin, JSONSerializer):
+class Account(DeclarativeBase, ModelMixin, JSONSerializer):
     __tablename__ = 'account'
 
     __json_public__ = ['name', 'username', 'email']
@@ -400,7 +414,7 @@ class OAuthProviderEnum(enum.Enum):
     Github = 'Github'
 
 
-class OAuthInfo(DeclarativeBase, QueryHelperMixin):
+class OAuthInfo(DeclarativeBase, ModelMixin):
     __tablename__ = 'oauth_info'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -417,7 +431,7 @@ class PlatformTypeEnum(enum.Enum):
     Line = 'Line'
 
 
-class Bot(DeclarativeBase, QueryHelperMixin, JSONSerializer):
+class Bot(DeclarativeBase, ModelMixin, JSONSerializer):
     __tablename__ = 'bot'
 
     __json_public__ = ['id', 'name', 'description',
@@ -453,7 +467,7 @@ class Bot(DeclarativeBase, QueryHelperMixin, JSONSerializer):
         Platform.delete_by(bot_id=self.id)
 
 
-class User(DeclarativeBase, QueryHelperMixin):
+class User(DeclarativeBase, ModelMixin):
     __tablename__ = 'user'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -472,7 +486,7 @@ class User(DeclarativeBase, QueryHelperMixin):
         self.session = SessionRecord(node_id)
 
 
-class Node(DeclarativeBase, QueryHelperMixin):
+class Node(DeclarativeBase, ModelMixin):
     __tablename__ = 'node'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -506,7 +520,7 @@ class Node(DeclarativeBase, QueryHelperMixin):
         self.commit()
 
 
-class Platform(DeclarativeBase, QueryHelperMixin):
+class Platform(DeclarativeBase, ModelMixin):
     __tablename__ = 'platform'
     __table_args__ = (UniqueConstraint('provider_ident'),)
 
@@ -519,7 +533,7 @@ class Platform(DeclarativeBase, QueryHelperMixin):
     bot = relationship('Bot')
 
 
-class Linkage(DeclarativeBase, QueryHelperMixin):
+class Linkage(DeclarativeBase, ModelMixin):
     __tablename__ = 'linkage'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -540,7 +554,7 @@ class SupportedPlatform(enum.Enum):
     Line = 'Line'
 
 
-class ContentModule(DeclarativeBase, QueryHelperMixin):
+class ContentModule(DeclarativeBase, ModelMixin):
     __tablename__ = 'content_module'
 
     id = Column(String(128), primary_key=True)
@@ -558,7 +572,7 @@ class ContentModule(DeclarativeBase, QueryHelperMixin):
             '%s.%s' % (self.CONTENT_MODULES, self.module_name))
 
 
-class ParserModule(DeclarativeBase, QueryHelperMixin):
+class ParserModule(DeclarativeBase, ModelMixin):
     __tablename__ = 'parser_module'
 
     id = Column(String(128), primary_key=True)
@@ -579,7 +593,7 @@ class ParserModule(DeclarativeBase, QueryHelperMixin):
             '%s.%s' % (self.PARSER_MODULES, name))
 
 
-class ColletedDatum(DeclarativeBase, QueryHelperMixin):
+class ColletedDatum(DeclarativeBase, ModelMixin):
     __tablename__ = 'colleted_data'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -594,7 +608,7 @@ class SenderEnum(enum.Enum):
     Human = 'HUMAN'
 
 
-class Conversation(DeclarativeBase, QueryHelperMixin):
+class Conversation(DeclarativeBase, ModelMixin):
     __tablename__ = 'conversation'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -606,7 +620,7 @@ class Conversation(DeclarativeBase, QueryHelperMixin):
     user = relationship('User')
 
 
-class Event(DeclarativeBase, QueryHelperMixin):
+class Event(DeclarativeBase, ModelMixin):
     __tablename__ = 'event'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -624,7 +638,7 @@ class FeedEnum(enum.Enum):
     XML = 'XML'
 
 
-class Feed(DeclarativeBase, QueryHelperMixin, JSONSerializer):
+class Feed(DeclarativeBase, ModelMixin, JSONSerializer):
     __tablename__ = 'feed'
 
     __json_hidden__ = ['account_id']
@@ -641,7 +655,7 @@ class Feed(DeclarativeBase, QueryHelperMixin, JSONSerializer):
         return cls.query(cls).filter(cls.title.like(unicode('%' + term + '%')))
 
 
-class PublicFeed(DeclarativeBase, QueryHelperMixin):
+class PublicFeed(DeclarativeBase, ModelMixin):
     __tablename__ = 'public_feed'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -651,7 +665,7 @@ class PublicFeed(DeclarativeBase, QueryHelperMixin):
     image_url = Column(String(256), nullable=False)
 
 
-class Entry(DeclarativeBase, QueryHelperMixin):
+class Entry(DeclarativeBase, ModelMixin):
     __tablename__ = 'entry'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -668,7 +682,7 @@ class Entry(DeclarativeBase, QueryHelperMixin):
     tags = relationship('Tag', secondary='entry_tag')
 
 
-class Broadcast(DeclarativeBase, QueryHelperMixin):
+class Broadcast(DeclarativeBase, ModelMixin):
     __tablename__ = 'broadcast'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -676,7 +690,7 @@ class Broadcast(DeclarativeBase, QueryHelperMixin):
     scheduled_time = Column(DateTime, nullable=False)
 
 
-class Tag(DeclarativeBase, QueryHelperMixin):
+class Tag(DeclarativeBase, ModelMixin):
     __tablename__ = 'tag'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
