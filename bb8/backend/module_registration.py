@@ -25,7 +25,9 @@ def list_modules(module_dir):
             submodule_name = root[len(module_dir) + 1:].replace('/', '.')
 
         for f in files:
-            if f.endswith('.py') and not f.startswith('_'):
+            if (f.endswith('.py') and not
+                    f.startswith('_') and not
+                    f.endswith('unittest.py')):
                 f = f.rstrip('.py')
                 if submodule_name:
                     modules.append('%s.%s' % (submodule_name, f))
@@ -54,9 +56,9 @@ def register_content_modules():
 
             cm = ContentModule.get_by(id=info['id'], single=True)
             if cm:
-                cm.delete().commit()
-
-            ContentModule(**info).add()
+                ContentModule.get_by(id=info['id'], query=True).update(info)
+            else:
+                ContentModule(**info).add()
 
 
 def register_parser_modules():
@@ -79,9 +81,9 @@ def register_parser_modules():
 
             pm = ParserModule.get_by(id=info['id'], single=True)
             if pm:
-                pm.delete().commit()
-
-            ParserModule(**info).add()
+                ParserModule.get_by(id=info['id'], query=True).update(info)
+            else:
+                ParserModule(**info).add()
 
 
 def register_all_modules():

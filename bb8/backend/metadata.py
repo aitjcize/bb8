@@ -63,6 +63,18 @@ class UserInput(object):
         return u
 
     @classmethod
+    def Location(cls, coordinates, title='location'):
+        u = UserInput()
+        u.location = {
+            'title': title,
+            'coordinates': {
+                'lat': coordinates[0],
+                'long': coordinates[1]
+            }
+        }
+        return u
+
+    @classmethod
     def FromFacebookMessage(cls, messaging):
         u = UserInput()
         message = messaging.get('message')
