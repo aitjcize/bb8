@@ -52,19 +52,48 @@
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.get_response",
+          "id": "ai.compose.core.default",
           "config": {
-            "type": "location",
             "links": [
               {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["(?i)(hi|hello|yo)", "嗨", "你們?是誰?"]
+                },
+                "action_ident": "ask_who",
+                "end_node_id": "[[intro]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                    "type": "location"
+                },
                 "action_ident": "got_location",
                 "end_node_id": "[[youbike]]",
                 "ack_message": "收到~"
               },
               {
-                "action_ident": "no_location",
+                "rule": {
+                    "type": "sticker",
+                    "params": ["369239263222822", "369239343222814", "369239383222810"]
+                },
+                "action_ident": "got_like_sticker",
+                "end_node_id": "[[thanks]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                    "type": "sticker",
+                    "params": [".*"]
+                },
+                "action_ident": "got_other_sticker",
+                "end_node_id": "[[root]]",
+                "ack_message": ":)"
+              },
+              {
+                "action_ident": "$error",
                 "end_node_id": "[[hint_location]]",
-                "ack_message": "這不是位置哦~"
+                "ack_message": "對不起 我看不懂 >.<"
               }
             ]
           }
@@ -77,7 +106,7 @@
         "content_module": {
           "id": "ai.compose.third_party.youbike",
           "config": {
-            "location": "{{response}}",
+            "location": "{{location}}",
             "max_count": 5
           }
         },
@@ -86,6 +115,17 @@
           "config": {
             "end_node_id": "[[hint_action]]",
             "ack_message": ""
+          }
+        }
+      },
+      "intro": {
+        "name": "Intro",
+        "description": "Intro",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": "Hi! 我們是 http://compose.ai"
           }
         }
       },
@@ -138,6 +178,17 @@
                 }
               ]
             }
+          }
+        }
+      },
+      "thanks": {
+        "name": "Thanks",
+        "description": "Thank user",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": "感謝你的支持, 請幫我們的粉絲頁按讚喔! https://goo.gl/wja6Rz"
           }
         }
       }
