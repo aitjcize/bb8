@@ -456,12 +456,16 @@ class Bot(DeclarativeBase, ModelMixin, JSONSerializer):
 
     def delete(self):
         self.delete_all_node_and_links()
+        self.delete_all_platforms()
         super(Bot, self).delete()
 
     def delete_all_node_and_links(self):
         """Delete all associated node and links of this bot."""
         Linkage.delete_by(bot_id=self.id)
         Node.delete_by(bot_id=self.id)
+
+    def delete_all_platforms(self):
+        """Delete all associated platform of this bot."""
         Platform.delete_by(bot_id=self.id)
 
 
