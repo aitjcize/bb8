@@ -66,17 +66,20 @@
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.get_response",
+          "id": "ai.compose.core.default",
           "config": {
-            "type": "text",
             "links": [
               {
+                "rule": {
+                    "type": "regexp",
+                    "params": [".*"]
+                },
                 "action_ident": "got_text",
                 "end_node_id": "[[show]]",
                 "ack_message": "Goto show"
               },
               {
-                "action_ident": "no_text",
+                "action_ident": "$error",
                 "end_node_id": "[[root]]",
                 "ack_message": "Goto root"
               }
@@ -91,7 +94,7 @@
         "content_module": {
           "id": "ai.compose.test.show_response",
           "config": {
-            "response": "{{response}}"
+            "response": "{{text}}"
           }
         },
         "parser_module": {
