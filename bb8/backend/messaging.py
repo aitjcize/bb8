@@ -7,6 +7,7 @@
 """
 
 import json
+import re
 
 import enum
 import jsonschema
@@ -14,6 +15,10 @@ import jsonschema
 from bb8.backend.database import User, PlatformTypeEnum
 from bb8.backend.messaging_provider import facebook, line
 from bb8.backend.util import image_convert_url
+
+
+variable_re = re.compile("^{{(.*?)}}$")
+has_variable_re = re.compile("{{(.*?)}}")
 
 
 class Message(object):
@@ -33,12 +38,13 @@ class Message(object):
         POSTBACK = 'postback'
 
     class Button(object):
-        def __init__(self, b_type, title=None, url=None, payload=None):
+        def __init__(self, b_type, title=None, url=None, payload=None,
+                     variables=None):
             if b_type not in Message.ButtonType:
                 raise RuntimeError('Invalid Button type')
 
             self.type = b_type
-            self.title = title
+            self.title = Render(title, variables) if variables else title
             self.url = url
             self.payload = None
 
@@ -60,15 +66,20 @@ class Message(object):
             )
 
         @classmethod
-        def FromDict(cls, data):
+        def FromDict(cls, data, variables=None):
             jsonschema.validate(data, cls.schema())
             b_type = Message.ButtonType(data['type'])
 
             b = cls(b_type)
-            b.title = data.get('title')
+            b.title = data['title']
+            if variables:
+                b.title = Render(b.title, variables)
+
             b.url = data.get('url')
             try:
                 b.payload = json.loads(data.get('payload'))
+                if variables:
+                    b.payload = Render(b.payload, variables)
             except (TypeError, ValueError):  # Not a json object
                 b.payload = data.get('payload')
 
@@ -111,11 +122,12 @@ class Message(object):
 
     class Bubble(object):
         def __init__(self, title, item_url=None, image_url=None, subtitle=None,
-                     buttons=None):
-            self.title = title
+                     buttons=None, variables=None):
+            self.title = Render(title, variables) if variables else title
             self.item_url = item_url
             self.image_url = image_url
-            self.subtitle = subtitle
+            self.subtitle = (Render(subtitle, variables)
+                             if variables else subtitle)
             self.buttons = buttons or []
 
         def __str__(self):
@@ -132,7 +144,7 @@ class Message(object):
             )
 
         @classmethod
-        def FromDict(cls, data):
+        def FromDict(cls, data, variables=None):
             jsonschema.validate(data, cls.schema())
             title = data.get('title')
 
@@ -140,8 +152,11 @@ class Message(object):
             b.item_url = data.get('item_url')
             b.image_url = data.get('image_url')
             b.subtitle = data.get('subtitle')
-            b.buttons = [Message.Button.FromDict(x)
+            b.buttons = [Message.Button.FromDict(x, variables)
                          for x in data.get('buttons', [])]
+            if variables:
+                b.title = Render(b.title, variables)
+                b.subtitle = Render(b.subtitle, variables)
             return b
 
         @classmethod
@@ -189,7 +204,7 @@ class Message(object):
             return data
 
     def __init__(self, text=None, image_url=None,
-                 notification_type=NotificationType.REGULAR):
+                 notification_type=NotificationType.REGULAR, variables=None):
         """Constructor.
 
         Args:
@@ -203,11 +218,12 @@ class Message(object):
                                'time')
 
         self.notification_type = notification_type
-        self.text = text
+        self.text = Render(text, variables) if variables else text
         self.image_url = image_url
         self.buttons_text = None
         self.bubbles = []
         self.buttons = []
+        self.variables = variables or {}
 
     def __str__(self):
         return json.dumps(self.as_dict())
@@ -225,7 +241,7 @@ class Message(object):
         )
 
     @classmethod
-    def FromDict(cls, data):
+    def FromDict(cls, data, variables=None):
         jsonschema.validate(data, cls.schema())
         m = Message()
         m.text = data.get('text')
@@ -239,11 +255,14 @@ class Message(object):
                 if ttype == 'button':
                     m.buttons_text = attachment['payload']['text']
                     buttons = attachment['payload']['buttons']
-                    m.buttons = [Message.Button.FromDict(x) for x in buttons]
+                    m.buttons = [Message.Button.FromDict(x, variables)
+                                 for x in buttons]
+                    if variables:
+                        m.buttons_text = Render(m.buttons_text, variables)
                 elif ttype == 'generic':
                     elements = attachment['payload']['elements']
-                    m.bubbles = [Message.Bubble.FromDict(x) for x in elements]
-
+                    m.bubbles = [Message.Bubble.FromDict(x, variables)
+                                 for x in elements]
         return m
 
     @classmethod
@@ -456,6 +475,50 @@ class Message(object):
         self.bubbles.append(bubble)
 
 
+def IsVariable(text):
+    """Test if given text is a variable."""
+    if not isinstance(text, str) and not isinstance(text, unicode):
+        return False
+    return variable_re.search(text) is not None
+
+
+def Render(template, variables):
+    """Render template with variables."""
+    def replace(m):
+        try:
+            keys = m.group(1).split('.')
+            var = variables
+            for key in keys:
+                var = var[key]
+        except KeyError:
+            return m.group(0)
+        return var
+    return has_variable_re.sub(replace, template)
+
+
+def Resolve(obj, variables):
+    """Resolve text into variable value."""
+    if not IsVariable(obj) or variables is None:
+        return obj
+
+    m = variable_re.match(str(obj))
+    if not m:
+        return obj
+
+    names = m.group(1)
+
+    if ',' in names:
+        options = names.split(',')
+    else:
+        options = [names]
+
+    for option in options:
+        if option in variables:
+            return variables[option]
+
+    return obj
+
+
 def get_messaging_provider(platform_type):
     if platform_type == PlatformTypeEnum.Facebook:
         return facebook
@@ -469,6 +532,11 @@ def send_message(user, messages):
 
     provider = get_messaging_provider(user.platform.type_enum)
     provider.send_message(user, messages)
+
+
+def get_user_profile(platform, user_ident):
+    provider = get_messaging_provider(platform.type_enum)
+    return provider.get_user_profile(platform, user_ident)
 
 
 def broadcast_message(bot, messages):
