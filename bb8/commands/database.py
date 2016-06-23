@@ -8,7 +8,7 @@
 
 from flask_script import Command
 
-from bb8.backend.bot_parser import build_all_bots
+from bb8.backend.bot_parser import build_all_bots, update_all_bots
 from bb8.backend.database import DatabaseManager, DatabaseSession
 from bb8.backend.module_registration import register_all_modules
 
@@ -34,10 +34,17 @@ class GenerateBotsCommand(Command):
         build_all_bots()
 
 
+class UpdateBotsCommand(Command):
+    """Update and generate all bots from bot definitions"""
+    def run(self):  # pylint: disable=E0202
+        update_all_bots()
+
+
 commands = {
     'reset': ResetCommand,
     'register_modules': RegisterModulesCommand,
-    'generate_bots': GenerateBotsCommand
+    'generate_bots': GenerateBotsCommand,
+    'update_bots': UpdateBotsCommand
 }
 
 

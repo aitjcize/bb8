@@ -73,7 +73,7 @@ class Engine(object):
 
             if node is None:
                 logger.critical('Invalid node_id %d' % user.session.node_id)
-                user.goto(bot.start_node_id)
+                user.goto(bot.root_node_id)
                 return self.step(bot, user, user_input)
 
             if not user.session.message_sent:

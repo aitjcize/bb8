@@ -53,6 +53,7 @@ class SessionRecord(Mutable):
 class UserInput(object):
     def __init__(self):
         self.text = None
+        self.sticker = None
         self.location = None
         self.jump_node_id = None
 
@@ -63,11 +64,24 @@ class UserInput(object):
         return u
 
     @classmethod
+    def Location(cls, coordinates, title='location'):
+        u = UserInput()
+        u.location = {
+            'title': title,
+            'coordinates': {
+                'lat': coordinates[0],
+                'long': coordinates[1]
+            }
+        }
+        return u
+
+    @classmethod
     def FromFacebookMessage(cls, messaging):
         u = UserInput()
         message = messaging.get('message')
         if message:
             u.text = message.get('text')
+            u.parse_facebook_sticker(message)
             u.parse_facebook_attachments(message.get('attachments'))
             return u
 
@@ -85,6 +99,11 @@ class UserInput(object):
                 return u
 
         return None
+
+    def parse_facebook_sticker(self, message):
+        """Helper function for parsing facebook sticker."""
+        if 'sticker_id' in message:
+            self.sticker = str(message['sticker_id'])
 
     def parse_facebook_attachments(self, attachments):
         """Helper function for parsing facebook attachments."""

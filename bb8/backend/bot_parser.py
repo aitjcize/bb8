@@ -36,8 +36,10 @@ def get_bot_filename(filename):
 def parse_bot(filename, to_bot_id=None):
     """Parse bot from bot definition.
 
-    If to_bot_id is specified, update existing bot specified by *to_bot_id*
+    If *to_bot_id* is specified, update existing bot specified by *to_bot_id*
     instead of creating a new bot.
+
+    If *to_bot_id* is a callable. The result of the call is used as the bot_id.
     """
     schema = None
     bot_json = None
@@ -61,7 +63,11 @@ def parse_bot(filename, to_bot_id=None):
 
     bot_desc = bot_json['bot']
 
-    if to_bot_id:  # Update existing bot
+    if callable(to_bot_id):
+        to_bot_id = to_bot_id(bot_desc)
+
+    if to_bot_id:
+        # Update existing bot. Keep associated Platform.
         bot = Bot.get_by(id=to_bot_id, single=True)
         bot.delete_all_node_and_links()  # Delete all previous node and links
 
@@ -69,17 +75,17 @@ def parse_bot(filename, to_bot_id=None):
         bot.description = bot_desc['description']
         bot.interaction_timeout = bot_desc['interaction_timeout']
         bot.session_timeout = bot_desc['session_timeout']
+        bot.flush()
     else:  # Create a new bot
         bot = Bot(
             name=bot_desc['name'],
             description=bot_desc['description'],
             interaction_timeout=bot_desc['interaction_timeout'],
             session_timeout=bot_desc['session_timeout']).add()
+        bot.flush()
 
-    bot.flush()
-
-    for platform_desc in bot_json['platforms']:
-        Platform(bot_id=bot.id, **platform_desc).add()
+        for platform_desc in bot_json['platforms']:
+            Platform(bot_id=bot.id, **platform_desc).add()
 
     nodes = bot_desc['nodes']
     name_id_map = {}
@@ -148,3 +154,17 @@ def build_all_bots():
     with DatabaseSession():
         for bot in glob.glob(get_bots_dir() + '/*.bot'):
             parse_bot(bot)
+
+
+def update_all_bots():
+    """Update all bots from bot definitions."""
+    def find_bot_by_name(bot_desc):
+        bot = Bot.get_by(name=bot_desc['name'], single=True)
+        if bot:
+            return bot.id
+        else:
+            return None
+
+    with DatabaseSession():
+        for bot in glob.glob(get_bots_dir() + '/*.bot'):
+            parse_bot(bot, find_bot_by_name)

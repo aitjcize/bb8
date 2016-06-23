@@ -288,20 +288,17 @@ class SchemaUnittest(unittest.TestCase):
 
         bot2_node_len = len(bot2.nodes)
         bot2_linkage_len = len(bot2.linkages)
-        bot2_platform_len = len(bot2.platforms)
 
         bot1.delete_all_node_and_links()
 
         # All nodes and links related to this bot should be gone.
         self.assertEquals(bot1.nodes, [])
         self.assertEquals(bot1.linkages, [])
-        self.assertEquals(bot1.platforms, [])
 
         # Make sure delete_all_node_and_links does not accidentally delete node
         # of other bot
         self.assertEquals(len(bot2.nodes), bot2_node_len)
         self.assertEquals(len(bot2.linkages), bot2_linkage_len)
-        self.assertEquals(len(bot2.platforms), bot2_platform_len)
 
         # Test bot reconstruction
         parse_bot(get_bot_filename('test/simple.bot'), bot1.id)
