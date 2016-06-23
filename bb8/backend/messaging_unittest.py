@@ -32,29 +32,21 @@ class MessageUnittest(unittest.TestCase):
 
         b = Message.Button(Message.ButtonType.WEB_URL, 'test',
                            url='http://test.com')
-        self.assertEquals(str(b), '{"url": "http://test.com", "type": '
-                          '"web_url", "title": "test"}')
         jsonschema.validate(b.as_dict(), Message.Button.schema())
         self.assertEquals(b, b.FromDict(b.as_dict()))
 
         b = Message.Button(Message.ButtonType.POSTBACK, 'postback',
                            payload='postback')
-        self.assertEquals(str(b), '{"type": "postback", "payload": '
-                          '"postback", "title": "postback"}')
         jsonschema.validate(b.as_dict(), Message.Button.schema())
         self.assertEquals(b, b.FromDict(b.as_dict()))
 
     def test_Bubble(self):
         b = Message.Bubble('title')
-        self.assertEquals(str(b), '{"title": "title"}')
         jsonschema.validate(b.as_dict(), Message.Bubble.schema())
         self.assertEquals(b, b.FromDict(b.as_dict()))
 
         b = Message.Bubble('title', 'http://test.com/item_url',
                            'http://test.com/image_url', 'subtitle')
-        self.assertEquals(str(b), '{"subtitle": "subtitle", "item_url": '
-                          '"http://test.com/item_url", "image_url": '
-                          '"http://test.com/image_url", "title": "title"}')
         jsonschema.validate(b.as_dict(), Message.Bubble.schema())
         self.assertEquals(b, b.FromDict(b.as_dict()))
 
@@ -62,53 +54,39 @@ class MessageUnittest(unittest.TestCase):
                                     url='http://test.com'))
         b.add_button(Message.Button(Message.ButtonType.POSTBACK, 'test',
                                     payload='payload'))
-        self.assertEquals(str(b), '{"buttons": [{"url": "http://test.com", '
-                          '"type": "web_url", "title": "test"}, '
-                          '{"type": "postback", "payload": "payload", '
-                          '"title": "test"}], '
-                          '"subtitle": "subtitle", "item_url": '
-                          '"http://test.com/item_url", "image_url": '
-                          '"http://test.com/image_url", "title": "title"}')
         jsonschema.validate(b.as_dict(), Message.Bubble.schema())
         self.assertEquals(b, b.FromDict(b.as_dict()))
 
     def test_Message(self):
+        but1 = Message.Button(Message.ButtonType.WEB_URL, 'test',
+                              url='http://test.com')
+        but2 = Message.Button(Message.ButtonType.POSTBACK, 'test',
+                              payload='payload')
         b = Message.Bubble('title', 'http://test.com/item_url',
                            'http://test.com/image_url', 'subtitle')
-        b.add_button(Message.Button(Message.ButtonType.WEB_URL, 'test',
-                                    url='http://test.com'))
-        b.add_button(Message.Button(Message.ButtonType.POSTBACK, 'test',
-                                    payload='payload'))
+        b.add_button(but1)
+        b.add_button(but2)
 
         m = Message('test')
-        self.assertEquals(str(m), '{"text": "test"}')
         jsonschema.validate(m.as_dict(), Message.schema())
         self.assertEquals(m, m.FromDict(m.as_dict()))
 
         m = Message(image_url='http://test.com/image_url')
-        self.assertEquals(str(m), '{"attachment": {"type": "image", "payload":'
-                          ' {"url": "http://test.com/image_url"}}}')
         jsonschema.validate(m.as_dict(), Message.schema())
         self.assertEquals(m, m.FromDict(m.as_dict()))
 
+        # Button message
+        m = Message()
+        m.set_buttons_text('question')
+        m.add_button(but1)
+        m.add_button(but2)
+        jsonschema.validate(m.as_dict(), Message.schema())
+        self.assertEquals(m, m.FromDict(m.as_dict()))
+
+        # Generic message
         m = Message()
         m.add_bubble(b)
         m.add_bubble(b)
-        self.assertEquals(str(m), '{"attachment": {"type": "template", '
-                          '"payload": {"template_type": "generic", "elements"'
-                          ': [{"buttons": [{"url": "http://test.com", '
-                          '"type": "web_url", "title": "test"}, {"type": '
-                          '"postback", "payload": "payload", "title": '
-                          '"test"}], "subtitle": "subtitle", "item_url": '
-                          '"http://test.com/item_url", "image_url": '
-                          '"http://test.com/image_url", "title": "title"}, '
-                          '{"buttons": [{"url": "http://test.com", "type": '
-                          '"web_url", "title": "test"}, {"type": "postback", '
-                          '"payload": "payload", "title": "test"}], '
-                          '"subtitle": "subtitle", "item_url": '
-                          '"http://test.com/item_url", "image_url": '
-                          '"http://test.com/image_url", '
-                          '"title": "title"}]}}}')
         jsonschema.validate(m.as_dict(), Message.schema())
         self.assertEquals(m, m.FromDict(m.as_dict()))
 

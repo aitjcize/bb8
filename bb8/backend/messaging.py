@@ -205,7 +205,9 @@ class Message(object):
         self.notification_type = notification_type
         self.text = text
         self.image_url = image_url
+        self.buttons_text = None
         self.bubbles = []
+        self.buttons = []
 
     def __str__(self):
         return json.dumps(self.as_dict())
@@ -215,6 +217,9 @@ class Message(object):
             self.notification_type == other.notification_type and
             self.text == other.text and
             self.image_url == other.image_url and
+            self.buttons_text == other.buttons_text and
+            len(self.buttons) == len(other.buttons) and
+            all([a == b for a, b in zip(self.buttons, other.buttons)]) and
             len(self.bubbles) == len(other.bubbles) and
             all([a == b for a, b in zip(self.bubbles, other.bubbles)])
         )
@@ -230,8 +235,14 @@ class Message(object):
             if attachment['type'] == 'image':
                 m.image_url = attachment['payload'].get('url')
             elif attachment['type'] == 'template':
-                elements = attachment['payload'].get('elements', [])
-                m.bubbles = [Message.Bubble.FromDict(x) for x in elements]
+                ttype = attachment['payload']['template_type']
+                if ttype == 'button':
+                    m.buttons_text = attachment['payload']['text']
+                    buttons = attachment['payload']['buttons']
+                    m.buttons = [Message.Button.FromDict(x) for x in buttons]
+                elif ttype == 'generic':
+                    elements = attachment['payload']['elements']
+                    m.bubbles = [Message.Bubble.FromDict(x) for x in elements]
 
         return m
 
@@ -268,7 +279,7 @@ class Message(object):
                         }, {
                             'properties': {
                                 'type': {'enum': ['template']},
-                                'payload': {
+                                'payload': {'oneOf': [{
                                     'type': 'object',
                                     'required': ['template_type', 'elements'],
                                     'additionalProperties': False,
@@ -283,7 +294,24 @@ class Message(object):
                                             }
                                         }
                                     }
-                                }
+                                }, {
+                                    'type': 'object',
+                                    'required': ['template_type', 'text',
+                                                 'buttons'],
+                                    'additionalProperties': False,
+                                    'properties': {
+                                        'template_type': {
+                                            'enum': ['button']
+                                        },
+                                        'text': {'type': 'string'},
+                                        'buttons': {
+                                            'type': 'array',
+                                            'items': {
+                                                '$ref': '#/definitions/button'
+                                            }
+                                        }
+                                    }
+                                }]}
                             }
                         }]
                     }
@@ -304,6 +332,15 @@ class Message(object):
             data['attachment'] = {
                 'type': 'image',
                 'payload': {'url': self.image_url}
+            }
+        elif self.buttons_text:
+            data['attachment'] = {
+                'type': 'template',
+                'payload': {
+                    'template_type': 'button',
+                    'text': self.buttons_text,
+                    'buttons': [x.as_dict() for x in self.buttons]
+                }
             }
         else:
             data['attachment'] = {
@@ -334,7 +371,21 @@ class Message(object):
                 'previewImageUrl':
                     image_convert_url(self.image_url, (240, 240))
             })
-        else:
+        elif self.buttons:
+            msg_text = self.buttons_text + '\n'
+            for i, but in enumerate(self.buttons):
+                if but.type == Message.ButtonType.WEB_URL:
+                    msg_text += '%d. %s <%s>\n' % (i + 1, but.title,
+                                                   but.url)
+                else:
+                    msg_text += '%d. %s\n' % (i + 1, but.title)
+
+            msgs.append({
+                'contentType': 1,
+                'toType': 1,
+                'text': msg_text
+            })
+        elif self.bubbles:
             for bubble in self.bubbles:
                 msg_text = bubble.title + '\n'
                 if bubble.subtitle:
@@ -372,6 +423,22 @@ class Message(object):
 
         self.notification_type = value
 
+    def set_buttons_text(self, text):
+        self.buttons_text = text
+
+    def add_button(self, bubble):
+        if len(self.bubbles) == 5:
+            raise RuntimeError('maxium allowed buttons reached')
+
+        if not isinstance(bubble, Message.Button):
+            raise RuntimeError('object is not a Message.Bubble object')
+
+        if self.bubbles:
+            raise RuntimeError('can not specify bubble and button at the '
+                               'same time')
+
+        self.buttons.append(bubble)
+
     def add_bubble(self, bubble):
         if len(self.bubbles) == 7:
             raise RuntimeError('maxium allowed bubbles reached')
@@ -381,6 +448,9 @@ class Message(object):
 
         if self.text:
             raise RuntimeError('can not specify attachment and text at the '
+                               'same time')
+        if self.buttons:
+            raise RuntimeError('can not specify button and bubble at the '
                                'same time')
 
         self.bubbles.append(bubble)
