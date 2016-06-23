@@ -2,23 +2,14 @@
   "platforms": [
     {
       "type_enum": "Facebook",
-      "provider_ident": "1764704343742166",
+      "provider_ident": "1155924351125985",
       "config": {
-        "access_token": "EAAZAi0GnycPEBAEwZBg2jYhZAtfjHXUhFtOdC5JLoBicWkSzp3GC2wE9U7NXD5MBPuUxNWTOfD7AWxTSoKZC9gcovxbmd7rC0wdGUo0eZBkOAGyZBRJWLW4e7QUZCmxHKXaQu1BNch52kEslZAx5kaOtDjygfxZC1NMdZAOfQDZAkxGFQZDZD"
-      }
-    },
-    {
-      "type_enum": "Line",
-      "provider_ident": "u5526efbbc9c7ad1b3375c5102c276e68",
-      "config": {
-        "channel_id": "1468633788",
-        "channel_secret": "70a5bfd80b2cf26e387b83aa836fc884",
-        "mid": "u5526efbbc9c7ad1b3375c5102c276e68"
+        "access_token": "EAAP0okfsZCVkBAHrn40QYuPkFp8Kbj1eblS2HOscOrAPzpdIDTqTriltMFJ42zATQTEGgJRw0HLhrL3swwLcVaXR27E5EHx3H8OzX0Vv4ILTFD1zAnxrY8jRilSe68QpIyLnnqUUj9rl016ckJhIH4r3Mivm5EK8tV4scjwZDZD"
       }
     }
   ],
   "bot": {
-    "name": "Youbike",
+    "name": "Youbike-Beta",
     "description": "Provide location-based youbike info",
     "interaction_timeout": 120,
     "session_timeout": 864000,

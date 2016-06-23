@@ -207,23 +207,23 @@ class ModelMixin(object):
         cls.db_manager.flush()
 
     @classmethod
-    def query(cls, *expr):
+    def query(cls):
         """Short hand for query."""
-        return g.db.query(*expr)
+        return g.db.query(cls)
 
     @classmethod
     def get_all(cls, cache=None):
         """Get all record from a table."""
-        query_object = cls.query(cls)
+        query_object = cls.query()
         if cache:
             query_object = query_object.options(cache)
         return query_object.all()
 
     @classmethod
     def get_by(cls, eager=None, order_by=None, offset=0, limit=0,
-               single=False, cache=None, lock=False, **kwargs):
+               single=False, cache=None, lock=False, query=False, **kwargs):
         """Get item by kwargs."""
-        query_object = cls.query(cls)
+        query_object = cls.query()
         if eager:
             joinloads = [joinedload(x) for x in eager]
             query_object = query_object.options(*joinloads)
@@ -248,6 +248,9 @@ class ModelMixin(object):
             if cache:
                 query_object.options(cache).invalidate()
 
+        if query:
+            return query_object
+
         if single:
             try:
                 return query_object.limit(1).one()
@@ -258,17 +261,12 @@ class ModelMixin(object):
     @classmethod
     def delete_by(cls, **kwargs):
         """Delete image by kwargs."""
-        return cls.query(cls).filter_by(**kwargs).delete()
+        return cls.query().filter_by(**kwargs).delete()
 
     @classmethod
     def delete_all(cls):
         """Delete all records from a table."""
-        return cls.query(cls).delete()
-
-    @classmethod
-    def select(cls, *args):
-        cls.query_object = cls.query(*args)
-        return cls
+        return cls.query().delete()
 
     @classmethod
     def exists(cls, **kwargs):
@@ -277,12 +275,12 @@ class ModelMixin(object):
     @classmethod
     def count(cls):
         """Get images count."""
-        return cls.query(cls).count()
+        return cls.query().count()
 
     @classmethod
     def count_by(cls, **kwargs):
         """Get images count by condition."""
-        return cls.query(cls).filter_by(**kwargs).count()
+        return cls.query().filter_by(**kwargs).count()
 
     def touch(self):
         """Update update_at timestamp."""
@@ -295,7 +293,7 @@ class ModelMixin(object):
 
     def delete(self):
         """Unregister object."""
-        self.query(type(self)).filter_by(id=self.id).delete()
+        self.query().filter_by(id=self.id).delete()
         return self
 
     def refresh(self):
@@ -458,12 +456,16 @@ class Bot(DeclarativeBase, ModelMixin, JSONSerializer):
 
     def delete(self):
         self.delete_all_node_and_links()
+        self.delete_all_platforms()
         super(Bot, self).delete()
 
     def delete_all_node_and_links(self):
         """Delete all associated node and links of this bot."""
         Linkage.delete_by(bot_id=self.id)
         Node.delete_by(bot_id=self.id)
+
+    def delete_all_platforms(self):
+        """Delete all associated platform of this bot."""
         Platform.delete_by(bot_id=self.id)
 
 
@@ -652,7 +654,7 @@ class Feed(DeclarativeBase, ModelMixin, JSONSerializer):
 
     @classmethod
     def search_title(cls, term):
-        return cls.query(cls).filter(cls.title.like(unicode('%' + term + '%')))
+        return cls.query().filter(cls.title.like(unicode('%' + term + '%')))
 
 
 class PublicFeed(DeclarativeBase, ModelMixin):
