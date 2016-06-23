@@ -1,0 +1,188 @@
+{
+  "platforms": [
+    {
+      "type_enum": "Facebook",
+      "provider_ident": "1155924351125985",
+      "config": {
+        "access_token": "EAAP0okfsZCVkBAHrn40QYuPkFp8Kbj1eblS2HOscOrAPzpdIDTqTriltMFJ42zATQTEGgJRw0HLhrL3swwLcVaXR27E5EHx3H8OzX0Vv4ILTFD1zAnxrY8jRilSe68QpIyLnnqUUj9rl016ckJhIH4r3Mivm5EK8tV4scjwZDZD"
+      }
+    }
+  ],
+  "bot": {
+    "name": "Youbike-Beta",
+    "description": "Provide location-based youbike info",
+    "interaction_timeout": 120,
+    "session_timeout": 864000,
+    "nodes": {
+      "start": {
+        "name": "Greet",
+        "description": "Great user",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": "歡迎使用 Ubike 小幫手"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.passthrough",
+          "config": {
+            "end_node_id": "[[root]]",
+            "ack_message": ""
+          }
+        }
+      },
+      "root": {
+        "name": "Usage",
+        "description": "Show usage",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": "請用手機送出你現在的位置，我們會為您找出附近的 Ubike 站點資訊！"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["(?i)(hi|hello|yo)", "嗨", "你們?是誰?"]
+                },
+                "action_ident": "ask_who",
+                "end_node_id": "[[intro]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                    "type": "location"
+                },
+                "action_ident": "got_location",
+                "end_node_id": "[[youbike]]",
+                "ack_message": "收到~"
+              },
+              {
+                "rule": {
+                    "type": "sticker",
+                    "params": ["369239263222822", "369239343222814", "369239383222810"]
+                },
+                "action_ident": "got_like_sticker",
+                "end_node_id": "[[thanks]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                    "type": "sticker",
+                    "params": [".*"]
+                },
+                "action_ident": "got_other_sticker",
+                "end_node_id": "[[root]]",
+                "ack_message": ":)"
+              },
+              {
+                "action_ident": "$error",
+                "end_node_id": "[[hint_location]]",
+                "ack_message": "對不起 我看不懂 >.<"
+              }
+            ]
+          }
+        }
+      },
+      "youbike": {
+        "name": "Youbike",
+        "description": "Show youbike search result",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.third_party.youbike",
+          "config": {
+            "location": "{{location}}",
+            "max_count": 5
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.passthrough",
+          "config": {
+            "end_node_id": "[[hint_action]]",
+            "ack_message": ""
+          }
+        }
+      },
+      "intro": {
+        "name": "Intro",
+        "description": "Intro",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": "Hi! 我們是 http://compose.ai"
+          }
+        }
+      },
+      "hint_action": {
+        "name": "Hint",
+        "description": "Hint user",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": {
+                "Facebook": "您可以繼續送出位置查詢，或按「再次查詢」",
+                "Line": "您可以繼續送出位置查詢"
+            }
+          }
+        }
+      },
+      "hint_location": {
+        "name": "Hint Location",
+        "description": "Hint user about how to send location",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.generic_message",
+          "config": {
+            "messages": {
+              "Facebook": [
+                {
+                  "text": "請按下手機版 Messenger 上的位置按鍵"
+                },
+                {
+                  "attachment": {
+                    "type": "image",
+                    "payload": {
+                      "url": "http://i.imgur.com/CdxCWXd.png"
+                    }
+                  }
+                }
+              ],
+              "Line": [
+                {
+                  "text": "請按下手機版 Line 上的傳送位置訊息"
+                },
+                {
+                  "attachment": {
+                    "type": "image",
+                    "payload": {
+                      "url": "http://i.imgur.com/FiLEltL.png"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "thanks": {
+        "name": "Thanks",
+        "description": "Thank user",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": "感謝你的支持, 請幫我們的粉絲頁按讚喔! https://goo.gl/wja6Rz"
+          }
+        }
+      }
+    }
+  }
+}
