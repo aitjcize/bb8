@@ -46,6 +46,10 @@ def schema():
                     }
                 }]
             }
+        },
+        'definitions': {
+            'button': Message.Button.schema(),
+            'bubble': Message.Bubble.schema()
         }
     }
 
