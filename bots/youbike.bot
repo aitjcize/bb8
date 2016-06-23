@@ -30,7 +30,7 @@
         "content_module": {
           "id": "ai.compose.core.text_message",
           "config": {
-            "text": "歡迎使用 Ubike 小幫手"
+            "text": "嗨 {{user.first_name}}, 歡迎使用 Ubike 小幫手"
           }
         },
         "parser_module": {

@@ -43,7 +43,7 @@ def schema():
     }
 
 
-def run(content_config, env, unused_variables):
+def run(content_config, env, variables):
     """
     content_config schema:
 
@@ -65,8 +65,8 @@ def run(content_config, env, unused_variables):
 
     # Platform independent message
     if not isinstance(text, dict):
-        return [Message(text)]
+        return [Message(text, variables=variables)]
 
     # Platform dependent message
     platform_type = env['platform_type'].value
-    return [Message(text[platform_type])]
+    return [Message(text[platform_type], variables=variables)]

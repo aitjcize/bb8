@@ -7,17 +7,13 @@
     Copyright 2016 bb8 Authors
 """
 
-import re
-
 from bb8 import config
 
 # pylint: disable=W0611
 from bb8.backend.database import PlatformTypeEnum, SupportedPlatform
-from bb8.backend.messaging import Message  # pylint: disable=W0611
+# pylint: disable=W0611
+from bb8.backend.messaging import Message, Render, Resolve, IsVariable
 
-
-variable_re = re.compile("^{{(.*?)}}$")
-has_variable_re = re.compile("{{(.*?)}}")
 
 CONFIG = {
     'HTTP_ROOT': 'https://%s:%d/' % (config.HOSTNAME, config.PORT)
@@ -62,40 +58,3 @@ def LocationPayload(coordinate, env):
             }]
         }
     }
-
-
-def Render(template, variables):
-    """Render template with variables."""
-    def replace(m):
-        return variables.get(m.group(1), m.group(0))
-    return has_variable_re.sub(replace, template)
-
-
-def IsVariable(text):
-    """Test if given text is a variable."""
-    if not isinstance(text, str) and not isinstance(text, unicode):
-        return False
-    return variable_re.search(text) is not None
-
-
-def Resolve(obj, variables):
-    """Resolve text into variable value."""
-    if not IsVariable(obj) or variables is None:
-        return obj
-
-    m = variable_re.match(str(obj))
-    if not m:
-        return obj
-
-    names = m.group(1)
-
-    if ',' in names:
-        options = names.split(',')
-    else:
-        options = [names]
-
-    for option in options:
-        if option in variables:
-            return variables[option]
-
-    return obj

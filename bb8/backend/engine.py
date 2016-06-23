@@ -82,6 +82,10 @@ class Engine(object):
                     'platform_type': SupportedPlatform(
                         user.platform.type_enum.value)
                 }
+                # Prepare input variables
+                input_variables = input_variables or {}
+                input_variables['user'] = user.to_json()
+
                 # TODO(aitjcize): figure out how to deal with cm exceptions
                 cm = node.content_module.get_module()
                 messages = cm.run(node.content_config, env, input_variables)

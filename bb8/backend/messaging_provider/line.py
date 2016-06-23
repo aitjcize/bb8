@@ -12,6 +12,17 @@ import requests
 LINE_MESSAGING_API_URL = 'https://trialbot-api.line.me/v1/events'
 
 
+def get_user_profile(platform, user_ident):
+    ret = {
+        'first_name': u'',
+        'last_name': u'',
+        'locale': 'zh_TW',
+        'timezone': 8,
+        'gender': 'male'
+    }
+    return ret
+
+
 def send_message(user, messages):
     platform = user.platform
     headers = {

@@ -160,6 +160,33 @@ class MessagingUnittest(unittest.TestCase):
 
         self.assertEquals(context['count'], 2)
 
+    def test_message_variable_rendering(self):
+        """Test that variable in message can be rendered correctly."""
+        variables = {
+            'user': {
+                'first_name': 'Isaac',
+                'last_name': 'Huang',
+            },
+            'date': 'today'
+        }
+        m = Message('Hi {{user.first_name}}', variables=variables)
+        self.assertEquals(m.as_dict()['text'], 'Hi Isaac')
+
+        m = Message()
+        bubble = Message.Bubble('Bubble Test',
+                                'http://www.starwars.com/',
+                                'http://i.imgur.com/4loi6PJ.jpg',
+                                '{{user.first_name}}', variables=variables)
+        bubble.add_button(Message.Button(Message.ButtonType.WEB_URL,
+                                         '{{user.last_name}}',
+                                         url='http://www.starwars.com/',
+                                         variables=variables))
+        m.add_bubble(bubble)
+        bubble = m.as_dict()['attachment']['payload']['elements'][0]
+
+        self.assertEquals(bubble['subtitle'], 'Isaac')
+        self.assertEquals(bubble['buttons'][0]['title'], 'Huang')
+
 
 if __name__ == '__main__':
     unittest.main()
