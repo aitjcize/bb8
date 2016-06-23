@@ -91,6 +91,15 @@
                 "ack_message": ":)"
               },
               {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["\\?", "(?i)help"]
+                },
+                "action_ident": "help",
+                "end_node_id": "[[hint_location]]",
+                "ack_message": ""
+              },
+              {
                 "action_ident": "$error",
                 "end_node_id": "[[hint_location]]",
                 "ack_message": "對不起 我看不懂 >.<"
