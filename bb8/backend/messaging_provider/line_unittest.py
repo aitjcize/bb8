@@ -64,9 +64,18 @@ class Facebook(unittest.TestCase):
         m = Message(image_url='http://i.imgur.com/4loi6PJ.jpg')
         line.send_message(self.user, [m])
 
-        # Test card message
+        # Test button template message
         m = Message()
-        bubble = Message.Bubble('Bubble Test',
+        m.set_buttons_text('Button template test')
+        m.add_button(Message.Button(Message.ButtonType.WEB_URL,
+                                    'Google', url='http://www.google.com/'))
+        m.add_button(Message.Button(Message.ButtonType.WEB_URL,
+                                    '17', url='http://www.17.media/'))
+        line.send_message(self.user, [m])
+
+        # Test generic template message
+        m = Message()
+        bubble = Message.Bubble('Generic template test',
                                 'http://www.starwars.com/',
                                 'http://i.imgur.com/4loi6PJ.jpg',
                                 'Bubble subtitle')

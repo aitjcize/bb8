@@ -15,6 +15,7 @@ from bb8 import config, app
 from bb8.backend.database import User, Platform, PlatformTypeEnum
 from bb8.backend.engine import Engine
 from bb8.backend.metadata import UserInput
+from bb8.backend.messaging import get_user_profile
 
 
 @app.route(config.FACEBOOK_WEBHOOK_PATH, methods=['GET'])
@@ -48,13 +49,14 @@ def facebook_receive():
 
             for messaging in entry['messaging']:
                 sender = messaging['sender']['id']
-
                 user = User.get_by(bot_id=bot.id, platform_id=platform.id,
                                    platform_user_ident=sender, single=True)
                 if not user:
+                    profile_info = get_user_profile(platform, sender)
                     user = User(bot_id=bot.id, platform_id=platform.id,
                                 platform_user_ident=sender,
-                                last_seen=datetime.datetime.now()).add()
+                                last_seen=datetime.datetime.now(),
+                                **profile_info).add()
                     user.commit()
 
                 user_input = UserInput.FromFacebookMessage(messaging)

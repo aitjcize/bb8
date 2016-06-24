@@ -46,11 +46,15 @@ def schema():
                     }
                 }]
             }
+        },
+        'definitions': {
+            'button': Message.Button.schema(),
+            'bubble': Message.Bubble.schema()
         }
     }
 
 
-def run(content_config, env, unused_variables):
+def run(content_config, env, variables):
     """
     content_config schema:
 
@@ -76,5 +80,5 @@ def run(content_config, env, unused_variables):
         messages = messages[platform_type]
 
     for message in messages:
-        msgs.append(Message.FromDict(message))
+        msgs.append(Message.FromDict(message, variables))
     return msgs

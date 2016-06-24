@@ -25,7 +25,7 @@ from sqlalchemy.orm import (scoped_session, sessionmaker, joinedload,
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import has_identity
 from sqlalchemy.schema import UniqueConstraint
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, InvalidRequestError
 
 from bb8 import config
 from bb8.backend.metadata import SessionRecord
@@ -113,7 +113,10 @@ class DatabaseManager(object):
     @classmethod
     def disconnect(cls, commit=True):
         if commit:
-            g.db.commit()
+            try:
+                g.db.commit()
+            except InvalidRequestError:
+                g.db.rollback()
         g.db.close()
         g.db = None
 
@@ -432,9 +435,8 @@ class PlatformTypeEnum(enum.Enum):
 class Bot(DeclarativeBase, ModelMixin, JSONSerializer):
     __tablename__ = 'bot'
 
-    __json_public__ = ['id', 'name', 'description',
-                       'root_node_id', 'start_node_id',
-                       'platforms']
+    __json_public__ = ['id', 'name', 'description', 'root_node_id',
+                       'start_node_id', 'platforms']
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(Unicode(256), nullable=False)
@@ -469,8 +471,16 @@ class Bot(DeclarativeBase, ModelMixin, JSONSerializer):
         Platform.delete_by(bot_id=self.id)
 
 
-class User(DeclarativeBase, ModelMixin):
+class GenderEnum(enum.Enum):
+    Male = 'Male'
+    Female = 'Female'
+
+
+class User(DeclarativeBase, ModelMixin, JSONSerializer):
     __tablename__ = 'user'
+
+    __json_public__ = ['first_name', 'last_name', 'locale', 'gender',
+                       'timezone']
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     bot_id = Column(ForeignKey('bot.id'), nullable=False)
@@ -478,6 +488,13 @@ class User(DeclarativeBase, ModelMixin):
     platform_user_ident = Column(String(128), nullable=False)
     last_seen = Column(DateTime, nullable=False)
     login_token = deferred(Column(Text, nullable=True))
+
+    first_name = Column(Unicode(32), nullable=True)
+    last_name = Column(Unicode(32), nullable=True)
+    locale = Column(String(16), nullable=True)
+    gender = Column(Enum(GenderEnum), nullable=True)
+    timezone = Column(Integer, nullable=True)
+
     session = Column(SessionRecord.as_mutable(PickleType), nullable=True)
 
     platform = relationship('Platform')
