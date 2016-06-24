@@ -48,26 +48,29 @@ def schema():
                                     'params': {
                                         'type': 'array',
                                         'items': {'type': 'string'}
-                                    }
+                                    },
+                                    'collect_as': {'type': 'string'}
                                 }
                             }, {
                                 'properties': {
                                     'type': {'enum': ['location']},
-                                    'params': {'type': 'null'}
-                                }
+                                    'params': {'type': 'null'},
+                                    'collect_as': {'type': 'string'}
+                                },
                             }, {
                                 'properties': {
                                     'type': {'enum': ['sticker']},
                                     'params': {
                                         'type': 'array',
                                         'items': {'type': 'string'}
-                                    }
+                                    },
+                                    'collect_as': {'type': 'string'}
                                 }
                             }, {
                                 'properties': {
                                     'type': {'enum': ['force']},
                                     'params': {'type': 'null'}
-                                }
+                                },
                             }]
                         },
                         'action_ident': {'type': 'string'},
@@ -113,21 +116,30 @@ def run(parser_config, user_input):
             for param in link['rule']['params']:
                 m = re.search(unicode(param), user_input.text)
                 if m:
-                    return link['action_ident'], {
+                    collect = {}
+                    if 'collect_as' in link['rule']:
+                        collect[link['rule']['collect_as']] = user_input.text
+
+                    return (link['action_ident'], {
                         'text': user_input.text,
                         'matches': m.groups()
-                    }
+                    }, collect)
         elif r_type == 'location' and user_input.location:
-            return link['action_ident'], {'location': user_input.location}
+            collect = {}
+            if 'collect_as' in link['rule']:
+                collect[link['rule']['collect_as']] = user_input.location
+
+            return (link['action_ident'], {'location': user_input.location},
+                    collect)
         elif r_type == 'sticker' and user_input.sticker:
             for param in link['rule']['params']:
                 if re.search(param, user_input.sticker):
                     return (link['action_ident'],
-                            {'sticker': user_input.sticker})
+                            {'sticker': user_input.sticker}, {})
         elif r_type == 'force':
-            return link['action_ident'], {}
+            return (link['action_ident'], {}, {})
 
-    return '$error', {}
+    return ('$error', {}, {})
 
 
 def get_linkages(parser_config):

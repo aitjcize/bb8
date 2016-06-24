@@ -616,7 +616,6 @@ class ColletedDatum(DeclarativeBase, ModelMixin):
     __tablename__ = 'colleted_data'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    account_id = Column(ForeignKey('account.id'), nullable=False)
     user_id = Column(ForeignKey('user.id'), nullable=False)
     key = Column(String(128), nullable=False)
     value = Column(PickleType, nullable=False)
