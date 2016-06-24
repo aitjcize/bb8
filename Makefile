@@ -54,5 +54,10 @@ validate-bots:
 
 deploy:
 	sudo docker build -t bb8 .
-	sudo docker rm -f bb8
-	sudo docker run --name bb8 -p 5000:5000 -p 2222:22 -d bb8
+	sudo docker rm -f bb8 >/dev/null 2>&1 || true
+	sudo docker run --name bb8 -p 5000:5000 -d bb8
+	sudo umount $(CURDIR)/logs >/dev/null 2>&1
+	mkdir -p $(CURDIR)/logs
+	sudo mount --bind \
+		`sudo docker inspect -f '{{index .Volumes "/var/log"}}' bb8` \
+		$(CURDIR)/logs

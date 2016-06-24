@@ -21,7 +21,7 @@
         "content_module": {
           "id": "ai.compose.core.text_message",
           "config": {
-            "text": "歡迎使用 Ubike 小幫手"
+            "text": "嗨 {{user.first_name}}, 歡迎使用 Ubike 小幫手"
           }
         },
         "parser_module": {
@@ -80,6 +80,15 @@
                 "action_ident": "got_other_sticker",
                 "end_node_id": "[[root]]",
                 "ack_message": ":)"
+              },
+              {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["\\?", "(?i)help"]
+                },
+                "action_ident": "help",
+                "end_node_id": "[[hint_location]]",
+                "ack_message": ""
               },
               {
                 "action_ident": "$error",
