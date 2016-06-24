@@ -11,7 +11,8 @@ import datetime
 from bb8 import logger
 
 from bb8.backend import messaging
-from bb8.backend.database import Linkage, Node, SupportedPlatform
+from bb8.backend.database import (ColletedDatum, Linkage, Node,
+                                  SupportedPlatform)
 
 
 class Engine(object):
@@ -20,7 +21,12 @@ class Engine(object):
     def __init__(self):
         pass
 
-    def run_parser_module(self, node, user_input):
+    def insert_data(self, user, data):
+        """Insert collected data into database."""
+        for key in data:
+           ColletedDatum(user_id=user.id, key=key, value=data[key]).add()
+
+    def run_parser_module(self, node, user, user_input):
         """Execute a parser module of a node, then return linkage.
 
         If action_ident is BB8_GLOBAL_NOMATCH_IDENT (should only happen in case
@@ -28,11 +34,14 @@ class Engine(object):
         attempting to find a linkage.
         """
         pm = node.parser_module.get_module()
-        action_ident, variables = pm.run(node.parser_config, user_input)
+        action_ident, variables, data = pm.run(node.parser_config, user_input)
 
         # Global parser nomatch
         if action_ident == self.BB8_GLOBAL_NOMATCH_IDENT:
             return None, {}
+
+        # Collect data
+        self.insert_data(user, data)
 
         linkage = Linkage.get_by(start_node_id=node.id,
                                  action_ident=action_ident, single=True)
@@ -108,7 +117,7 @@ class Engine(object):
             else:
                 if user_input:
                     link, variables = self.run_parser_module(bot.root_node,
-                                                             user_input)
+                                                             user, user_input)
                     if link:  # There is a global command match
                         if link.ack_message:
                             messaging.send_message(
@@ -129,7 +138,8 @@ class Engine(object):
                     user.session.message_sent = True
                     return self.step(bot, user, None, variables)
 
-                link, variables = self.run_parser_module(node, user_input)
+                link, variables = self.run_parser_module(node, user,
+                                                         user_input)
                 if link is None:  # No matching linkage, we have a bug here.
                     return
 
