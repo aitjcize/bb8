@@ -29,6 +29,8 @@ class Engine(object):
         """
         pm = node.parser_module.get_module()
         action_ident, variables = pm.run(node.parser_config, user_input)
+
+        # Global parser nomatch
         if action_ident == self.BB8_GLOBAL_NOMATCH_IDENT:
             return None, {}
 

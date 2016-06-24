@@ -43,13 +43,26 @@
           }
         },
         "parser_module": {
-          "id": "ai.compose.test.literal_root",
+          "id": "ai.compose.core.default",
           "config": {
             "links": [
               {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["postback"]
+                },
                 "action_ident": "postback",
                 "end_node_id": "[[postback]]",
                 "ack_message": "Goto postback"
+              },
+              {
+                "rule": {
+                    "type": "force",
+                    "params": null
+                },
+                "action_ident": "$bb8.global.nomatch",
+                "end_node_id": null,
+                "ack_message": ""
               }
             ]
           }

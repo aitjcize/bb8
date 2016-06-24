@@ -63,10 +63,15 @@ def schema():
                                         'items': {'type': 'string'}
                                     }
                                 }
+                            }, {
+                                'properties': {
+                                    'type': {'enum': ['force']},
+                                    'params': {'type': 'null'}
+                                }
                             }]
                         },
                         'action_ident': {'type': 'string'},
-                        'end_node_id': {'type': 'integer'},
+                        'end_node_id': {'type': ['null', 'integer']},
                         'ack_message': {'type': 'string'}
                     }
                 }
@@ -119,6 +124,8 @@ def run(parser_config, user_input):
                 if re.search(param, user_input.sticker):
                     return (link['action_ident'],
                             {'sticker': user_input.sticker})
+        elif r_type == 'force':
+            return link['action_ident'], {}
 
     return '$error', {}
 
