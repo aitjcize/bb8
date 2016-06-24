@@ -452,6 +452,10 @@ class Message(object):
         if not isinstance(bubble, Message.Button):
             raise RuntimeError('object is not a Message.Bubble object')
 
+        if self.text:
+            raise RuntimeError('can not specify attachment and text at the '
+                               'same time')
+
         if self.bubbles:
             raise RuntimeError('can not specify bubble and button at the '
                                'same time')
