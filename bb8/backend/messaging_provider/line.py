@@ -12,7 +12,7 @@ import requests
 LINE_MESSAGING_API_URL = 'https://trialbot-api.line.me/v1/events'
 
 
-def get_user_profile(platform, user_ident):
+def get_user_profile(unused_platform, unused_user_ident):
     ret = {
         'first_name': u'',
         'last_name': u'',
