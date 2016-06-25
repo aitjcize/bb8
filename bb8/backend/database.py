@@ -185,8 +185,8 @@ class ModelMixin(object):
     """Provides common field and methods for models."""
     db_manager = DatabaseManager()
 
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow())
-    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow())
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow)
 
     def __repr__(self):
         return '<%s(\'%s\')>' % (type(self).__name__, self.id)

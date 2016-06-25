@@ -7,9 +7,10 @@
     Copyright 2016 bb8 Authors
 """
 
-import uuid
-import unittest
 import datetime
+import time
+import unittest
+import uuid
 
 import jwt
 import pytz
@@ -272,6 +273,7 @@ class SchemaUnittest(unittest.TestCase):
         account.refresh()
         self.assertEquals(account.created_at, account.updated_at)
 
+        time.sleep(1)
         account.username = 'user2'
         account.commit()
 

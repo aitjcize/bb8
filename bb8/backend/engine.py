@@ -12,7 +12,7 @@ from bb8 import logger
 
 from bb8.backend import messaging
 from bb8.backend.database import (g, ColletedDatum, Linkage, Node,
-                                  SupportedPlatform)
+                                  SupportedPlatform, User)
 
 
 class Engine(object):
@@ -50,7 +50,7 @@ class Engine(object):
                             'action = "%s"' % (node, action_ident))
         return linkage, variables
 
-    def step(self, bot, user, user_input=None, input_variables=None):
+    def step(self, bot, user, user_input=None, input_vars=None):
         """Main function for executing a node."""
 
         try:
@@ -91,19 +91,27 @@ class Engine(object):
             g.node = node
             g.user = user
 
+            def populate_env_variables(variables):
+                """Populate environment variables."""
+                variables = variables or {}
+                variables['statistic'] = {
+                    'user_count': User.count_by(bot_id=bot.id)
+                }
+                variables['user'] = user.to_json()
+                return variables
+
             if not user.session.message_sent:
                 env = {
                     'platform_type': SupportedPlatform(
                         user.platform.type_enum.value)
                 }
                 # Prepare input variables
-                input_variables = input_variables or {}
-                input_variables['user'] = user.to_json()
-                g.variables = input_variables
+                input_vars = populate_env_variables(input_vars)
+                g.variables = input_vars
 
                 # TODO(aitjcize): figure out how to deal with cm exceptions
                 cm = node.content_module.get_module()
-                messages = cm.run(node.content_config, env, input_variables)
+                messages = cm.run(node.content_config, env, input_vars)
                 messaging.send_message(user, messages)
                 user.session.message_sent = True
 

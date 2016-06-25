@@ -49,8 +49,7 @@
               {
                 "rule": {
                     "type": "regexp",
-                    "params": ["(?i)(hi|hello|yo)", "嗨", "你們?是誰?"],
-                    "collect_as": "greet"
+                    "params": ["(?i)(hi|hello|yo)", "嗨", "你們?是誰?"]
                 },
                 "action_ident": "ask_who",
                 "end_node_id": "[[intro]]",
