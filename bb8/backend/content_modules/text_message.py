@@ -28,6 +28,16 @@ def schema():
         'properties': {
             'text': {
                 'oneOf': [{
+                    '$ref': '#/definitions/messages'
+                }, {
+                    'type': 'array',
+                    'items': {'$ref': '#/definitions/messages'}
+                }]
+            }
+        },
+        "definitions": {
+            "messages": {
+                'oneOf': [{
                     'type': 'string'
                 }, {
                     'type': 'object',
@@ -63,10 +73,12 @@ def run(content_config, env, variables):
     """
     text = content_config['text']
 
-    # Platform independent message
-    if not isinstance(text, dict):
-        return [Message(text, variables=variables)]
+    if not isinstance(text, list):
+        text = [text]
 
-    # Platform dependent message
+    # Platform independent message
+    if not isinstance(text[0], dict):
+        return [Message(t, variables=variables) for t in text]
+
     platform_type = env['platform_type'].value
-    return [Message(text[platform_type], variables=variables)]
+    return [Message(t[platform_type], variables=variables) for t in text]
