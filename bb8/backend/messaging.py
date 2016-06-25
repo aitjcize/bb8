@@ -7,12 +7,16 @@
 """
 
 import json
+import logging
 import re
 
 import enum
 import jsonschema
 
-from bb8.backend.database import User, PlatformTypeEnum
+from sqlalchemy import desc
+
+from bb8.backend.query_filters import FILTERS
+from bb8.backend.database import g, ColletedDatum, User, PlatformTypeEnum
 from bb8.backend.messaging_provider import facebook, line
 from bb8.backend.util import image_convert_url
 
@@ -44,7 +48,7 @@ class Message(object):
                 raise RuntimeError('Invalid Button type')
 
             self.type = b_type
-            self.title = Render(title, variables) if variables else title
+            self.title = Render(title, variables or {})
             self.url = url
             self.payload = None
 
@@ -67,19 +71,16 @@ class Message(object):
 
         @classmethod
         def FromDict(cls, data, variables=None):
+            variables = variables or {}
             jsonschema.validate(data, cls.schema())
             b_type = Message.ButtonType(data['type'])
 
             b = cls(b_type)
-            b.title = data['title']
-            if variables:
-                b.title = Render(b.title, variables)
+            b.title = Render(data['title'], variables)
 
             b.url = data.get('url')
             try:
-                b.payload = json.loads(data.get('payload'))
-                if variables:
-                    b.payload = Render(b.payload, variables)
+                b.payload = Render(json.loads(data.get('payload')), variables)
             except (TypeError, ValueError):  # Not a json object
                 b.payload = data.get('payload')
 
@@ -123,11 +124,11 @@ class Message(object):
     class Bubble(object):
         def __init__(self, title, item_url=None, image_url=None, subtitle=None,
                      buttons=None, variables=None):
-            self.title = Render(title, variables) if variables else title
+            variables = variables or {}
+            self.title = Render(title, variables)
             self.item_url = item_url
             self.image_url = image_url
-            self.subtitle = (Render(subtitle, variables)
-                             if variables else subtitle)
+            self.subtitle = Render(subtitle, variables)
             self.buttons = buttons or []
 
         def __str__(self):
@@ -145,18 +146,16 @@ class Message(object):
 
         @classmethod
         def FromDict(cls, data, variables=None):
+            variables = variables or {}
             jsonschema.validate(data, cls.schema())
             title = data.get('title')
 
-            b = cls(title)
+            b = cls(Render(title, variables))
             b.item_url = data.get('item_url')
             b.image_url = data.get('image_url')
-            b.subtitle = data.get('subtitle')
+            b.subtitle = Render(data.get('subtitle'), variables)
             b.buttons = [Message.Button.FromDict(x, variables)
                          for x in data.get('buttons', [])]
-            if variables:
-                b.title = Render(b.title, variables)
-                b.subtitle = Render(b.subtitle, variables)
             return b
 
         @classmethod
@@ -218,12 +217,11 @@ class Message(object):
                                'time')
 
         self.notification_type = notification_type
-        self.text = Render(text, variables) if variables else text
+        self.text = Render(text, variables or {})
         self.image_url = image_url
         self.buttons_text = None
         self.bubbles = []
         self.buttons = []
-        self.variables = variables or {}
 
     def __str__(self):
         return json.dumps(self.as_dict())
@@ -486,20 +484,94 @@ def IsVariable(text):
     return variable_re.search(text) is not None
 
 
+def parseQuery(expr):
+    """Parse query expression."""
+    parts = expr.split('|')
+    query = parts[0]
+    filters = parts[1:]
+
+    m = re.match(r'^q(all)?\.([^.]*)$', query)
+    if not m:
+        return expr
+
+    key = m.group(2)
+    q = ColletedDatum.query()
+    q = q.filter_by(key=key)
+
+    if m.group(1) is None:  # q.
+        q = q.filter_by(user_id=g.user.id)
+
+    # Parse query filter
+    result = None
+    try:
+        for f in filters[:]:
+            filters = filters[1:]
+            if f == 'one' or f == 'first':
+                result = q.first()
+                result = result.value if result else None
+                break
+            elif f == 'count':
+                result = q.count()
+                break
+            else:
+                m = re.match(r'order_by\(\'(.*)\'\)', f)
+                if m:
+                    field = m.group(1)
+                    if field.startswith('-'):
+                        q = q.order_by(desc(field[1:]))
+                    else:
+                        q = q.order_by(field)
+    except Exception as e:
+        logging.exceptions(e)
+        return expr
+
+    if result is None:
+        return expr
+
+    # Parse transform filter
+    for f in filters:
+        if f in FILTERS:
+            result = FILTERS[f](result)
+
+    if not isinstance(result, str) and not isinstance(result, unicode):
+        result = str(result)
+
+    return result
+
+
+def parseVariable(expr, variables):
+    """Parse variable expression."""
+    parts = expr.split('|')
+    expr = parts[0]
+    filters = parts[1:]
+
+    keys = expr.split('.')
+    var = variables
+    for key in keys:
+        var = var[key]
+
+    # Parse transform filter
+    result = var
+    for f in filters:
+        if f in FILTERS:
+            result = FILTERS[f](result)
+
+    if not isinstance(result, str) and not isinstance(result, unicode):
+        result = str(result)
+
+    return result
+
+
 def Render(template, variables):
     """Render template with variables."""
     if template is None:
         return None
 
     def replace(m):
-        try:
-            keys = m.group(1).split('.')
-            var = variables
-            for key in keys:
-                var = var[key]
-        except KeyError:
-            return m.group(0)
-        return var
+        expr = m.group(1)
+        if re.match(r'^q(all)?\.', expr):  # Query expression
+            return parseQuery(expr)
+        return parseVariable(expr, variables)
     return has_variable_re.sub(replace, template)
 
 
