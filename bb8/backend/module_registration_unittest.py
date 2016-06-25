@@ -9,6 +9,7 @@
 
 import unittest
 
+from bb8 import app
 from bb8.backend import module_registration
 
 
@@ -21,4 +22,5 @@ class ModuleRegistrationUnittest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    with app.test_request_context():
+        unittest.main()

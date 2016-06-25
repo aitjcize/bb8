@@ -68,7 +68,7 @@ def schema():
     }
 
 
-def run(content_config, env, variables):
+def run(content_config, unused_env, variables):
     """
     content_config schema:
     {
@@ -102,7 +102,7 @@ def run(content_config, env, variables):
                                     url=i.link[:-4]))
         c.add_button(Message.Button(
             Message.ButtonType.POSTBACK, 'Like',
-            payload=TextPayload('like %s' % i.link, env)))
+            payload=TextPayload('like %s' % i.link)))
         m.add_bubble(c)
 
     return [Message('Here are the images you requested'), m]

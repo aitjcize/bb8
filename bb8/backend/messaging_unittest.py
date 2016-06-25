@@ -7,15 +7,16 @@
     Copyright 2016 bb8 Authors
 """
 
-import unittest
 import datetime
-
-import pytz
+import time
+import unittest
 
 import jsonschema
+import pytz
 
-from bb8.backend.database import DatabaseManager
-from bb8.backend.database import Bot, Platform, PlatformTypeEnum, User
+from bb8 import app
+from bb8.backend.database import (g, Bot, ColletedDatum, DatabaseManager,
+                                  Platform, PlatformTypeEnum, User)
 from bb8.backend.messaging import Message, broadcast_message
 from bb8.backend.messaging_provider import facebook
 
@@ -187,6 +188,29 @@ class MessagingUnittest(unittest.TestCase):
         self.assertEquals(bubble['subtitle'], 'Isaac')
         self.assertEquals(bubble['buttons'][0]['title'], 'Huang')
 
+    def test_query_expression_rendering(self):
+        """Test that query expresssion can be query and rendered correctly."""
+        ColletedDatum(user_id=self.user_1.id, key='data', value='value1').add()
+        DatabaseManager.commit()
+        time.sleep(1)
+        ColletedDatum(user_id=self.user_1.id, key='data', value='value2').add()
+        ColletedDatum(user_id=self.user_2.id, key='data', value='value3').add()
+        DatabaseManager.commit()
+
+        g.user = self.user_1
+        m = Message('{{q.data|first|upper}}')
+        self.assertEquals(m.as_dict()['text'], 'VALUE1')
+
+        m = Message("{{q.data|order_by('-created_at')|first}}")
+        self.assertEquals(m.as_dict()['text'], 'value2')
+
+        m = Message("{{q.data|count}}")
+        self.assertEquals(m.as_dict()['text'], '2')
+
+        m = Message("{{qall.data|count}}")
+        self.assertEquals(m.as_dict()['text'], '3')
+
 
 if __name__ == '__main__':
-    unittest.main()
+    with app.test_request_context():
+        unittest.main()

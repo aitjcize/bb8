@@ -11,7 +11,8 @@ import datetime
 from bb8 import logger
 
 from bb8.backend import messaging
-from bb8.backend.database import Linkage, Node, SupportedPlatform
+from bb8.backend.database import (g, ColletedDatum, Linkage, Node,
+                                  SupportedPlatform, User)
 
 
 class Engine(object):
@@ -20,7 +21,12 @@ class Engine(object):
     def __init__(self):
         pass
 
-    def run_parser_module(self, node, user_input):
+    def insert_data(self, user, data):
+        """Insert collected data into database."""
+        for key in data:
+            ColletedDatum(user_id=user.id, key=key, value=data[key]).add()
+
+    def run_parser_module(self, node, user, user_input):
         """Execute a parser module of a node, then return linkage.
 
         If action_ident is BB8_GLOBAL_NOMATCH_IDENT (should only happen in case
@@ -28,9 +34,14 @@ class Engine(object):
         attempting to find a linkage.
         """
         pm = node.parser_module.get_module()
-        action_ident, variables = pm.run(node.parser_config, user_input)
+        action_ident, variables, data = pm.run(node.parser_config, user_input)
+
+        # Global parser nomatch
         if action_ident == self.BB8_GLOBAL_NOMATCH_IDENT:
             return None, {}
+
+        # Collect data
+        self.insert_data(user, data)
 
         linkage = Linkage.get_by(start_node_id=node.id,
                                  action_ident=action_ident, single=True)
@@ -39,7 +50,7 @@ class Engine(object):
                             'action = "%s"' % (node, action_ident))
         return linkage, variables
 
-    def step(self, bot, user, user_input=None, input_variables=None):
+    def step(self, bot, user, user_input=None, input_vars=None):
         """Main function for executing a node."""
 
         try:
@@ -76,19 +87,31 @@ class Engine(object):
                 user.goto(bot.root_node_id)
                 return self.step(bot, user, user_input)
 
+            # Inject global reference
+            g.node = node
+            g.user = user
+
+            def populate_env_variables(variables):
+                """Populate environment variables."""
+                variables = variables or {}
+                variables['statistic'] = {
+                    'user_count': User.count_by(bot_id=bot.id)
+                }
+                variables['user'] = user.to_json()
+                return variables
+
             if not user.session.message_sent:
                 env = {
-                    'node_id': node.id,
                     'platform_type': SupportedPlatform(
                         user.platform.type_enum.value)
                 }
                 # Prepare input variables
-                input_variables = input_variables or {}
-                input_variables['user'] = user.to_json()
+                input_vars = populate_env_variables(input_vars)
+                g.variables = input_vars
 
                 # TODO(aitjcize): figure out how to deal with cm exceptions
                 cm = node.content_module.get_module()
-                messages = cm.run(node.content_config, env, input_variables)
+                messages = cm.run(node.content_config, env, input_vars)
                 messaging.send_message(user, messages)
                 user.session.message_sent = True
 
@@ -106,7 +129,7 @@ class Engine(object):
             else:
                 if user_input:
                     link, variables = self.run_parser_module(bot.root_node,
-                                                             user_input)
+                                                             user, user_input)
                     if link:  # There is a global command match
                         if link.ack_message:
                             messaging.send_message(
@@ -127,7 +150,8 @@ class Engine(object):
                     user.session.message_sent = True
                     return self.step(bot, user, None, variables)
 
-                link, variables = self.run_parser_module(node, user_input)
+                link, variables = self.run_parser_module(node, user,
+                                                         user_input)
                 if link is None:  # No matching linkage, we have a bug here.
                     return
 

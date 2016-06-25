@@ -36,7 +36,7 @@ def schema():
 
 
 def run(unused_parser_config, unused_user_input):
-    return 'next', {}
+    return ('next', {}, {})
 
 
 def get_linkages(parser_config):

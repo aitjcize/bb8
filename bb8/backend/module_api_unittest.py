@@ -9,8 +9,16 @@
 
 import unittest
 
+from bb8 import app
+
+from bb8.backend.database import g
 from bb8.backend.module_api import (Config, TextPayload, LocationPayload,
                                     Render, IsVariable, Resolve)
+
+
+class MockNode(object):
+    def __init__(self, _id):
+        self.id = _id  # pylint: disable=W0622
 
 
 class ModuleAPIUnittest(unittest.TestCase):
@@ -18,12 +26,12 @@ class ModuleAPIUnittest(unittest.TestCase):
         self.assertIsNotNone(Config('HTTP_ROOT'))
 
     def test_TextPayload(self):
-        env = {'node_id': 1}
-        self.assertEquals(TextPayload('test', env),
+        g.node = MockNode(1)
+        self.assertEquals(TextPayload('test'),
                           {'message': {'text': 'test'}, 'node_id': 1})
 
     def test_LocationPayload(self):
-        env = {'node_id': 1}
+        g.node = MockNode(1)
         ans = {
             'message': {
                 'attachments': [{
@@ -38,7 +46,7 @@ class ModuleAPIUnittest(unittest.TestCase):
             },
             'node_id': 1
         }
-        self.assertEquals(LocationPayload((1, 1), env), ans)
+        self.assertEquals(LocationPayload((1, 1)), ans)
 
     def test_Render(self):
         variables = {'name': 'bb8', 'age': '100'}
@@ -61,4 +69,5 @@ class ModuleAPIUnittest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    with app.test_request_context():
+        unittest.main()

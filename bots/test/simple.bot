@@ -43,23 +43,44 @@
           }
         },
         "parser_module": {
-          "id": "ai.compose.test.literal_root",
+          "id": "ai.compose.core.default",
           "config": {
             "links": [
               {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["help"]
+                },
                 "action_ident": "help",
                 "end_node_id": "[[root]]",
                 "ack_message": "Goto help"
               },
               {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["gotoA"]
+                },
                 "action_ident": "gotoA",
                 "end_node_id": "[[nodeA]]",
                 "ack_message": "Goto A"
               },
               {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["gotoD"]
+                },
                 "action_ident": "gotoD",
                 "end_node_id": "[[nodeD]]",
                 "ack_message": "Goto D"
+              },
+              {
+                "rule": {
+                    "type": "force",
+                    "params": null
+                },
+                "action_ident": "$bb8.global.nomatch",
+                "end_node_id": null,
+                "ack_message": ""
               }
             ]
           }
@@ -76,20 +97,32 @@
           }
         },
         "parser_module": {
-          "id": "ai.compose.test.literal",
+          "id": "ai.compose.core.default",
           "config": {
             "links": [
               {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["error"]
+                },
                 "action_ident": "error",
                 "end_node_id": null,
                 "ack_message": "Goto A"
               },
               {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["gotoB"]
+                },
                 "action_ident": "gotoB",
                 "end_node_id": "[[nodeB]]",
                 "ack_message": "Goto B"
               },
               {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["gotoC"]
+                },
                 "action_ident": "gotoC",
                 "end_node_id": "[[nodeC]]",
                 "ack_message": "Goto C"
@@ -109,10 +142,14 @@
           }
         },
         "parser_module": {
-          "id": "ai.compose.test.literal",
+          "id": "ai.compose.core.default",
           "config": {
             "links": [
               {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["gotoC"]
+                },
                 "action_ident": "gotoC",
                 "end_node_id": "[[nodeC]]",
                 "ack_message": "Goto C"
@@ -132,10 +169,14 @@
           }
         },
         "parser_module": {
-          "id": "ai.compose.test.literal",
+          "id": "ai.compose.core.default",
           "config": {
             "links": [
               {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["default"]
+                },
                 "action_ident": "default",
                 "end_node_id": "[[nodeA]]",
                 "ack_message": "Goto A"
@@ -155,10 +196,14 @@
           }
         },
         "parser_module": {
-          "id": "ai.compose.test.literal",
+          "id": "ai.compose.core.default",
           "config": {
             "links": [
               {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["gotoE"]
+                },
                 "action_ident": "gotoE",
                 "end_node_id": "[[nodeE]]",
                 "ack_message": "Goto E"
