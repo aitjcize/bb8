@@ -17,8 +17,7 @@ import sys
 
 import jsonschema
 
-from bb8.backend.database import (Bot, ContentModule, DatabaseSession, Node,
-                                  Platform)
+from bb8.backend.database import Bot, ContentModule, Node, Platform
 
 
 def get_bots_dir():
@@ -151,9 +150,8 @@ def parse_bot(filename, to_bot_id=None):
 
 def build_all_bots():
     """Re-build all bots from bot definitions."""
-    with DatabaseSession():
-        for bot in glob.glob(get_bots_dir() + '/*.bot'):
-            parse_bot(bot)
+    for bot in glob.glob(get_bots_dir() + '/*.bot'):
+        parse_bot(bot)
 
 
 def update_all_bots():
@@ -165,6 +163,5 @@ def update_all_bots():
         else:
             return None
 
-    with DatabaseSession():
-        for bot in glob.glob(get_bots_dir() + '/*.bot'):
-            parse_bot(bot, find_bot_by_name)
+    for bot in glob.glob(get_bots_dir() + '/*.bot'):
+        parse_bot(bot, find_bot_by_name)

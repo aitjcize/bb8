@@ -11,7 +11,7 @@ import datetime
 from bb8 import logger
 
 from bb8.backend import messaging
-from bb8.backend.database import (ColletedDatum, Linkage, Node,
+from bb8.backend.database import (g, ColletedDatum, Linkage, Node,
                                   SupportedPlatform)
 
 
@@ -24,7 +24,7 @@ class Engine(object):
     def insert_data(self, user, data):
         """Insert collected data into database."""
         for key in data:
-           ColletedDatum(user_id=user.id, key=key, value=data[key]).add()
+            ColletedDatum(user_id=user.id, key=key, value=data[key]).add()
 
     def run_parser_module(self, node, user, user_input):
         """Execute a parser module of a node, then return linkage.
@@ -87,15 +87,19 @@ class Engine(object):
                 user.goto(bot.root_node_id)
                 return self.step(bot, user, user_input)
 
+            # Inject global reference
+            g.node = node
+            g.user = user
+
             if not user.session.message_sent:
                 env = {
-                    'node_id': node.id,
                     'platform_type': SupportedPlatform(
                         user.platform.type_enum.value)
                 }
                 # Prepare input variables
                 input_variables = input_variables or {}
                 input_variables['user'] = user.to_json()
+                g.variables = input_variables
 
                 # TODO(aitjcize): figure out how to deal with cm exceptions
                 cm = node.content_module.get_module()

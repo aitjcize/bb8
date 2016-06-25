@@ -488,6 +488,9 @@ def IsVariable(text):
 
 def Render(template, variables):
     """Render template with variables."""
+    if template is None:
+        return None
+
     def replace(m):
         try:
             keys = m.group(1).split('.')

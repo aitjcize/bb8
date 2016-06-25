@@ -18,26 +18,29 @@ class ResetCommand(Command):
     def run(self):  # pylint: disable=E0202
         with DatabaseSession():
             DatabaseManager.reset()
-        register_all_modules()
-        build_all_bots()
+            register_all_modules()
+            build_all_bots()
 
 
 class RegisterModulesCommand(Command):
     """Register all bot modules"""
     def run(self):  # pylint: disable=E0202
-        register_all_modules()
+        with DatabaseSession():
+            register_all_modules()
 
 
 class GenerateBotsCommand(Command):
     """Generate all bots from bot definitions"""
     def run(self):  # pylint: disable=E0202
-        build_all_bots()
+        with DatabaseSession():
+            build_all_bots()
 
 
 class UpdateBotsCommand(Command):
     """Update and generate all bots from bot definitions"""
     def run(self):  # pylint: disable=E0202
-        update_all_bots()
+        with DatabaseSession():
+            update_all_bots()
 
 
 commands = {

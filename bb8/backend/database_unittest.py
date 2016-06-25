@@ -16,7 +16,7 @@ import pytz
 
 from sqlalchemy.exc import IntegrityError
 
-from bb8 import config
+from bb8 import app, config
 from bb8.error import AppError
 from bb8.backend.bot_parser import get_bot_filename, parse_bot
 from bb8.backend.database import DatabaseManager
@@ -188,7 +188,7 @@ class SchemaUnittest(unittest.TestCase):
 
         self.assertNotEquals(Event.get_by(id=event.id, single=True), None)
 
-        collected_datum = ColletedDatum(account_id=account.id, user_id=user.id,
+        collected_datum = ColletedDatum(user_id=user.id,
                                         key='key', value={}).add()
         self.dbm.commit()
 
@@ -382,4 +382,5 @@ class SchemaUnittest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    with app.test_request_context():
+        unittest.main()

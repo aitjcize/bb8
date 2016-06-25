@@ -203,7 +203,7 @@ def run(content_config, env, variables):
     # Only facebook have postback button for now
     if env['platform_type'] == SupportedPlatform.Facebook:
         b.add_button(Message.Button(Message.ButtonType.POSTBACK, u'再次查詢',
-                                    payload=LocationPayload(c, env)))
+                                    payload=LocationPayload(c)))
     msg.add_bubble(b)
 
     for s in stations:
