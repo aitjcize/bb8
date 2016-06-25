@@ -30,7 +30,7 @@
         "content_module": {
           "id": "ai.compose.core.text_message",
           "config": {
-            "text": "嗨 {{user.first_name}}, 歡迎使用 Ubike 小幫手"
+            "text": "嗨 {{user.first_name}}，歡迎使用 Ubike 小幫手，很高興位您服務。您是我服務過的第 {{statistic.user_count}} 位好朋友，儘管我是個機器人，永遠秉持服務的精神，給您賓至如歸的服務。"
           }
         },
         "parser_module": {
@@ -42,8 +42,8 @@
         }
       },
       "root": {
-        "name": "Usage",
-        "description": "Show usage",
+        "name": "Root",
+        "description": "Root node, show usage",
         "expect_input": true,
         "content_module": {
           "id": "ai.compose.core.text_message",
@@ -58,6 +58,25 @@
               {
                 "rule": {
                     "type": "regexp",
+                    "params": ["^建議$", "^feedback$"]
+                },
+                "action_ident": "feedback_no_content",
+                "end_node_id": "[[feedback_no_content]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["^建議 (.*)$", "^feedback (.*)$"],
+                    "collect_as": "feedback#1"
+                },
+                "action_ident": "feedback",
+                "end_node_id": null,
+                "ack_message": "謝謝你的建議，我們會根據你的建議改善的！"
+              },
+              {
+                "rule": {
+                    "type": "regexp",
                     "params": ["(?i)(hi|hello|yo)", "嗨", "你們?是誰?"]
                 },
                 "action_ident": "ask_who",
@@ -66,7 +85,8 @@
               },
               {
                 "rule": {
-                    "type": "location"
+                    "type": "location",
+                    "collect_as": "location"
                 },
                 "action_ident": "got_location",
                 "end_node_id": "[[youbike]]",
@@ -162,7 +182,7 @@
             "messages": {
               "Facebook": [
                 {
-                  "text": "請按下手機版 Messenger 上的位置按鍵"
+                  "text": "請您打開手機版 Messenger ，並使用位置按鍵。將位置發送給我後，我會替您找出鄰近的 Youbike 站"
                 },
                 {
                   "attachment": {
@@ -197,7 +217,38 @@
         "content_module": {
           "id": "ai.compose.core.text_message",
           "config": {
-            "text": "感謝你的支持, 請幫我們的粉絲頁按讚喔! https://goo.gl/wja6Rz"
+            "text": [
+                "感謝你的支持, 請幫我們的粉絲頁按讚喔! https://goo.gl/wja6Rz",
+                "你也可以輸入「建議 {內容}」來告訢我們可以改善的地方"
+            ]
+          }
+        }
+      },
+      "feedback_no_content": {
+        "name": "Feedback without content",
+        "description": "Feedback without content, guide user to input feedback",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": "你覺得我們可以怎麼樣改善呢？"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                    "type": "regexp",
+                    "params": [".*"],
+                    "collect_as": "feedback"
+                },
+                "action_ident": "got_feedback",
+                "end_node_id": "[[root]]",
+                "ack_message": "謝謝你的建議，我們會根據你的建議改善的！"
+              }
+            ]
           }
         }
       }
