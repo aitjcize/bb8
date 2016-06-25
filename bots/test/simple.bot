@@ -72,15 +72,6 @@
                 "action_ident": "gotoD",
                 "end_node_id": "[[nodeD]]",
                 "ack_message": "Goto D"
-              },
-              {
-                "rule": {
-                    "type": "force",
-                    "params": null
-                },
-                "action_ident": "$bb8.global.nomatch",
-                "end_node_id": null,
-                "ack_message": ""
               }
             ]
           }
