@@ -10,13 +10,14 @@
 import unittest
 import datetime
 
+from bb8 import app
 from bb8.backend.database import DatabaseManager
 from bb8.backend.database import Bot, Platform, PlatformTypeEnum, User
 from bb8.backend.messaging import Message
 from bb8.backend.messaging_provider import line
 
 
-class Facebook(unittest.TestCase):
+class LineMessagingUnittest(unittest.TestCase):
     def setUp(self):
         self.dbm = DatabaseManager()
         self.dbm.connect()
@@ -96,4 +97,5 @@ class Facebook(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    with app.test_request_context():
+        unittest.main()

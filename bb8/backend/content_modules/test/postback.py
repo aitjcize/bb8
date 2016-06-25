@@ -24,10 +24,10 @@ def schema():
     return {}
 
 
-def run(unused_content_config, env, unused_variables):
+def run(unused_content_config, unused_env, unused_variables):
     m = Message()
     b = Message.Bubble('Tap postback')
     b.add_button(Message.Button(Message.ButtonType.POSTBACK, 'Postback',
-                                payload=TextPayload('PAYLOAD_TEXT', env)))
+                                payload=TextPayload('PAYLOAD_TEXT')))
     m.add_bubble(b)
     return [m]
