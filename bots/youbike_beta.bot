@@ -49,7 +49,7 @@
               {
                 "rule": {
                     "type": "regexp",
-                    "params": ["^建議$", "^feedback$"]
+                    "params": ["^建議$", "^feedback$", "意見"]
                 },
                 "action_ident": "feedback_no_content",
                 "end_node_id": "[[feedback_no_content]]",
@@ -58,12 +58,21 @@
               {
                 "rule": {
                     "type": "regexp",
-                    "params": ["^建議 (.*)$", "^feedback (.*)$"],
+                    "params": ["^建議 ?(.*)$", "^feedback (.*)$"],
                     "collect_as": "feedback#1"
                 },
                 "action_ident": "feedback",
                 "end_node_id": null,
                 "ack_message": "謝謝你的建議，我們會根據你的建議改善的！"
+              },
+              {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["XD?", "(?i)lol"]
+                },
+                "action_ident": "xd",
+                "end_node_id": null,
+                "ack_message": "XDDDDD"
               },
               {
                 "rule": {
@@ -164,7 +173,7 @@
         }
       },
       "hint_location": {
-        "name": "Hint Location",
+        "name": "HintLocation",
         "description": "Hint user about how to send location",
         "expect_input": false,
         "content_module": {
@@ -173,7 +182,7 @@
             "messages": {
               "Facebook": [
                 {
-                  "text": "請您打開手機版 Messenger ，並使用位置按鍵。將位置發送給我後，我會替您找出鄰近的 Youbike 站"
+                  "text": "請您打開手機版 Messenger ，並使用位置按鍵(按鈕有可能在「...」裡面)。將位置發送給我後，我會替您找出鄰近的 Youbike 站。"
                 },
                 {
                   "attachment": {
@@ -216,7 +225,7 @@
         }
       },
       "feedback_no_content": {
-        "name": "Feedback without content",
+        "name": "Feedback",
         "description": "Feedback without content, guide user to input feedback",
         "expect_input": true,
         "content_module": {

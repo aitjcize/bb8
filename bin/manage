@@ -12,7 +12,7 @@ import os
 from flask_script import Server, Manager
 
 from bb8 import config, app
-from bb8.api import requests
+from bb8.api import request
 
 from bb8.commands import shell
 from bb8.commands import database
