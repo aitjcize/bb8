@@ -22,7 +22,7 @@ class PassthroughUnittest(unittest.TestCase):
         }
         jsonschema.validate(config, passthrough.schema())
 
-        action, unused_var, unused_data = passthrough.run(config, None)
+        action, unused_var, unused_data = passthrough.run(config, None, False)
         self.assertEquals(action, 'next')
 
 
