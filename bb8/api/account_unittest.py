@@ -7,10 +7,8 @@
     Copyright 2016 bb8 Authors
 """
 
-import os
 import json
 import unittest
-import tempfile
 
 from bb8 import app
 # Register request handlers, pylint: disable=W0611
@@ -21,9 +19,6 @@ from bb8.backend.database import DatabaseManager, Account
 
 class AccountAPIUnittest(unittest.TestCase):
     def setUp(self):
-        self.db_fd, app.config['DATABASE'] = tempfile.mkstemp()
-        app.config['TESTING'] = True
-
         self.dbm = DatabaseManager()
         self.dbm.connect()
         self.dbm.reset()
@@ -33,8 +28,6 @@ class AccountAPIUnittest(unittest.TestCase):
 
     def tearDown(self):
         self.dbm.disconnect()
-        os.close(self.db_fd)
-        os.unlink(app.config['DATABASE'])
 
     def setup_prerequisite(self):
         Account(name=u'test',
@@ -89,4 +82,5 @@ class AccountAPIUnittest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    with app.test_request_context():
+        unittest.main()

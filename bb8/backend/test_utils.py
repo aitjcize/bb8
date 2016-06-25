@@ -8,9 +8,8 @@
     Copyright 2016 bb8 Authors
 """
 
-from bb8.backend.database import DatabaseManager
-
 from bb8.backend.bot_parser import get_bot_filename, parse_bot
+from bb8.backend.database import DatabaseManager
 from bb8.backend.module_registration import register_all_modules
 
 

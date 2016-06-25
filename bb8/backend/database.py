@@ -9,12 +9,15 @@
 import time
 import uuid
 import importlib
+
 from datetime import datetime, timedelta
 
-import jwt
 import enum
+import jwt
 import pytz
+
 from passlib.hash import bcrypt  # pylint: disable=E0611
+from flask import g, Flask  # pylint: disable=C0411,C0413
 
 from sqlalchemy import create_engine, event
 from sqlalchemy import (Boolean, Column, DateTime, Enum, ForeignKey, Integer,
@@ -55,30 +58,6 @@ except Exception:
     pass
 
 
-class G(object):
-    def __init__(self):
-        self._db = None
-
-    @property
-    def db(self):
-        if self._db is None:
-            raise RuntimeError('database is not connected')
-        return self._db
-
-    @db.setter
-    def db(self, value):
-        self._db = value
-
-
-# Global object for managing session
-try:
-    # Use flask's global object if available
-    from flask import g  # pylint: disable=C0411,C0413
-    g.db = None
-except Exception:
-    g = G()
-
-
 class DatabaseManager(object):
     """
     Database Manager class
@@ -88,13 +67,6 @@ class DatabaseManager(object):
     @classmethod
     def connect(cls, engine=None):
         """Return a SQLAlchemy engine connection."""
-        try:
-            _ = g.db
-        except RuntimeError:
-            pass
-        else:
-            return
-
         if engine:
             cls.engine = engine
             DeclarativeBase.metadata.bind = engine
@@ -172,6 +144,24 @@ class DatabaseManager(object):
     @classmethod
     def rollback(cls):
         g.db.rollback()
+
+
+class AppContext(object):
+    """Convenient wrapper for app.test_request_context()"""
+    def __init__(self, app=None, engine=None):
+        if app is None:
+            app = Flask(__name__)
+        self.context = app.test_request_context()
+        self.engine = engine
+
+    def __enter__(self):
+        self.context.__enter__()
+        DatabaseManager.connect(self.engine)
+        return self
+
+    def __exit__(self, exc_type, exc_value, tb):
+        DatabaseManager.disconnect()
+        self.context.__exit__(exc_type, exc_value, tb)
 
 
 class DatabaseSession(object):

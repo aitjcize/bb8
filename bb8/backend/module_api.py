@@ -10,7 +10,7 @@
 from bb8 import config
 
 # pylint: disable=W0611
-from bb8.backend.database import PlatformTypeEnum, SupportedPlatform
+from bb8.backend.database import g, PlatformTypeEnum, SupportedPlatform
 # pylint: disable=W0611
 from bb8.backend.messaging import Message, Render, Resolve, IsVariable
 
@@ -37,15 +37,15 @@ def Config(key):
     return CONFIG.get(key, None)
 
 
-def TextPayload(text, env):
+def TextPayload(text):
     """Create a text payload representation given text."""
-    return {'node_id': env['node_id'], 'message': {'text': text}}
+    return {'node_id': g.node.id, 'message': {'text': text}}
 
 
-def LocationPayload(coordinate, env):
+def LocationPayload(coordinate):
     """Create a location payload representation given coordinate."""
     return {
-        'node_id': env['node_id'],
+        'node_id': g.node.id,
         'message': {
             'attachments': [{
                 'type': 'location',

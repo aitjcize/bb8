@@ -10,6 +10,7 @@
 import unittest
 import datetime
 
+from bb8 import app
 from bb8.backend.database import DatabaseManager
 from bb8.backend.database import Node, Platform, User
 
@@ -165,4 +166,5 @@ class EngineUnittest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    with app.test_request_context():
+        unittest.main()
