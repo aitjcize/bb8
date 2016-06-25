@@ -47,25 +47,25 @@ class DefaultUnittest(unittest.TestCase):
         jsonschema.validate(config, default.schema())
 
         action, var, unused_data = default.run(
-            config, UserInput.Text('action1-0'))
+            config, UserInput.Text('action1-0'), False)
         self.assertEquals(action, 'action1')
         self.assertEquals(var['text'], 'action1-0')
         self.assertEquals(var['matches'], ('0',))
 
         action, var, unused_data = default.run(
-            config, UserInput.Text('action2-1'))
+            config, UserInput.Text('action2-1'), False)
         self.assertEquals(action, 'action1')
         self.assertEquals(var['text'], 'action2-1')
         self.assertEquals(var['matches'], ())
 
         action, var, unused_data = default.run(
-            config, UserInput.Text(u'中文'))
+            config, UserInput.Text(u'中文'), False)
         self.assertEquals(action, 'action2')
         self.assertEquals(var['text'], u'中文')
         self.assertEquals(var['matches'], (u'文',))
 
         action, unused_var, unused_data = default.run(
-            config, UserInput.Location((25, 121)))
+            config, UserInput.Location((25, 121)), False)
         self.assertEquals(action, 'action3')
 
 

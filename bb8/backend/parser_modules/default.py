@@ -83,7 +83,7 @@ def schema():
     }
 
 
-def run(parser_config, user_input):
+def run(parser_config, user_input, as_root):
     """
     parser_config schema:
     {
@@ -106,26 +106,43 @@ def run(parser_config, user_input):
        }]
     }
     """
+    def parse_collect(collect_as, match):
+        """Parse collect_as attribute and return the corresponding collect
+        dictionary.
+
+        The collect_as syntax is as follows:
+            key(#group_index)?
+        """
+        collect = {}
+        if '#' in collect_as:
+            try:
+                parts = collect_as.split('#')
+                group = int(parts[1])
+                collect[parts[0]] = match.group(group)
+            except Exception:
+                collect[collect_as] = user_input.text
+        else:
+            collect[collect_as] = user_input.text
+        return collect
+
     for link in parser_config['links']:
         if 'rule' not in link:
             continue
 
+        collect = {}
         r_type = link['rule']['type']
 
         if r_type == 'regexp' and user_input.text:
             for param in link['rule']['params']:
                 m = re.search(unicode(param), user_input.text)
                 if m:
-                    collect = {}
                     if 'collect_as' in link['rule']:
-                        collect[link['rule']['collect_as']] = user_input.text
-
+                        collect = parse_collect(link['rule']['collect_as'], m)
                     return (link['action_ident'], {
                         'text': user_input.text,
                         'matches': m.groups()
                     }, collect)
         elif r_type == 'location' and user_input.location:
-            collect = {}
             if 'collect_as' in link['rule']:
                 collect[link['rule']['collect_as']] = user_input.location
 
@@ -136,8 +153,9 @@ def run(parser_config, user_input):
                 if re.search(param, user_input.sticker):
                     return (link['action_ident'],
                             {'sticker': user_input.sticker}, {})
-        elif r_type == 'force':
-            return (link['action_ident'], {}, {})
+
+    if as_root:
+        return ('$bb8.global.nomatch', {}, {})
 
     return ('$error', {}, {})
 

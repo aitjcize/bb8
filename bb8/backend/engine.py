@@ -26,7 +26,7 @@ class Engine(object):
         for key in data:
             ColletedDatum(user_id=user.id, key=key, value=data[key]).add()
 
-    def run_parser_module(self, node, user, user_input):
+    def run_parser_module(self, node, user, user_input, as_root=False):
         """Execute a parser module of a node, then return linkage.
 
         If action_ident is BB8_GLOBAL_NOMATCH_IDENT (should only happen in case
@@ -34,7 +34,8 @@ class Engine(object):
         attempting to find a linkage.
         """
         pm = node.parser_module.get_module()
-        action_ident, variables, data = pm.run(node.parser_config, user_input)
+        action_ident, variables, data = pm.run(node.parser_config, user_input,
+                                               as_root)
 
         # Global parser nomatch
         if action_ident == self.BB8_GLOBAL_NOMATCH_IDENT:
@@ -128,20 +129,21 @@ class Engine(object):
                     return self.step(bot, user)
             else:
                 if user_input:
-                    link, variables = self.run_parser_module(bot.root_node,
-                                                             user, user_input)
+                    link, variables = self.run_parser_module(
+                        bot.root_node, user, user_input, True)
+
                     if link:  # There is a global command match
                         if link.ack_message:
                             messaging.send_message(
                                 user, messaging.Message(link.ack_message))
                         user.goto(link.end_node_id)
                         return self.step(bot, user, user_input, variables)
-
-                # We are already at root node and there is no match on global
-                # command. Display root node again.
-                if node.id == bot.root_node_id:
-                    user.session.message_sent = False
-                    return self.step(bot, user, user_input)
+                else:
+                    # We are already at root node and there is no match on
+                    # global command. Display root node again.
+                    if node.id == bot.root_node_id:
+                        user.session.message_sent = False
+                        return self.step(bot, user, user_input)
 
                 # No parser module associate with this node, go back to root
                 # node.
@@ -150,8 +152,9 @@ class Engine(object):
                     user.session.message_sent = True
                     return self.step(bot, user, None, variables)
 
-                link, variables = self.run_parser_module(node, user,
-                                                         user_input)
+                link, variables = self.run_parser_module(
+                    node, user, user_input, False)
+
                 if link is None:  # No matching linkage, we have a bug here.
                     return
 
