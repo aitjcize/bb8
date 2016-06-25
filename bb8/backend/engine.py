@@ -11,6 +11,7 @@ import datetime
 from bb8 import logger
 
 from bb8.backend import messaging
+from bb8.tracking import track, TrackingInfo
 from bb8.backend.database import (g, ColletedDatum, Linkage, Node,
                                   SupportedPlatform, User)
 
@@ -43,6 +44,10 @@ class Engine(object):
 
         # Collect data
         self.insert_data(user, data)
+
+        # Track error
+        if action_ident == '$error':
+            track(TrackingInfo.Event('Parser', 'Error', user_input.text))
 
         linkage = Linkage.get_by(start_node_id=node.id,
                                  action_ident=action_ident, single=True)
@@ -82,11 +87,12 @@ class Engine(object):
             node = Node.get_by(id=user.session.node_id,
                                eager=['content_module', 'parser_module'],
                                single=True)
-
             if node is None:
                 logger.critical('Invalid node_id %d' % user.session.node_id)
                 user.goto(bot.root_node_id)
                 return self.step(bot, user, user_input)
+
+            track(TrackingInfo.Pageview('/%s' % node.name))
 
             # Inject global reference
             g.node = node
@@ -139,8 +145,8 @@ class Engine(object):
                         user.goto(link.end_node_id)
                         return self.step(bot, user, user_input, variables)
                 else:
-                    # We are already at root node and there is no match on
-                    # global command. Display root node again.
+                    # We are already at root node and there is no user input.
+                    # Display root node again.
                     if node.id == bot.root_node_id:
                         user.session.message_sent = False
                         return self.step(bot, user, user_input)

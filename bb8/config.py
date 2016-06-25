@@ -43,6 +43,9 @@ class Config(object):
 
     LINE_WEBHOOK_PATH = BOT_WEBHOOOK_ROOT + "/line"
 
+    # Misc
+    YOUBIKE_BOT_GA_ID = 'UA-79887532-2'
+
 
 class DevelopmentConfig(Config):
     DEBUG = True

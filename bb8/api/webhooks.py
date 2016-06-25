@@ -12,10 +12,11 @@ import logging
 from flask import request
 
 from bb8 import config, app
+from bb8.tracking import track, TrackingInfo
 from bb8.backend.database import User, Platform, PlatformTypeEnum
 from bb8.backend.engine import Engine
-from bb8.backend.metadata import UserInput
 from bb8.backend.messaging import get_user_profile
+from bb8.backend.metadata import UserInput
 
 
 @app.route(config.FACEBOOK_WEBHOOK_PATH, methods=['GET'])
@@ -34,6 +35,7 @@ def facebook_receive():
     # Facebook throttles message sending when it found out webhook fails. To
     # prevent throttling, let's catch all exception and manually log them for
     # now.
+
     try:
         engine = Engine()
 
@@ -57,6 +59,8 @@ def facebook_receive():
                                 platform_user_ident=sender,
                                 last_seen=datetime.datetime.now(),
                                 **profile_info).add()
+                    track(TrackingInfo.Event('User', 'Add',
+                                             profile_info['first_name']))
                     user.commit()
 
                 user_input = UserInput.FromFacebookMessage(messaging)
