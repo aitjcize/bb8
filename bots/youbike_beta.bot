@@ -21,7 +21,7 @@
         "content_module": {
           "id": "ai.compose.core.text_message",
           "config": {
-            "text": "嗨 {{user.first_name}}, 歡迎使用 Ubike 小幫手"
+            "text": "嗨 {{user.first_name}}，歡迎使用 Ubike 小幫手，很高興位您服務。您是我服務過的第 {{statistic.user_count}} 位好朋友，儘管我是個機器人，永遠秉持服務的精神，給您賓至如歸的服務。"
           }
         },
         "parser_module": {
