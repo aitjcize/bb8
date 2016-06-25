@@ -1,6 +1,6 @@
 # Copyright 2016 bb8 Authors
 
-LINT_FILES=$(shell find bb8 -name '*.py' -type f | sort)
+LINT_FILES=$(shell find bb8 third_party -name '*.py' -type f | sort)
 UNITTESTS=$(shell find bb8 -name '*_unittest.py' | sort)
 
 LINT_OPTIONS=--rcfile=bin/pylintrc \
