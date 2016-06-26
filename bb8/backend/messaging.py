@@ -392,10 +392,10 @@ class Message(object):
             msg_text = self.buttons_text + '\n'
             for i, but in enumerate(self.buttons):
                 if but.type == Message.ButtonType.WEB_URL:
-                    msg_text += '%d. %s <%s>\n' % (i + 1, but.title,
-                                                   but.url)
+                    msg_text += u'%d. %s <%s>\n' % (i + 1, but.title,
+                                                    but.url)
                 else:
-                    msg_text += '%d. %s\n' % (i + 1, but.title)
+                    msg_text += u'%d. %s\n' % (i + 1, but.title)
 
             msgs.append({
                 'contentType': 1,
@@ -412,10 +412,10 @@ class Message(object):
 
                 for i, but in enumerate(bubble.buttons):
                     if but.type == Message.ButtonType.WEB_URL:
-                        msg_text += '%d. %s <%s>\n' % (i + 1, but.title,
-                                                       but.url)
+                        msg_text += u'%d. %s <%s>\n' % (i + 1, but.title,
+                                                        but.url)
                     else:
-                        msg_text += '%d. %s\n' % (i + 1, but.title)
+                        msg_text += u'%d. %s\n' % (i + 1, but.title)
 
                 msgs.append({
                     'contentType': 1,
