@@ -7,11 +7,10 @@
 """
 
 import datetime
-import logging
 
 from flask import request
 
-from bb8 import config, app
+from bb8 import config, app, logger
 from bb8.tracking import track, TrackingInfo
 from bb8.backend.database import User, Platform, PlatformTypeEnum
 from bb8.backend.engine import Engine
@@ -67,7 +66,7 @@ def facebook_receive():
                 if user_input:
                     engine.step(bot, user, user_input)
     except Exception as e:
-        logging.exception(e)
+        logger.exception(e)
 
     return 'ok'
 
@@ -100,6 +99,6 @@ def line_receive():
             if user_input:
                 engine.step(bot, user, user_input)
     except Exception as e:
-        logging.exception(e)
+        logger.exception(e)
 
     return 'ok'

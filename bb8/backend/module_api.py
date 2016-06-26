@@ -37,15 +37,16 @@ def Config(key):
     return CONFIG.get(key, None)
 
 
-def TextPayload(text):
+def TextPayload(text, send_to_current_node=True):
     """Create a text payload representation given text."""
-    return {'node_id': g.node.id, 'message': {'text': text}}
+    return {'node_id': g.node.id if send_to_current_node else None,
+            'message': {'text': text}}
 
 
-def LocationPayload(coordinate):
+def LocationPayload(coordinate, send_to_current_node=True):
     """Create a location payload representation given coordinate."""
     return {
-        'node_id': g.node.id,
+        'node_id': g.node.id if send_to_current_node else None,
         'message': {
             'attachments': [{
                 'type': 'location',

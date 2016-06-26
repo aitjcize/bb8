@@ -22,7 +22,7 @@ def get_module_info():
         'supported_platform': SupportedPlatform.All,
         'module_name': 'default',
         'ui_module_name': 'default',
-        'variables': ['matches'],
+        'variables': ['text', 'matches', 'location'],
     }
 
 

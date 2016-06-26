@@ -10,13 +10,13 @@
 
 import glob
 import json
-import logging
 import os
 import re
 import sys
 
 import jsonschema
 
+from bb8 import logger
 from bb8.backend.database import Bot, ContentModule, Node, Platform
 
 
@@ -57,7 +57,7 @@ def parse_bot(filename, to_bot_id=None):
     try:
         jsonschema.validate(bot_json, schema)
     except jsonschema.exceptions.ValidationError:
-        logging.exception('Validation failed for %s!', filename)
+        logger.exception('Validation failed for %s!', filename)
         sys.exit(1)
 
     bot_desc = bot_json['bot']
@@ -97,8 +97,8 @@ def parse_bot(filename, to_bot_id=None):
             jsonschema.validate(node['content_module']['config'],
                                 cm.get_module().schema())
         except jsonschema.exceptions.ValidationError:
-            logging.error('Node \'%s\' content module config validation '
-                          'failed', node['name'])
+            logger.error('Node \'%s\' content module config validation '
+                         'failed', node['name'])
             raise
 
         n = Node(bot_id=bot.id, name=unicode(node['name']),
@@ -138,8 +138,8 @@ def parse_bot(filename, to_bot_id=None):
             try:
                 jsonschema.validate(n.parser_config, pm.schema())
             except jsonschema.exceptions.ValidationError:
-                logging.error('Node \'%s\' parser module config validation '
-                              'failed', node['name'])
+                logger.error('Node \'%s\' parser module config validation '
+                             'failed', node['name'])
                 raise
 
             n.build_linkages(pm.get_linkages(n.parser_config))
