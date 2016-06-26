@@ -23,6 +23,11 @@ def get_user_profile(platform, user_ident):
         })
 
     ret = response.json()
+
+    # Some account does not have gender for some reason ... assume male
+    if 'gender' not in ret:
+        ret['gender'] = 'male'
+
     ret['gender'] = ret['gender'].title()
     return ret
 
