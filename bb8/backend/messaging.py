@@ -7,7 +7,6 @@
 """
 
 import json
-import logging
 import re
 
 import enum
@@ -15,6 +14,7 @@ import jsonschema
 
 from sqlalchemy import desc
 
+from bb8 import logger
 from bb8.backend.query_filters import FILTERS
 from bb8.backend.database import g, ColletedDatum, User, PlatformTypeEnum
 from bb8.backend.messaging_provider import facebook, line
@@ -161,9 +161,9 @@ class Message(object):
         @classmethod
         def schema(cls):
             return {
+                'type': 'object',
                 'required': ['title'],
                 'additionalProperties': False,
-                'type': 'object',
                 'properties': {
                     'buttons': {
                         'type': 'array',
@@ -444,7 +444,7 @@ class Message(object):
         self.buttons_text = text
 
     def add_button(self, bubble):
-        if len(self.bubbles) == 5:
+        if len(self.bubbles) == 3:
             raise RuntimeError('maxium allowed buttons reached')
 
         if not isinstance(bubble, Message.Button):
@@ -522,7 +522,7 @@ def parseQuery(expr):
                     else:
                         q = q.order_by(field)
     except Exception as e:
-        logging.exceptions(e)
+        logger.exception(e)
         return expr
 
     if result is None:
@@ -547,8 +547,16 @@ def parseVariable(expr, variables):
 
     keys = expr.split('.')
     var = variables
-    for key in keys:
-        var = var[key]
+    try:
+        for key in keys:
+            if '#' in key:
+                parts = key.split('#')
+                var = var[parts[0]][int(parts[1])]
+            else:
+                var = var[key]
+    except Exception as e:
+        logger.exception(e)
+        return expr
 
     # Parse transform filter
     result = var
@@ -592,8 +600,17 @@ def Resolve(obj, variables):
         options = [names]
 
     for option in options:
-        if option in variables:
-            return variables[option]
+        if '#' in option:
+            try:
+                parts = option.split('#')
+                if parts[0] in variables:
+                    return variables[parts[0]][int(parts[1])]
+            except Exception as e:
+                logger.exception(e)
+                continue
+        else:
+            if option in variables:
+                return variables[option]
 
     return obj
 

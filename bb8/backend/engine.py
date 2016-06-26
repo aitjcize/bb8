@@ -141,7 +141,8 @@ class Engine(object):
                     if link:  # There is a global command match
                         if link.ack_message:
                             messaging.send_message(
-                                user, messaging.Message(link.ack_message))
+                                user, messaging.Message(link.ack_message,
+                                                        variables=variables))
                         user.goto(link.end_node_id)
                         return self.step(bot, user, user_input, variables)
                 else:
@@ -168,7 +169,8 @@ class Engine(object):
 
                 if link.ack_message:
                     messaging.send_message(
-                        user, messaging.Message(link.ack_message))
+                        user, messaging.Message(link.ack_message,
+                                                variables=variables))
 
                 # If we are going back the same node, assume there is an error
                 # and we want to retry. Don't send message in this case.

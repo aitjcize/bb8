@@ -9,11 +9,11 @@
 """
 
 import importlib
-import logging
 import os
 
 from jsonschema import Draft4Validator
 
+from bb8 import logger
 from bb8.backend.database import DatabaseSession, ContentModule, ParserModule
 
 
@@ -51,7 +51,7 @@ def register_content_modules():
             try:
                 Draft4Validator.check_schema(m.schema())
             except Exception:
-                logging.error('module %s schema check failed', name)
+                logger.error('module %s schema check failed', name)
                 raise
 
             cm = ContentModule.get_by(id=info['id'], single=True)
@@ -76,7 +76,7 @@ def register_parser_modules():
             try:
                 Draft4Validator.check_schema(m.schema())
             except Exception:
-                logging.error('module %s schema check failed', name)
+                logger.error('module %s schema check failed', name)
                 raise
 
             pm = ParserModule.get_by(id=info['id'], single=True)
