@@ -547,8 +547,16 @@ def parseVariable(expr, variables):
 
     keys = expr.split('.')
     var = variables
-    for key in keys:
-        var = var[key]
+    try:
+        for key in keys:
+            if '#' in key:
+                parts = key.split('#')
+                var = var[parts[0]][int(parts[1])]
+            else:
+                var = var[key]
+    except Exception as e:
+        logger.exception(e)
+        return expr
 
     # Parse transform filter
     result = var
@@ -592,8 +600,17 @@ def Resolve(obj, variables):
         options = [names]
 
     for option in options:
-        if option in variables:
-            return variables[option]
+        if '#' in option:
+            try:
+                parts = option.split('#')
+                if parts[0] in variables:
+                    return variables[parts[0]][int(parts[1])]
+            except Exception as e:
+                logger.exception(e)
+                continue
+        else:
+            if option in variables:
+                return variables[option]
 
     return obj
 
