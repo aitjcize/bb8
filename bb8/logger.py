@@ -40,20 +40,20 @@ class Logger(object):
         logger.addHandler(logging.StreamHandler(sys.stdout))
         return logger
 
-    def debug(self, msg):
-        self.logger.debug(msg)
+    def debug(self, *args, **kwargs):
+        self.logger.debug(*args, **kwargs)
 
-    def info(self, msg):
-        self.logger.info(msg)
+    def info(self, *args, **kwargs):
+        self.logger.info(*args, **kwargs)
 
-    def warn(self, msg):
-        self.logger.warn(msg)
+    def warn(self, *args, **kwargs):
+        self.logger.warn(*args, **kwargs)
 
-    def error(self, msg):
-        self.logger.error(msg)
+    def error(self, *args, **kwargs):
+        self.logger.error(*args, **kwargs)
 
-    def critical(self, msg):
-        self.logger.critical(msg)
+    def critical(self, *args, **kwargs):
+        self.logger.critical(*args, **kwargs)
 
-    def exception(self, msg):
-        self.logger.exception(msg)
+    def exception(self, *args, **kwargs):
+        self.logger.exception(*args, **kwargs)
