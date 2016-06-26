@@ -10,10 +10,14 @@
     Copyright 2016 bb8 Authors
 """
 
+import re
 import requests
 
 from bb8.backend.module_api import (LocationPayload, Message, Resolve,
                                     SupportedPlatform, TextPayload)
+
+
+STOP_WORDS = u'(我|在|要|去|的|到)'
 
 
 def get_module_info():
@@ -145,6 +149,10 @@ def run(content_config, unused_env, variables):
     }
     """
     query_term = Resolve(content_config['query_term'], variables)
+
+    # Remove stop words
+    query_term = re.sub(STOP_WORDS, '', query_term)
+
     cfg = content_config
 
     api = GoogleMapsGeocodingAPI(content_config['api_key'])
