@@ -68,6 +68,17 @@ class GoogleMapsGeocodingAPI(object):
     def __init__(self, api_key):
         self._api_key = api_key
 
+    def build_address(self, item):
+        address = ''
+        for comp in reversed(item['address_components']):
+            if ('postal_code' in comp['types'] or
+                    'country' in comp['types'] or
+                    'administrative_area_level_4' in comp['types']):
+                continue
+            address += comp['long_name']
+
+        return address
+
     def query_top_n(self, n, address, language, region, bounds, center=None):
         params = {
             'key': self._api_key,
@@ -90,8 +101,8 @@ class GoogleMapsGeocodingAPI(object):
         filtered_result = []
         for r in result:
             coordinate = r['geometry']['location'].values()
-            if (coordinate[0] <= bounds[0][0] and
-                    coordinate[0] >= bounds[1][0] and
+            if (coordinate[0] >= bounds[0][0] and
+                    coordinate[0] <= bounds[1][0] and
                     coordinate[1] >= bounds[0][1] and
                     coordinate[1] <= bounds[1][1]):
                 filtered_result.append(r)
@@ -108,7 +119,7 @@ class GoogleMapsGeocodingAPI(object):
         for i in range(min(n, len(filtered_result))):
             location = filtered_result[i]['geometry']['location']
             final_result.append({
-                'address': filtered_result[i]['formatted_address'],
+                'address': self.build_address(filtered_result[i]),
                 'location': (location['lat'], location['lng'])
             })
 
@@ -127,8 +138,8 @@ def run(content_config, unused_env, variables):
         'language': 'zh_TW',
         'region': 'tw',
         'bounds': [
-            {'lat': 25.314444, 'long': 119.781068},
-            {'lat': 23.816576, 'long': 122.053702}
+            {'lat': 23.816576, 'long': 119.781068},
+            {'lat': 25.314444, 'long': 122.053702}
         ],
         'center': {'lat': 23.816576, 'long': 122.053702}
     }
