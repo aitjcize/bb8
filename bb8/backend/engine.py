@@ -90,6 +90,7 @@ class Engine(object):
             if node is None:
                 logger.critical('Invalid node_id %d' % user.session.node_id)
                 user.goto(bot.root_node_id)
+                user.session.message_sent = True
                 return self.step(bot, user, user_input)
 
             track(TrackingInfo.Pageview('/%s' % node.name))
