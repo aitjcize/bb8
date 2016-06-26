@@ -7,7 +7,6 @@
 """
 
 import json
-import logging
 import re
 
 import enum
@@ -15,6 +14,7 @@ import jsonschema
 
 from sqlalchemy import desc
 
+from bb8 import logger
 from bb8.backend.query_filters import FILTERS
 from bb8.backend.database import g, ColletedDatum, User, PlatformTypeEnum
 from bb8.backend.messaging_provider import facebook, line
@@ -161,9 +161,9 @@ class Message(object):
         @classmethod
         def schema(cls):
             return {
+                'type': 'object',
                 'required': ['title'],
                 'additionalProperties': False,
-                'type': 'object',
                 'properties': {
                     'buttons': {
                         'type': 'array',
@@ -444,7 +444,7 @@ class Message(object):
         self.buttons_text = text
 
     def add_button(self, bubble):
-        if len(self.bubbles) == 5:
+        if len(self.bubbles) == 3:
             raise RuntimeError('maxium allowed buttons reached')
 
         if not isinstance(bubble, Message.Button):
@@ -522,7 +522,7 @@ def parseQuery(expr):
                     else:
                         q = q.order_by(field)
     except Exception as e:
-        logging.exceptions(e)
+        logger.exception(e)
         return expr
 
     if result is None:
