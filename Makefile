@@ -11,8 +11,8 @@ DB_URI='mysql+pymysql://bb8:bb8test@127.0.0.1:3307/bb8?charset=utf8mb4'
 all: test lint validate-bots
 
 setup-database:
-	@if ! sudo docker ps | grep bb8_mysql; then \
-	   sudo docker run --name bb8_mysql -p 3307:3306 \
+	@if ! docker ps | grep bb8_mysql; then \
+	   docker run --name bb8_mysql -p 3307:3306 \
 	       -v $(CURDIR)/conf/mysql:/etc/mysql/conf.d \
 	       -e MYSQL_ROOT_PASSWORD=root \
 	       -e MYSQL_USER=bb8 \
@@ -24,7 +24,7 @@ setup-database:
 	 fi
 
 remove-database:
-	@sudo docker rm -f bb8_mysql
+	@docker rm -f bb8_mysql
 
 test: setup-database
 	@export PYTHONPATH=$$PWD; \
@@ -53,11 +53,12 @@ validate-bots:
 	make -C bots
 
 deploy:
-	sudo docker build -t bb8 .
-	sudo docker rm -f bb8 >/dev/null 2>&1 || true
-	sudo docker run --name bb8 -p 5000:5000 -d bb8
-	sudo umount $(CURDIR)/logs >/dev/null 2>&1 || true
+	@sudo umount $(CURDIR)/logs || true
+	docker build -t bb8 .
+	docker rm -f bb8 >/dev/null 2>&1 || true
+	docker run --name bb8 -p 5000:5000 -d bb8
+	umount $(CURDIR)/logs >/dev/null 2>&1 || true
 	mkdir -p $(CURDIR)/logs
-	sudo mount --bind \
-		`sudo docker inspect -f '{{index .Volumes "/var/log"}}' bb8` \
-		$(CURDIR)/logs
+	@sudo mount --bind \
+		`docker inspect -f '{{index .Volumes "/var/log"}}' bb8` \
+		$(CURDIR)/logs || true
