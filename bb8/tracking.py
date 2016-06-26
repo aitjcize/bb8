@@ -28,14 +28,10 @@ class TrackingInfo(object):
         self.value = None
 
     @classmethod
-    def to_utf8(cls, val):
-        return val.encode('utf8') if isinstance(val, unicode) else val
-
-    @classmethod
     def Pageview(cls, page):
         t = cls()
         t.ttype = cls.Type.Pageview
-        t.page = cls.to_utf8(page).replace(' ', '-')
+        t.page = page.replace(' ', '-')
         return t
 
     @classmethod
@@ -43,9 +39,9 @@ class TrackingInfo(object):
         t = cls()
         t.ttype = cls.Type.Event
 
-        t.catagory = cls.to_utf8(catagory)
-        t.action = cls.to_utf8(action)
-        t.label = cls.to_utf8(label)
+        t.catagory = catagory
+        t.action = action
+        t.label = label
         t.value = value
         return t
 
@@ -68,27 +64,27 @@ def send_ga_track_info(tracking):
     if not config.DEPLOY:
         return
 
-    base = 'v=1&tid=%s&cid=12345' % config.YOUBIKE_BOT_GA_ID
-    params = ''
+    base = u'v=1&tid=%s&cid=12345' % config.YOUBIKE_BOT_GA_ID
+    params = u''
     for ti in tracking:
         if ti.ttype == TrackingInfo.Type.Event:
-            params += base + '&'.join([
-                '',
-                't=%s' % ti.ttype.value,
-                'ec=%s' % ti.catagory,
-                'ea=%s' % ti.action,
-                'el=%s' % ti.label,
-                'ev=%s' % ti.value]) + '\n'
+            params += base + u'&'.join([
+                u'',
+                u't=%s' % ti.ttype.value,
+                u'ec=%s' % ti.catagory,
+                u'ea=%s' % ti.action,
+                u'el=%s' % ti.label,
+                u'ev=%s' % ti.value]) + '\n'
         elif ti.ttype == TrackingInfo.Type.Pageview:
-            params += base + '&'.join([
-                '',
-                't=%s' % ti.ttype.value,
-                'dp=%s' % ti.page]) + '\n'
+            params += base + u'&'.join([
+                u'',
+                u't=%s' % ti.ttype.value,
+                u'dp=%s' % ti.page]) + '\n'
 
     response = requests.request(
         'POST',
         'http://www.google-analytics.com/batch',
-        data=params)
+        data=params.encode('utf8'))
 
     if response.status_code != 200:
         logger.error('send_ga_track_info: HTTP %d: %s' %
