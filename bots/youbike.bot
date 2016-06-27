@@ -30,7 +30,7 @@
         "content_module": {
           "id": "ai.compose.core.text_message",
           "config": {
-            "text": "嗨 {{user.first_name}}，歡迎使用 Ubike 小幫手，很高興為您服務。您是我服務過的第 {{statistic.user_count}} 位好朋友，儘管我是個機器人，永遠秉持服務的精神，給您賓至如歸的服務。"
+            "text": "嗨 {{user.first_name}}，歡迎使用 Ubike 小幫手，很高興為您服務。您是我服務過的第 {{statistic.user_count}} 位朋友。"
           }
         },
         "parser_module": {
@@ -48,7 +48,7 @@
         "content_module": {
           "id": "ai.compose.core.text_message",
           "config": {
-            "text": "請用手機送出你現在的位置，我們會為您找出附近的 Ubike 站點資訊！"
+            "text": "請用手機送出你現在的位置或是輸入地名，我們會為您找出附近的 Ubike 站點資訊！"
           }
         },
         "parser_module": {
@@ -265,7 +265,7 @@
             "messages": {
               "Facebook": [
                 {
-                  "text": "請您打開手機版 Messenger ，並使用位置按鍵(按鈕有可能在「...」裡面)。將位置發送給我後，我會替您找出鄰近的 Youbike 站。"
+                  "text": "請您打開手機版 Messenger ，並使用位置按鍵(按鈕有可能在「...」裡面)。將位置發送給我後，我會替您找出鄰近的 Youbike 站。如果是用電腦版的話，你也可以試著輸入地名。"
                 },
                 {
                   "attachment": {
