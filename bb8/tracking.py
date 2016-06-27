@@ -20,6 +20,7 @@ class TrackingInfo(object):
         Event = 'event'
 
     def __init__(self):
+        self.cid = None
         self.ttype = None
         self.page = None
         self.catagory = None
@@ -28,17 +29,18 @@ class TrackingInfo(object):
         self.value = None
 
     @classmethod
-    def Pageview(cls, page):
+    def Pageview(cls, cid, page):
         t = cls()
+        t.cid = cid
         t.ttype = cls.Type.Pageview
         t.page = page.replace(' ', '-')
         return t
 
     @classmethod
-    def Event(cls, catagory, action, label, value=1):
+    def Event(cls, cid, catagory, action, label, value=1):
         t = cls()
+        t.cid = cid
         t.ttype = cls.Type.Event
-
         t.catagory = catagory
         t.action = action
         t.label = label
@@ -64,12 +66,13 @@ def send_ga_track_info(tracking):
     if not config.DEPLOY:
         return
 
-    base = u'v=1&tid=%s&cid=12345' % config.YOUBIKE_BOT_GA_ID
+    base = u'v=1&tid=%s' % config.YOUBIKE_BOT_GA_ID
     params = u''
     for ti in tracking:
         if ti.ttype == TrackingInfo.Type.Event:
             params += base + u'&'.join([
                 u'',
+                u'cid=%s' % ti.cid,
                 u't=%s' % ti.ttype.value,
                 u'ec=%s' % ti.catagory,
                 u'ea=%s' % ti.action,
