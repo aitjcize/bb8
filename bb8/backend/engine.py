@@ -47,7 +47,8 @@ class Engine(object):
 
         # Track error
         if action_ident == '$error':
-            track(TrackingInfo.Event('Parser', 'Error', user_input.text))
+            track(TrackingInfo.Event(user.platform_user_ident,
+                                     'Parser', 'Error', user_input.text))
 
         linkage = Linkage.get_by(start_node_id=node.id,
                                  action_ident=action_ident, single=True)
@@ -93,7 +94,8 @@ class Engine(object):
                 user.session.message_sent = True
                 return self.step(bot, user, user_input)
 
-            track(TrackingInfo.Pageview('/%s' % node.name))
+            track(TrackingInfo.Pageview(user.platform_user_ident,
+                                        '/%s' % node.name))
 
             # Inject global reference
             g.node = node

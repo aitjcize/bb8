@@ -58,7 +58,7 @@ def facebook_receive():
                                 platform_user_ident=sender,
                                 last_seen=datetime.datetime.now(),
                                 **profile_info).add()
-                    track(TrackingInfo.Event('User', 'Add',
+                    track(TrackingInfo.Event(sender, 'User', 'Add',
                                              profile_info['first_name']))
                     user.commit()
 
