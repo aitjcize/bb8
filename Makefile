@@ -40,7 +40,7 @@ coverage: setup-database
 	 for test in $(UNITTESTS); do \
 	   COVER=$$(echo $$test | tr '/' '_'); \
 	   echo Running $$test ...; \
-	   COVERAGE_FILE=.coverage_$$COVER coverage run $$test; \
+	   COVERAGE_FILE=.coverage_$$COVER coverage run $$test || exit 1; \
 	 done
 	@coverage combine .coverage_*
 	@coverage html --include=bb8/*

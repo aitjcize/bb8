@@ -79,10 +79,13 @@ class Message(object):
             b.title = Render(data['title'], variables)
 
             b.url = data.get('url')
-            try:
-                b.payload = Render(json.loads(data.get('payload')), variables)
-            except (TypeError, ValueError):  # Not a json object
-                b.payload = data.get('payload')
+            payload = data.get('payload')
+            if payload:
+                if isinstance(payload, dict):
+                    payload['node_id'] = g.node.id
+                    b.payload = json.dumps(payload)
+                else:
+                    b.payload = Render(payload, variables)
 
             return b
 
@@ -105,7 +108,7 @@ class Message(object):
                     'properties': {
                         'type': {'enum': ['postback']},
                         'title': {'type': 'string'},
-                        'payload': {'type': 'string'}
+                        'payload': {'type': ['string', 'object']}
                     }
                 }]
             }
@@ -240,9 +243,11 @@ class Message(object):
 
     @classmethod
     def FromDict(cls, data, variables=None):
+        variables = variables or {}
         jsonschema.validate(data, cls.schema())
+
         m = Message()
-        m.text = data.get('text')
+        m.text = Render(data.get('text'), variables)
 
         attachment = data.get('attachment')
         if attachment:
