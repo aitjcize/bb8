@@ -46,9 +46,7 @@ def schema():
             'region': {'type': 'string'},
             'bounds': {
                 'type': 'array',
-                'items': {'$ref': '#/definitions/gps'},
-                'minItems': 2,
-                'maxItems': 2
+                'items': {'$ref': '#/definitions/rect'}
             },
             'center': {'$ref': '#/definitions/gps'}
         },
@@ -61,6 +59,12 @@ def schema():
                     'lat': {'type': 'number'},
                     'long': {'type': 'number'}
                 }
+            },
+            'rect': {
+                'type': 'array',
+                'items': {'$ref': '#/definitions/gps'},
+                'minItems': 2,
+                'maxItems': 2
             }
         }
     }
@@ -84,12 +88,22 @@ class GoogleMapsGeocodingAPI(object):
         return address
 
     def query_top_n(self, n, address, language, region, bounds, center=None):
+        """Query top *n* possible location that matches *address*."""
+
+        # Calculate the max bounding box that cover all bounds
+        lats = reduce(lambda x, y: x + y,
+                      [[b[0][0], b[1][0]] for b in bounds], [])
+        longs = reduce(lambda x, y: x + y,
+                       [[b[0][1], b[1][1]] for b in bounds], [])
+
+        max_bounds = [(min(lats), min(longs)), (max(lats), max(longs))]
+
         params = {
             'key': self._api_key,
             'address': address,
             'language': language,
             'region': region,
-            'bounds': '%f,%f|%f,%f' % (bounds[0] + bounds[1])
+            'bounds': '%f,%f|%f,%f' % (max_bounds[0] + max_bounds[1])
         }
         response = requests.request(
             'GET',
@@ -105,11 +119,12 @@ class GoogleMapsGeocodingAPI(object):
         filtered_result = []
         for r in result:
             coordinate = r['geometry']['location'].values()
-            if (coordinate[0] >= bounds[0][0] and
-                    coordinate[0] <= bounds[1][0] and
-                    coordinate[1] >= bounds[0][1] and
-                    coordinate[1] <= bounds[1][1]):
-                filtered_result.append(r)
+            for b in bounds:
+                if (coordinate[0] >= b[0][0] and
+                        coordinate[0] <= b[1][0] and
+                        coordinate[1] >= b[0][1] and
+                        coordinate[1] <= b[1][1]):
+                    filtered_result.append(r)
 
         # Sort result according to distance to center
         if center:
@@ -157,11 +172,14 @@ def run(content_config, unused_env, variables):
 
     api = GoogleMapsGeocodingAPI(content_config['api_key'])
 
-    b = cfg['bounds']
-    bounds = [(b[0]['lat'], b[0]['long']), (b[1]['lat'], b[1]['long'])]
+    py_bounds = []
+    for b in cfg.get('bounds', []):
+        py_bounds.append([(b[0]['lat'], b[0]['long']),
+                          (b[1]['lat'], b[1]['long'])])
 
     results = api.query_top_n(3, query_term, cfg['language'],
-                              cfg['region'], bounds, cfg['center'])
+                              cfg['region'], py_bounds,
+                              cfg.get('center', None))
 
     in_currrent = content_config['parse_payload_in_current_node']
 
