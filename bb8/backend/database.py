@@ -550,7 +550,7 @@ class Linkage(DeclarativeBase, ModelMixin):
     start_node_id = Column(ForeignKey('node.id'), nullable=False)
     end_node_id = Column(ForeignKey('node.id'), nullable=False)
     action_ident = Column(String(128), nullable=False)
-    ack_message = Column(UnicodeText, nullable=False)
+    ack_message = Column(PickleType, nullable=False)
 
     start_node = relationship('Node', foreign_keys=[start_node_id],
                               backref='linkages')

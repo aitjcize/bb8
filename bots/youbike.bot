@@ -236,11 +236,11 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["XD?", "(?i)lol"]
+                  "params": ["XD?", "(?i)lol", "哈", "呵"]
                 },
                 "action_ident": "xd",
                 "end_node_id": null,
-                "ack_message": "XDDDDD"
+                "ack_message": ["XDDDDD", "呵呵", "哈哈", "呵呵 先洗澡"]
               },
               {
                 "rule": {
@@ -277,6 +277,15 @@
                 "action_ident": "got_like_sticker",
                 "end_node_id": "[[thanks]]",
                 "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["好聰明"]
+                },
+                "action_ident": "got_smart",
+                "end_node_id": null,
+                "ack_message": "謝謝 你也是喔 :D"
               },
               {
                 "rule": {

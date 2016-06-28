@@ -75,7 +75,14 @@ def schema():
                         },
                         'action_ident': {'type': 'string'},
                         'end_node_id': {'type': ['null', 'integer']},
-                        'ack_message': {'type': 'string'}
+                        'ack_message': {
+                            'oneOf': [{
+                                'type': 'string'
+                            }, {
+                                'type': 'array',
+                                'items': {'type': 'string'}
+                            }]
+                        }
                     }
                 }
             }

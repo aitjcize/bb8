@@ -7,6 +7,7 @@
 """
 
 import datetime
+import random
 
 from bb8 import logger
 
@@ -21,6 +22,26 @@ class Engine(object):
 
     def __init__(self):
         pass
+
+    def send_ack_message(self, user, link, variables):
+        """Respond user with *link.ack_message*.
+
+        Args:
+            user: the User object.
+            link: Linkage object. link.ack_message could either be a string or
+                a list of string. If it is a list of string, we randomly select
+                one of the string to send.
+            variables: variables for rendering text
+        """
+        ack_message = link.ack_message
+        if not ack_message:  # ack message could be empty string or []
+            return
+
+        if isinstance(ack_message, list):
+            ack_message = random.choice(ack_message)
+
+        messaging.send_message(user, messaging.Message(ack_message,
+                                                       variables=variables))
 
     def insert_data(self, user, data):
         """Insert collected data into database."""
@@ -150,10 +171,7 @@ class Engine(object):
                         bot.root_node, user, user_input, True)
 
                     if link:  # There is a global command match
-                        if link.ack_message:
-                            messaging.send_message(
-                                user, messaging.Message(link.ack_message,
-                                                        variables=variables))
+                        self.send_ack_message(user, link, variables)
                         user.goto(link.end_node_id)
                         return self.step(bot, user, user_input, variables)
                 else:
@@ -176,12 +194,8 @@ class Engine(object):
                 if link is None:  # No matching linkage, we have a bug here.
                     return
 
+                self.send_ack_message(user, link, variables)
                 user.goto(link.end_node_id)
-
-                if link.ack_message:
-                    messaging.send_message(
-                        user, messaging.Message(link.ack_message,
-                                                variables=variables))
 
                 # If we are going back the same node, assume there is an error
                 # and we want to retry. Don't send message in this case.
