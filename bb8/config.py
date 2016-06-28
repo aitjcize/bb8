@@ -57,10 +57,14 @@ class DevelopmentConfig(Config):
 class TestingConfig(DevelopmentConfig):
     TESTING = True
 
+    YOUBIKE_PICKLE = '/tmp/bb8/youbike.pickle'
+
 
 class DeployConfig(DevelopmentConfig):
     DEBUG = False
     DEPLOY = True
+
+    YOUBIKE_PICKLE = '/var/lib/bb8/third_party/youbike.pickle'
 
     # Server
     PORT = 5000

@@ -4,7 +4,7 @@ import json
 import re
 import tempfile
 import urllib
-import pickle
+import cPickle
 import itertools
 import logging
 import sys
@@ -32,7 +32,7 @@ class UbikeDataCollector(object):
                 (self._stations_history,
                  self._coordinates,
                  self._running_sum,
-                 self._weather_parser) = pickle.load(fh)
+                 self._weather_parser) = cPickle.load(fh)
         except Exception:
             self._stations_history = []
             self._coordinates = {}
@@ -54,6 +54,10 @@ class UbikeDataCollector(object):
         if self._coordinates != coordinates:
             self._coordinates = coordinates
 
+        # remove the unnecessary content to reduce pickle size
+        self._stations_history = [
+            dict((k, dict(sbi=s[k]['sbi'], bemp=s[k]['bemp'])) for k in s)
+            for s in self._stations_history]
         self._stations_history.append(stations)
 
         if len(self._stations_history) >= self._history_size:
@@ -77,10 +81,10 @@ class UbikeDataCollector(object):
 
     def serialize(self):
         with open(self._pickle_path, 'wb') as fh:
-            pickle.dump((self._stations_history,
-                         self._coordinates,
-                         self._running_sum,
-                         self._weather_parser.serialize()), fh)
+            cPickle.dump((self._stations_history,
+                          self._coordinates,
+                          self._running_sum,
+                          self._weather_parser.serialize()), fh)
 
 
 class UbikeAPIParser(object):
@@ -125,11 +129,10 @@ class UbikeAPIParser(object):
 class WeatherAPIParser(object):
     CITY_IDS = [7280291, 1668841, 1668467, 1670029, 1668664, 1668338, 1668341,
                 1675720, 1673169, 6724653, 1668399, 1672430, 6748079, 1668885,
-                1669321, 7280290, 1665148, 6749202, 6748075, 1669401, 6643057,
-                1678813, 1676087, 1673046, 7280288, 1668630, 1677028, 1676453,
-                1670395, 6600589, 1675107, 1675151, 6696918, 7601921, 1667031,
-                1667289, 1667905, 1668396, 1677112, 1679136, 7552914, 6749251,
-                1665988]
+                1669321, 1665148, 6749202, 6748075, 1669401, 6643057, 1678813,
+                1676087, 1673046, 7280288, 1668630, 1677028, 1676453, 1670395,
+                6600589, 1675107, 1675151, 6696918, 7601921, 1667031, 1667289,
+                1667905, 1668396, 1677112, 1679136, 7552914, 6749251, 1665988]
 
     REFRESH_TIMEOUT = 60 * 10
 
@@ -149,16 +152,19 @@ class WeatherAPIParser(object):
         self._weather = []
         for city in self.CITY_IDS:
             data = json.loads(urllib.urlopen(self.API_ENDPOINT % city).read())
-            lon, lat = data['coord']['lon'], data['coord']['lat']
-            temperature = data['main']['temp']
-            humidity = data['main']['humidity']
-            weather_code = data['weather'][0]['id']
-            temperature = temperature - 273.15
-            self._weather.append(dict(lon=lon, lat=lat,
-                                      temp=temperature,
-                                      humidity=humidity,
-                                      weather_code=weather_code))
-        logging.warning('end fetching weather information')
+            try:
+                lon, lat = data['coord']['lon'], data['coord']['lat']
+                temperature = data['main']['temp']
+                humidity = data['main']['humidity']
+                weather_code = data['weather'][0]['id']
+                temperature = temperature - 273.15
+                self._weather.append(dict(lon=lon, lat=lat,
+                                          temp=temperature,
+                                          humidity=humidity,
+                                          weather_code=weather_code))
+            except Exception:
+                logging.warning('Cannot fetch city: %d', city)
+                continue
         self._last_refresh = datetime.now()
 
     # TODO(yunchiao.li): query will probably be a performance bottleneck
@@ -185,7 +191,7 @@ if __name__ == '__main__':
     cli_parser = argparse.ArgumentParser(description='')
     cli_parser.add_argument('--pickle_path',
                             dest='pickle_path',
-                            default='',
+                            default='/tmp/bb8/youbike.pickle',
                             help='The path of pickled file to store the data')
     cli_parser.add_argument('--interval',
                             type=int,
