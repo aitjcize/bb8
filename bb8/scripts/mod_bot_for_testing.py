@@ -50,6 +50,7 @@ def mod_bot_for_testing(bot, platform):
 
     print('Modifying bot ...')
     bot_json['platforms'] = platform_json['platforms']
+    bot_json['bot']['name'] += '-' + platform
 
     def to_unicode(m):
         return unicode(m.group(0)).decode('unicode-escape')
