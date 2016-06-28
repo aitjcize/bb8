@@ -32,7 +32,7 @@ class Config(object):
 
     # Server
     HOSTNAME = 'bot.azhuang.me'
-    PORT = 7000
+    PORT = int(os.getenv('HTTP_PORT', 7000))
 
     # Webhooks
     BOT_WEBHOOOK_ROOT = '/bot'

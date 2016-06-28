@@ -1,18 +1,21 @@
 # Copyright 2016 bb8 Authors
 
-LINT_FILES=$(shell find bb8 third_party -name '*.py' -type f | sort)
-UNITTESTS=$(shell find bb8 -name '*_unittest.py' | sort)
+LINT_FILES = $(shell find bb8 third_party -name '*.py' -type f | sort)
+UNITTESTS = $(shell find bb8 -name '*_unittest.py' | sort)
 
-LINT_OPTIONS=--rcfile=bin/pylintrc \
-	     --msg-template='{path}:{line}: {msg_id}: {msg}'
+LINT_OPTIONS = --rcfile=bin/pylintrc \
+	       --msg-template='{path}:{line}: {msg_id}: {msg}'
 
-DB_URI='mysql+pymysql://bb8:bb8test@127.0.0.1:3307/bb8?charset=utf8mb4'
+PORT ?= 3307
+
+DB_URI = "mysql+pymysql://bb8:bb8test@127.0.0.1:$(PORT)/bb8?charset=utf8mb4"
 
 all: test lint validate-bots
 
 setup-database:
-	@if ! docker ps | grep bb8_mysql; then \
-	   docker run --name bb8_mysql -p 3307:3306 \
+	echo $(DB_URI)
+	@if ! docker ps | grep bb8_mysql.$(USER); then \
+	   docker run --name bb8_mysql.$(USER) -p $(PORT):3306 \
 	       -v $(CURDIR)/conf/mysql:/etc/mysql/conf.d \
 	       -e MYSQL_ROOT_PASSWORD=root \
 	       -e MYSQL_USER=bb8 \

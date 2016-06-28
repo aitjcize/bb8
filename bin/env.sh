@@ -10,4 +10,19 @@ fi
 export PATH=$PWD/$SCRIPT_DIR:$PATH
 export PYTHONPATH=$PWD/$GITROOT
 
-export DATABASE='mysql+pymysql://bb8:bb8test@127.0.0.1:3307/bb8?charset=utf8mb4'
+# Default configuration for CI
+export PORT=3307
+
+# Per-User port config for users testing on same machine
+case $USER in
+  aitjcize)
+    PORT=3308
+    HTTP_PORT=7000
+    ;;
+  kevin)
+    PORT=3309
+    HTTP_PORT=7001
+    ;;
+esac
+
+export DATABASE="mysql+pymysql://bb8:bb8test@127.0.0.1:$PORT/bb8?charset=utf8mb4"
