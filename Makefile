@@ -27,7 +27,7 @@ setup-database:
 	 fi
 
 remove-database:
-	@docker rm -f bb8_mysql
+	@docker rm -f bb8_mysql.$(USER)
 
 test: setup-database
 	@export PYTHONPATH=$$PWD; \
