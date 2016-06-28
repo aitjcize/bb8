@@ -67,6 +67,8 @@ def parse_bot(filename, to_bot_id=None):
 
     if to_bot_id:
         # Update existing bot. Keep associated Platform.
+        logger.info('Updating existing bot(id=%d) with %s ...',
+                    to_bot_id, filename)
         bot = Bot.get_by(id=to_bot_id, single=True)
         bot.delete_all_node_and_links()  # Delete all previous node and links
 
@@ -76,6 +78,7 @@ def parse_bot(filename, to_bot_id=None):
         bot.session_timeout = bot_desc['session_timeout']
         bot.flush()
     else:  # Create a new bot
+        logger.info('Creating new bot from %s ...', filename)
         bot = Bot(
             name=bot_desc['name'],
             description=bot_desc['description'],

@@ -43,6 +43,7 @@ def register_content_modules():
 
     with DatabaseSession(disconnect=False):
         for name in modules:
+            logger.info('Registering content module `%s\' ...', name)
             m = importlib.import_module('%s.%s' %
                                         (ContentModule.CONTENT_MODULES, name))
             info = m.get_module_info()
@@ -68,6 +69,7 @@ def register_parser_modules():
 
     with DatabaseSession(disconnect=False):
         for name in modules:
+            logger.info('Registering parser module `%s\' ...', name)
             m = importlib.import_module('%s.%s' %
                                         (ParserModule.PARSER_MODULES, name))
             info = m.get_module_info()
