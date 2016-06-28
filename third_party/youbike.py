@@ -1,14 +1,30 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+    Youbike Data Collection Daemon
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Colllect youbike and weather data in the background and store it as a
+    pickle file, which is later used by the bb8 youbike content module.
+
+    Copyright 2016 bb8 Authors
+"""
+
+from __future__ import print_function
+
 import argparse
-import gzip
-import json
-import re
-import tempfile
-import urllib
 import cPickle
+import gzip
 import itertools
+import json
 import logging
+import os
+import re
 import sys
+import tempfile
 import time
+import urllib
+
 from datetime import datetime, timedelta
 
 
@@ -97,8 +113,14 @@ class UbikeAPIParser(object):
         self.coordinates = {}
 
     def refresh_data(self):
-        self._fetch_data_youbike_php()
+        self._fetch_data()
         self._parse_data()
+
+    def _fetch_data(self):
+        try:
+            self._fetch_data_youbike_php()
+        except Exception:
+            self._fetch_data_taipei_data()
 
     def _fetch_data_youbike_php(self):
         data = urllib.urlopen(self.YOUBIKE_PHP).read()
@@ -106,7 +128,7 @@ class UbikeAPIParser(object):
         if r:
             self._data = {'retVal': json.loads(r.group(1))}
         else:
-            self._fetch_data_taipei_data()
+            raise RuntimeError('can not find siteContent data')
 
     def _fetch_data_taipei_data(self):
         unused_fd, filename = tempfile.mkstemp()
@@ -136,19 +158,21 @@ class WeatherAPIParser(object):
 
     REFRESH_TIMEOUT = 60 * 10
 
-    API_ENDPOINT = 'http://api.openweathermap.org/data/2.5/' \
-                   'weather?id=%d&APPID=735665d5fc6167c6f2d5a33e803d1d50'
+    API_ENDPOINT = ('http://api.openweathermap.org/data/2.5/'
+                    'weather?id=%d&APPID=735665d5fc6167c6f2d5a33e803d1d50')
 
     def __init__(self, serialized_data=None):
         if not isinstance(serialized_data, tuple):
             self._refresh()
             return
+
         self._weather, self._last_refresh = serialized_data
-        if datetime.now() - self._last_refresh > \
-           timedelta(seconds=self.REFRESH_TIMEOUT):
+        if (datetime.now() - self._last_refresh >
+                timedelta(seconds=self.REFRESH_TIMEOUT)):
             self._refresh()
 
     def _refresh(self):
+        logging.info('Updating weather database ...')
         self._weather = []
         for city in self.CITY_IDS:
             data = json.loads(urllib.urlopen(self.API_ENDPOINT % city).read())
@@ -165,10 +189,16 @@ class WeatherAPIParser(object):
             except Exception:
                 logging.warning('Cannot fetch city: %d', city)
                 continue
-        self._last_refresh = datetime.now()
 
-    # TODO(yunchiao.li): query will probably be a performance bottleneck
+        self._last_refresh = datetime.now()
+        logging.info('Weather database completed.')
+
     def query(self, lon, lat):
+        """Given longtitude and latitude, find the closest point that has
+        weather info.
+
+        We don't have many data point so a linear search should be good enough.
+        """
         def distance(lon1, lat1, lon2, lat2):
             return (lon2 - lon1) ** 2 + (lat2 - lat1) ** 2
 
@@ -179,6 +209,7 @@ class WeatherAPIParser(object):
             if d < min_distance:
                 min_distance = d
                 weather = w
+
         return dict(temp=weather['temp'],
                     humidity=weather['humidity'],
                     weather_code=weather['weather_code'])
@@ -188,7 +219,11 @@ class WeatherAPIParser(object):
 
 
 if __name__ == '__main__':
-    cli_parser = argparse.ArgumentParser(description='')
+    cli_parser = argparse.ArgumentParser(description='Youbike data collection '
+                                                     'daemon')
+    cli_parser.add_argument('-d', '--daemonize', dest='daemonize',
+                            action='store_true', default=False,
+                            help='Run in the background.')
     cli_parser.add_argument('--pickle_path',
                             dest='pickle_path',
                             default='/tmp/bb8/youbike.pickle',
@@ -199,6 +234,12 @@ if __name__ == '__main__':
                             default=30,
                             help='The interval to fetch youbike data (second)')
     args = cli_parser.parse_args()
+
+    if args.daemonize:
+        pid = os.fork()
+        if pid != 0:
+            print('Forked into background (pid=%d)' % pid)
+            sys.exit(1)
 
     while True:
         ubike_parser = UbikeAPIParser()

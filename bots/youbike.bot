@@ -78,7 +78,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["不", "(?i)no"]
+                  "params": ["不", "(?i)no", ".*"]
                 },
                 "action_ident": "goto_root",
                 "end_node_id": "[[root]]",
@@ -129,13 +129,15 @@
           "id": "ai.compose.third_party.youbike",
           "config": {
             "send_payload_to_current_node": false,
+            "max_count": 5,
             "location": {
               "coordinates": {
                 "lat": 25.033436,
                 "long": 121.564802
               }
             },
-            "max_count": 5
+	    "distance_threshold": 0.050,
+	    "display_weather": false
           }
         },
         "parser_module": {
@@ -367,8 +369,10 @@
           "id": "ai.compose.third_party.youbike",
           "config": {
             "send_payload_to_current_node": false,
+            "max_count": 5,
             "location": "{{location}}",
-            "max_count": 5
+	    "distance_threshold": 0.050,
+	    "display_weather": true
           }
         },
         "parser_module": {

@@ -45,6 +45,7 @@ class Config(object):
 
     # Misc
     YOUBIKE_BOT_GA_ID = 'UA-79887532-2'
+    YOUBIKE_PICKLE = '/tmp/bb8/youbike.pickle'
 
 
 class DevelopmentConfig(Config):
@@ -56,8 +57,6 @@ class DevelopmentConfig(Config):
 
 class TestingConfig(DevelopmentConfig):
     TESTING = True
-
-    YOUBIKE_PICKLE = '/tmp/bb8/youbike.pickle'
 
 
 class DeployConfig(DevelopmentConfig):
