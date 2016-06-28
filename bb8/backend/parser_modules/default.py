@@ -174,7 +174,7 @@ def get_linkages(parser_config):
         links.append(LinkageItem(link['action_ident'], link['end_node_id'],
                                  link['ack_message']))
 
-    if '$error' not in parser_config['links']:
+    if '$error' not in [l['action_ident'] for l in parser_config['links']]:
         links.append(LinkageItem('$error', None,
                                  'Invalid response, please re-enter.'))
     return links

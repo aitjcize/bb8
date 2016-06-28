@@ -26,7 +26,7 @@ def mod_bot_for_testing(bot, platform):
     Given youbike.bot and bb8.facebook.platform, output a new bot
     youbike.bb8.facebook.bot.
     """
-    real_file_path = os.path.abspath(os.readlink(__file__))
+    real_file_path = os.path.dirname(os.path.realpath(__file__))
     project_root = os.path.normpath(os.path.join(real_file_path, '..', '..'))
 
     bots_dir = os.path.join(project_root, 'bots')

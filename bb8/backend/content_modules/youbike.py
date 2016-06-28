@@ -18,7 +18,7 @@ import urllib
 
 import enum
 
-from bb8 import config
+from bb8 import config, logger
 from bb8.backend.module_api import (Config, Message, LocationPayload, Resolve,
                                     SupportedPlatform)
 
@@ -40,7 +40,8 @@ def get_module_info():
 def schema():
     return {
         'type': 'object',
-        'required': ['send_payload_to_current_node', 'max_count', 'location'],
+        'required': ['send_payload_to_current_node', 'max_count', 'location',
+                     'distance_threshold', 'display_weather'],
         'additionalProperties': False,
         'properties': {
             'send_payload_to_current_node': {'type': 'boolean'},
@@ -66,7 +67,9 @@ def schema():
                         }
                     }
                 }]
-            }
+            },
+            'distance_threshold': {'type': 'number'},
+            'display_weather': {'type': 'boolean'}
         }
     }
 
@@ -120,16 +123,34 @@ class UbikeAPIParser(object):
         self._coordinates = {}
         self._running_sum = {}
         self._time_slot = 0.5
+        self.has_average_waiting_time = True
 
     def refresh_data(self):
+        """Refresh Youbike data.
+
+        First try the pickle method. If it fails, fallback to the youbike PHP
+        method. If it also fails, fallback to the data.taipi API.
+        """
         # exception if no pickle file or len(stations_history) < 1
         try:
             self._fetch_data_pickle()
-        except Exception:
-            self._fetch_data_youbike_php()
+        except Exception as e:
+            logger.exception(e)
+            try:
+                self._fetch_data_youbike_php()
+            except Exception as e:
+                logger.exception(e)
+                self._fetch_data_taipei_data()
+
             self._parse_data()
 
-    def find_knn(self, k, coordinate):
+    def find_knn(self, k, coordinate, threshold=0):
+        """Find *k* nearest coordinate.
+
+        If the minimum distance of the nearest coordinate is greater then
+        *threshold*, return an empty list indicating that the coordinate is too
+        far from all possible options.
+        """
         def r_square(c1, c2):
             return (c1[0] - c2[0]) ** 2 + (c1[1] - c2[1]) ** 2
 
@@ -141,6 +162,11 @@ class UbikeAPIParser(object):
         knn = []
         for unused_i in range(k):
             knn.append(self._stations[heapq.heappop(h)[1]])
+
+        min_dist = r_square((float(knn[0]['lat']), float(knn[0]['lng'])),
+                            coordinate)
+        if threshold and min_dist > threshold ** 2:
+            return []
 
         return knn
 
@@ -164,7 +190,7 @@ class UbikeAPIParser(object):
         if r:
             self._data = {'retVal': json.loads(r.group(1))}
         else:
-            self._fetch_data_taipei_data()
+            raise RuntimeError('can not find siteContent data')
 
     def _fetch_data_taipei_data(self):
         unused_fd, filename = tempfile.mkstemp()
@@ -183,6 +209,7 @@ class UbikeAPIParser(object):
             (str(x['sno']), (float(x['lat']), float(x['lng'])))
             for x in self._stations.values())
         self._running_sum = dict((k, (0, 0)) for k in self._stations)
+        self.has_average_waiting_time = False
 
     def data(self):
         return (self._stations,
@@ -201,6 +228,8 @@ def run(content_config, env, variables):
        "send_payload_to_current_node": true,
        "location": "location variables",
        "max_count": 3
+       "distance_threshold": 0.050,
+       "display_weather": true
     }
     """
 
@@ -219,13 +248,18 @@ def run(content_config, env, variables):
         k = 2
         size = (1000, 1000)
 
-    stations = youbike.find_knn(k, c)
+    stations = youbike.find_knn(k, c, content_config['distance_threshold'])
+    if not stations:
+        return [Message('對不起，這裡附近沒有 Ubike 站喔！')]
 
     m = GoogleStaticMapAPIRequestBuilder(GOOGLE_STATIC_MAP_API_KEY, size)
     m.add_marker(c, 'purple')
     for s in stations:
         m.add_marker((float(s['lat']), float(s['lng'])))
 
+    msgs = []
+
+    # Construct main result cards.
     msg = Message()
     b = Message.Bubble(u'附近的 Ubike 站點',
                        image_url=m.build_url(),
@@ -259,15 +293,15 @@ def run(content_config, env, variables):
         sbi, bemp = int(s['sbi']), int(s['bemp'])
         subtitle = u'剩餘數量: %d\n空位數量: %d\n' % (sbi, bemp)
 
-        sno = s['sno']
-        if sbi < 5:
-            subtitle += (u'預計進車時間: %d 分鐘\n' %
-                         youbike.average_waiting_time(
-                             sno, youbike.Direction.In))
-        if bemp < 5:
-            subtitle += (u'預計出位時間：%d 分鐘\n' %
-                         youbike.average_waiting_time(
-                             sno, youbike.Direction.Out))
+        if youbike.has_average_waiting_time:
+            if sbi < 5:
+                subtitle += (u'預計進車時間: %d 分鐘\n' %
+                             youbike.average_waiting_time(
+                                 str(s['sno']), youbike.Direction.In))
+            if bemp < 5:
+                subtitle += (u'預計出位時間：%d 分鐘\n' %
+                             youbike.average_waiting_time(
+                                 str(s['sno']), youbike.Direction.Out))
 
         b = Message.Bubble(s['ar'], image_url=m.build_url(), subtitle=subtitle)
         b.add_button(Message.Button(Message.ButtonType.WEB_URL,
@@ -275,17 +309,21 @@ def run(content_config, env, variables):
                                     url=m.build_navigation_url(gps_coord)))
         msg.add_bubble(b)
 
-    msgs = []
-
-    # TODO(yunchiao.li): need some copywriting for weather information
-    if 'weather' in best:
-        msgs.append(Message(u'提醒您，現在氣溫 %.2f，濕度 %d' %
-                            (best['weather']['temp'],
-                             best['weather']['humidity'])))
-
-    b = Message.Bubble(u'附近的 Ubike 站點',
-                       image_url=m.build_url(),
-                       subtitle=u'以下是最近的 %d 個站點' % k)
-
     msgs.append(msg)
+
+    if content_config['display_weather'] and 'weather' in best:
+        weather = best['weather']
+        code = best['weather']['weather_code']
+        temp = weather['temp']
+
+        if code / 100 == 3 or code in [500, 520]:
+            msgs.append(Message(u'提醒您，現在外面天雨路滑，騎車小心！'
+                                u'記得帶傘或穿件雨衣唷'))
+        elif (code / 100 == 2 or
+              code in [501, 502, 503, 504, 511, 521, 522, 531, 901, 902]):
+            msgs.append(Message(u'現在外面大雨滂沱，不如叫個 Uber 吧！'))
+        elif code in [904] or temp >= 30:
+            msgs.append(Message(u'提醒您，現在外面天氣炎熱(攝氏%.1f度)，'
+                                u'記得做好防曬唷' % temp))
+
     return msgs
