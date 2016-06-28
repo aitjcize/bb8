@@ -8,6 +8,7 @@
     Copyright 2016 bb8 Authors
 """
 
+import cPickle
 import gzip
 import heapq
 import json
@@ -15,6 +16,9 @@ import re
 import tempfile
 import urllib
 
+import enum
+
+from bb8 import config
 from bb8.backend.module_api import (Config, Message, LocationPayload, Resolve,
                                     SupportedPlatform)
 
@@ -106,14 +110,24 @@ class UbikeAPIParser(object):
     API_ENDPOINT = 'http://data.taipei/youbike'
     YOUBIKE_PHP = 'http://taipei.youbike.com.tw/cht/f11.php'
 
+    class Direction(enum.Enum):
+        In = 0
+        Out = 1
+
     def __init__(self):
         self._data = None
         self._stations = []
         self._coordinates = {}
+        self._running_sum = {}
+        self._time_slot = 0.5
 
     def refresh_data(self):
-        self._fetch_data_youbike_php()
-        self._parse_data()
+        # exception if no pickle file or len(stations_history) < 1
+        try:
+            self._fetch_data_pickle()
+        except Exception:
+            self._fetch_data_youbike_php()
+            self._parse_data()
 
     def find_knn(self, k, coordinate):
         def r_square(c1, c2):
@@ -129,6 +143,20 @@ class UbikeAPIParser(object):
             knn.append(self._stations[heapq.heappop(h)[1]])
 
         return knn
+
+    def _fetch_data_pickle(self):
+        PICKLE_PATH = config.YOUBIKE_PICKLE
+
+        with open(PICKLE_PATH, 'rb') as fh:
+            (stations_history,
+             self._coordinates,
+             self._running_sum,
+             unused_weather_parser) = cPickle.load(fh)
+
+            # how long does the stations_history cover
+            # (used to calculate average)
+            self._time_slot = 30 * len(stations_history) / 60
+            self._stations = stations_history[-1]
 
     def _fetch_data_youbike_php(self):
         data = urllib.urlopen(self.YOUBIKE_PHP).read()
@@ -154,6 +182,16 @@ class UbikeAPIParser(object):
         self._coordinates = dict(
             (str(x['sno']), (float(x['lat']), float(x['lng'])))
             for x in self._stations.values())
+        self._running_sum = dict((k, (0, 0)) for k in self._stations)
+
+    def data(self):
+        return (self._stations,
+                self._coordinates,
+                dict((k, (0, 0)) for k in self._stations))
+
+    def average_waiting_time(self, sno, direction):
+        return (self._time_slot /
+                max(self._running_sum[sno][direction.value], 1))
 
 
 def run(content_config, env, variables):
@@ -165,6 +203,7 @@ def run(content_config, env, variables):
        "max_count": 3
     }
     """
+
     location = Resolve(content_config['location'], variables)
     if 'coordinates' not in location:
         return [Message('不正確的輸入，請重新輸入')]
@@ -217,13 +256,36 @@ def run(content_config, env, variables):
         gps_coord = (float(s['lat']), float(s['lng']))
         m.add_marker(gps_coord, color='red')
 
-        b = Message.Bubble(s['ar'], image_url=m.build_url(),
-                           subtitle=u'剩餘數量: %s\n空位數量: %s' %
-                           (s['sbi'], s['bemp']))
+        sbi, bemp = int(s['sbi']), int(s['bemp'])
+        subtitle = u'剩餘數量: %d\n空位數量: %d\n' % (sbi, bemp)
+
+        sno = s['sno']
+        if sbi < 5:
+            subtitle += (u'預計進車時間: %d 分鐘\n' %
+                         youbike.average_waiting_time(
+                             sno, youbike.Direction.In))
+        if bemp < 5:
+            subtitle += (u'預計出位時間：%d 分鐘\n' %
+                         youbike.average_waiting_time(
+                             sno, youbike.Direction.Out))
+
+        b = Message.Bubble(s['ar'], image_url=m.build_url(), subtitle=subtitle)
         b.add_button(Message.Button(Message.ButtonType.WEB_URL,
                                     u'地圖導航',
                                     url=m.build_navigation_url(gps_coord)))
-
         msg.add_bubble(b)
 
-    return [msg]
+    msgs = []
+
+    # TODO(yunchiao.li): need some copywriting for weather information
+    if 'weather' in best:
+        msgs.append(Message(u'提醒您，現在氣溫 %.2f，濕度 %d' %
+                            (best['weather']['temp'],
+                             best['weather']['humidity'])))
+
+    b = Message.Bubble(u'附近的 Ubike 站點',
+                       image_url=m.build_url(),
+                       subtitle=u'以下是最近的 %d 個站點' % k)
+
+    msgs.append(msg)
+    return msgs
