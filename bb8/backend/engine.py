@@ -63,6 +63,11 @@ class Engine(object):
         try:
             now = datetime.datetime.now()
 
+            # Flag to detemine if we have jump to a node due to postback being
+            # pressed. In such case global command is to checked to prevent
+            # infinite loop.
+            jumped = False
+
             if user.session is None:
                 user.goto(bot.start_node_id)
 
@@ -82,6 +87,7 @@ class Engine(object):
                 # If payload button is pressed, we need to jump to the
                 # corresponding node if payload's node_id != current_node_id
                 elif user_input.jump_node_id != user.session.node_id:
+                    jumped = True
                     user.goto(user_input.jump_node_id)
                     user.session.message_sent = True
 
@@ -137,7 +143,9 @@ class Engine(object):
                     # module
                     return self.step(bot, user)
             else:
-                if user_input:
+                # Don't check for global command if we are jumping to a ndoe
+                # due to postback being pressed.
+                if user_input and not jumped:
                     link, variables = self.run_parser_module(
                         bot.root_node, user, user_input, True)
 

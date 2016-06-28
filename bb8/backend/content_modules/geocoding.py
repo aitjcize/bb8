@@ -35,11 +35,11 @@ def get_module_info():
 def schema():
     return {
         'type': 'object',
-        'required': ['parse_payload_in_current_node', 'api_key', 'query_term',
+        'required': ['send_payload_to_current_node', 'api_key', 'query_term',
                      'language', 'region', 'bounds'],
         'additionalProperties': True,
         'properties': {
-            'parse_payload_in_current_node': {'type': 'boolean'},
+            'send_payload_to_current_node': {'type': 'boolean'},
             'api_key': {'type': 'string'},
             'query_term': {'type': 'string'},
             'language': {'type': 'string'},
@@ -151,7 +151,7 @@ def run(content_config, unused_env, variables):
 
     Platform dependent message:
     {
-        'parse_payload_in_current_node': False,
+        'send_payload_to_current_node': False,
         'api_key': 'google geocoding api key',
         'query_term': 'query term',
         'language': 'zh_TW',
@@ -181,7 +181,7 @@ def run(content_config, unused_env, variables):
                               cfg['region'], py_bounds,
                               cfg.get('center', None))
 
-    in_currrent = content_config['parse_payload_in_current_node']
+    in_currrent = content_config['send_payload_to_current_node']
 
     m = Message()
     if not results:
