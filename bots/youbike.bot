@@ -128,6 +128,7 @@
         "content_module": {
           "id": "ai.compose.third_party.youbike",
           "config": {
+            "send_payload_to_current_node": false,
             "location": {
               "coordinates": {
                 "lat": 25.033436,
@@ -356,6 +357,7 @@
         "content_module": {
           "id": "ai.compose.third_party.youbike",
           "config": {
+            "send_payload_to_current_node": false,
             "location": "{{location}}",
             "max_count": 5
           }
@@ -386,7 +388,7 @@
         "content_module": {
           "id": "ai.compose.core.geocoding",
           "config": {
-            "parse_payload_in_current_node": false,
+            "send_payload_to_current_node": false,
             "api_key": "AIzaSyBumjctKrdC-SQIITfoJakEffPIz4vR87A",
             "query_term": "{{text}}",
             "language": "zh_TW",

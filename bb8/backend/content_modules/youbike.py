@@ -36,9 +36,10 @@ def get_module_info():
 def schema():
     return {
         'type': 'object',
-        'required': ['max_count', 'location'],
+        'required': ['send_payload_to_current_node', 'max_count', 'location'],
         'additionalProperties': False,
         'properties': {
+            'send_payload_to_current_node': {'type': 'boolean'},
             'max_count': {
                 'type': 'integer',
                 'minimum': 1,
@@ -159,6 +160,7 @@ def run(content_config, env, variables):
     """
     content_config schema:
     {
+       "send_payload_to_current_node": true,
        "location": "location variables",
        "max_count": 3
     }
@@ -200,10 +202,12 @@ def run(content_config, env, variables):
     b.add_button(Message.Button(Message.ButtonType.WEB_URL, u'帶我去',
                                 url=m.build_navigation_url(best_gps_coord)))
 
+    to_current = content_config['send_payload_to_current_node']
+
     # Only facebook have postback button for now
     if env['platform_type'] == SupportedPlatform.Facebook:
         b.add_button(Message.Button(Message.ButtonType.POSTBACK, u'再次查詢',
-                                    payload=LocationPayload(c)))
+                                    payload=LocationPayload(c, to_current)))
     msg.add_bubble(b)
 
     for s in stations:
