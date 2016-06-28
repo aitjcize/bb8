@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-    unit testing for bot api
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Unittest for bot API
+    ~~~~~~~~~~~~~~~~~~~~
 
     Copyright 2016 bb8 Authors
 """

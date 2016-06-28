@@ -7,7 +7,10 @@
     Copyright 2016 bb8 Authors
 """
 
+from __future__ import print_function
+
 import os
+import sys
 
 from flask_script import Server, Manager
 
@@ -33,4 +36,15 @@ database.install_commands(manager)
 
 
 if __name__ == "__main__":
+    # Warn user about operating on a production database
+    if 'deploy' in config.DATABASE and not config.DEPLOY:
+        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        print('!                         WARNING                         !')
+        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        print('\nYou are about to operate on the PRODUCTION database!!')
+        print('Do you still want to continue? [yes/No] ', end='')
+
+        if raw_input() != 'yes':
+            sys.exit(1)
+
     manager.run()
