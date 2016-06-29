@@ -96,11 +96,16 @@ class UbikeDataCollector(object):
                                     sum(d[1] for d in diff_list))
 
     def serialize(self):
-        with open(self._pickle_path, 'wb') as fh:
+        """Serialize the context into a file."""
+        # Employ RCU method to prevent race condition.
+        update_pickle = self._pickle_path + '.tmp'
+        with open(update_pickle, 'wb') as fh:
             cPickle.dump((self._stations_history,
                           self._coordinates,
                           self._running_sum,
                           self._weather_parser.serialize()), fh)
+
+        os.rename(update_pickle, self._pickle_path)
 
 
 class UbikeAPIParser(object):
