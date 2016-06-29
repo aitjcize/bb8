@@ -10,6 +10,8 @@ PORT ?= 3307
 
 DB_URI = "mysql+pymysql://bb8:bb8test@127.0.0.1:$(PORT)/bb8?charset=utf8mb4"
 
+STATE_DIR = $(CURDIR)/states
+
 all: test lint validate-bots
 
 setup-database:
@@ -56,12 +58,13 @@ validate-bots:
 	make -C bots
 
 deploy:
-	@sudo umount $(CURDIR)/logs || true
+	@mkdir -p $(STATE_DIR)/log $(STATE_DIR)/bb8/third_party
+	@sudo umount $(STATE_DIR)/log || true
 	docker build -t bb8 .
 	docker rm -f bb8 >/dev/null 2>&1 || true
-	docker run --name bb8 -p 5000:5000 -d bb8
-	umount $(CURDIR)/logs >/dev/null 2>&1 || true
-	mkdir -p $(CURDIR)/logs
+	docker run --name bb8 -p 5000:5000 \
+	    -v $(STATE_DIR)/bb8:/var/lib/bb8 \
+	    -d bb8
 	@sudo mount --bind \
 		`docker inspect -f '{{index .Volumes "/var/log"}}' bb8` \
-		$(CURDIR)/logs || true
+		$(STATE_DIR)/log || true
