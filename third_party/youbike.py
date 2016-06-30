@@ -10,8 +10,6 @@
     Copyright 2016 bb8 Authors
 """
 
-from __future__ import print_function
-
 import argparse
 import cPickle
 import gzip
@@ -96,11 +94,16 @@ class UbikeDataCollector(object):
                                     sum(d[1] for d in diff_list))
 
     def serialize(self):
-        with open(self._pickle_path, 'wb') as fh:
+        """Serialize the context into a file."""
+        # Employ RCU method to prevent race condition.
+        update_pickle = self._pickle_path + '.tmp'
+        with open(update_pickle, 'wb') as fh:
             cPickle.dump((self._stations_history,
                           self._coordinates,
                           self._running_sum,
                           self._weather_parser.serialize()), fh)
+
+        os.rename(update_pickle, self._pickle_path)
 
 
 class UbikeAPIParser(object):
@@ -175,8 +178,8 @@ class WeatherAPIParser(object):
         logging.info('Updating weather database ...')
         self._weather = []
         for city in self.CITY_IDS:
-            data = json.loads(urllib.urlopen(self.API_ENDPOINT % city).read())
             try:
+                data = json.load(urllib.urlopen(self.API_ENDPOINT % city))
                 lon, lat = data['coord']['lon'], data['coord']['lat']
                 temperature = data['main']['temp']
                 humidity = data['main']['humidity']
@@ -235,10 +238,19 @@ if __name__ == '__main__':
                             help='The interval to fetch youbike data (second)')
     args = cli_parser.parse_args()
 
+    # Setup logger
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+
+    handler = logging.StreamHandler()
+    fmt = logging.Formatter('%(asctime)s %(message)s', '%Y/%m/%d %H:%M:%S')
+    handler.setFormatter(fmt)
+    logger.addHandler(handler)
+
     if args.daemonize:
         pid = os.fork()
         if pid != 0:
-            print('Forked into background (pid=%d)' % pid)
+            logging.info('Forked into background (pid=%d)', pid)
             sys.exit(1)
 
     while True:
