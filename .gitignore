@@ -4,3 +4,4 @@
 node_modules
 htmlcov
 .coverage
+states
