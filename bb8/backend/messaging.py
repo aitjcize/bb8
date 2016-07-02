@@ -18,11 +18,21 @@ from bb8 import logger
 from bb8.backend.query_filters import FILTERS
 from bb8.backend.database import g, ColletedDatum, User, PlatformTypeEnum
 from bb8.backend.messaging_provider import facebook, line
+from bb8.backend.metadata import InputTransformation
 from bb8.backend.util import image_convert_url
 
 
 variable_re = re.compile("^{{(.*?)}}$")
 has_variable_re = re.compile("{{(.*?)}}")
+
+
+def to_unicode(text):
+    if text is None:
+        return None
+
+    if not isinstance(text, unicode):
+        return unicode(text, 'utf8')
+    return text
 
 
 class Message(object):
@@ -43,14 +53,15 @@ class Message(object):
 
     class Button(object):
         def __init__(self, b_type, title=None, url=None, payload=None,
-                     variables=None):
+                     acceptable_inputs=None, variables=None):
             if b_type not in Message.ButtonType:
                 raise RuntimeError('Invalid Button type')
 
             self.type = b_type
-            self.title = Render(title, variables or {})
+            self.title = Render(to_unicode(title), variables or {})
             self.url = url
             self.payload = None
+            self.acceptable_inputs = acceptable_inputs or []
 
             if payload:
                 if isinstance(payload, str) or isinstance(payload, unicode):
@@ -69,6 +80,12 @@ class Message(object):
                 self.payload == other.payload
             )
 
+        def register_mapping(self, key):
+            if self.type == Message.ButtonType.POSTBACK:
+                self.acceptable_inputs.extend(['^%s$' % key, self.title])
+                InputTransformation.add_mapping(self.acceptable_inputs,
+                                                self.payload)
+
         @classmethod
         def FromDict(cls, data, variables=None):
             variables = variables or {}
@@ -76,7 +93,7 @@ class Message(object):
             b_type = Message.ButtonType(data['type'])
 
             b = cls(b_type)
-            b.title = Render(data['title'], variables)
+            b.title = Render(to_unicode(data['title']), variables)
 
             b.url = data.get('url')
             payload = data.get('payload')
@@ -85,7 +102,7 @@ class Message(object):
                     payload['node_id'] = g.node.id
                     b.payload = json.dumps(payload)
                 else:
-                    b.payload = Render(payload, variables)
+                    b.payload = Render(to_unicode(payload), variables)
 
             return b
 
@@ -128,10 +145,10 @@ class Message(object):
         def __init__(self, title, item_url=None, image_url=None, subtitle=None,
                      buttons=None, variables=None):
             variables = variables or {}
-            self.title = Render(title, variables)
+            self.title = Render(to_unicode(title), variables)
             self.item_url = item_url
             self.image_url = image_url
-            self.subtitle = Render(subtitle, variables)
+            self.subtitle = Render(to_unicode(subtitle), variables)
             self.buttons = buttons or []
 
         def __str__(self):
@@ -147,16 +164,20 @@ class Message(object):
                 all([a == b for a, b in zip(self.buttons, other.buttons)])
             )
 
+        def register_mapping(self, key):
+            for idx, button in enumerate(self.buttons):
+                button.register_mapping(key + r'-' + str(idx + 1))
+
         @classmethod
         def FromDict(cls, data, variables=None):
             variables = variables or {}
             jsonschema.validate(data, cls.schema())
             title = data.get('title')
 
-            b = cls(Render(title, variables))
+            b = cls(Render(to_unicode(title), variables))
             b.item_url = data.get('item_url')
             b.image_url = data.get('image_url')
-            b.subtitle = Render(data.get('subtitle'), variables)
+            b.subtitle = Render(to_unicode(data.get('subtitle')), variables)
             b.buttons = [Message.Button.FromDict(x, variables)
                          for x in data.get('buttons', [])]
             return b
@@ -220,7 +241,7 @@ class Message(object):
                                'time')
 
         self.notification_type = notification_type
-        self.text = Render(text, variables or {})
+        self.text = Render(to_unicode(text), variables or {})
         self.image_url = image_url
         self.buttons_text = None
         self.bubbles = []
@@ -247,7 +268,7 @@ class Message(object):
         jsonschema.validate(data, cls.schema())
 
         m = Message()
-        m.text = Render(data.get('text'), variables)
+        m.text = Render(to_unicode(data.get('text')), variables)
 
         attachment = data.get('attachment')
         if attachment:
@@ -261,7 +282,8 @@ class Message(object):
                     m.buttons = [Message.Button.FromDict(x, variables)
                                  for x in buttons]
                     if variables:
-                        m.buttons_text = Render(m.buttons_text, variables)
+                        m.buttons_text = Render(to_unicode(m.buttons_text),
+                                                variables)
                 elif ttype == 'generic':
                     elements = attachment['payload']['elements']
                     m.bubbles = [Message.Bubble.FromDict(x, variables)
@@ -445,14 +467,14 @@ class Message(object):
 
         self.notification_type = value
 
-    def set_buttons_text(self, text):
-        self.buttons_text = text
+    def set_buttons_text(self, text, variables=None):
+        self.buttons_text = Render(to_unicode(text), variables or {})
 
-    def add_button(self, bubble):
-        if len(self.bubbles) == 3:
+    def add_button(self, button):
+        if len(self.buttons) == 3:
             raise RuntimeError('maxium allowed buttons reached')
 
-        if not isinstance(bubble, Message.Button):
+        if not isinstance(button, Message.Button):
             raise RuntimeError('object is not a Message.Bubble object')
 
         if self.text:
@@ -463,7 +485,8 @@ class Message(object):
             raise RuntimeError('can not specify bubble and button at the '
                                'same time')
 
-        self.buttons.append(bubble)
+        self.buttons.append(button)
+        button.register_mapping(str(len(self.buttons)))
 
     def add_bubble(self, bubble):
         if len(self.bubbles) == 7:
@@ -480,6 +503,7 @@ class Message(object):
                                'same time')
 
         self.bubbles.append(bubble)
+        bubble.register_mapping(str(len(self.bubbles)))
 
 
 def IsVariable(text):
