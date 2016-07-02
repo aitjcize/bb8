@@ -201,6 +201,9 @@ class MessagingUnittest(unittest.TestCase):
         m = Message('{{q.data|first|upper}}')
         self.assertEquals(m.as_dict()['text'], 'VALUE1')
 
+        m = Message("{{q.data|last}}")
+        self.assertEquals(m.as_dict()['text'], 'value2')
+
         m = Message("{{q.data|order_by('-created_at')|first}}")
         self.assertEquals(m.as_dict()['text'], 'value2')
 

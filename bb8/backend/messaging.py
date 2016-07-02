@@ -515,6 +515,10 @@ def parseQuery(expr):
                 result = q.first()
                 result = result.value if result else None
                 break
+            if f == 'last':
+                result = q.order_by(desc('created_at')).first()
+                result = result.value if result else None
+                break
             elif f == 'count':
                 result = q.count()
                 break
