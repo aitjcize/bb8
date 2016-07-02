@@ -575,10 +575,10 @@ def parseQuery(expr):
 def parseVariable(expr, variables):
     """Parse variable expression."""
     parts = expr.split('|')
-    expr = parts[0]
+    keys_expr = parts[0]
     filters = parts[1:]
 
-    keys = expr.split('.')
+    keys = keys_expr.split('.')
     var = variables
     try:
         for key in keys:
