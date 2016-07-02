@@ -125,7 +125,7 @@ class UserInput(object):
             try:
                 payload = json.loads(postback['payload'])
                 message = payload['message']
-                node_id = payload['node_id']
+                node_id = payload.get('node_id', None)
                 u.text = message.get('text')
                 u.parse_facebook_attachments(message.get('attachments'))
                 u.jump_node_id = node_id and int(node_id) or None

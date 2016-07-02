@@ -17,7 +17,9 @@ import sys
 import jsonschema
 
 from bb8 import logger
-from bb8.backend.database import Bot, ContentModule, Node, Platform
+from bb8.backend.messaging import get_messaging_provider
+from bb8.backend.database import (Bot, ContentModule, Node, Platform,
+                                  PlatformTypeEnum)
 
 
 def get_bots_dir():
@@ -87,6 +89,17 @@ def parse_bot(filename, to_bot_id=None):
         bot.flush()
 
         for platform_desc in bot_json['platforms']:
+            ptype = PlatformTypeEnum(platform_desc['type_enum'])
+            provider = get_messaging_provider(ptype)
+            try:
+                jsonschema.validate(platform_desc['config'],
+                                    provider.get_config_schema())
+            except jsonschema.exceptions.ValidationError:
+                logger.error('Platform \'%s\' config validation failed',
+                             platform_desc['type_enum'])
+                raise
+
+            provider.apply_config(platform_desc['config'])
             Platform(bot_id=bot.id, **platform_desc).add()
 
     nodes = bot_desc['nodes']

@@ -32,21 +32,13 @@
         "description",
         "interaction_timeout",
         "name",
-        "nodes",
-        "session_timeout"
+        "session_timeout",
+        "nodes"
       ],
       "type": "object",
       "properties": {
-        "nodes": {
-          "required": [
-            "root",
-            "start"
-          ],
-          "type": "object",
-          "properties": {
-            "start": { "$ref": "#/definitions/node" },
-            "root": { "$ref": "#/definitions/node" }
-          }
+        "name": {
+          "type": "string"
         },
         "session_timeout": {
           "type": "integer"
@@ -57,8 +49,16 @@
         "interaction_timeout": {
           "type": "integer"
         },
-        "name": {
-          "type": "string"
+        "nodes": {
+          "required": [
+            "root",
+            "start"
+          ],
+          "type": "object",
+          "properties": {
+            "start": {"$ref": "#/definitions/node"},
+            "root": {"$ref": "#/definitions/node"}
+          }
         }
       }
     }

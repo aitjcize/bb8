@@ -6,14 +6,141 @@
     Copyright 2016 bb8 Authors
 """
 
+import json
 import requests
 
 
-FACEBOOK_MESSAGING_API_URL = 'https://graph.facebook.com/v2.6/me/messages'
 FACEBOOK_PROFILE_API_URL = 'https://graph.facebook.com/v2.6/%s'
+FACEBOOK_MESSAGING_THREAD_SETTING = ('https://graph.facebook.com/v2.6/me/'
+                                     'thread_settings')
+FACEBOOK_MESSAGING_API_URL = 'https://graph.facebook.com/v2.6/me/messages'
+
+
+def get_config_schema():
+    """Return platform config schema."""
+    return {
+        'type': 'object',
+        'required': ['access_token'],
+        'properties': {
+            'access_token': {'type': 'string'},
+            'get_start_button': {'type': 'object'},
+            'greeting_text': {'type': 'string'},
+            'persistent_menu': {
+                'type': 'array',
+                'items': {'$ref': '#/definitions/button'}
+            }
+        },
+        'definitions': {
+            'button': {
+                'oneOf': [{
+                    'required': ['type', 'title', 'url'],
+                    'additionalProperties': False,
+                    'type': 'object',
+                    'properties': {
+                        'type': {'enum': ['web_url']},
+                        'title': {'type': 'string'},
+                        'url': {'type': 'string'}
+                    }
+                }, {
+                    'required': ['type', 'title', 'payload'],
+                    'additionalProperties': False,
+                    'type': 'object',
+                    'properties': {
+                        'type': {'enum': ['postback']},
+                        'title': {'type': 'string'},
+                        'payload': {'type': ['string', 'object']}
+                    }
+                }]
+            }
+        }
+    }
+
+
+def apply_config(config):
+    """Apply config to platform."""
+    greeting = config.get('greeting_text', None)
+    if greeting:
+        set_greeting_text(config['access_token'], greeting)
+
+    payload = config.get('get_start_button', None)
+    if payload:
+        set_get_start_button(config['access_token'], payload)
+
+    menu = config.get('persistent_menu', None)
+    if menu:
+        set_persistent_menu(config['access_token'], menu)
+
+
+def set_greeting_text(access_token, text):
+    """Set greeting text."""
+    response = requests.request(
+        'POST',
+        FACEBOOK_MESSAGING_THREAD_SETTING,
+        params={
+            'access_token': access_token
+        },
+        json={
+            'setting_type': 'greeting',
+            'greeting': text
+        })
+
+    if response.status_code != 200:
+        raise RuntimeError('HTTP %d: %s' % (response.status_code,
+                                            response.text))
+
+
+def set_get_start_button(access_token, payload):
+    """Set getting start button."""
+    if isinstance(payload, dict):
+        payload = json.dumps(payload)
+
+    response = requests.request(
+        'POST',
+        FACEBOOK_MESSAGING_THREAD_SETTING,
+        params={
+            'access_token': access_token
+        },
+        json={
+            'setting_type': 'call_to_actions',
+            'thread_state': 'new_thread',
+            'call_to_actions': [
+                {
+                    'payload': payload
+                }
+            ]
+        })
+
+    if response.status_code != 200:
+        raise RuntimeError('HTTP %d: %s' % (response.status_code,
+                                            response.text))
+
+
+def set_persistent_menu(access_token, menu_items):
+    """Set persistent menu for the bot."""
+    for item in menu_items:
+        if (item['type'] == 'postback' and
+                isinstance(item['payload'], dict)):
+            item['payload'] = json.dumps(item['payload'])
+
+    response = requests.request(
+        'POST',
+        FACEBOOK_MESSAGING_THREAD_SETTING,
+        params={
+            'access_token': access_token
+        },
+        json={
+            'setting_type': 'call_to_actions',
+            'thread_state': 'existing_thread',
+            'call_to_actions': menu_items
+        })
+
+    if response.status_code != 200:
+        raise RuntimeError('HTTP %d: %s' % (response.status_code,
+                                            response.text))
 
 
 def get_user_profile(platform, user_ident):
+    """Get user profile information."""
     response = requests.request(
         'GET',
         FACEBOOK_PROFILE_API_URL % user_ident,
@@ -22,6 +149,9 @@ def get_user_profile(platform, user_ident):
             'fields': 'first_name,last_name,locale,timezone,gender'
         })
 
+    if response.status_code != 200:
+        raise RuntimeError('HTTP %d: %s' % (response.status_code,
+                                            response.text))
     ret = response.json()
 
     # Some account does not have gender for some reason ... assume male
@@ -33,6 +163,7 @@ def get_user_profile(platform, user_ident):
 
 
 def send_message(user, messages):
+    """Send message to the platform."""
     for message in messages:
         response = requests.request(
             'POST',

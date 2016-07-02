@@ -12,7 +12,26 @@ import requests
 LINE_MESSAGING_API_URL = 'https://trialbot-api.line.me/v1/events'
 
 
+def get_config_schema():
+    """Return platform config schema."""
+    return {
+        'type': 'object',
+        'required': ['channel_id', 'channel_secret', 'mid'],
+        'properties': {
+            'channel_id': {'type': 'string'},
+            'channel_secret': {'type': 'string'},
+            'mid': {'type': 'string'}
+        }
+    }
+
+
+def apply_config(unused_config):
+    """Apply config to platform."""
+    pass
+
+
 def get_user_profile(unused_platform, unused_user_ident):
+    """Get user profile information."""
     ret = {
         'first_name': u'',
         'last_name': u'',
@@ -24,6 +43,7 @@ def get_user_profile(unused_platform, unused_user_ident):
 
 
 def send_message(user, messages):
+    """Send message to the platform."""
     platform = user.platform
     headers = {
         'X-Line-ChannelID': platform.config['channel_id'],
