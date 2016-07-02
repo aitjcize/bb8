@@ -87,7 +87,8 @@ class Message(object):
                                                 self.payload)
 
         @classmethod
-        def FromDict(cls, data, variables=None):
+        def FromDict(cls, data, variables=None, set_node_id=True):
+            """Construct Button object given a button dictionary."""
             variables = variables or {}
             jsonschema.validate(data, cls.schema())
             b_type = Message.ButtonType(data['type'])
@@ -99,7 +100,7 @@ class Message(object):
             payload = data.get('payload')
             if payload:
                 if isinstance(payload, dict):
-                    payload['node_id'] = g.node.id
+                    payload['node_id'] = g.node.id if set_node_id else None
                     b.payload = json.dumps(payload)
                 else:
                     b.payload = Render(to_unicode(payload), variables)
@@ -170,6 +171,7 @@ class Message(object):
 
         @classmethod
         def FromDict(cls, data, variables=None):
+            """Construct Bubble object given a bubble dictionary."""
             variables = variables or {}
             jsonschema.validate(data, cls.schema())
             title = data.get('title')
@@ -264,10 +266,11 @@ class Message(object):
 
     @classmethod
     def FromDict(cls, data, variables=None):
+        """Construct Message object given a message dictionary."""
         variables = variables or {}
         jsonschema.validate(data, cls.schema())
 
-        m = Message()
+        m = cls()
         m.text = Render(to_unicode(data.get('text')), variables)
 
         attachment = data.get('attachment')
