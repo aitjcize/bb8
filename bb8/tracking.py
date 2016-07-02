@@ -48,20 +48,28 @@ class TrackingInfo(object):
         return t
 
 
-def track(trackinginfo):
-    """Track a single event and put it in the global context."""
-    if not isinstance(trackinginfo, TrackingInfo):
-        raise RuntimeError('invalid tracking info')
+def get_tracking():
+    """Get tracking object. Create one if not exists."""
     try:
         _ = g.tracking
     except AttributeError:
         g.tracking = []
 
-    g.tracking.append(trackinginfo)
+    return g.tracking
 
 
-def send_ga_track_info(tracking):
+def track(trackinginfo):
+    """Track a single event and put it in the global context."""
+    if not isinstance(trackinginfo, TrackingInfo):
+        raise RuntimeError('invalid tracking info')
+
+    get_tracking().append(trackinginfo)
+
+
+def send_ga_track_info():
     """Send tracking info to GA."""
+    tracking = get_tracking()
+
     # Only track when we are in production mode.
     if not config.DEPLOY:
         return

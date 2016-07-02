@@ -84,12 +84,23 @@ class MessageUnittest(unittest.TestCase):
         jsonschema.validate(m.as_dict(), Message.schema())
         self.assertEquals(m, m.FromDict(m.as_dict()))
 
+        transform_keys = reduce(lambda x, y: x + y,
+                                [x[0] for x in g.input_transformation], [])
+        self.assertTrue('^1$' not in transform_keys)
+        self.assertTrue('^2$' in transform_keys)
+
         # Generic message
+        g.input_transformation = []
         m = Message()
         m.add_bubble(b)
         m.add_bubble(b)
         jsonschema.validate(m.as_dict(), Message.schema())
         self.assertEquals(m, m.FromDict(m.as_dict()))
+
+        transform_keys = reduce(lambda x, y: x + y,
+                                [x[0] for x in g.input_transformation], [])
+        self.assertTrue('^1-2$' in transform_keys)
+        self.assertTrue('^2-2$' in transform_keys)
 
         with self.assertRaises(RuntimeError):
             m = Message('test', 'url')
@@ -200,6 +211,9 @@ class MessagingUnittest(unittest.TestCase):
         g.user = self.user_1
         m = Message('{{q.data|first|upper}}')
         self.assertEquals(m.as_dict()['text'], 'VALUE1')
+
+        m = Message("{{q.data|last}}")
+        self.assertEquals(m.as_dict()['text'], 'value2')
 
         m = Message("{{q.data|order_by('-created_at')|first}}")
         self.assertEquals(m.as_dict()['text'], 'value2')

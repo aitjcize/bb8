@@ -187,17 +187,19 @@ def run(content_config, unused_env, variables):
     if not results:
         m.text = '對不起，我找不到這個地址, 請重新輸入 >_<'
     elif len(results) == 1:
-        m.set_buttons_text('你指的是「%s」嗎？' %
-                           results[0]['address'].encode('utf8'))
+        m.set_buttons_text(u'你指的是「%s」嗎？' %
+                           results[0]['address'])
         m.add_button(
-            Message.Button(Message.ButtonType.POSTBACK, '是',
+            Message.Button(Message.ButtonType.POSTBACK, u'是',
                            payload=LocationPayload(results[0]['location'],
-                                                   in_currrent)))
+                                                   in_currrent),
+                           acceptable_inputs=[u'對', '(?i)y', '(?i)ok']))
         m.add_button(
-            Message.Button(Message.ButtonType.POSTBACK, '否',
-                           payload=TextPayload('WRONG_ADDRESS', in_currrent)))
+            Message.Button(Message.ButtonType.POSTBACK, u'否',
+                           payload=TextPayload('WRONG_ADDRESS', in_currrent),
+                           acceptable_inputs=[u'不', '(?i)n']))
     else:
-        m.set_buttons_text('你指的是以下哪一個地址呢?')
+        m.set_buttons_text(u'你指的是以下哪一個地址呢?')
         for r in results:
             m.add_button(Message.Button(Message.ButtonType.POSTBACK,
                                         r['address'],

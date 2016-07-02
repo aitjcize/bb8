@@ -16,7 +16,7 @@ from bb8.backend.database import Node, Platform, User
 
 from bb8.backend import messaging
 from bb8.backend.engine import Engine
-from bb8.backend.metadata import UserInput
+from bb8.backend.metadata import UserInput, InputTransformation
 from bb8.backend.test_utils import reset_and_setup_bots
 
 
@@ -32,7 +32,7 @@ class EngineUnittest(unittest.TestCase):
         self.dbm.disconnect()
 
     def setup_prerequisite(self, bot_file):
-        self.dbm.reset()
+        InputTransformation.clear()
         self.bot = reset_and_setup_bots([bot_file])[0]
         self.user = User(bot_id=self.bot.id,
                          platform_id=Platform.get_by(id=1, single=True).id,
@@ -163,6 +163,58 @@ class EngineUnittest(unittest.TestCase):
         self.assertEquals(self.user.session.message_sent, True)
 
         self.assertEquals(context['message'][0].as_dict()['text'], 'TEXT')
+
+    def test_input_transformation(self):
+        """Test input transformation.
+
+        If input transformation is set. Test that the user input is correctly
+        transformed then tirgger the actually parser rule.
+        """
+        self.setup_prerequisite('test/input_transformation.bot')
+
+        engine = Engine()
+
+        context = {}
+
+        def send_message_mock(unused_user, messages):
+            context['message'] = messages
+
+        messaging.send_message = send_message_mock
+
+        def get_node_id(name):
+            return Node.get_by(name=unicode(name), single=True).id
+
+        engine.step(self.bot, self.user)  # start display
+        self.assertEquals(self.user.session.node_id, get_node_id('root'))
+
+        # We should now be in root node
+        engine.step(self.bot, self.user)  # root display
+        self.assertEquals(self.user.session.message_sent, True)
+
+        # Button title should work
+        engine.step(self.bot, self.user, UserInput.Text('option 1'))
+        self.assertEquals(self.user.session.node_id, get_node_id('option1'))
+        self.assertEquals(self.user.session.message_sent, True)
+        self.assertEquals(context['message'][0].as_dict()['text'], 'payload1')
+
+        # Back to root
+        engine.step(self.bot, self.user)
+        self.assertEquals(self.user.session.node_id, get_node_id('root'))
+
+        # acceptable_inputs should work
+        engine.step(self.bot, self.user, UserInput.Text('D'))
+        self.assertEquals(self.user.session.node_id, get_node_id('option2'))
+        self.assertEquals(self.user.session.message_sent, True)
+        self.assertEquals(context['message'][0].as_dict()['text'], 'payload2')
+
+        # Back to root
+        engine.step(self.bot, self.user)
+        self.assertEquals(self.user.session.node_id, get_node_id('root'))
+
+        # numbers should work
+        engine.step(self.bot, self.user, UserInput.Text('1'))
+        self.assertEquals(self.user.session.node_id, get_node_id('option1'))
+        self.assertEquals(self.user.session.message_sent, True)
 
 
 if __name__ == '__main__':

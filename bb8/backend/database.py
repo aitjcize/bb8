@@ -492,7 +492,10 @@ class User(DeclarativeBase, ModelMixin, JSONSerializer):
 
     def goto(self, node_id):
         """Goto a node."""
+        sess = self.session
         self.session = SessionRecord(node_id)
+        if sess:
+            self.session.input_transformation = sess.input_transformation
 
 
 class Node(DeclarativeBase, ModelMixin):
