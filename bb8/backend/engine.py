@@ -15,6 +15,7 @@ from bb8.backend import messaging
 from bb8.tracking import track, TrackingInfo
 from bb8.backend.database import (g, ColletedDatum, Linkage, Node,
                                   SupportedPlatform, User)
+from bb8.backend.metadata import InputTransformation
 
 
 class Engine(object):
@@ -89,6 +90,10 @@ class Engine(object):
             # infinite loop.
             jumped = False
 
+            g.user = user
+            if user_input:
+                user_input = user_input.RunInputTransformation()
+
             if user.session is None:
                 user.goto(bot.start_node_id)
 
@@ -115,6 +120,8 @@ class Engine(object):
             node = Node.get_by(id=user.session.node_id,
                                eager=['content_module', 'parser_module'],
                                single=True)
+            g.node = node
+
             if node is None:
                 logger.critical('Invalid node_id %d' % user.session.node_id)
                 user.goto(bot.root_node_id)
@@ -123,10 +130,6 @@ class Engine(object):
 
             track(TrackingInfo.Pageview(user.platform_user_ident,
                                         '/%s' % node.name))
-
-            # Inject global reference
-            g.node = node
-            g.user = user
 
             def populate_env_variables(variables):
                 """Populate environment variables."""
@@ -148,9 +151,14 @@ class Engine(object):
 
                 # TODO(aitjcize): figure out how to deal with cm exceptions
                 cm = node.content_module.get_module()
+
+                # Send message
                 messages = cm.run(node.content_config, env, input_vars)
                 messaging.send_message(user, messages)
                 user.session.message_sent = True
+
+                # Store InputTransformation in session
+                user.session.input_transformation = InputTransformation.get()
 
                 if not node.expect_input:
                     # There are no parser module or no outgoing links. This

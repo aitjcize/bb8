@@ -9,7 +9,9 @@
 """
 
 import json
+import re
 
+from flask import g
 from sqlalchemy.ext.mutable import Mutable
 
 
@@ -17,6 +19,7 @@ class SessionRecord(Mutable):
     def __init__(self, node_id):
         self._node_id = node_id
         self._message_sent = False
+        self._input_transformation = []
 
     def __repr__(self):
         return '<SessionRecord(%d, %s)>' % (self._node_id, self._message_sent)
@@ -34,6 +37,15 @@ class SessionRecord(Mutable):
         self._message_sent = value
         self.changed()
 
+    @property
+    def input_transformation(self):
+        return self._input_transformation
+
+    @input_transformation.setter
+    def input_transformation(self, value):
+        self._input_transformation = value
+        self.changed()
+
     @classmethod
     def coerce(cls, key, value):
         if not isinstance(value, cls):
@@ -44,10 +56,19 @@ class SessionRecord(Mutable):
             return value
 
     def __getstate__(self):
-        return self._node_id, self._message_sent
+        return self._node_id, self._message_sent, self._input_transformation
 
     def __setstate__(self, state):
-        self._node_id, self._message_sent = state
+        try:
+            (self._node_id,
+             self._message_sent,
+             self._input_transformation) = state
+        except ValueError:
+            # Temporarily workaround: We added input_transformation on
+            # 2016/07/02. Need to handle the case where the previous user
+            # session does not have input_transformation
+            self._node_id, self._message_sent = state
+            self._input_transformation = []
 
 
 class UserInput(object):
@@ -76,9 +97,23 @@ class UserInput(object):
         return u
 
     @classmethod
+    def FromPayload(cls, payload):
+        try:
+            payload = json.loads(payload)
+        except Exception:
+            pass
+        message = payload['message']
+
+        u = UserInput()
+        u.text = message.get('text')
+        u.parse_facebook_attachments(message.get('attachments'))
+        return u
+
+    @classmethod
     def FromFacebookMessage(cls, messaging):
         u = UserInput()
         message = messaging.get('message')
+
         if message:
             u.text = message.get('text')
             u.parse_facebook_sticker(message)
@@ -100,6 +135,18 @@ class UserInput(object):
                 return u
 
         return None
+
+    def RunInputTransformation(self):
+        """Perform input transformation if there is one."""
+        try:
+            if self.text and g.user.session.input_transformation:
+                ret = InputTransformation.transform(
+                    self.text, g.user.session.input_transformation)
+                return ret if ret else self
+        except AttributeError:
+            pass
+
+        return self
 
     def parse_facebook_sticker(self, message):
         """Helper function for parsing facebook sticker."""
@@ -136,3 +183,31 @@ class UserInput(object):
 
     def jump(self):
         return self.jump_node_id is not None
+
+
+class InputTransformation(object):
+    @classmethod
+    def get(cls):
+        try:
+            _ = g.input_transformation
+        except AttributeError:
+            g.input_transformation = []
+
+        return g.input_transformation
+
+    @classmethod
+    def clear(cls):
+        g.input_transformation = []
+
+    @classmethod
+    def add_mapping(cls, rules, payload):
+        cls.get().append((rules, payload))
+
+    @classmethod
+    def transform(cls, text, transformations):
+        for rules, payload in transformations:
+            for rule in rules:
+                if re.search(rule, text):
+                    return UserInput.FromPayload(payload)
+
+        return None
