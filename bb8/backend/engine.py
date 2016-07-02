@@ -15,6 +15,7 @@ from bb8.backend import messaging
 from bb8.tracking import track, TrackingInfo
 from bb8.backend.database import (g, ColletedDatum, Linkage, Node,
                                   SupportedPlatform, User)
+from bb8.backend.metadata import InputTransformation
 
 
 class Engine(object):
@@ -89,6 +90,10 @@ class Engine(object):
             # infinite loop.
             jumped = False
 
+            g.user = user
+            if user_input:
+                user_input = user_input.RunInputTransformation()
+
             if user.session is None:
                 user.goto(bot.start_node_id)
 
@@ -115,6 +120,8 @@ class Engine(object):
             node = Node.get_by(id=user.session.node_id,
                                eager=['content_module', 'parser_module'],
                                single=True)
+            g.node = node
+
             if node is None:
                 logger.critical('Invalid node_id %d' % user.session.node_id)
                 user.goto(bot.root_node_id)
@@ -124,18 +131,13 @@ class Engine(object):
             track(TrackingInfo.Pageview(user.platform_user_ident,
                                         '/%s' % node.name))
 
-            # Inject global reference
-            g.node = node
-            g.user = user
-
-            def populate_env_variables(variables):
-                """Populate environment variables."""
-                variables = variables or {}
-                variables['statistic'] = {
+            # Shared global variables
+            global_variables = {
+                'statistic': {
                     'user_count': User.count_by(bot_id=bot.id)
-                }
-                variables['user'] = user.to_json()
-                return variables
+                },
+                'user': user.to_json()
+            }
 
             if not user.session.message_sent:
                 env = {
@@ -143,14 +145,20 @@ class Engine(object):
                         user.platform.type_enum.value)
                 }
                 # Prepare input variables
-                input_vars = populate_env_variables(input_vars)
+                input_vars = input_vars or {}
+                input_vars.update(global_variables)
                 g.variables = input_vars
 
                 # TODO(aitjcize): figure out how to deal with cm exceptions
                 cm = node.content_module.get_module()
+
+                # Send message
                 messages = cm.run(node.content_config, env, input_vars)
                 messaging.send_message(user, messages)
                 user.session.message_sent = True
+
+                # Store InputTransformation in session
+                user.session.input_transformation = InputTransformation.get()
 
                 if not node.expect_input:
                     # There are no parser module or no outgoing links. This
@@ -169,6 +177,7 @@ class Engine(object):
                 if user_input and not jumped:
                     link, variables = self.run_parser_module(
                         bot.root_node, user, user_input, True)
+                    variables.update(global_variables)
 
                     if link:  # There is a global command match
                         self.send_ack_message(user, link, variables)
@@ -190,6 +199,7 @@ class Engine(object):
 
                 link, variables = self.run_parser_module(
                     node, user, user_input, False)
+                variables.update(global_variables)
 
                 if link is None:  # No matching linkage, we have a bug here.
                     return

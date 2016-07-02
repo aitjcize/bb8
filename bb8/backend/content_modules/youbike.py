@@ -276,11 +276,8 @@ def run(content_config, env, variables):
                                 url=m.build_navigation_url(best_gps_coord)))
 
     to_current = content_config['send_payload_to_current_node']
-
-    # Only facebook have postback button for now
-    if env['platform_type'] == SupportedPlatform.Facebook:
-        b.add_button(Message.Button(Message.ButtonType.POSTBACK, u'再次查詢',
-                                    payload=LocationPayload(c, to_current)))
+    b.add_button(Message.Button(Message.ButtonType.POSTBACK, u'再次查詢',
+                                payload=LocationPayload(c, to_current)))
     msg.add_bubble(b)
 
     for s in stations:
@@ -325,5 +322,4 @@ def run(content_config, env, variables):
         elif code in [904] or temp >= 30:
             msgs.append(Message(u'提醒您，現在外面天氣炎熱(攝氏%.1f度)，'
                                 u'記得做好防曬唷' % temp))
-
     return msgs
