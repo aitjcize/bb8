@@ -1,0 +1,121 @@
+{
+  "platforms": [
+    {
+      "type_enum": "Facebook",
+      "provider_ident": "facebook_page_id_postback",
+      "config": {
+        "access_token": "access_token"
+      }
+    }
+  ],
+  "bot": {
+    "name": "postback",
+    "description": "test postback",
+    "interaction_timeout": 120,
+    "session_timeout": 864000,
+    "nodes": {
+      "start": {
+        "name": "start",
+        "description": "start",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": "In start"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.passthrough",
+          "config": {
+            "end_node_id": "[[root]]",
+            "ack_message": "Goto root"
+          }
+        }
+      },
+      "root": {
+        "name": "root",
+        "description": "root",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.core.selection",
+          "config": {
+            "text": "question",
+            "choices": [
+              {
+                "title": "option 1",
+                "payload": "payload1",
+                "acceptable_inputs": ["^A$", "^B$", "^C$"]
+              },
+              {
+                "title": "option 2",
+                "payload": "payload2",
+                "acceptable_inputs": ["^D$", "^E$", "^F$"]
+              }
+            ]
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["payload1"]
+                },
+                "action_ident": "option1",
+                "end_node_id": "[[option1]]",
+                "ack_message": "Goto option1"
+              },
+              {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["payload2"]
+                },
+                "action_ident": "option2",
+                "end_node_id": "[[option2]]",
+                "ack_message": "Goto option2"
+              }
+            ]
+          }
+        }
+      },
+      "option1": {
+        "name": "option1",
+        "description": "option1",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.test.show_response",
+          "config": {
+            "response": "{{text}}"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.passthrough",
+          "config": {
+            "end_node_id": "[[root]]",
+            "ack_message": "Goto root"
+          }
+        }
+      },
+      "option2": {
+        "name": "option2",
+        "description": "option2",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.test.show_response",
+          "config": {
+            "response": "{{text}}"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.passthrough",
+          "config": {
+            "end_node_id": "[[root]]",
+            "ack_message": "Goto root"
+          }
+        }
+      }
+    }
+  }
+}
