@@ -29,6 +29,9 @@ COPY conf/bb8.nginx.conf /etc/nginx/conf.d/bb8.nginx.conf
 RUN mkdir -p ${BB8_ROOT}
 COPY . ${BB8_ROOT}
 
+# CloudSQL
+RUN mkdir -p /cloudsql
+
 VOLUME /var/log
 
 EXPOSE 5000
