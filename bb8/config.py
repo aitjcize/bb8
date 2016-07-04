@@ -66,4 +66,5 @@ class DeployConfig(DevelopmentConfig):
     YOUBIKE_PICKLE = '/var/lib/bb8/third_party/youbike.pickle'
 
     # Server
+    HOSTNAME = 'bot.compose.ai'
     PORT = 5000
