@@ -151,6 +151,7 @@
         "content_module": {
           "id": "ai.compose.third_party.youbike",
           "config": {
+            "api_key": "AIzaSyAJjjE4BnIS-JAlfC1V77QGvb5kCauUVnc",
             "send_payload_to_current_node": false,
             "max_count": 5,
             "location": {
@@ -418,6 +419,7 @@
         "content_module": {
           "id": "ai.compose.third_party.youbike",
           "config": {
+            "api_key": "AIzaSyAJjjE4BnIS-JAlfC1V77QGvb5kCauUVnc",
             "send_payload_to_current_node": false,
             "max_count": 5,
             "location": "{{location}}",
@@ -452,7 +454,7 @@
           "id": "ai.compose.core.geocoding",
           "config": {
             "send_payload_to_current_node": false,
-            "api_key": "AIzaSyBumjctKrdC-SQIITfoJakEffPIz4vR87A",
+            "api_key": "AIzaSyAJjjE4BnIS-JAlfC1V77QGvb5kCauUVnc",
             "query_term": "{{text}}",
             "language": "zh_TW",
             "region": "tw",

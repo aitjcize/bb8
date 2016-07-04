@@ -23,7 +23,7 @@ from bb8.backend.module_api import (Config, Message, LocationPayload, Resolve,
                                     SupportedPlatform)
 
 
-GOOGLE_STATIC_MAP_API_KEY = 'AIzaSyBumjctKrdC-SQIITfoJakEffPIz4vR87A'
+GOOGLE_STATIC_MAP_API_KEY = 'AIzaSyAJjjE4BnIS-JAlfC1V77QGvb5kCauUVnc'
 
 
 def get_module_info():
@@ -40,10 +40,11 @@ def get_module_info():
 def schema():
     return {
         'type': 'object',
-        'required': ['send_payload_to_current_node', 'max_count', 'location',
-                     'distance_threshold', 'display_weather'],
+        'required': ['api_key', 'send_payload_to_current_node', 'max_count',
+                     'location', 'distance_threshold', 'display_weather'],
         'additionalProperties': False,
         'properties': {
+            'api_key': {'type': 'string'},
             'send_payload_to_current_node': {'type': 'boolean'},
             'max_count': {
                 'type': 'integer',
@@ -225,6 +226,7 @@ def run(content_config, env, variables):
     """
     content_config schema:
     {
+       "api_key": "api_key",
        "send_payload_to_current_node": true,
        "location": "location variables",
        "max_count": 3
@@ -252,7 +254,7 @@ def run(content_config, env, variables):
     if not stations:
         return [Message('對不起，這裡附近沒有 Ubike 站喔！')]
 
-    m = GoogleStaticMapAPIRequestBuilder(GOOGLE_STATIC_MAP_API_KEY, size)
+    m = GoogleStaticMapAPIRequestBuilder(content_config['api_key'], size)
     m.add_marker(c, 'purple')
     for s in stations:
         m.add_marker((float(s['lat']), float(s['lng'])))
