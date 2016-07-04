@@ -41,24 +41,6 @@ DeclarativeBase = declarative_base()
 metadata = DeclarativeBase.metadata
 
 
-try:
-    """
-    The pooled connection can not share accross process. We need to create a
-    new engine after fork.
-
-    See: http://docs.sqlalchemy.org/en/latest/core/pooling.html#
-        using-connection-pools-with-multiprocessing
-    """
-    import uwsgi  # pylint: disable=E0401,C0413
-
-    def create_new_connection():
-        DatabaseManager.create_engine()
-
-    uwsgi.post_fork_hook = create_new_connection
-except Exception:
-    pass
-
-
 class G(object):
     """A flask.g wrapper class.
 
@@ -97,18 +79,27 @@ class DatabaseManager(object):
     Database Manager class
     """
     engine = None
+    ScopedSession = None
 
     @classmethod
     def connect(cls, engine=None):
-        """Return a SQLAlchemy engine connection."""
+        """Set g.db to a ScopedSession instance.
+
+        engine is the source of database connections, it provide pooling
+        functions. A scoped_session is a thread-locale object using the
+        Registry pattern, which means every call to the scoped_session instance
+        returns the same session object. However, we store it in g.db to allow
+        easier access in ModelMixin. When the remove() method of a
+        scoped_session is called, the database connection is returned to the
+        engine pool.
+        """
         if engine:
             cls.engine = engine
-            DeclarativeBase.metadata.bind = engine
-        elif not cls.engine:
+        elif cls.engine is None:
             cls.create_engine()
 
-        ScopedSession = scoped_session(sessionmaker(bind=cls.engine))
-        g.db = ScopedSession()
+        cls.ScopedSession = scoped_session(sessionmaker(bind=cls.engine))
+        g.db = cls.ScopedSession()
 
         # pylint: disable=W0612
         @event.listens_for(g.db, 'before_flush')
@@ -118,6 +109,9 @@ class DatabaseManager(object):
 
     @classmethod
     def disconnect(cls, commit=True):
+        if not g.db:
+            return
+
         if commit:
             try:
                 g.db.commit()
@@ -125,6 +119,9 @@ class DatabaseManager(object):
                 g.db.rollback()
         g.db.close()
         g.db = None
+
+        cls.ScopedSession.remove()
+        cls.ScopedSession = None
 
     @classmethod
     def reconnect(cls, commit=True):
@@ -141,7 +138,8 @@ class DatabaseManager(object):
     @classmethod
     def create_engine(cls):
         cls.engine = create_engine(config.DATABASE, echo=False,
-                                   encoding='utf-8', pool_recycle=3600)
+                                   encoding='utf-8', pool_size=8,
+                                   pool_recycle=3600 * 8)
 
     @classmethod
     def create_all_tables(cls):
