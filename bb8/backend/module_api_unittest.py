@@ -9,9 +9,9 @@
 
 import unittest
 
-from bb8 import app
+from flask import g
 
-from bb8.backend.database import g
+from bb8 import app
 from bb8.backend.module_api import (Config, TextPayload, LocationPayload,
                                     Render, IsVariable, Resolve)
 

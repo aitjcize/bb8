@@ -7,10 +7,12 @@
     Copyright 2016 bb8 Authors
 """
 
+from flask import g
+
 from bb8 import config
 
 # pylint: disable=W0611
-from bb8.backend.database import g, PlatformTypeEnum, SupportedPlatform
+from bb8.backend.database import PlatformTypeEnum, SupportedPlatform
 # pylint: disable=W0611
 from bb8.backend.messaging import Message, Render, Resolve, IsVariable
 

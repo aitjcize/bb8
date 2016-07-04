@@ -14,8 +14,10 @@ import unittest
 import jsonschema
 import pytz
 
+from flask import g
+
 from bb8 import app
-from bb8.backend.database import (g, Bot, ColletedDatum, DatabaseManager,
+from bb8.backend.database import (Bot, ColletedDatum, DatabaseManager,
                                   Platform, PlatformTypeEnum, User)
 from bb8.backend.messaging import Message, broadcast_message
 from bb8.backend.messaging_provider import facebook

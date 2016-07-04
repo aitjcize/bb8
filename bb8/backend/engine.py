@@ -9,11 +9,12 @@
 import datetime
 import random
 
-from bb8 import logger
+from flask import g
 
+from bb8 import logger
 from bb8.backend import messaging
 from bb8.tracking import track, TrackingInfo
-from bb8.backend.database import (g, ColletedDatum, Linkage, Node,
+from bb8.backend.database import (ColletedDatum, Linkage, Node,
                                   SupportedPlatform, User)
 from bb8.backend.metadata import InputTransformation
 
