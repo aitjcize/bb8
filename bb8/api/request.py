@@ -20,12 +20,12 @@ def before_request():
     DatabaseManager.connect()
 
 
-@app.after_request
-def after_request(response):
-    """Closes the database again at the end of the request."""
-    DatabaseManager.disconnect()
+@app.teardown_appcontext
+def teardown_appcontext(unused_exc):
+    """Closes the database at the end of the request."""
+    DatabaseManager.disconnect(commit=True)
+
     try:
         send_ga_track_info()
     except Exception as e:
         logger.exception(e)
-    return response
