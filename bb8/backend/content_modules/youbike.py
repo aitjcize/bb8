@@ -314,12 +314,12 @@ def run(content_config, env, variables):
         temp = weather['temp']
 
         if code / 100 == 3 or code in [500, 501, 520]:
-            msgs.append(Message(u'提醒您，現在外面天雨路滑，騎車小心！'
+            msgs.append(Message(u'提醒你，現在外面天雨路滑，騎車小心！'
                                 u'記得帶傘或穿件雨衣唷'))
         elif (code / 100 == 2 or
               code in [502, 503, 504, 511, 521, 522, 531, 901, 902]):
             msgs.append(Message(u'現在外面大雨滂沱，不如叫個 Uber 吧！'))
         elif code in [904] or temp >= 30:
-            msgs.append(Message(u'提醒您，現在外面天氣炎熱(攝氏%.1f度)，'
+            msgs.append(Message(u'提醒你，現在外面天氣炎熱 (攝氏 %.1f 度) ，'
                                 u'記得做好防曬唷' % temp))
     return msgs
