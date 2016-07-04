@@ -12,11 +12,12 @@ import re
 import enum
 import jsonschema
 
+from flask import g
 from sqlalchemy import desc
 
 from bb8 import logger
 from bb8.backend.query_filters import FILTERS
-from bb8.backend.database import g, ColletedDatum, User, PlatformTypeEnum
+from bb8.backend.database import ColletedDatum, User, PlatformTypeEnum
 from bb8.backend.messaging_provider import facebook, line
 from bb8.backend.metadata import InputTransformation
 from bb8.backend.util import image_convert_url

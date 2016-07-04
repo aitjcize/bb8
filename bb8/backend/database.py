@@ -17,7 +17,8 @@ import jwt
 import pytz
 
 from passlib.hash import bcrypt  # pylint: disable=E0611
-from flask import g, Flask  # pylint: disable=C0411,C0413
+from flask import Flask  # pylint: disable=C0411,C0413
+from flask import g as flask_g
 
 from sqlalchemy import create_engine, event
 from sqlalchemy import (Boolean, Column, DateTime, Enum, ForeignKey, Integer,
@@ -56,6 +57,39 @@ try:
     uwsgi.post_fork_hook = create_new_connection
 except Exception:
     pass
+
+
+class G(object):
+    """A flask.g wrapper class.
+
+    This class wraps flask.g and provides setting and getting the db attribute.
+    This allow us to fallback to local defined G context when we are not in
+    flask app context.
+    """
+    def __init__(self):
+        self._db = None
+
+    @property
+    def db(self):
+        try:
+            return flask_g.db
+        except Exception:
+            pass
+
+        if self._db is None:
+            raise RuntimeError('database is not connected')
+        return self._db
+
+    @db.setter
+    def db(self, value):
+        try:
+            flask_g.db = value
+        except Exception:
+            self._db = value
+
+
+# Delegate G
+g = G()
 
 
 class DatabaseManager(object):
