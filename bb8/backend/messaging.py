@@ -434,19 +434,18 @@ class Message(object):
                 'text': msg_text
             })
         elif self.bubbles:
-            for bubble in self.bubbles:
+            for card_i, bubble in enumerate(self.bubbles):
                 msg_text = bubble.title + '\n'
                 if bubble.subtitle:
                     msg_text += bubble.subtitle + '\n'
 
-                msg_text += '\n'
-
                 for i, but in enumerate(bubble.buttons):
                     if but.type == Message.ButtonType.WEB_URL:
-                        msg_text += u'%d. %s <%s>\n' % (i + 1, but.title,
-                                                        but.url)
+                        msg_text += u'%d-%d. %s <%s>\n' % (card_i + 1, i + 1,
+                                                           but.title, but.url)
                     else:
-                        msg_text += u'%d. %s\n' % (i + 1, but.title)
+                        msg_text += u'%d-%d. %s\n' % (card_i + 1, i + 1,
+                                                      but.title)
 
                 msgs.append({
                     'contentType': 1,

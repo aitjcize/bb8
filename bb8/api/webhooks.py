@@ -18,6 +18,20 @@ from bb8.backend.messaging import get_user_profile
 from bb8.backend.metadata import UserInput
 
 
+def add_user(bot, platform, sender):
+    """Add a new user into the system."""
+    profile_info = get_user_profile(platform, sender)
+    user = User(bot_id=bot.id, platform_id=platform.id,
+                platform_user_ident=sender,
+                last_seen=datetime.datetime.now(),
+                **profile_info).add()
+    user.commit()
+
+    track(TrackingInfo.Event(sender, '%s.User' % platform.type_enum.value,
+                             'Add', profile_info['first_name']))
+    return user
+
+
 @app.route(config.FACEBOOK_WEBHOOK_PATH, methods=['GET'])
 def facebook_challenge():
     """Facebook Bot API challenge."""
@@ -53,14 +67,7 @@ def facebook_receive():
                 user = User.get_by(bot_id=bot.id, platform_id=platform.id,
                                    platform_user_ident=sender, single=True)
                 if not user:
-                    profile_info = get_user_profile(platform, sender)
-                    user = User(bot_id=bot.id, platform_id=platform.id,
-                                platform_user_ident=sender,
-                                last_seen=datetime.datetime.now(),
-                                **profile_info).add()
-                    track(TrackingInfo.Event(sender, 'User', 'Add',
-                                             profile_info['first_name']))
-                    user.commit()
+                    user = add_user(bot, platform, sender)
 
                 user_input = UserInput.FromFacebookMessage(messaging)
                 if user_input:
@@ -90,10 +97,7 @@ def line_receive():
             user = User.get_by(bot_id=bot.id, platform_id=platform.id,
                                platform_user_ident=sender, single=True)
             if not user:
-                user = User(bot_id=bot.id, platform_id=platform.id,
-                            platform_user_ident=sender,
-                            last_seen=datetime.datetime.now()).add()
-                user.commit()
+                user = add_user(bot, platform, sender)
 
             user_input = UserInput.FromLineMessage(content)
             if user_input:
