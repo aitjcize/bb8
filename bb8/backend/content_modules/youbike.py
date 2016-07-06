@@ -19,7 +19,8 @@ import urllib
 import enum
 
 from bb8 import config, logger
-from bb8.backend.module_api import (Config, Message, LocationPayload, Resolve,
+from bb8.backend.module_api import (Config, Message, GetUserTime,
+                                    LocationPayload, Resolve,
                                     SupportedPlatform)
 
 
@@ -311,9 +312,12 @@ def run(content_config, env, variables):
     msgs.append(msg)
 
     if content_config['display_weather'] and 'weather' in best:
+        # See http://openweathermap.org/weather-conditions
+        # for weather codes.
         weather = best['weather']
         code = best['weather']['weather_code']
         temp = weather['temp']
+        time = GetUserTime()
 
         if code / 100 == 3 or code in [500, 501, 520]:
             msgs.append(Message(u'提醒你，現在外面天雨路滑，騎車小心！'
@@ -321,7 +325,7 @@ def run(content_config, env, variables):
         elif (code / 100 == 2 or
               code in [502, 503, 504, 511, 521, 522, 531, 901, 902]):
             msgs.append(Message(u'現在外面大雨滂沱，不如叫個 Uber 吧！'))
-        elif code in [904] or temp >= 30:
+        elif temp >= 30 and time.hour >= 10 and time.hour <= 16:
             msgs.append(Message(u'提醒你，現在外面天氣炎熱 (攝氏 %.1f 度) ，'
                                 u'記得做好防曬唷' % temp))
     return msgs
