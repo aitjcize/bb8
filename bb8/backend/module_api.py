@@ -7,10 +7,11 @@
     Copyright 2016 bb8 Authors
 """
 
+from datetime import datetime, timedelta
+
 from flask import g
 
 from bb8 import config
-
 # pylint: disable=W0611
 from bb8.backend.database import PlatformTypeEnum, SupportedPlatform
 # pylint: disable=W0611
@@ -61,3 +62,8 @@ def LocationPayload(coordinate, send_to_current_node=True):
             }]
         }
     }
+
+
+def GetUserTime():
+    """Get current time according to user's timezone."""
+    return datetime.utcnow() + timedelta(hours=g.user.timezone)
