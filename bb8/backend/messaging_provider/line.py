@@ -33,11 +33,11 @@ def apply_config(unused_config):
 def get_user_profile(unused_platform, unused_user_ident):
     """Get user profile information."""
     ret = {
-        'first_name': u'',
+        'first_name': u'你好',
         'last_name': u'',
         'locale': 'zh_TW',
         'timezone': 8,
-        'gender': 'male'
+        'gender': 'Male'
     }
     return ret
 

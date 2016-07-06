@@ -92,7 +92,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["好", "是", "(?i)ok", "(?i)y"]
+                  "params": ["好", "是", "(?i)ok", "(?i)y", "1"]
                 },
                 "action_ident": "goto_real_youbike_demo",
                 "end_node_id": "[[youbike_demo_desc]]",
@@ -101,7 +101,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["不", "(?i)no", ".*"]
+                  "params": ["不", "(?i)no", ".*", "2"]
                 },
                 "action_ident": "goto_root",
                 "end_node_id": "[[root]]",
@@ -118,22 +118,40 @@
         "content_module": {
           "id": "ai.compose.core.generic_message",
           "config": {
-            "messages": [
-              {
-                "text": "請你打開手機版 Messenger ，並使用位置按鍵(按鈕有可能在「...」裡面)。將位置發送給我後，我會替你找出鄰近的 Youbike 站。如果是用電腦版的話，你也可以試著輸入地名。"
-              },
-              {
-                "attachment": {
-                  "type": "image",
-                  "payload": {
-                    "url": "http://i.imgur.com/yz5fNt8.png"
+            "messages": {
+              "Facebook": [
+                {
+                  "text": "請你打開手機版 Messenger ，並使用位置按鍵(按鈕有可能在「...」裡面)。將位置發送給我後，我會替你找出鄰近的 Youbike 站。如果是用電腦版的話，你也可以試著輸入地名。"
+                },
+                {
+                  "attachment": {
+                    "type": "image",
+                    "payload": {
+                      "url": "http://i.imgur.com/yz5fNt8.png"
+                    }
                   }
+                },
+                {
+                  "text": "比如說，下列就是在 台北101 附近的 Ubike 站："
                 }
-              },
-              {
-                "text": "比如說，下列就是在 台北101 附近的 Ubike 站："
-              }
-            ]
+              ],
+              "Line": [
+                {
+                  "text": "請你打開手機版 LINE ，並使用位置按鍵。將位置發送給我後，我會替你找出鄰近的 Youbike 站。如果是用電腦版的話，你也可以試著輸入地名。"
+                },
+                {
+                  "attachment": {
+                    "type": "image",
+                    "payload": {
+                      "url": "http://i.imgur.com/FiLEltL.png"
+                    }
+                  }
+                },
+                {
+                  "text": "比如說，下列就是在 台北101 附近的 Ubike 站："
+                }
+              ]
+            }
           }
         },
         "parser_module": {
@@ -484,7 +502,7 @@
           "config": {
             "text": {
               "Facebook": "你可以繼續送出位置查詢，或按「再次查詢」",
-              "Line": "你可以繼續送出位置查詢"
+              "Line": "你可以繼續送出位置查詢，或輸入「1-2」再次查詢"
             }
           }
         }
