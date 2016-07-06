@@ -49,9 +49,20 @@ class ModuleAPIUnittest(unittest.TestCase):
         self.assertEquals(LocationPayload((1, 1)), ans)
 
     def test_Render(self):
-        variables = {'name': 'bb8', 'age': '100'}
-        text = Render('I am {{name}}. I am {{age}} years old.', variables)
-        self.assertEquals(text, 'I am bb8. I am 100 years old.')
+        # Basic rendering
+        variables = {'target': 'Isaac', 'name': 'bb8', 'age': 100}
+        text = Render('Hi {{target|upper}}, I am {{name}}. '
+                      'I am {{age|inc|str}} years old.', variables)
+        self.assertEquals(text, 'Hi ISAAC, I am bb8. I am 101 years old.')
+
+        # "One-of" var rendering
+        variables = {'target': {'name': 'Isaac'}}
+        text = Render('Hi {{name,target.name|upper}}', variables)
+        self.assertEquals(text, 'Hi ISAAC')
+
+        variables = {'name': 'Isaac'}
+        text = Render('Hi {{name,target.name|upper}}', variables)
+        self.assertEquals(text, 'Hi ISAAC')
 
     def test_IsVariable(self):
         self.assertEquals(IsVariable("xx{{aaa}}"), False)

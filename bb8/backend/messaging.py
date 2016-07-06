@@ -582,17 +582,24 @@ def parseVariable(expr, variables):
     keys_expr = parts[0]
     filters = parts[1:]
 
-    keys = keys_expr.split('.')
-    var = variables
-    try:
-        for key in keys:
-            if '#' in key:
-                parts = key.split('#')
-                var = var[parts[0]][int(parts[1])]
-            else:
-                var = var[key]
-    except Exception as e:
-        logger.exception(e)
+    keys_exprs = keys_expr.split(',')
+
+    for keys_expr in keys_exprs:
+        keys = keys_expr.split('.')
+        var = variables
+        try:
+            for key in keys:
+                if '#' in key:
+                    parts = key.split('#')
+                    var = var[parts[0]][int(parts[1])]
+                else:
+                    var = var[key]
+        except Exception:
+            # One of the keys_expr does not exist in variables, try next one.
+            pass
+        else:
+            break
+    else:
         return expr
 
     # Parse transform filter
