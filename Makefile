@@ -17,7 +17,6 @@ STATE_DIR = $(CURDIR)/states
 all: test lint validate-bots
 
 setup-database:
-	echo $(DB_URI)
 	@if ! docker ps | grep bb8_mysql.$(USER); then \
 	   docker run --name bb8_mysql.$(USER) -p $(PORT):3306 \
 	       -v $(CURDIR)/conf/mysql:/etc/mysql/conf.d \

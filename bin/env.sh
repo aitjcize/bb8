@@ -16,12 +16,12 @@ export PORT=3307
 # Per-User port config for users testing on same machine
 case $USER in
   aitjcize)
-    PORT=3308
-    HTTP_PORT=7000
+    export PORT=3308
+    export HTTP_PORT=7000
     ;;
   kevin)
-    PORT=3309
-    HTTP_PORT=7001
+    export PORT=3309
+    export HTTP_PORT=7001
     ;;
 esac
 
