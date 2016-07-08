@@ -49,7 +49,7 @@ def schema():
                 'auth': {'$ref': '#/definitions/auth'}
             }
         }],
-        "definitions": {
+        'definitions': {
             'max_count': {
                 'type': 'integer',
                 'minimum': 1,

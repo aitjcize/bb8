@@ -23,8 +23,8 @@ from bb8.backend.metadata import InputTransformation
 from bb8.backend.util import image_convert_url
 
 
-variable_re = re.compile("^{{(.*?)}}$")
-has_variable_re = re.compile("{{(.*?)}}")
+VARIABLE_RE = re.compile('^{{(.*?)}}$')
+HAS_VARIABLE_RE = re.compile('{{(.*?)}}')
 
 
 def to_unicode(text):
@@ -58,9 +58,10 @@ class Message(object):
             if b_type not in Message.ButtonType:
                 raise RuntimeError('Invalid Button type')
 
+            variables = variables or {}
             self.type = b_type
-            self.title = Render(to_unicode(title), variables or {})
-            self.url = url
+            self.title = Render(to_unicode(title), variables)
+            self.url = Render(to_unicode(url), variables)
             self.payload = None
             self.acceptable_inputs = acceptable_inputs or []
 
@@ -148,8 +149,8 @@ class Message(object):
                      buttons=None, variables=None):
             variables = variables or {}
             self.title = Render(to_unicode(title), variables)
-            self.item_url = item_url
-            self.image_url = image_url
+            self.item_url = Render(to_unicode(item_url), variables)
+            self.image_url = Render(to_unicode(image_url), variables)
             self.subtitle = Render(to_unicode(subtitle), variables)
             self.buttons = buttons or []
 
@@ -513,7 +514,7 @@ def IsVariable(text):
     """Test if given text is a variable."""
     if not isinstance(text, str) and not isinstance(text, unicode):
         return False
-    return variable_re.search(text) is not None
+    return VARIABLE_RE.search(text) is not None
 
 
 def parseQuery(expr):
@@ -623,7 +624,7 @@ def Render(template, variables):
         if re.match(r'^q(all)?\.', expr):  # Query expression
             return parseQuery(expr)
         return parseVariable(expr, variables)
-    return has_variable_re.sub(replace, template)
+    return HAS_VARIABLE_RE.sub(replace, template)
 
 
 def Resolve(obj, variables):
@@ -631,7 +632,7 @@ def Resolve(obj, variables):
     if not IsVariable(obj) or variables is None:
         return obj
 
-    m = variable_re.match(str(obj))
+    m = VARIABLE_RE.match(str(obj))
     if not m:
         return obj
 

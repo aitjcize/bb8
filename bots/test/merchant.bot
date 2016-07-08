@@ -1,0 +1,133 @@
+{
+  "platforms": [
+    {
+      "type_enum": "Facebook",
+      "config": {
+        "access_token": "EAAP0okfsZCVkBAHrn40QYuPkFp8Kbj1eblS2HOscOrAPzpdIDTqTriltMFJ42zATQTEGgJRw0HLhrL3swwLcVaXR27E5EHx3H8OzX0Vv4ILTFD1zAnxrY8jRilSe68QpIyLnnqUUj9rl016ckJhIH4r3Mivm5EK8tV4scjwZDZD",
+        "get_start_button": {
+          "message": {
+            "text": "Hi"
+          }
+        },
+        "persistent_menu": []
+      },
+      "provider_ident": "1155924351125985"
+    }
+  ],
+  "bot": {
+    "name": "Merchant",
+    "description": "Demo merchant content module",
+    "interaction_timeout": 120,
+    "session_timeout": 864000,
+    "nodes": {
+      "start": {
+        "name": "Greet",
+        "description": "Great user",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": "Let's get started"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.passthrough",
+          "config": {
+            "end_node_id": "[[root]]",
+            "ack_message": ""
+          }
+        }
+      },
+      "root": {
+        "name": "Root",
+        "description": "Root node, show usage",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": "What do you want?"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["pchome (.*)"]
+                },
+                "action_ident": "pchome",
+                "end_node_id": "[[pchome]]",
+                "ack_message": "PChome it is"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["citisocial (.*)"]
+                },
+                "action_ident": "citisocial",
+                "end_node_id": "[[citisocial]]",
+                "ack_message": "Citisocial it is"
+              }
+            ]
+          }
+        }
+      },
+      "pchome": {
+        "name": "pchome",
+        "description": "Pchome",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.listing",
+          "config": {
+            "query_url": "http://ecshweb.pchome.com.tw/search/v3.3/all/results?q=%s&page=1&sort=rnk/dc",
+            "term": "{{matches#0}}",
+            "max_count": 7,
+            "list": "prods",
+            "attributes": {
+              "title": "${{price}}: {{name}}",
+              "image": "http://a.ecimg.tw/{{picB}}",
+              "item_url": "http://24h.pchome.com.tw/{{Id}}",
+              "subtitle": "{{describe}}",
+              "buttons": [
+                {
+                  "type": "web_url",
+                  "title": "商品頁面",
+                  "url": "http://24h.pchome.com.tw/{{Id}}"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "citisocial": {
+        "name": "citisocial",
+        "description": "CitiSocial",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.listing",
+          "config": {
+            "query_url": "https://www.searchanise.com/getresults?api_key=2V1U0v5q0Z&q=%s&sortBy=relevance&sortOrder=desc&startIndex=0&maxResults=8&items=true&pages=true&categories=true&suggestions=true&query_correction=false&suggestionsMaxResults=3&pagesMaxResults=5&categoriesMaxResults=5&facets=true&facetsShowUnavailableOptions=true&output=jsonp",
+            "term": "{{matches#0}}",
+            "max_count": 7,
+            "list": "items",
+            "attributes": {
+              "title": "${{price|float|int}}: {{title}}",
+              "image": "{{image_link}}",
+              "item_url": "{{link}}",
+              "subtitle": "{{description}}",
+              "buttons": [
+                {
+                  "type": "web_url",
+                  "title": "商品頁面",
+                  "url": "{{link}}"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
