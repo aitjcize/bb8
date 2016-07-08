@@ -8,6 +8,8 @@
 
 FILTERS = {
     'str': str,
+    'int': int,
+    'float': float,
     'inc': lambda x: x + 1,
     'lower': lambda x: x.lower(),
     'upper': lambda x: x.upper(),
