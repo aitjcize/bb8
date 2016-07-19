@@ -1,0 +1,12 @@
+{
+  "name": "Youbike",
+  "version": "0.1",
+  "service_port": 9999,
+  "resource": {
+    "cpu": "low",
+    "memory": 256,
+    "states": [
+      ["database", "/var/lib/youbike"]
+    ]
+  }
+}

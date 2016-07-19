@@ -47,6 +47,11 @@ class Config(object):
     YOUBIKE_BOT_GA_ID = 'UA-79887532-2'
     YOUBIKE_PICKLE = '/tmp/bb8/youbike.pickle'
 
+    # Third-Party apps address mapping
+    APPS_ADDR_MAP = {
+        'Youbike': ('localhost', 30000)
+    }
+
 
 class DevelopmentConfig(Config):
     DEBUG = True
@@ -68,3 +73,8 @@ class DeployConfig(DevelopmentConfig):
     # Server
     HOSTNAME = 'bot.compose.ai'
     PORT = 5000
+
+    # Third-Party apps address mapping
+    APPS_ADDR_MAP = {
+        'Youbike': ('172.17.0.1', 30000)
+    }

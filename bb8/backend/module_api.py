@@ -7,6 +7,7 @@
     Copyright 2016 bb8 Authors
 """
 
+import importlib
 from datetime import datetime, timedelta
 
 from flask import g
@@ -67,3 +68,17 @@ def LocationPayload(coordinate, send_to_current_node=True):
 def GetUserTime():
     """Get current time according to user's timezone."""
     return datetime.utcnow() + timedelta(hours=g.user.timezone)
+
+
+def GetgRPCService(name):
+    addr = config.APPS_ADDR_MAP.get(name, None)
+    if addr is None:
+        raise RuntimeError('unknown service `%s\'' % name)
+
+    try:
+        module = importlib.import_module(
+            'bb8.pb_modules.%s_service_pb2' % name.lower())
+    except Exception:
+        raise RuntimeError('no gRPC module available for `%s\'' % name)
+
+    return module, addr
