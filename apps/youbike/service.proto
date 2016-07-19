@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package bb8.apps;
+
+service YoubikeInfo {
+  rpc FindKnn (FindKnnRequest) returns (FindKnnReply) {}
+  rpc GetAverageWaitingTime (GetAverageWaitingTimeRequest) returns
+    (GetAverageWaitingTimeReply) {}
+}
+
+message FindKnnRequest {
+  int32 k = 1;
+  float lat = 2;
+  float long = 3;
+  float threshold = 4;
+}
+
+message FindKnnReply {
+  bytes object = 1;  // Python object storing a list of results
+}
+
+message GetAverageWaitingTimeRequest {
+  string sno = 1;
+  enum Direction {
+    IN = 0;
+    OUT = 1;
+  }
+  Direction direction = 2;
+}
+
+message GetAverageWaitingTimeReply {
+  int32 minutes = 1;
+}

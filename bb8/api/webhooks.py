@@ -80,6 +80,7 @@ def facebook_receive():
 
 @app.route(config.LINE_WEBHOOK_PATH, methods=['POST'])
 def line_receive():
+    """LINE Bot API receive."""
     try:
         engine = Engine()
 

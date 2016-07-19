@@ -17,13 +17,15 @@ import tempfile
 import urllib
 
 import enum
+from grpc.beta import implementations
 
-from bb8 import config, logger
+from bb8 import logger
 from bb8.backend.module_api import (Config, Message, GetUserTime,
-                                    LocationPayload, Resolve,
+                                    GetgRPCService, LocationPayload, Resolve,
                                     SupportedPlatform)
 
 
+GRPC_TIMEOUT = 5
 GOOGLE_STATIC_MAP_API_KEY = 'AIzaSyAJjjE4BnIS-JAlfC1V77QGvb5kCauUVnc'
 
 
@@ -111,21 +113,14 @@ class GoogleStaticMapAPIRequestBuilder(object):
         return 'http://maps.google.com/?daddr=%3.8f,%3.8f' % c
 
 
-class UbikeAPIParser(object):
+class YoubikeAPI(object):
     API_ENDPOINT = 'http://data.taipei/youbike'
     YOUBIKE_PHP = 'http://taipei.youbike.com.tw/cht/f11.php'
-
-    class Direction(enum.Enum):
-        In = 0
-        Out = 1
 
     def __init__(self):
         self._data = None
         self._stations = []
         self._coordinates = {}
-        self._running_sum = {}
-        self._time_slot = 0.5
-        self.has_average_waiting_time = True
 
     def refresh_data(self):
         """Refresh Youbike data.
@@ -135,16 +130,12 @@ class UbikeAPIParser(object):
         """
         # exception if no pickle file or len(stations_history) < 1
         try:
-            self._fetch_data_pickle()
+            self._fetch_data_youbike_php()
         except Exception as e:
             logger.exception(e)
-            try:
-                self._fetch_data_youbike_php()
-            except Exception as e:
-                logger.exception(e)
-                self._fetch_data_taipei_data()
+            self._fetch_data_taipei_data()
 
-            self._parse_data()
+        self._parse_data()
 
     def find_knn(self, k, coordinate, threshold=0):
         """Find *k* nearest coordinate.
@@ -172,20 +163,6 @@ class UbikeAPIParser(object):
 
         return knn
 
-    def _fetch_data_pickle(self):
-        PICKLE_PATH = config.YOUBIKE_PICKLE
-
-        with open(PICKLE_PATH, 'rb') as fh:
-            (stations_history,
-             self._coordinates,
-             self._running_sum,
-             unused_weather_parser) = cPickle.load(fh)
-
-            # how long does the stations_history cover
-            # (used to calculate average)
-            self._time_slot = 30 * len(stations_history) / 60
-            self._stations = stations_history[-1]
-
     def _fetch_data_youbike_php(self):
         data = urllib.urlopen(self.YOUBIKE_PHP).read()
         r = re.search('siteContent=\'(.*?)\'', data, re.S)
@@ -210,17 +187,60 @@ class UbikeAPIParser(object):
         self._coordinates = dict(
             (str(x['sno']), (float(x['lat']), float(x['lng'])))
             for x in self._stations.values())
-        self._running_sum = dict((k, (0, 0)) for k in self._stations)
-        self.has_average_waiting_time = False
 
-    def data(self):
-        return (self._stations,
-                self._coordinates,
-                dict((k, (0, 0)) for k in self._stations))
+
+class YoubikeInfo(object):
+    """Interface for querying Youbike information.
+
+    The default way is to call the gRPC service exposed by the Youbike App.
+    If the service is not available, fallback to YoubikeAPI query.
+    """
+    class Direction(enum.Enum):
+        In = 'IN'
+        Out = 'OUT'
+
+    def __init__(self):
+        self._api = None
+        try:
+            pb2_module, addr = GetgRPCService('Youbike')
+            channel = implementations.insecure_channel(*addr)
+            self._stub = pb2_module.beta_create_YoubikeInfo_stub(channel)
+            self._pb2_module = pb2_module
+        except Exception as e:
+            logger.exception(e)
+            self._stub = None
+
+    def _youbike_api(self):
+        if not self._api:
+            self._api = YoubikeAPI()
+            self._api.refresh_data()
+        return self._api
+
+    def find_knn(self, k, coordinate, threshold=0):
+        try:
+            response = self._stub.FindKnn(
+                self._pb2_module.FindKnnRequest(
+                    k=k, lat=coordinate[0], long=coordinate[1],
+                    threshold=threshold),
+                GRPC_TIMEOUT)
+            return cPickle.loads(response.object)
+        except Exception as e:
+            logger.exception(e)
+
+        return self._youbike_api().find_knn(k, coordinate, threshold)
 
     def average_waiting_time(self, sno, direction):
-        return (self._time_slot /
-                max(self._running_sum[sno][direction.value], 1))
+        try:
+            response = self._stub.GetAverageWaitingTime(
+                self._pb2_module.GetAverageWaitingTimeRequest(
+                    sno=sno, direction=direction.value),
+                GRPC_TIMEOUT)
+            return response.minutes
+        except Exception as e:
+            logger.exception(e)
+
+        # Just return 10 minutes when we have no data.
+        return 10
 
 
 def run(content_config, env, variables):
@@ -241,8 +261,7 @@ def run(content_config, env, variables):
         return [Message('不正確的輸入，請重新輸入')]
 
     c = (location['coordinates']['lat'], location['coordinates']['long'])
-    youbike = UbikeAPIParser()
-    youbike.refresh_data()
+    youbike = YoubikeInfo()
 
     k = content_config.get('max_count', 5)
     size = (500, 260)
@@ -293,15 +312,14 @@ def run(content_config, env, variables):
         sbi, bemp = int(s['sbi']), int(s['bemp'])
         subtitle = u'剩餘數量: %d\n空位數量: %d\n' % (sbi, bemp)
 
-        if youbike.has_average_waiting_time:
-            if sbi < 5:
-                subtitle += (u'預計進車時間: %d 分鐘\n' %
-                             youbike.average_waiting_time(
-                                 str(s['sno']), youbike.Direction.In))
-            if bemp < 5:
-                subtitle += (u'預計出位時間：%d 分鐘\n' %
-                             youbike.average_waiting_time(
-                                 str(s['sno']), youbike.Direction.Out))
+        if sbi < 5:
+            subtitle += (u'預計進車時間: %d 分鐘\n' %
+                         youbike.average_waiting_time(
+                             str(s['sno']), youbike.Direction.In))
+        if bemp < 5:
+            subtitle += (u'預計出位時間：%d 分鐘\n' %
+                         youbike.average_waiting_time(
+                             str(s['sno']), youbike.Direction.Out))
 
         b = Message.Bubble(s['ar'], image_url=m.build_url(), subtitle=subtitle)
         b.add_button(Message.Button(Message.ButtonType.WEB_URL,

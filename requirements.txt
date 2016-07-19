@@ -10,7 +10,10 @@ Flask==0.11.1
 Flask-Script==2.0.5
 Flask-WTF==0.12
 functools32==3.2.3.post2
+futures==3.0.5
 git+https://github.com/zzzeek/sqlalchemy.git@cfb59ecc9bbd2f5040dd5bb8c82491851b186681
+grpcio==0.15.0
+grpcio-tools==0.15.1
 imgurpython==1.1.7
 ipython==4.2.0
 ipython-genutils==0.1.0
@@ -26,6 +29,7 @@ pep8==1.7.0
 pexpect==4.1.0
 pickleshare==0.7.2
 Pillow==3.2.0
+protobuf==3.0.0b4
 ptyprocess==0.5.1
 py-bcrypt==0.4
 PyJWT==1.4.0

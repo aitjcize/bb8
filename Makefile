@@ -1,6 +1,6 @@
 # Copyright 2016 bb8 Authors
 
-LINT_FILES = $(shell find bb8 third_party -name '*.py' -type f | sort)
+LINT_FILES = $(shell find bb8 apps -name '*.py' -type f | sort)
 UNITTESTS = $(shell find bb8 -name '*_unittest.py' | sort)
 
 LINT_OPTIONS = --rcfile=bin/pylintrc \
@@ -61,16 +61,9 @@ validate-bots:
 cloud-sql:
 	sudo $(CURDIR)/bin/cloud_sql_proxy -dir=$(CLOUD_SQL_DIR) &
 
+cleanup-docker:
+	@docker rm -v $(docker ps -a -q -f status=exited) 2>/dev/null || true
+	@docker rmi $(docker images -f "dangling=true" -q) 2>/dev/null || true
+
 deploy:
-	@mkdir -p $(STATE_DIR)/log $(STATE_DIR)/bb8/third_party
-	@sudo umount $(STATE_DIR)/log || true
-	docker build -t bb8 .
-	docker rm -f bb8 >/dev/null 2>&1 || true
-	docker run --name bb8 -p 5000:5000 \
-	    -v $(CLOUD_SQL_DIR):$(CLOUD_SQL_DIR) \
-	    -v $(STATE_DIR)/bb8:/var/lib/bb8 \
-	    -d bb8
-	@sudo mount --bind \
-		`docker inspect \
-		 -f '{{ index (index .Mounts 2) "Source" }}' bb8` \
-		$(STATE_DIR)/log || true
+	@deploy
