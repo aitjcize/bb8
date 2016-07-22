@@ -59,7 +59,7 @@ def parse_bot(filename, to_bot_id=None):
     try:
         jsonschema.validate(bot_json, schema)
     except jsonschema.exceptions.ValidationError:
-        logger.exception('Validation failed for %s!', filename)
+        logger.exception('Validation failed for `%s\'!', filename)
         sys.exit(1)
 
     bot_desc = bot_json['bot']
@@ -95,7 +95,7 @@ def parse_bot(filename, to_bot_id=None):
                 jsonschema.validate(platform_desc['config'],
                                     provider.get_config_schema())
             except jsonschema.exceptions.ValidationError:
-                logger.error('Platform \'%s\' config validation failed',
+                logger.error('Platform `%s\' config validation failed',
                              platform_desc['type_enum'])
                 raise
 
@@ -113,7 +113,7 @@ def parse_bot(filename, to_bot_id=None):
             jsonschema.validate(node['content_module']['config'],
                                 cm.get_module().schema())
         except jsonschema.exceptions.ValidationError:
-            logger.error('Node \'%s\' content module config validation '
+            logger.error('Node `%s\' content module config validation '
                          'failed', node['name'])
             raise
 
@@ -154,7 +154,7 @@ def parse_bot(filename, to_bot_id=None):
             try:
                 jsonschema.validate(n.parser_config, pm.schema())
             except jsonschema.exceptions.ValidationError:
-                logger.error('Node \'%s\' parser module config validation '
+                logger.error('Node `%s\' parser module config validation '
                              'failed', node['name'])
                 raise
 

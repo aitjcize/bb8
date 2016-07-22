@@ -10,7 +10,7 @@ COPY requirements.txt /tmp/requirements.txt
 RUN pip2 install --upgrade pip setuptools
 RUN pip2 install -r /tmp/requirements.txt
 
-# Gather all logs
+# Create required dir
 RUN mkdir -p /opt/app /var/lib/youbike
 
 # Install app script
