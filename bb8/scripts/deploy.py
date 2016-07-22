@@ -174,11 +174,14 @@ class App(object):
 
         if 'volumes' in self._info['resource']:
             for target, path in self._info['resource']['volumes']:
-                # Prevent mapping path outside of app dir
-                if target.startswith('/') or target.startswith('.'):
+                # Prevent mapping path outside of app dir except for the
+                # BB8 system app.
+                if (self._app_name != 'System' and
+                        (target.startswith('/') or target.startswith('.'))):
                     print('%s: invalid volume `%s\' detected, abort.' %
                           (self._app_name, target))
                     return
+
                 volumes.append('-v %s:%s' %
                                (os.path.join(self._app_dir, target), path))
 

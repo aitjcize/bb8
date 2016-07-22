@@ -15,7 +15,7 @@ RUN pip2 install --upgrade pip setuptools
 RUN pip2 install -r /tmp/requirements.txt
 
 # Create log dirs
-RUN mkdir -p /var/log/supervisor /var/log/bb8
+RUN mkdir -p /var/log/supervisor /var/log/bb8 /var/lib/bb8
 
 # BB8 specific dependencies
 ENV BB8_ROOT /srv/http/bb8

@@ -49,7 +49,8 @@ class Config(object):
 
     # Third-Party apps address mapping
     APPS_ADDR_MAP = {
-        'Youbike': ('localhost', 30000)
+        'System':   ('localhost', 30000),
+        'Youbike':  ('localhost', 30001)
     }
 
 
@@ -76,5 +77,6 @@ class DeployConfig(DevelopmentConfig):
 
     # Third-Party apps address mapping
     APPS_ADDR_MAP = {
-        'Youbike': ('172.17.0.1', 30000)
+        'System':   ('172.17.0.1', 30000),
+        'Youbike':  ('172.17.0.1', 30001)
     }
