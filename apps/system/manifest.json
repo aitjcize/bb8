@@ -1,0 +1,13 @@
+{
+  "name": "System",
+  "description": "BB8 system daemons",
+  "version": "0.1",
+  "service_port": 9999,
+  "resource": {
+    "cpu": "medium",
+    "memory": 512,
+    "volumes": [
+      ["/var/lib/bb8/apps", "/var/lib/bb8/apps"]
+    ]
+  }
+}
