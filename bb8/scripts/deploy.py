@@ -18,6 +18,8 @@ import re
 import subprocess
 import sys
 
+import jsonschema
+
 from bb8 import config
 
 
@@ -25,6 +27,12 @@ BB8_SRC_ROOT = os.path.normpath(os.path.join(
     os.path.abspath(os.path.dirname(os.path.realpath(__file__))),
     '..', '..'))
 BB8_DATA_ROOT = '/var/lib/bb8'
+
+
+def get_manifest_schema():
+    """Return the schema of app manifest."""
+    with open(os.path.join(BB8_SRC_ROOT, 'apps', 'schema.app.json')) as f:
+        return json.load(f)
 
 
 def run(command, allow_error=False):
@@ -67,11 +75,18 @@ class App(object):
     """App class representing an BB8 third-party app."""
 
     BB8_APP_PREFIX = 'bb8.app'
+    SCHEMA = get_manifest_schema()
 
     def __init__(self, app_dir):
         self._app_dir = app_dir
         with open(os.path.join(app_dir, 'manifest.json'), 'r') as f:
             self._info = json.load(f)
+
+        try:
+            jsonschema.validate(self._info, self.SCHEMA)
+        except jsonschema.exceptions.ValidationError:
+            raise RuntimeError('Validation failed for app `%s\'' %
+                               os.path.basename(app_dir))
 
         self._app_name = self._info['name']
         self._image_name = '%s.%s' % (self.BB8_APP_PREFIX,
@@ -197,12 +212,18 @@ class BB8(object):
     CLOUD_SQL_DIR = '/cloudsql'
 
     def __init__(self):
-        pass
+        self._app_dirs = self.get_app_dirs()
+
+    @classmethod
+    def get_app_dirs(cls):
+        apps_dir = os.path.join(BB8_SRC_ROOT, 'apps')
+        return [os.path.join(apps_dir, app_dir)
+                for app_dir in os.listdir(apps_dir)
+                if os.path.isdir(os.path.join(apps_dir, app_dir))]
 
     def run(self, force=False):
-        apps_dir = os.path.join(BB8_SRC_ROOT, 'apps')
-        for app_dir in os.listdir(apps_dir):
-            app = App(os.path.join(apps_dir, app_dir))
+        for app_dir in self._app_dirs:
+            app = App(app_dir)
             app.run(force)
 
         self.start_container(force)
@@ -217,9 +238,8 @@ class BB8(object):
         if instance:
             run('docker rm -f %s' % instance, True)
 
-        apps_dir = os.path.join(BB8_SRC_ROOT, 'apps')
-        for app_dir in os.listdir(apps_dir):
-            app = App(os.path.join(apps_dir, app_dir))
+        for app_dir in self._app_dirs:
+            app = App(app_dir)
             app.stop()
 
     def start_container(self, force=False):
