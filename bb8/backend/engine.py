@@ -105,6 +105,7 @@ class Engine(object):
                 user.goto(bot.start_node_id)
 
             if user_input and user_input.jump():
+                jumped = True
                 node = Node.get_by(id=user_input.jump_node_id, bot_id=bot.id,
                                    single=True)
                 # Check if the node belongs to current bot
@@ -114,7 +115,6 @@ class Engine(object):
                 # If payload button is pressed, we need to jump to the
                 # corresponding node if payload's node_id != current_node_id
                 elif user_input.jump_node_id != user.session.node_id:
-                    jumped = True
                     user.goto(user_input.jump_node_id)
                     user.session.message_sent = True
 
@@ -173,7 +173,7 @@ class Engine(object):
                     # module
                     return self.step(bot, user)
             else:
-                # Don't check for global command if we are jumping to a ndoe
+                # Don't check for global command if we are jumping to a node
                 # due to postback being pressed.
                 if user_input and not jumped:
                     link, variables = self.run_parser_module(
@@ -187,7 +187,7 @@ class Engine(object):
                 else:
                     # We are already at root node and there is no user input.
                     # Display root node again.
-                    if node.id == bot.root_node_id:
+                    if not user_input and node.id == bot.root_node_id:
                         user.session.message_sent = False
                         return self.step(bot, user, user_input)
 

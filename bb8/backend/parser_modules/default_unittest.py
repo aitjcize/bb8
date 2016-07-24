@@ -16,7 +16,7 @@ from bb8.backend.parser_modules import default
 
 
 class DefaultUnittest(unittest.TestCase):
-    def test_text_only(self):
+    def test_rules(self):
         config = {
             'links': [{
                 'rule': {
@@ -42,6 +42,14 @@ class DefaultUnittest(unittest.TestCase):
                 'action_ident': 'action3',
                 'end_node_id': 2,
                 'ack_message': 'action3 activated'
+            }, {
+                'rule': {
+                    'type': 'event',
+                    'params': ['TEST_EVENT']
+                },
+                'action_ident': 'event',
+                'end_node_id': 3,
+                'ack_message': 'event activated'
             }]
         }
         jsonschema.validate(config, default.schema())
@@ -67,6 +75,10 @@ class DefaultUnittest(unittest.TestCase):
         action, unused_var, unused_data = default.run(
             config, UserInput.Location((25, 121)), False)
         self.assertEquals(action, 'action3')
+
+        action, unused_var, unused_data = default.run(
+            config, UserInput.Event('TEST_EVENT', 'event value'), False)
+        self.assertEquals(action, 'event')
 
 
 if __name__ == '__main__':

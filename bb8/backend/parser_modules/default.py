@@ -59,12 +59,19 @@ def schema():
                                 },
                             }, {
                                 'properties': {
+                                    'type': {'enum': ['event']},
+                                    'params': {
+                                        'type': 'array',
+                                        'items': {'type': 'string'}
+                                    }
+                                }
+                            }, {
+                                'properties': {
                                     'type': {'enum': ['sticker']},
                                     'params': {
                                         'type': 'array',
                                         'items': {'type': 'string'}
-                                    },
-                                    'collect_as': {'type': 'string'}
+                                    }
                                 }
                             }, {
                                 'properties': {
@@ -155,6 +162,11 @@ def run(parser_config, user_input, as_root):
 
             return (link['action_ident'], {'location': user_input.location},
                     collect)
+        elif r_type == 'event' and user_input.event:
+            for param in link['rule']['params']:
+                if re.search(param, user_input.event.key):
+                    return (link['action_ident'],
+                            {'event': user_input.event}, {})
         elif r_type == 'sticker' and user_input.sticker:
             for param in link['rule']['params']:
                 if re.search(param, user_input.sticker):
