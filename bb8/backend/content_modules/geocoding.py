@@ -14,7 +14,7 @@ import re
 import requests
 
 from bb8.backend.module_api import (LocationPayload, Message, Resolve,
-                                    SupportedPlatform, TextPayload)
+                                    EventPayload, SupportedPlatform)
 
 
 STOP_WORDS = u'(我|在|要|去|的|到)'
@@ -196,7 +196,8 @@ def run(content_config, unused_env, variables):
                            acceptable_inputs=[u'對', '(?i)y', '(?i)ok']))
         m.add_button(
             Message.Button(Message.ButtonType.POSTBACK, u'否',
-                           payload=TextPayload('WRONG_ADDRESS', in_currrent),
+                           payload=EventPayload('WRONG_ADDRESS', None,
+                                                in_currrent),
                            acceptable_inputs=[u'不', '(?i)n']))
     else:
         m.set_buttons_text(u'你指的是以下哪一個地址呢?')

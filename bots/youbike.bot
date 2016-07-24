@@ -414,7 +414,7 @@
               },
               {
                 "rule": {
-                  "type": "regexp",
+                  "type": "event",
                   "params": ["WRONG_ADDRESS"]
                 },
                 "action_ident": "wrong_address",

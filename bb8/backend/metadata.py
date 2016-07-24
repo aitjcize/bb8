@@ -71,12 +71,20 @@ class SessionRecord(Mutable):
             self._input_transformation = []
 
 
+class PostbackEvent(object):
+    """Event class representing a postback event."""
+    def __init__(self, event):
+        self.key = event['key']
+        self.value = event['value']
+
+
 class UserInput(object):
     def __init__(self):
         self.text = None
         self.sticker = None
         self.location = None
         self.jump_node_id = None
+        self.event = None
 
     @classmethod
     def Text(cls, text):
@@ -97,16 +105,31 @@ class UserInput(object):
         return u
 
     @classmethod
+    def Event(cls, key, value):
+        u = UserInput()
+        u.event = PostbackEvent({'key': key, 'value': value})
+        return u
+
+    @classmethod
     def FromPayload(cls, payload):
+        u = UserInput()
         try:
             payload = json.loads(payload)
         except Exception:
-            pass
-        message = payload['message']
+            return u
 
-        u = UserInput()
-        u.text = message.get('text')
-        u.parse_facebook_attachments(message.get('attachments'))
+        message = payload.get('message', None)
+        if message:
+            u.text = message.get('text')
+            u.parse_facebook_attachments(message.get('attachments'))
+
+        event = payload.get('event', None)
+        if event:
+            u.event = PostbackEvent(event)
+
+        node_id = payload.get('node_id', None)
+        if node_id:
+            u.jump_node_id = int(node_id)
         return u
 
     @classmethod
@@ -122,17 +145,7 @@ class UserInput(object):
 
         postback = messaging.get('postback')
         if postback:
-            try:
-                payload = json.loads(postback['payload'])
-                message = payload['message']
-                node_id = payload.get('node_id', None)
-                u.text = message.get('text')
-                u.parse_facebook_attachments(message.get('attachments'))
-                u.jump_node_id = node_id and int(node_id) or None
-            except ValueError:
-                pass
-            else:
-                return u
+            return cls.FromPayload(postback['payload'])
 
         return None
 
