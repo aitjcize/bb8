@@ -13,7 +13,7 @@ import unittest
 
 import jsonschema
 
-from bb8.scripts.deploy import BB8, get_manifest_schema
+from bb8.scripts.control import BB8, get_manifest_schema
 
 
 class DeployUnittest(unittest.TestCase):

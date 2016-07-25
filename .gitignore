@@ -5,3 +5,4 @@ node_modules
 htmlcov
 .coverage
 states
+*_pb2.py

@@ -202,7 +202,7 @@ class YoubikeInfo(object):
     def __init__(self):
         self._api = None
         try:
-            pb2_module, addr = GetgRPCService('Youbike')
+            pb2_module, addr = GetgRPCService('youbike')
             channel = implementations.insecure_channel(*addr)
             self._stub = pb2_module.beta_create_YoubikeInfo_stub(channel)
             self._pb2_module = pb2_module

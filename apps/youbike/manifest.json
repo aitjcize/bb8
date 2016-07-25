@@ -1,5 +1,5 @@
 {
-  "name": "Youbike",
+  "name": "youbike",
   "description": "Youbike data collection daemon",
   "version": "0.1",
   "service_port": 9999,

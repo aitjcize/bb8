@@ -1,5 +1,5 @@
 {
-  "name": "System",
+  "name": "system",
   "description": "BB8 system daemons",
   "version": "0.1",
   "service_port": 9999,
