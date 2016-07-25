@@ -90,9 +90,9 @@ class App(object):
 
         self._app_name = self._info['name']
         self._image_name = '%s.%s' % (self.BB8_APP_PREFIX,
-                                      self._app_name.lower())
+                                      self._app_name)
 
-    def run(self, force=False):
+    def start(self, force=False):
         self.start_container(force)
 
     def get_cpu_shares(self):
@@ -138,7 +138,7 @@ class App(object):
         run('cp %(path)s/service_pb2.py %(dest)s/%(name)s_service_pb2.py' %
             {'path': self._app_dir,
              'dest': os.path.join(BB8_SRC_ROOT, 'bb8', 'pb_modules'),
-             'name': self._app_name.lower()})
+             'name': self._app_name})
         # Remove pb-python dir
         run('sudo rm -rf %s/pb-python' % self._app_dir)
 
@@ -169,14 +169,14 @@ class App(object):
                     print('%s: skip deployment.' % self._app_name)
                     return
 
-        apps_state_dir = os.path.join(BB8_DATA_ROOT, 'apps')
+        app_state_dir = os.path.join(BB8_DATA_ROOT, 'apps', self._app_name)
         volumes = []
 
         if 'volumes' in self._info['resource']:
             for target, path in self._info['resource']['volumes']:
                 # Prevent mapping path outside of app dir except for the
                 # BB8 system app.
-                if (self._app_name != 'System' and
+                if (self._app_name != 'system' and
                         (target.startswith('/') or target.startswith('.'))):
                     print('%s: invalid volume `%s\' detected, abort.' %
                           (self._app_name, target))
@@ -187,9 +187,9 @@ class App(object):
 
         if 'states' in self._info['resource']:
             for name, path in self._info['resource']['states']:
-                app_state_dir = os.path.join(apps_state_dir, name)
-                create_dir_if_not_exists(app_state_dir, sudo=True)
-                volumes.append('-v %s:%s' % (app_state_dir, path))
+                state_dir = os.path.join(app_state_dir, name)
+                create_dir_if_not_exists(state_dir, sudo=True)
+                volumes.append('-v %s:%s' % (state_dir, path))
 
         addr = config.APPS_ADDR_MAP.get(self._app_name, None)
         if not addr:
@@ -208,6 +208,11 @@ class App(object):
             ' '.join(volumes) +
             ' -d %s' % self._image_name)
 
+    def logs(self):
+        instance = docker_get_instance(self._image_name)
+        if instance:
+            run('docker logs %s' % instance)
+
 
 class BB8(object):
     BB8_IMAGE_NAME = 'bb8'
@@ -224,10 +229,10 @@ class BB8(object):
                 for app_dir in os.listdir(apps_dir)
                 if os.path.isdir(os.path.join(apps_dir, app_dir))]
 
-    def run(self, force=False):
+    def start(self, force=False):
         for app_dir in self._app_dirs:
             app = App(app_dir)
-            app.run(force)
+            app.start(force)
 
         self.start_container(force)
 
@@ -285,37 +290,81 @@ class BB8(object):
             '%s' %
             (new_container_name, os.path.join(BB8_DATA_ROOT, 'log')), True)
 
+    def logs(self):
+        instance = docker_get_instance(self.BB8_CONTAINER_NAME)
+        if instance:
+            run('docker logs %s' % instance)
+
+    def status(self):
+        run('docker ps -a --format '
+            '"table {{.Image}}\t{{.Names}}\t{{.Ports}}\t{{.Status}}" | '
+            'egrep "(IMAGE|bb8\\.)"')
+
 
 def main():
-    parser = argparse.ArgumentParser(description='BB8 deploy script')
-    parser.add_argument('-f', '--force', dest='force', action='store_true',
-                        default=False, help='Deploy even if version hash '
-                        'has not changed')
-    parser.add_argument('-a', '--app', dest='app', default=None,
-                        help='Deploy an app')
-    parser.add_argument('--stop', dest='stop', action='store_true',
-                        default=None, help='Stop all containers')
+    root_parser = argparse.ArgumentParser(description='BB8 control script')
+    subparsers = root_parser.add_subparsers(help='sub-command')
 
-    args = parser.parse_args()
+    # start sub-command
+    start_parser = subparsers.add_parser('start', help='start bb8')
+    start_parser.set_defaults(which='start')
+    start_parser.add_argument('-f', '--force', dest='force',
+                              action='store_true', default=False,
+                              help='Deploy even if version hash has not '
+                              'changed')
+    start_parser.add_argument('-a', '--app', dest='app', default=None,
+                              help='operate on specific app')
 
-    if args.app:
+    # stop sub-command
+    stop_parser = subparsers.add_parser('stop', help='stop bb8')
+    stop_parser.set_defaults(which='stop')
+    stop_parser.add_argument('-a', '--app', dest='app', default=None,
+                             help='operate on specific app')
+
+    # logs sub-command
+    logs_parser = subparsers.add_parser('logs', help='show bb8 logs')
+    logs_parser.set_defaults(which='logs')
+    logs_parser.add_argument('-a', '--app', dest='app', default=None,
+                             help='operate on specific app')
+
+    # status sub-command
+    status_parser = subparsers.add_parser('status', help='show bb8 status')
+    status_parser.set_defaults(which='status')
+
+    args = root_parser.parse_args()
+
+    bb8 = BB8()
+    app = None
+    if hasattr(args, 'app') and args.app:
         app_dir = os.path.join(BB8_SRC_ROOT, 'apps', args.app)
         if not os.path.exists(app_dir):
             print('No app named `%s\', abort.' % args.app)
             sys.exit(1)
         app = App(app_dir)
-        if args.stop:
+
+    if args.which == 'start':
+        if app:
+            app.start(args.force)
+        else:
+            bb8.start(args.force)
+    elif args.which == 'stop':
+        if app:
             app.stop()
         else:
-            app.run(args.force)
-        sys.exit(0)
-
-    bb8 = BB8()
-    if args.stop:
-        bb8.stop()
+            bb8.stop()
+    elif args.which == 'logs':
+        if app:
+            app.logs()
+        else:
+            bb8.logs()
+    elif args.which == 'status':
+        bb8.status()
     else:
-        bb8.run(args.force)
+        raise RuntimeError('invalid sub-command')
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except Exception as e:
+        print('error: %s' % e)
