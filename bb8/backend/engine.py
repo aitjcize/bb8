@@ -99,10 +99,11 @@ class Engine(object):
                 user.goto(bot.start_node_id)
 
             # Check has been idle for too long, reset it's state if yes.
-            if ((now - user.last_seen).total_seconds() > bot.session_timeout or
-                    not user.session):
+            if (bot.session_timeout > 0 and
+                    ((now - user.last_seen).total_seconds() >
+                     bot.session_timeout)):
                 user.last_seen = datetime.datetime.now()
-                user.goto(bot.start_node_id)
+                user.goto(bot.root_node_id)
 
             if user_input and user_input.jump():
                 jumped = True
