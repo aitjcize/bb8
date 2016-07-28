@@ -44,7 +44,7 @@
     "name": "Youbike",
     "description": "Provide location-based youbike info",
     "interaction_timeout": 120,
-    "session_timeout": 864000,
+    "session_timeout": 0,
     "nodes": {
       "start": {
         "name": "Greet",

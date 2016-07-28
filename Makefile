@@ -65,5 +65,8 @@ cleanup-docker:
 	@docker rm -v $(docker ps -a -q -f status=exited) 2>/dev/null || true
 	@docker rmi $(docker images -f "dangling=true" -q) 2>/dev/null || true
 
+clean:
+	find bb8 apps -name '*_pb2.py' -exec rm -f {} \;
+
 deploy:
 	@bb8ctl start
