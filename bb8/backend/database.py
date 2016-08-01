@@ -168,8 +168,6 @@ class DatabaseSession(object):
 
 class ModelMixin(object):
     """Provides common field and methods for models."""
-    db_manager = DatabaseManager()
-
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     updated_at = Column(DateTime, nullable=False, default=datetime.utcnow)
 
@@ -178,11 +176,11 @@ class ModelMixin(object):
 
     @classmethod
     def commit(cls):
-        cls.db_manager.commit()
+        DatabaseManager.commit()
 
     @classmethod
     def flush(cls):
-        cls.db_manager.flush()
+        DatabaseManager.flush()
 
     @classmethod
     def query(cls):
