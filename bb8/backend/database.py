@@ -18,7 +18,6 @@ import pytz
 
 from passlib.hash import bcrypt  # pylint: disable=E0611
 from flask import Flask  # pylint: disable=C0411,C0413
-from flask import g as flask_g
 
 from sqlalchemy import create_engine, event
 from sqlalchemy import (Boolean, Column, DateTime, Enum, ForeignKey, Integer,
@@ -41,99 +40,53 @@ DeclarativeBase = declarative_base()
 metadata = DeclarativeBase.metadata
 
 
-class G(object):
-    """A flask.g wrapper class.
-
-    This class wraps flask.g and provides setting and getting the db attribute.
-    This allow us to fallback to local defined G context when we are not in
-    flask app context.
-    """
-    def __init__(self):
-        self._db = None
-
-    @property
-    def db(self):
-        try:
-            return flask_g.db
-        except Exception:
-            pass
-
-        if self._db is None:
-            raise RuntimeError('database is not connected')
-        return self._db
-
-    @db.setter
-    def db(self, value):
-        try:
-            flask_g.db = value
-        except Exception:
-            self._db = value
-
-
-# Delegate G
-g = G()
-
-
 class DatabaseManager(object):
     """
     Database Manager class
     """
     engine = None
-    ScopedSession = None
+    db = None
 
     @classmethod
     def connect(cls, engine=None):
-        """Set g.db to a ScopedSession instance.
+        """Set DatabaseManager.db to a scoped_session instance.
 
         engine is the source of database connections, it provide pooling
-        functions. A scoped_session is a thread-locale object using the
-        Registry pattern, which means every call to the scoped_session instance
-        returns the same session object. However, we store it in g.db to allow
-        easier access in ModelMixin. When the remove() method of a
-        scoped_session is called, the database connection is returned to the
-        engine pool.
+        functions. A scoped_session is a thread-local object using the Registry
+        pattern, which means every call to the scoped_session instance returns
+        the same session object. We store scoped_session instance as
+        DatabaseManager.db for easier access in ModelMixin. When the remove()
+        method of a scoped_session is called, the database connection is
+        returned to the engine pool.
         """
         if engine:
             cls.engine = engine
         elif cls.engine is None:
             cls.create_engine()
 
-        cls.ScopedSession = scoped_session(sessionmaker(bind=cls.engine))
-        g.db = cls.ScopedSession()
+        if not cls.db:
+            cls.db = scoped_session(sessionmaker(bind=cls.engine))
 
         # pylint: disable=W0612
-        @event.listens_for(g.db, 'before_flush')
+        @event.listens_for(cls.db(), 'before_flush')
         def receive_before_flush(session, unused_context, unused_instances):
             for row in session.dirty:
                 row.touch()
 
     @classmethod
     def disconnect(cls, commit=True):
-        if not g.db:
-            return
-
         if commit:
             try:
-                g.db.commit()
+                cls.db().commit()
             except InvalidRequestError:
-                g.db.rollback()
-        g.db.close()
-        g.db = None
-
-        cls.ScopedSession.remove()
-        cls.ScopedSession = None
+                cls.db().rollback()
+        cls.db().close()
+        cls.db.remove()
 
     @classmethod
     def reconnect(cls, commit=True):
         cls.disconnect(commit)
         cls.connect()
-
-    @classmethod
-    def is_connected(cls):
-        try:
-            return g.db is not None
-        except Exception:
-            return False
 
     @classmethod
     def create_engine(cls):
@@ -167,15 +120,15 @@ class DatabaseManager(object):
 
     @classmethod
     def commit(cls):
-        g.db.commit()
+        cls.db().commit()
 
     @classmethod
     def flush(cls):
-        g.db.flush()
+        cls.db().flush()
 
     @classmethod
     def rollback(cls):
-        g.db.rollback()
+        cls.db().rollback()
 
 
 class AppContext(object):
@@ -234,7 +187,7 @@ class ModelMixin(object):
     @classmethod
     def query(cls):
         """Short hand for query."""
-        return g.db.query(cls)
+        return DatabaseManager.db().query(cls)
 
     @classmethod
     def get_all(cls):
@@ -305,7 +258,7 @@ class ModelMixin(object):
 
     def add(self):
         """Register object."""
-        g.db.add(self)
+        DatabaseManager.db().add(self)
         return self
 
     def delete(self):
@@ -317,24 +270,24 @@ class ModelMixin(object):
         """Refresh object and reconnect it with session."""
         #: Detached
         if object_session(self) is None and has_identity(self):
-            g.db.add(self)
-        g.db.refresh(self)
+            DatabaseManager.db().add(self)
+        DatabaseManager.db().refresh(self)
         return self
 
     def rexpunge(self):
         """Refresh then detach from session."""
-        g.db.refresh(self)
-        g.db.expunge(self)
+        DatabaseManager.db().refresh(self)
+        DatabaseManager.db().expunge(self)
         return self
 
     def expunge(self):
         """Detach from session."""
-        g.db.expunge(self)
+        DatabaseManager.db().expunge(self)
         return self
 
     def merge(self):
         """Merge a object with current session"""
-        g.db.merge(self)
+        DatabaseManager.db().merge(self)
         return self
 
 
