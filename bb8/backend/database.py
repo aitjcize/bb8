@@ -237,24 +237,19 @@ class ModelMixin(object):
         return g.db.query(cls)
 
     @classmethod
-    def get_all(cls, cache=None):
+    def get_all(cls):
         """Get all record from a table."""
         query_object = cls.query()
-        if cache:
-            query_object = query_object.options(cache)
         return query_object.all()
 
     @classmethod
     def get_by(cls, eager=None, order_by=None, offset=0, limit=0,
-               single=False, cache=None, lock=False, query=False, **kwargs):
+               single=False, lock=False, query=False, **kwargs):
         """Get item by kwargs."""
         query_object = cls.query()
         if eager:
             joinloads = [joinedload(x) for x in eager]
             query_object = query_object.options(*joinloads)
-
-        if cache and not lock:
-            query_object = query_object.options(cache)
 
         query_object = query_object.filter_by(**kwargs)
 
@@ -270,9 +265,6 @@ class ModelMixin(object):
         if lock:
             query_object = query_object.with_lockmode('update')
 
-            if cache:
-                query_object.options(cache).invalidate()
-
         if query:
             return query_object
 
@@ -285,7 +277,7 @@ class ModelMixin(object):
 
     @classmethod
     def delete_by(cls, **kwargs):
-        """Delete image by kwargs."""
+        """Delete by kwargs."""
         return cls.query().filter_by(**kwargs).delete()
 
     @classmethod
@@ -299,12 +291,12 @@ class ModelMixin(object):
 
     @classmethod
     def count(cls):
-        """Get images count."""
+        """Get count."""
         return cls.query().count()
 
     @classmethod
     def count_by(cls, **kwargs):
-        """Get images count by condition."""
+        """Get count by condition."""
         return cls.query().filter_by(**kwargs).count()
 
     def touch(self):
