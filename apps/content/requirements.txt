@@ -1,0 +1,9 @@
+scrapy==1.1.0
+google-api-python-client==1.5.1
+gcloud==0.17.0
+python-dateutil==2.5.3
+git+https://github.com/zzzeek/sqlalchemy.git@cfb59ecc9bbd2f5040dd5bb8c82491851b186681
+grpcio==0.15.0
+grpcio-tools==0.15.1
+pytz==2016.4
+PyMySQL==0.7.4

@@ -175,6 +175,10 @@ class ModelMixin(object):
         return '<%s(\'%s\')>' % (type(self).__name__, self.id)
 
     @classmethod
+    def columns(cls):
+        return [m.key for m in cls.__table__.columns]
+
+    @classmethod
     def commit(cls):
         DatabaseManager.commit()
 
@@ -344,7 +348,6 @@ class Account(DeclarativeBase, ModelMixin, JSONSerializer):
     bots = relationship('Bot', secondary='account_bot')
 
     feeds = relationship('Feed', lazy='dynamic')
-    entries = relationship('Entry')
     oauth_infos = relationship('OAuthInfo', back_populates="account")
 
     def set_passwd(self, passwd):
@@ -661,15 +664,13 @@ class Entry(DeclarativeBase, ModelMixin):
     __tablename__ = 'entry'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    account_id = Column(ForeignKey('account.id'), nullable=False)
-    title = Column(Unicode(128), nullable=False)
-    link = Column(Unicode(256), nullable=False)
-    description = Column(UnicodeText, nullable=False)
+    title = Column(Unicode(256), nullable=False)
+    link = Column(Unicode(512), nullable=False, unique=True)
     publish_time = Column(DateTime, nullable=False)
-    source_name = Column(Unicode(64), nullable=False)
-    image_url = Column(String(256), nullable=False)
+    source = Column(Unicode(64), nullable=False)
+    original_source = Column(Unicode(64), nullable=False)
+    image_url = Column(Unicode(512), nullable=False)
     author = Column(Unicode(64), nullable=False)
-    content = Column(UnicodeText, nullable=False)
 
     tags = relationship('Tag', secondary='entry_tag')
 

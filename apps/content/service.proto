@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package bb8.apps;
+
+service ContentInfo {
+  rpc PersonalRecommend (RecommendRequest) returns (EntriesList) {}
+  rpc Trending (TrendingRequest) returns (EntriesList) {}
+  rpc Search (SearchRequest) returns (EntriesList) {}
+  rpc GetContent (GetContentRequest) returns (EntryContent) {}
+}
+
+message Entry {
+  int32 id = 1;
+  string title = 2;
+  string description = 3;
+  string link = 4;
+  string source = 5;
+  string image_url = 6;
+}
+
+message EntriesList {
+  repeated Entry entries = 1;
+}
+
+message SearchRequest {
+  string query = 1;
+  int32 count = 2;
+}
+
+message TrendingRequest {
+  int32 count = 1;
+}
+
+message RecommendRequest {
+  int32 user_id = 1;
+  int32 count = 2;
+}
+
+message GetContentRequest {
+  int32 entry_id = 1;
+  int32 char_offset = 2;
+  int32 limit = 3;
+}
+
+message EntryContent {
+  string content = 1;
+  int32 char_offset = 2;
+}
