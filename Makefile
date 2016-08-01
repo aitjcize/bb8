@@ -1,14 +1,15 @@
 # Copyright 2016 bb8 Authors
 
-LINT_FILES = $(shell find bb8 apps -name '*.py' -type f | sort)
+LINT_FILES = $(shell find bb8 apps -name '*.py' -type f | grep -v '*_pb2' | sort)
 UNITTESTS = $(shell find bb8 -name '*_unittest.py' | sort)
 
 LINT_OPTIONS = --rcfile=bin/pylintrc \
 	       --msg-template='{path}:{line}: {msg_id}: {msg}'
 
 PORT ?= 3307
+DOCKER_IP ?= 127.0.0.1
 
-DB_URI = "mysql+pymysql://bb8:bb8test@127.0.0.1:$(PORT)/bb8?charset=utf8mb4"
+DB_URI = "mysql+pymysql://bb8:bb8test@$(DOCKER_IP):$(PORT)/bb8?charset=utf8mb4"
 
 CLOUD_SQL_DIR = "/cloudsql"
 

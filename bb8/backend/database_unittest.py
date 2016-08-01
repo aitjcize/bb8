@@ -25,7 +25,7 @@ from bb8.backend.database import (Account, Bot, ColletedDatum, Conversation,
                                   ContentModule, Event, Linkage, Node,
                                   ParserModule, Platform, PlatformTypeEnum,
                                   SenderEnum, User, FeedEnum, Feed, PublicFeed,
-                                  Entry, Broadcast, Tag, OAuthInfo,
+                                  Broadcast, OAuthInfo, Entry, Tag,
                                   OAuthProviderEnum)
 
 from bb8.backend.test_utils import reset_and_setup_bots
@@ -231,29 +231,28 @@ class SchemaUnittest(unittest.TestCase):
         self.dbm.commit()
         self.assertNotEquals(PublicFeed.get_by(id=pfeed.id, single=True), None)
 
-        tag1 = Tag(name=u'product').add()
-        tag2 = Tag(name=u'article').add()
-
         account = Account(name=u'Test Account - 3', username='test3',
                           email='test3@test.com', passwd='test_hashed').add()
 
         entry = Entry(title=u'mock-title',
                       link=u'mock-link',
-                      description=u'mock-desc',
                       publish_time=datetime.datetime.utcnow(),
-                      source_name=u'mock-source',
-                      author=u'mock-author',
-                      image_url='mock-image',
-                      content=u'mock-content').add()
-
-        account.entries.append(entry)
+                      source=u'mock-source',
+                      original_source=u'mock-original-source',
+                      image_url='mock-image-src',
+                      author=u'mock-author').add()
 
         self.dbm.commit()
+
+        tag1 = Tag(name=u'product').add()
+        tag2 = Tag(name=u'article').add()
+
         entry.tags.append(tag1)
         entry.tags.append(tag2)
 
         entry_ = Entry.get_by(id=entry.id, single=True)
         self.assertNotEquals(entry_, None)
+        self.assertEquals(entry_.image_url, u'mock-image-src')
         self.assertEquals(len(entry_.tags), 2)
         self.assertEquals(entry_.tags[0].name, 'product')
 
