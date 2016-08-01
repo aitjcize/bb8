@@ -201,10 +201,13 @@ class App(object):
         if instance:
             run('docker rm -f %s' % instance, True)
 
+        deploy = BB8.is_deploy()
+
         run('docker run --name %s ' % container_name +
             '--cpu-shares %d ' % self.get_cpu_shares() +
             '-m %s ' % self.get_memory_limit() +
             '-p %d:%d ' % (addr[1], self._info['service_port']) +
+            '-e BB8_DEPLOY=%s' % ('true' if deploy else 'false') +
             ' '.join(volumes) +
             ' -d %s' % self._image_name)
 
@@ -221,6 +224,10 @@ class BB8(object):
 
     def __init__(self):
         self._app_dirs = self.get_app_dirs()
+
+    @classmethod
+    def is_deploy(cls):
+        return os.getenv('BB8_DEPLOY', None) == 'true'
 
     @classmethod
     def get_app_dirs(cls):
