@@ -77,6 +77,7 @@ def parse_bot(filename, to_bot_id=None):
         bot.name = bot_desc['name']
         bot.description = bot_desc['description']
         bot.interaction_timeout = bot_desc['interaction_timeout']
+        bot.admin_interaction_timeout = bot_desc['admin_interaction_timeout']
         bot.session_timeout = bot_desc['session_timeout']
         bot.flush()
     else:  # Create a new bot
@@ -85,6 +86,7 @@ def parse_bot(filename, to_bot_id=None):
             name=bot_desc['name'],
             description=bot_desc['description'],
             interaction_timeout=bot_desc['interaction_timeout'],
+            admin_interaction_timeout=bot_desc['admin_interaction_timeout'],
             session_timeout=bot_desc['session_timeout']).add()
         bot.flush()
 

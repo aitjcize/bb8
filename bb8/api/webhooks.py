@@ -63,15 +63,27 @@ def facebook_receive():
             bot = platform.bot
 
             for messaging in entry['messaging']:
+                msg = messaging.get('message', None)
                 sender = messaging['sender']['id']
-                user = User.get_by(bot_id=bot.id, platform_id=platform.id,
-                                   platform_user_ident=sender, single=True)
-                if not user:
-                    user = add_user(bot, platform, sender)
-
+                recipient = messaging['recipient']['id']
                 user_input = UserInput.FromFacebookMessage(messaging)
-                if user_input:
-                    engine.step(bot, user, user_input)
+
+                if msg and msg.get('is_echo'):
+                    # Ignore message sent by ourself
+                    if msg.get('app_id', None):
+                        continue
+                    user = User.get_by(bot_id=bot.id, platform_id=platform.id,
+                                       platform_user_ident=recipient,
+                                       single=True)
+                    engine.process_admin_reply(bot, user, user_input)
+                else:
+                    user = User.get_by(bot_id=bot.id, platform_id=platform.id,
+                                       platform_user_ident=sender, single=True)
+                    if not user:
+                        user = add_user(bot, platform, sender)
+
+                    if user_input:
+                        engine.step(bot, user, user_input)
     except Exception as e:
         logger.exception(e)
 

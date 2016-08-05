@@ -407,6 +407,7 @@ class Bot(DeclarativeBase, ModelMixin, JSONSerializer):
     name = Column(Unicode(256), nullable=False)
     description = Column(UnicodeText, nullable=False)
     interaction_timeout = Column(Integer, nullable=False, default=120)
+    admin_interaction_timeout = Column(Integer, nullable=False, default=180)
     session_timeout = Column(Integer, nullable=False, default=86400)
     root_node_id = Column(Integer, nullable=True)
     start_node_id = Column(Integer, nullable=True)
@@ -452,6 +453,8 @@ class User(DeclarativeBase, ModelMixin, JSONSerializer):
     platform_id = Column(ForeignKey('platform.id'), nullable=False)
     platform_user_ident = Column(String(128), nullable=False)
     last_seen = Column(DateTime, nullable=False)
+    last_admin_seen = Column(DateTime, nullable=False,
+                             default=datetime(1970, 1, 1))
     login_token = deferred(Column(Text, nullable=True))
 
     first_name = Column(Unicode(32), nullable=True)

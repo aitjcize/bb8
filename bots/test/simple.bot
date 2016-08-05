@@ -12,6 +12,7 @@
     "name": "simple",
     "description": "test simple graph",
     "interaction_timeout": 120,
+    "admin_interaction_timeout": -1,
     "session_timeout": 864000,
     "nodes": {
       "start": {
