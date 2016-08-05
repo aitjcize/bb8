@@ -98,6 +98,13 @@ class Engine(object):
             if user.session is None:
                 user.goto(bot.start_node_id)
 
+            # If there was admin interaction, and admin_interaction_timeout
+            # haven't reached yet, do not run engine.
+            if (bot.admin_interaction_timeout > 0 and
+                    ((now - user.last_admin_seen).total_seconds() <
+                     bot.admin_interaction_timeout)):
+                return
+
             # Check has been idle for too long, reset it's state if yes.
             if (bot.session_timeout > 0 and
                     ((now - user.last_seen).total_seconds() >
@@ -219,4 +226,12 @@ class Engine(object):
                 self.step(bot, user, None, variables)
         finally:
             user.last_seen = datetime.datetime.now()
+            user.commit()
+
+    def process_admin_reply(self, bot, user, unused_user_input=None,
+                            unused_input_vars=None):
+        try:
+            if bot.admin_interaction_timeout > 0:
+                user.last_admin_seen = datetime.datetime.now()
+        finally:
             user.commit()

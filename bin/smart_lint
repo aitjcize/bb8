@@ -11,8 +11,9 @@ GIT_ROOT=$SCRIPT_DIR/..
 git fetch origin
 TARGET_BRANCH=$(git merge-base --fork-point origin/dev HEAD)
 
-SOURCES=$(git diff --name-only $TARGET_BRANCH | awk '{ print $1 }' | \
-          grep '\.py' | grep -v 'misc' | tr '\n' ' ')
+SOURCES=$(git diff --name-status $TARGET_BRANCH | grep -v '^D' | \
+          grep -v 'alembic' | awk '{ print $2 }' | grep '\.py' | \
+          grep -v 'misc' | tr '\n' ' ')
 
 cd $GIT_ROOT
 make lint "LINT_FILES=$SOURCES"

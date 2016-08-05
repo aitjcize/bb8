@@ -31,6 +31,7 @@
       "required": [
         "description",
         "interaction_timeout",
+        "admin_interaction_timeout",
         "name",
         "session_timeout",
         "nodes"
@@ -47,6 +48,9 @@
           "type": "string"
         },
         "interaction_timeout": {
+          "type": "integer"
+        },
+        "admin_interaction_timeout": {
           "type": "integer"
         },
         "nodes": {
