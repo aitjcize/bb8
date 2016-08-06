@@ -307,6 +307,15 @@
               },
               {
                 "rule": {
+                  "type": "regexp",
+                  "params": ["什麼名字"]
+                },
+                "action_ident": "ask_name",
+                "end_node_id": null,
+                "ack_message": "嗨！我是Ubike小幫手，也可以叫我Ubike機器人 :) "
+              },
+              {
+                "rule": {
                   "type": "location",
                   "collect_as": "location"
                 },
