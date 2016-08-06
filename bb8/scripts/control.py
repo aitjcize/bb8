@@ -207,7 +207,7 @@ class App(object):
             '--cpu-shares %d ' % self.get_cpu_shares() +
             '-m %s ' % self.get_memory_limit() +
             '-p %d:%d ' % (addr[1], self._info['service_port']) +
-            '-e BB8_DEPLOY=%s' % ('true' if deploy else 'false') +
+            '-e BB8_DEPLOY=%s ' % ('true' if deploy else 'false') +
             ' '.join(volumes) +
             ' -d %s' % self._image_name)
 
