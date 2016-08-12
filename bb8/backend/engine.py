@@ -14,8 +14,8 @@ from flask import g
 from bb8 import logger
 from bb8.backend import messaging
 from bb8.tracking import track, TrackingInfo
-from bb8.backend.database import (ColletedDatum, Linkage, Node,
-                                  SupportedPlatform, User)
+from bb8.backend.database import (DatabaseManager, ColletedDatum, Linkage,
+                                  Node, SupportedPlatform, User)
 from bb8.backend.metadata import InputTransformation
 
 
@@ -204,7 +204,7 @@ class Engine(object):
                 if node.parser_module is None:
                     user.goto(bot.root_node_id)
                     user.session.message_sent = True
-                    return self.step(bot, user, None, variables)
+                    return self.step(bot, user)
 
                 link, variables = self.run_parser_module(
                     node, user, user_input, False)
@@ -224,7 +224,12 @@ class Engine(object):
 
                 # Run next content module
                 self.step(bot, user, None, variables)
-        finally:
+        except Exception as e:
+            logger.exception(e)
+            # Rollback when error happens, so user won't get stuck in some
+            # weird state.
+            DatabaseManager.rollback()
+        else:
             user.last_seen = datetime.datetime.now()
             user.commit()
 
