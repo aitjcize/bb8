@@ -420,7 +420,7 @@
                 },
                 "action_ident": "got_white_house",
                 "end_node_id": null,
-                "ack_message": "十萬青年十萬肝，GG輪班救台灣！Sieg G 嗡！"
+                "ack_message": "十萬青年十萬肝，GG輪班救台灣！"
               },
               {
                 "rule": {
@@ -434,7 +434,7 @@
               {
                 "action_ident": "$error",
                 "end_node_id": null,
-                "ack_message": "對不起 我看不懂 >.<"
+                "ack_message": ["哈哈", "嗯嗯", ":)", ">.<"]
               }
             ]
           }
