@@ -228,8 +228,6 @@
                   "type": "regexp",
                   "params": ["天大地大"]
                 },
-                "action_ident": "got_tkd",
-                "end_node_id": null,
                 "ack_message": "台科大！"
               },
               {
@@ -237,8 +235,6 @@
                   "type": "regexp",
                   "params": ["十萬青年"]
                 },
-                "action_ident": "got_ten_thousand",
-                "end_node_id": null,
                 "ack_message": "十萬青年十萬肝，GG輪班救台灣！Sieg G 嗡！"
               },
               {
@@ -274,8 +270,6 @@
                   "params": ["^建議 ?(.*)$", "^feedback (.*)$"],
                   "collect_as": "feedback#1"
                 },
-                "action_ident": "feedback",
-                "end_node_id": null,
                 "ack_message": "謝謝你的建議，我們會根據你的建議改善的！"
               },
               {
@@ -283,8 +277,6 @@
                   "type": "regexp",
                   "params": ["XD?", "(?i)lol", "哈", "呵"]
                 },
-                "action_ident": "xd",
-                "end_node_id": null,
                 "ack_message": ["XDDDDD", "呵呵", "哈哈", "呵呵 先洗澡"]
               },
               {
@@ -292,8 +284,6 @@
                   "type": "regexp",
                   "params": ["(?i)(hi|hey|hello|yo|ya)", "嗨", "你好"]
                 },
-                "action_ident": "say_hi",
-                "end_node_id": null,
                 "ack_message": "Hi {{user.first_name}}!"
               },
               {
@@ -310,8 +300,6 @@
                   "type": "regexp",
                   "params": ["什麼名字"]
                 },
-                "action_ident": "ask_name",
-                "end_node_id": null,
                 "ack_message": "嗨！我是Ubike小幫手，也可以叫我Ubike機器人 :) "
               },
               {
@@ -344,10 +332,8 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)ok"]
+                  "params": ["(?i)ok", ":\\)", ":D"]
                 },
-                "action_ident": "got_ok",
-                "end_node_id": null,
                 "ack_message": ":)"
               },
               {
@@ -355,8 +341,6 @@
                   "type": "regexp",
                   "params": ["好聰明"]
                 },
-                "action_ident": "got_smart",
-                "end_node_id": null,
                 "ack_message": "謝謝 你也是喔 :D"
               },
               {
@@ -391,8 +375,6 @@
                   "type": "regexp",
                   "params": ["幾台車"]
                 },
-                "action_ident": "ask_how_many",
-                "end_node_id": null,
                 "ack_message": "搜尋結果卡片的下方有車數及空車的資訊唷！"
               },
               {
@@ -400,8 +382,6 @@
                   "type": "regexp",
                   "params": ["美國白宮"]
                 },
-                "action_ident": "got_white_house",
-                "end_node_id": null,
                 "ack_message": "你是李琳山教授的學生對不對？ :P"
               },
               {
@@ -409,8 +389,6 @@
                   "type": "regexp",
                   "params": ["天大地大"]
                 },
-                "action_ident": "got_white_house",
-                "end_node_id": null,
                 "ack_message": "台科大！"
               },
               {
@@ -418,8 +396,6 @@
                   "type": "regexp",
                   "params": ["十萬青年"]
                 },
-                "action_ident": "got_white_house",
-                "end_node_id": null,
                 "ack_message": "十萬青年十萬肝，GG輪班救台灣！"
               },
               {
@@ -427,8 +403,6 @@
                   "type": "event",
                   "params": ["WRONG_ADDRESS"]
                 },
-                "action_ident": "wrong_address",
-                "end_node_id": null,
                 "ack_message": "請重新輸入地址"
               },
               {

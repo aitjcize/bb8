@@ -26,32 +26,25 @@ class Engine(object):
     def __init__(self):
         pass
 
-    def send_ack_message(self, user, link, variables):
-        """Respond user with *link.ack_message*.
+    def send_message(self, user, message, variables):
+        """Send text message.
 
-        Args:
-            user: the User object.
-            link: Linkage object. link.ack_message could either be a string or
-                a list of string. If it is a list of string, we randomly select
-                one of the string to send.
-            variables: variables for rendering text
+        If *messages* is a list of message, choice a random one from the
+        list then send it.
         """
-        ack_message = link.ack_message
-        if not ack_message:  # ack message could be empty string or []
-            return
+        if isinstance(message, list):
+            message = random.choice(message)
 
-        if isinstance(ack_message, list):
-            ack_message = random.choice(ack_message)
-
-        messaging.send_message(user, messaging.Message(ack_message,
-                                                       variables=variables))
+        messaging.send_message(
+            user, messaging.Message(message, variables=variables))
 
     def insert_data(self, user, data):
         """Insert collected data into database."""
         for key in data:
             ColletedDatum(user_id=user.id, key=key, value=data[key]).add()
 
-    def run_parser_module(self, node, user, user_input, as_root=False):
+    def run_parser_module(self, node, user, user_input, init_variables,
+                          as_root=False):
         """Execute a parser module of a node, then return linkage.
 
         If action_ident is BB8_GLOBAL_NOMATCH_IDENT (should only happen in case
@@ -59,12 +52,19 @@ class Engine(object):
         attempting to find a linkage.
         """
         pm = node.parser_module.get_module()
-        action_ident, variables, data = pm.run(node.parser_config, user_input,
-                                               as_root)
+        action_ident, messages, variables, data = pm.run(
+            node.parser_config, user_input, as_root)
+
+        variables.update(init_variables)
+        matched = action_ident is not None or messages is not None
+
+        # Parser module can optionally send a message directly back to user.
+        if messages:
+            self.send_message(user, messages, variables)
 
         # Global parser nomatch
         if action_ident == self.BB8_GLOBAL_NOMATCH_IDENT:
-            return None, {}
+            return False, None, {}
 
         # Collect data
         self.insert_data(user, data)
@@ -76,10 +76,10 @@ class Engine(object):
 
         linkage = Linkage.get_by(start_node_id=node.id,
                                  action_ident=action_ident, single=True)
-        if linkage is None:
-            logger.critical('No machting linkage found for %s with '
-                            'action = "%s"' % (node, action_ident))
-        return linkage, variables
+        if linkage and linkage.ack_message:
+            self.send_message(user, linkage.ack_message, variables)
+
+        return matched, linkage, variables
 
     def step(self, bot, user, user_input=None, input_vars=None):
         """Main function for executing a node."""
@@ -190,13 +190,16 @@ class Engine(object):
                 # Don't check for global command if we are jumping to a node
                 # due to postback being pressed.
                 if user_input and not jumped:
-                    link, variables = self.run_parser_module(
-                        bot.root_node, user, user_input, True)
-                    variables.update(global_variables)
+                    matched, link, variables = self.run_parser_module(
+                        bot.root_node, user, user_input, global_variables,
+                        True)
 
-                    if link:  # There is a global command match
-                        self.send_ack_message(user, link, variables)
-                        user.goto(link.end_node_id)
+                    if matched:  # There is a global command match
+                        if link:
+                            user.goto(link.end_node_id)
+                        else:
+                            # There is no link, replay current node.
+                            user.session.message_sent = False
                         return self.step(bot, user, user_input, variables)
                 else:
                     # We are already at root node and there is no user input.
@@ -212,24 +215,27 @@ class Engine(object):
                     user.session.message_sent = True
                     return self.step(bot, user)
 
-                link, variables = self.run_parser_module(
-                    node, user, user_input, False)
-                variables.update(global_variables)
+                matched, link, variables = self.run_parser_module(
+                    node, user, user_input, global_variables, False)
 
-                if link is None:  # No matching linkage, we have a bug here.
-                    return
+                # link may be None, either there is a bug or parser module
+                # decide not to move at all.
+                if link:
+                    user.goto(link.end_node_id)
 
-                self.send_ack_message(user, link, variables)
-                user.goto(link.end_node_id)
-
-                # If we are going back the same node, assume there is an error
-                # and we want to retry. Don't send message in this case.
-                if link.end_node_id == node.id and node.id != bot.root_node_id:
-                    user.session.message_sent = True
-                    return
+                    # if we are going back the same node, assume there is an
+                    # error and we want to retry. don't send message in this
+                    # case.
+                    if (link.end_node_id == node.id and
+                            node.id != bot.root_node_id):
+                        user.session.message_sent = True
+                        return
+                else:
+                    # There is no link, replay current node.
+                    user.session.message_sent = False
 
                 # Run next content module
-                self.step(bot, user, None, variables)
+                return self.step(bot, user, None, variables)
         except Exception as e:
             logger.exception(e)
             # Rollback when error happens, so user won't get stuck in some

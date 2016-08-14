@@ -36,12 +36,18 @@ class DefaultUnittest(unittest.TestCase):
                 'ack_message': 'action2 activated'
             }, {
                 'rule': {
+                    'type': 'regexp',
+                    'params': [u'action3'],
+                },
+                'ack_message': 'reply by parser'
+            }, {
+                'rule': {
                     'type': 'location',
                     'params': None
                 },
-                'action_ident': 'action3',
+                'action_ident': 'action4',
                 'end_node_id': 2,
-                'ack_message': 'action3 activated'
+                'ack_message': 'action4 activated'
             }, {
                 'rule': {
                     'type': 'event',
@@ -54,29 +60,38 @@ class DefaultUnittest(unittest.TestCase):
         }
         jsonschema.validate(config, default.schema())
 
-        action, var, unused_data = default.run(
+        action, msg, var, unused_data = default.run(
             config, UserInput.Text('action1-0'), False)
         self.assertEquals(action, 'action1')
+        self.assertEquals(msg, None)
         self.assertEquals(var['text'], 'action1-0')
         self.assertEquals(var['matches'], ('0',))
 
-        action, var, unused_data = default.run(
+        action, msg, var, unused_data = default.run(
             config, UserInput.Text('action2-1'), False)
         self.assertEquals(action, 'action1')
+        self.assertEquals(msg, None)
         self.assertEquals(var['text'], 'action2-1')
         self.assertEquals(var['matches'], ())
 
-        action, var, unused_data = default.run(
+        action, msg, var, unused_data = default.run(
             config, UserInput.Text(u'中文'), False)
         self.assertEquals(action, 'action2')
+        self.assertEquals(msg, None)
         self.assertEquals(var['text'], u'中文')
         self.assertEquals(var['matches'], (u'文',))
 
-        action, unused_var, unused_data = default.run(
-            config, UserInput.Location((25, 121)), False)
-        self.assertEquals(action, 'action3')
+        action, msg, var, unused_data = default.run(
+            config, UserInput.Text(u'action3'), False)
+        self.assertEquals(action, None)
+        self.assertEquals(msg, 'reply by parser')
+        self.assertEquals(var['text'], u'action3')
 
-        action, unused_var, unused_data = default.run(
+        action, msg, unused_var, unused_data = default.run(
+            config, UserInput.Location((25, 121)), False)
+        self.assertEquals(action, 'action4')
+
+        action, msg, unused_var, unused_data = default.run(
             config, UserInput.Event('TEST_EVENT', 'event value'), False)
         self.assertEquals(action, 'event')
 
