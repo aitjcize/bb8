@@ -59,7 +59,7 @@ spider_configs = {
         'extractor': {
             'title': '//title/text()',
             'content': '//div[@class="article-wrapper"]'
-                       '/article/*[self::h2 or self::p]//text()',
+                       '/article//p',
             'description': '',
             'images': '//div[contains(@class, "article-wrapper")'
                       ' or contains(@class, "mainPic")]'

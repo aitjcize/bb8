@@ -28,8 +28,13 @@ def extract_xpath(response, xpath, default_val=''):
 
 
 def extract_content(response, xpath):
-    content = response.xpath(xpath).extract()
-    return '\n'.join([c.strip() for c in content if c.strip()])
+    content = []
+    nodes = response.xpath(xpath)
+    for node in nodes:
+        value = ''.join(node.xpath('.//text()').extract()).strip()
+        if value != '':
+            content.append(value)
+    return '\n'.join(content)
 
 
 def extract_imgs(response, xpath):

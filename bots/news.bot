@@ -1,0 +1,272 @@
+{
+  "platforms": [
+    {
+      "type_enum": "Facebook",
+      "provider_ident": "1764704343742166",
+      "config": {
+        "access_token": "EAAZAi0GnycPEBAHvBru8PVSYakotZBVP09RmJk6CqTXYGpKveuixVKJ95ZChq4U2CbYMXzGmQcK3AUB0RZCmnTRuMb9UBeFJjDGcUAQLkLRlZB6OZBB7ni30zDVm95YLw7xjrpAWUeq8xDAZClyOW7g5ToglIbCRxYZCrIeMABxl1gZDZD",
+        "get_start_button": {"message": {"text": "Hi"}},
+        "persistent_menu": [
+          {
+            "type": "postback",
+            "title": "使用說明",
+            "payload": {"message": {"text": "tutorial"}}
+          },
+          {
+            "type": "postback",
+            "title": "留言",
+            "payload": {"message": {"text": "feedback"}}
+          },
+          {
+            "type": "web_url",
+            "title": "粉絲頁",
+            "url": "https://goo.gl/wja6Rz"
+          },
+          {
+            "type": "web_url",
+            "title": "Compose.ai 官方網站",
+            "url": "http://compose.ai"
+          }
+        ]
+      }
+    },
+    {
+      "type_enum": "Line",
+      "provider_ident": "u5526efbbc9c7ad1b3375c5102c276e68",
+      "config": {
+        "channel_id": "1468633788",
+        "channel_secret": "70a5bfd80b2cf26e387b83aa836fc884",
+        "mid": "u5526efbbc9c7ad1b3375c5102c276e68"
+      }
+    }
+  ],
+  "bot": {
+    "name": "News",
+    "description": "News",
+    "interaction_timeout": 120,
+    "session_timeout": 0,
+    "admin_interaction_timeout": 10,
+    "nodes": {
+      "start": {
+        "name": "Greet",
+        "description": "Greet user",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.core.generic_message",
+          "config": {
+            "messages": [
+              {
+                "text": "嗨 {{user.first_name}}，歡迎使用 news bot，很高興為你服務。你是我服務過的第 {{statistic.user_count}} 位朋友"
+              }
+            ]
+          }
+        }
+      },
+      "get_by_source": {
+        "name": "Get by source",
+        "description": "Get content by source name",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.core.content",
+          "config": {
+            "mode": "get_by_source",
+            "query_term": "{{matches#0}}"
+          }
+        }
+      },
+      "get_by_category": {
+        "name": "Get by category",
+        "description": "Get by category name",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.core.content",
+          "config": {
+            "mode": "get_by_category",
+            "query_term": "{{matches#0}}"
+          }
+        }
+      },
+      "search_news": {
+        "name": "Search",
+        "description": "Search node, search news",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.core.content",
+          "config": {
+            "mode": "search",
+            "query_term": "{{matches#0}}"
+          }
+        }
+      },
+      "trending_news": {
+        "name": "Trending",
+        "description": "Provide some trending news",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.content",
+          "config": {
+            "mode": "trending",
+            "count": 5
+          }
+        }
+      },
+      "get_content": {
+        "name": "Get Content",
+        "description": "Get news detail content",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.content",
+          "config": {
+            "mode": "get_content",
+            "limit": 320,
+            "count": 5
+          }
+        }
+      },
+      "recommend": {
+        "name": "Recommend some news",
+        "description": "Provide some recommended news",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.content",
+          "config": {
+            "mode": "recommend",
+            "count": 5
+          }
+        }
+      },
+      "help": {
+        "name": "help",
+        "description": "",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.generic_message",
+          "config": {
+            "messages": {
+              "Facebook": [
+                {
+                  "text": "你好，我是 Compose.AI 新聞閱讀器，我的目標是用人工智慧提供您快速吸收每日新知的方法。"
+                },
+                {
+                  "text": "你可以輸入你想讀的新聞來源，比如說 Yahoo, 風傳媒，或是輸入搜尋加上你想搜尋的內容，也可以直接說推薦讓我們來幫你決定。"
+                }
+              ],
+              "Line": [
+                {
+                  "text": "你好，我是 Compose.AI 新聞閱讀器，我的目標是用人工智慧提供您快速吸收每日新知的方法。"
+                },
+                {
+                  "text": "你可以輸入你想讀的新聞來源，比如說 Yahoo, 風傳媒，或是輸入搜尋加上你想搜尋的內容，也可以直接說推薦讓我們來幫你決定。"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "root": {
+        "name": "Root",
+        "description": "Root node, show usage",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": "今天想要知道什麼呢？"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)help", "幫助", "說明",
+                    "支持", "(?i)support", "你是誰", "(?i)compose",
+                    "(?i)hi", "(?i)hello", "(?i)yo", "(?i)ya", "(?i)ha"]
+                },
+                "action_ident": "help",
+                "end_node_id": "[[help]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["有趣", "新聞", "新知", "(?i)trending", "(?i)trend", "(?i)interesting"]
+                },
+                "action_ident": "trending_news",
+                "end_node_id": "[[trending_news]]",
+                "ack_message": "以下是我為您找出今天最該閱讀的新聞："
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["搜尋 ?(.*)$", "^找 (.*)$", "search ?(.*)$"]
+                },
+                "action_ident": "search",
+                "end_node_id": "[[search_news]]",
+                "ack_message": "searching..."
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["((?i)yahoo)", "(風傳媒)", "((?i)hacker news)", "((?i)hacker)", "((?i)inside)"]
+                },
+                "action_ident": "news_source",
+                "end_node_id": "[[get_by_source]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["奧運", "段子", "笑話", "社會", "娛樂", "科技", "汽車",
+                    "財經", "搞笑", "軍事", "時尚", "探索", "養生",
+                    "健康", "美文", "歷史", "體育", "國際",
+                    "旅遊", "育兒", "故事", "遊戲", "美食"]
+                },
+                "action_ident": "news_category",
+                "end_node_id": "[[get_by_category]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)recommend"]
+                },
+                "action_ident": "recommend",
+                "end_node_id": "[[recommend]]",
+                "ack_message": "以下是我們認為您最可能喜歡的新聞："
+              },
+              {
+                "rule": {
+                  "type": "event",
+                  "params": ["TRENDING"]
+                },
+                "action_ident": "trending_news",
+                "end_node_id": "[[trending_news]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "event",
+                  "params": ["GET_CONTENT"]
+                },
+                "action_ident": "get_content",
+                "end_node_id": "[[get_content]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(.*)"]
+                },
+                "action_ident": "search",
+                "end_node_id": "[[search_news]]",
+                "ack_message": "im searching"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}
