@@ -6,7 +6,7 @@
     Copyright 2016 bb8 Authors
 """
 
-from bb8 import app, logger
+from bb8 import app, config, logger
 from bb8.backend.database import DatabaseManager
 from bb8.tracking import send_ga_track_info
 
@@ -23,7 +23,7 @@ def before_request():
 @app.teardown_appcontext
 def teardown_appcontext(unused_exc):
     """Closes the database at the end of the request."""
-    DatabaseManager.disconnect(commit=True)
+    DatabaseManager.disconnect(commit=config.COMMIT_ON_APP_TEARDOWN)
 
     try:
         send_ga_track_info()

@@ -45,6 +45,7 @@ class Config(object):
     LINE_WEBHOOK_PATH = BOT_WEBHOOOK_ROOT + "/line"
 
     # Option
+    COMMIT_ON_APP_TEARDOWN = True
     STORE_CONVERSATION = False
 
     # Misc
