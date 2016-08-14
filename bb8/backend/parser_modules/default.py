@@ -36,7 +36,7 @@ def schema():
                 'type': 'array',
                 'items': {
                     'type': 'object',
-                    'required': ['action_ident', 'end_node_id', 'ack_message'],
+                    'required': ['ack_message'],
                     'additionalProperties': False,
                     'properties': {
                         'rule': {
@@ -146,13 +146,20 @@ def run(parser_config, user_input, as_root):
         collect = {}
         r_type = link['rule']['type']
 
+        def ret(link, variables, collect):
+            action_ident = link.get('action_ident', None)
+            if action_ident:
+                return action_ident, None, variables, collect
+            else:
+                return None, link['ack_message'], variables, collect
+
         if r_type == 'regexp' and user_input.text:
             for param in link['rule']['params']:
                 m = re.search(unicode(param), user_input.text)
                 if m:
                     if 'collect_as' in link['rule']:
                         collect = parse_collect(link['rule']['collect_as'], m)
-                    return (link['action_ident'], {
+                    return ret(link, {
                         'text': user_input.text,
                         'matches': m.groups()
                     }, collect)
@@ -160,33 +167,33 @@ def run(parser_config, user_input, as_root):
             if 'collect_as' in link['rule']:
                 collect[link['rule']['collect_as']] = user_input.location
 
-            return (link['action_ident'], {'location': user_input.location},
-                    collect)
+            return ret(link, {'location': user_input.location}, collect)
         elif r_type == 'event' and user_input.event:
             for param in link['rule']['params']:
                 if re.search(param, user_input.event.key):
-                    return (link['action_ident'],
-                            {'event': user_input.event}, {})
+                    return ret(link, {'event': user_input.event}, {})
         elif r_type == 'sticker' and user_input.sticker:
             for param in link['rule']['params']:
                 if re.search(param, user_input.sticker):
-                    return (link['action_ident'],
-                            {'sticker': user_input.sticker}, {})
+                    return ret(link, {'sticker': user_input.sticker}, {})
 
     if as_root:
-        return ('$bb8.global.nomatch', {}, {})
+        return ('$bb8.global.nomatch', None, {}, {})
 
-    return ('$error', {}, {})
+    return ('$error', None, {}, {})
 
 
 def get_linkages(parser_config):
     links = []
 
     for link in parser_config['links']:
-        links.append(LinkageItem(link['action_ident'], link['end_node_id'],
-                                 link['ack_message']))
+        if 'end_node_id' in link:
+            links.append(LinkageItem(link['action_ident'],
+                                     link['end_node_id'],
+                                     link['ack_message']))
 
-    if '$error' not in [l['action_ident'] for l in parser_config['links']]:
+    ais = [l.get('action_ident', None) for l in parser_config['links']]
+    if '$error' not in ais:
         links.append(LinkageItem('$error', None,
                                  'Invalid response, please re-enter.'))
     return links
