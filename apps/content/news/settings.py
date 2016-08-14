@@ -59,7 +59,9 @@ SPIDER_MIDDLEWARES = {
     'scrapy.spidermiddlewares.depth.DepthMiddleware': 10,
 }
 
-LOG_LEVEL = 'INFO'
+LOG_ENABLED = False
+
+LOG_LEVEL = 'ERROR'
 
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html

@@ -28,6 +28,10 @@ engine = create_engine(DATABASE, echo=False,
 db = scoped_session(sessionmaker(engine))
 
 
+def get_session():
+    return scoped_session(sessionmaker(engine))
+
+
 class ModelMixin(object):
     """Provides common field and methods for models."""
 

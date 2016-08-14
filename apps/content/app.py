@@ -13,6 +13,7 @@ import time
 
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
+from scrapy.utils.log import configure_logging
 
 import content_service
 import service_pb2  # pylint: disable=E0401
@@ -21,20 +22,13 @@ from news.spiders import RSSSpider, WebsiteSpider
 
 
 def main(args):
-    # Setup logger
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
-
-    handler = logging.StreamHandler()
-    fmt = logging.Formatter('%(asctime)s %(message)s', '%Y/%m/%d %H:%M:%S')
-    handler.setFormatter(fmt)
-    logger.addHandler(handler)
-
     # Start gRPC
     server = service_pb2.beta_create_ContentInfo_server(
         content_service.ContentInfoServicer())
     server.add_insecure_port('[::]:%d' % args.port)
     server.start()
+
+    configure_logging({'LOG_LEVEL': 'WARNING', 'LOG_ENABLED': True})
 
     while True:
         try:

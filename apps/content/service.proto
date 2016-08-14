@@ -24,11 +24,14 @@ message EntriesList {
 
 message SearchRequest {
   string query = 1;
-  int32 count = 2;
+  int32 user_id = 2;
+  int32 count = 3;
 }
 
 message TrendingRequest {
-  int32 count = 1;
+  int32 user_id = 1;
+  string source_name = 2;
+  int32 count = 3;
 }
 
 message RecommendRequest {

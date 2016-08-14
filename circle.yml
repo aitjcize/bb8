@@ -11,6 +11,10 @@ machine:
   services:
     - docker
 
+dependencies:
+  pre:
+    - cat $(find -name requirements.txt) | pip install -r /dev/stdin
+
 ## Customize test commands
 test:
   override:

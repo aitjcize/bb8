@@ -1,6 +1,6 @@
 # Copyright 2016 bb8 Authors
 
-LINT_FILES = $(shell find bb8 apps -name '*.py' -type f | grep -v '*_pb2' | sort)
+LINT_FILES = $(shell find bb8 apps -name '*.py' -type f | grep -v '_pb2' | sort)
 UNITTESTS = $(shell find bb8 -name '*_unittest.py' | sort)
 
 LINT_OPTIONS = --rcfile=bin/pylintrc \
