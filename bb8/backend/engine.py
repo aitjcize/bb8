@@ -11,11 +11,12 @@ import random
 
 from flask import g
 
-from bb8 import logger
+from bb8 import config, logger
 from bb8.backend import messaging
 from bb8.tracking import track, TrackingInfo
-from bb8.backend.database import (DatabaseManager, ColletedDatum, Linkage,
-                                  Node, SupportedPlatform, User)
+from bb8.backend.database import (DatabaseManager, Conversation, ColletedDatum,
+                                  Linkage, Node, SupportedPlatform, SenderEnum,
+                                  User)
 from bb8.backend.metadata import InputTransformation
 
 
@@ -93,6 +94,11 @@ class Engine(object):
 
             g.user = user
             if user_input:
+                if config.STORE_CONVERSATION:
+                    Conversation(bot_id=user.bot_id, user_id=user.id,
+                                 sender_enum=SenderEnum.Human,
+                                 msg=user_input).add()
+
                 user_input = user_input.RunInputTransformation()
 
             if user.session is None:

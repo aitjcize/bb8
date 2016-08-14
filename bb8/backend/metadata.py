@@ -152,7 +152,7 @@ class UserInput(object):
     def RunInputTransformation(self):
         """Perform input transformation if there is one."""
         try:
-            if self.text and g.user.session.input_transformation:
+            if self.text and g.user and g.user.session.input_transformation:
                 ret = InputTransformation.transform(
                     self.text, g.user.session.input_transformation)
                 return ret if ret else self
