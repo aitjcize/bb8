@@ -47,4 +47,5 @@ if __name__ == "__main__":
         if raw_input() != 'yes':
             sys.exit(1)
 
+    config.COMMIT_ON_APP_TEARDOWN = False
     manager.run()
