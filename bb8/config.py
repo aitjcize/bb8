@@ -41,7 +41,11 @@ class Config(object):
     FACEBOOK_WEBHOOK_PATH = BOT_WEBHOOOK_ROOT + "/facebook"
     FACEBOOK_WEBHOOK_VALIDATION_TOKEN = "meow_meow_meow"
 
+    # Line
     LINE_WEBHOOK_PATH = BOT_WEBHOOOK_ROOT + "/line"
+
+    # Option
+    STORE_CONVERSATION = False
 
     # Misc
     YOUBIKE_BOT_GA_ID = 'UA-79887532-2'

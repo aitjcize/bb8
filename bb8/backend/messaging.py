@@ -15,9 +15,10 @@ import jsonschema
 from flask import g
 from sqlalchemy import desc
 
-from bb8 import logger
+from bb8 import config, logger
 from bb8.backend.query_filters import FILTERS
-from bb8.backend.database import ColletedDatum, User, PlatformTypeEnum
+from bb8.backend.database import (ColletedDatum, Conversation, User,
+                                  PlatformTypeEnum, SenderEnum)
 from bb8.backend.messaging_provider import facebook, line
 from bb8.backend.metadata import InputTransformation
 from bb8.backend.util import image_convert_url
@@ -672,6 +673,13 @@ def send_message(user, messages):
 
     provider = get_messaging_provider(user.platform.type_enum)
     provider.send_message(user, messages)
+
+    if config.STORE_CONVERSATION:
+        for message in messages:
+            Conversation(bot_id=user.bot_id,
+                         user_id=user.id,
+                         sender_enum=SenderEnum.Bot,
+                         msg=message.as_dict()).add()
 
 
 def get_user_profile(platform, user_ident):
