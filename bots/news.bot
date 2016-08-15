@@ -2,9 +2,9 @@
   "platforms": [
     {
       "type_enum": "Facebook",
-      "provider_ident": "1764704343742166",
+      "provider_ident": "687078918112948",
       "config": {
-        "access_token": "EAAZAi0GnycPEBAHvBru8PVSYakotZBVP09RmJk6CqTXYGpKveuixVKJ95ZChq4U2CbYMXzGmQcK3AUB0RZCmnTRuMb9UBeFJjDGcUAQLkLRlZB6OZBB7ni30zDVm95YLw7xjrpAWUeq8xDAZClyOW7g5ToglIbCRxYZCrIeMABxl1gZDZD",
+        "access_token": "EAAZAi0GnycPEBAEYulmDBZAKUBtHAeDcOXkNtn6CX9kQM2LlJwmdxDtB07BuR7SaxKEiZCpRZAOW8wvoOv0RFK9UN1Y54ZBNsU6LwNdtpRb2KI7yRUqxz6JTYi2uUEkxqS6sxPsSIKtgriHy20ZBNhNI8oNJhm9pqz7IyD1fKSpwZDZD",
         "get_start_button": {"message": {"text": "Hi"}},
         "persistent_menu": [
           {
@@ -28,15 +28,6 @@
             "url": "http://compose.ai"
           }
         ]
-      }
-    },
-    {
-      "type_enum": "Line",
-      "provider_ident": "u5526efbbc9c7ad1b3375c5102c276e68",
-      "config": {
-        "channel_id": "1468633788",
-        "channel_secret": "70a5bfd80b2cf26e387b83aa836fc884",
-        "mid": "u5526efbbc9c7ad1b3375c5102c276e68"
       }
     }
   ],
