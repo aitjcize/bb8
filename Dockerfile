@@ -1,11 +1,9 @@
 FROM ubuntu:xenial
 MAINTAINER Wei-Ning Huang <aitjcize@compose.ai>
 
-RUN apt-get update
-RUN apt-get upgrade -y
-
-RUN apt-get install -y vim git python2.7 python-pip nginx libpcre3-dev \
-	libmysqlclient-dev  libjpeg-dev libpng-dev libsqlite3-dev \
+RUN apt-get update && apt-get upgrade -y && \
+	apt-get install -y vim git python2.7 python-pip nginx libpcre3-dev \
+	libmysqlclient-dev libjpeg-dev libpng-dev libsqlite3-dev \
 	libncurses-dev supervisor
 
 COPY requirements.txt /tmp/requirements.txt
