@@ -13,7 +13,7 @@ machine:
 
 dependencies:
   pre:
-    - cat $(find -name requirements.txt) | pip install -r /dev/stdin
+    - cat $(find -name requirements.txt) | sort | uniq | pip install -r /dev/stdin
 
 ## Customize test commands
 test:
