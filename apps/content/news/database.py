@@ -6,7 +6,7 @@
     Copyright 2016 bb8 Authors
 """
 
-import os
+import hashlib
 from datetime import datetime
 
 from sqlalchemy import create_engine
@@ -19,25 +19,37 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import has_identity
 from sqlalchemy.schema import UniqueConstraint
 
+from news import config
+
 
 DeclarativeBase = declarative_base()
-DATABASE = os.getenv('DATABASE')
-engine = create_engine(DATABASE, echo=False,
+metadata = DeclarativeBase.metadata
+
+engine = create_engine(config.DATABASE, echo=False,
                        encoding='utf-8',
                        pool_recycle=3600 * 8)
 
-db = scoped_session(sessionmaker(engine))
+Session = scoped_session(sessionmaker(engine))
 
 
-def get_session():
-    return scoped_session(sessionmaker(engine))
+def Initialize():
+    """Initialize the database and create all tables if there don't exist."""
+    for table in ['entry', 'tag']:
+        if table not in engine.table_names():
+            metadata.drop_all(engine)
+            metadata.create_all(engine)
+            return
+
+
+def GetSession():
+    return sessionmaker(engine)()
 
 
 class ModelMixin(object):
     """Provides common field and methods for models."""
-
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow,
+                        onupdate=datetime.utcnow)
 
     def __repr__(self):
         return '<%s(\'%s\')>' % (type(self).__name__, self.id)
@@ -48,16 +60,16 @@ class ModelMixin(object):
 
     @classmethod
     def commit(cls):
-        db().commit()
+        Session().commit()
 
     @classmethod
     def flush(cls):
-        db().flush()
+        Session().flush()
 
     @classmethod
     def query(cls):
         """Short hand for query."""
-        return db().query(cls)
+        return Session().query(cls)
 
     @classmethod
     def get_all(cls, cache=None):
@@ -133,7 +145,7 @@ class ModelMixin(object):
 
     def add(self):
         """Register object."""
-        db().add(self)
+        Session().add(self)
         return self
 
     def delete(self):
@@ -145,24 +157,24 @@ class ModelMixin(object):
         """Refresh object and reconnect it with session."""
         #: Detached
         if object_session(self) is None and has_identity(self):
-            db().add(self)
-        db().refresh(self)
+            Session().add(self)
+        Session().refresh(self)
         return self
 
     def rexpunge(self):
         """Refresh then detach from session."""
-        db().refresh(self)
-        db().expunge(self)
+        Session().refresh(self)
+        Session().expunge(self)
         return self
 
     def expunge(self):
         """Detach from session."""
-        db().expunge(self)
+        Session().expunge(self)
         return self
 
     def merge(self):
         """Merge a object with current session"""
-        db().merge(self)
+        Session().merge(self)
         return self
 
 
@@ -177,7 +189,11 @@ class Entry(DeclarativeBase, ModelMixin):
     __tablename__ = 'entry'
     __table_args__ = (UniqueConstraint('link'),)
 
-    link_hash = Column(String(160), primary_key=True, nullable=False)
+    def generate_link_hash(context):  # pylint: disable=E0213
+        return hashlib.sha1(context.current_parameters['link']).hexdigest()
+
+    link_hash = Column(String(40), primary_key=True,
+                       default=generate_link_hash, nullable=False)
     title = Column(Unicode(256), nullable=False)
     link = Column(Unicode(512), nullable=False)
     publish_time = Column(DateTime, nullable=False)
@@ -190,7 +206,7 @@ class Entry(DeclarativeBase, ModelMixin):
 
     @classmethod
     def search(cls, term, count):
-        query = db().query(cls)
+        query = Session().query(cls)
         return query.filter(
             cls.title.like(unicode('%' + term + '%'))).limit(count)
 
@@ -200,7 +216,7 @@ class Entry(DeclarativeBase, ModelMixin):
 
 
 t_entry_tag = Table(
-    'entry_tag', DeclarativeBase.metadata,
+    'entry_tag', metadata,
     Column('entry_link_hash', ForeignKey('entry.link_hash'), nullable=False),
     Column('tag_id', ForeignKey('tag.id'), nullable=False)
 )

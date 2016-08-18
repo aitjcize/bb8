@@ -18,7 +18,7 @@ from sqlalchemy import desc
 
 import service_pb2  # pylint: disable=E0401
 from news import config
-from news.database import Entry, get_session
+from news.database import Entry, GetSession
 
 gclient = datastore.Client()
 
@@ -45,21 +45,21 @@ def normalize_source(query):
 class ContentInfo(object):
     @classmethod
     def Search(cls, term, unused_user_id, count):
-        session = get_session()
+        session = GetSession()
         entries = session.query(Entry).filter(
             Entry.title.like(unicode('%' + term + '%'))).limit(count)
         return [to_proto_entry(ent) for ent in entries.all()]
 
     @classmethod
     def Recommend(cls, unused_user_id, count):
-        session = get_session()
+        session = GetSession()
         entries = session.query(Entry).order_by(
             desc('created_at')).limit(count)
         return [to_proto_entry(ent) for ent in entries.all()]
 
     @classmethod
     def Trending(cls, unused_user_id, source_name=None, count=5):
-        session = get_session()
+        session = GetSession()
         source_name = normalize_source(source_name)
         if source_name is None:
             entries = session.query(Entry).order_by(

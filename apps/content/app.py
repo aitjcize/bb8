@@ -7,7 +7,6 @@
     Copyright 2016 bb8 Authors
 """
 
-
 import argparse
 import logging
 import time
@@ -19,10 +18,13 @@ from scrapy.utils.log import configure_logging
 import content_service
 import service_pb2  # pylint: disable=E0401
 from news import config, spider_configs
+from news.database import Initialize
 from news.spiders import RSSSpider, WebsiteSpider
 
 
 def main(args):
+    Initialize()
+
     # Start gRPC
     server = service_pb2.beta_create_ContentInfo_server(
         content_service.ContentInfoServicer())
@@ -48,9 +50,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Crawler')
     parser.add_argument('-p', '--port', dest='port', default=9999,
                         help='gRPC service port')
-    parser.add_argument('--interval',
-                        type=int,
-                        dest='interval',
-                        default=3600,
-                        help='The interval to fetch youbike data (second)')
+    parser.add_argument('--interval', type=int, dest='interval', default=3600,
+                        help='The interval in seoncds between crawler run')
     main(parser.parse_args())

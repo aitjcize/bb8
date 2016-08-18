@@ -239,7 +239,7 @@ class SchemaUnittest(unittest.TestCase):
                       publish_time=datetime.datetime.utcnow(),
                       source=u'mock-source',
                       original_source=u'mock-original-source',
-                      image_url='mock-image-src',
+                      image_url=u'mock-image-src',
                       author=u'mock-author').add()
 
         self.dbm.commit()
@@ -250,7 +250,7 @@ class SchemaUnittest(unittest.TestCase):
         entry.tags.append(tag1)
         entry.tags.append(tag2)
 
-        entry_ = Entry.get_by(id=entry.id, single=True)
+        entry_ = Entry.get_by(link=u'mock-link', single=True)
         self.assertNotEquals(entry_, None)
         self.assertEquals(entry_.image_url, u'mock-image-src')
         self.assertEquals(len(entry_.tags), 2)
@@ -271,13 +271,14 @@ class SchemaUnittest(unittest.TestCase):
 
         account.refresh()
         self.assertEquals(account.created_at, account.updated_at)
+        last_updated = account.updated_at
 
         time.sleep(1)
         account.username = 'user2'
         account.commit()
 
         account.refresh()
-        self.assertNotEquals(account.created_at, account.updated_at)
+        self.assertNotEquals(last_updated, account.updated_at)
 
     def test_Bot_API(self):
         """Test Bot model APIs."""

@@ -6,9 +6,10 @@
     Copyright 2016 bb8 Authors
 """
 
+import hashlib
+import importlib
 import time
 import uuid
-import importlib
 
 from datetime import datetime, timedelta
 
@@ -19,7 +20,7 @@ import pytz
 from passlib.hash import bcrypt  # pylint: disable=E0611
 from flask import Flask  # pylint: disable=C0411,C0413
 
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine
 from sqlalchemy import (Boolean, Column, DateTime, Enum, ForeignKey, Integer,
                         PickleType, Table, Text, String, Unicode, UnicodeText)
 from sqlalchemy.ext.declarative import declarative_base
@@ -67,12 +68,6 @@ class DatabaseManager(object):
         if not cls.db:
             cls.db = scoped_session(sessionmaker(bind=cls.engine))
 
-        # pylint: disable=W0612
-        @event.listens_for(cls.db(), 'before_flush')
-        def receive_before_flush(session, unused_context, unused_instances):
-            for row in session.dirty:
-                row.touch()
-
     @classmethod
     def disconnect(cls, commit=True):
         if commit:
@@ -97,26 +92,26 @@ class DatabaseManager(object):
     @classmethod
     def create_all_tables(cls):
         """Create all table."""
-        DeclarativeBase.metadata.create_all(cls.engine)
+        metadata.create_all(cls.engine)
 
     @classmethod
     def drop_all_tables(cls):
         """Drop all table."""
-        DeclarativeBase.metadata.drop_all(cls.engine)
+        metadata.drop_all(cls.engine)
 
     @classmethod
     def create_new_table(cls, k):
-        DeclarativeBase.metadata.tables[k.__tablename__].create(cls.engine)
+        metadata.tables[k.__tablename__].create(cls.engine)
 
     @classmethod
     def drop_table(cls, k):
-        DeclarativeBase.metadata.tables[k.__tablename__].drop(cls.engine)
+        metadata.tables[k.__tablename__].drop(cls.engine)
 
     @classmethod
     def reset(cls):
         """Reset and initialize database."""
-        DeclarativeBase.metadata.drop_all(cls.engine)
-        DeclarativeBase.metadata.create_all(cls.engine)
+        metadata.drop_all(cls.engine)
+        metadata.create_all(cls.engine)
 
     @classmethod
     def commit(cls):
@@ -169,7 +164,8 @@ class DatabaseSession(object):
 class ModelMixin(object):
     """Provides common field and methods for models."""
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow,
+                        onupdate=datetime.utcnow)
 
     def __repr__(self):
         return '<%s(\'%s\')>' % (type(self).__name__, self.id)
@@ -256,10 +252,6 @@ class ModelMixin(object):
     def count_by(cls, **kwargs):
         """Get count by condition."""
         return cls.query().filter_by(**kwargs).count()
-
-    def touch(self):
-        """Update update_at timestamp."""
-        self.updated_at = datetime.utcnow()
 
     def add(self):
         """Register object."""
@@ -553,7 +545,7 @@ class SupportedPlatform(enum.Enum):
 class ContentModule(DeclarativeBase, ModelMixin):
     __tablename__ = 'content_module'
 
-    id = Column(String(128), primary_key=True)
+    id = Column(String(128), primary_key=True, nullable=False)
     name = Column(String(256), nullable=False)
     description = Column(Text, nullable=False)
     supported_platform = Column(Enum(SupportedPlatform), nullable=False,
@@ -571,7 +563,7 @@ class ContentModule(DeclarativeBase, ModelMixin):
 class ParserModule(DeclarativeBase, ModelMixin):
     __tablename__ = 'parser_module'
 
-    id = Column(String(128), primary_key=True)
+    id = Column(String(128), primary_key=True, nullable=False)
     name = Column(String(256), nullable=False)
     description = Column(Text, nullable=False)
     supported_platform = Column(Enum(SupportedPlatform), nullable=False,
@@ -664,7 +656,11 @@ class Entry(DeclarativeBase, ModelMixin):
     __tablename__ = 'entry'
     __table_args__ = (UniqueConstraint('link'),)
 
-    link_hash = Column(String(160), primary_key=True, nullable=False)
+    def generate_link_hash(context):  # pylint: disable=E0213
+        return hashlib.sha1(context.current_parameters['link']).hexdigest()
+
+    link_hash = Column(String(40), primary_key=True,
+                       default=generate_link_hash, nullable=False)
     title = Column(Unicode(256), nullable=False)
     link = Column(Unicode(512), nullable=False)
     publish_time = Column(DateTime, nullable=False)
