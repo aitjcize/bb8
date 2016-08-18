@@ -20,6 +20,7 @@ from sqlalchemy.exc import IntegrityError
 from news import config
 from news.database import Session, Entry
 
+
 gclient = datastore.Client()
 
 

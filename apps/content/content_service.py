@@ -20,6 +20,7 @@ import service_pb2  # pylint: disable=E0401
 from news import config
 from news.database import Entry, GetSession
 
+
 gclient = datastore.Client()
 
 

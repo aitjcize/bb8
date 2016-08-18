@@ -32,12 +32,16 @@ engine = create_engine(config.DATABASE, echo=False,
 Session = scoped_session(sessionmaker(engine))
 
 
+def Reset():
+    metadata.drop_all(engine)
+    metadata.create_all(engine)
+
+
 def Initialize():
     """Initialize the database and create all tables if there don't exist."""
     for table in ['entry', 'tag']:
         if table not in engine.table_names():
-            metadata.drop_all(engine)
-            metadata.create_all(engine)
+            Reset()
             return
 
 
