@@ -70,10 +70,10 @@ class NewsInfo(object):
                 source_name=source_name, count=count),
             GRPC_TIMEOUT).entries
 
-    def get_content(self, entry_id, char_offset=0, limit=320):
+    def get_content(self, entry_link, char_offset=0, limit=320):
         cont = self._stub.GetContent(
             self._pb2_module.GetContentRequest(
-                entry_id=entry_id,
+                entry_link=entry_link,
                 char_offset=char_offset,
                 limit=limit),
             GRPC_TIMEOUT)
@@ -104,7 +104,7 @@ def run(content_config, unused_env, variables):
         try:
             event = variables['event']
             content, char_offset = news_info.get_content(
-                event.value['entry_id'],
+                event.value['entry_link'],
                 event.value['char_offset'])
         except KeyError:
             return [Message(u'抱歉，有些東西出錯了，請再試一次！')]
@@ -115,7 +115,7 @@ def run(content_config, unused_env, variables):
             msg.add_button(Message.Button(
                 Message.ButtonType.POSTBACK,
                 u'繼續讀', payload=EventPayload('GET_CONTENT', {
-                    'entry_id': event.value['entry_id'],
+                    'entry_link': event.value['entry_link'],
                     'char_offset': char_offset,
                     'link': event.value['link'],
                 }, False)))
@@ -157,7 +157,7 @@ def run(content_config, unused_env, variables):
         b.add_button(Message.Button(
             Message.ButtonType.POSTBACK,
             u'在這讀', payload=EventPayload('GET_CONTENT', {
-                'entry_id': n.id,
+                'entry_link': n.link,
                 'char_offset': 0,
                 'link': n.link,
             }, False)))

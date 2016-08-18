@@ -10,9 +10,9 @@ import scrapy
 
 
 class EntryItem(scrapy.Item):
-    id = scrapy.Field()  # sql id
     title = scrapy.Field()
     link = scrapy.Field()
+    link_hash = scrapy.Field()
     publish_time = scrapy.Field()
     source = scrapy.Field()
     original_source = scrapy.Field()

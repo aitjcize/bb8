@@ -662,10 +662,11 @@ class PublicFeed(DeclarativeBase, ModelMixin):
 
 class Entry(DeclarativeBase, ModelMixin):
     __tablename__ = 'entry'
+    __table_args__ = (UniqueConstraint('link'),)
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    link_hash = Column(String(160), primary_key=True, nullable=False)
     title = Column(Unicode(256), nullable=False)
-    link = Column(Unicode(512), nullable=False, unique=True)
+    link = Column(Unicode(512), nullable=False)
     publish_time = Column(DateTime, nullable=False)
     source = Column(Unicode(64), nullable=False)
     original_source = Column(Unicode(64), nullable=False)
@@ -692,7 +693,7 @@ class Tag(DeclarativeBase, ModelMixin):
 
 t_entry_tag = Table(
     'entry_tag', metadata,
-    Column('entry_id', ForeignKey('entry.id'), nullable=False),
+    Column('entry_link_hash', ForeignKey('entry.link_hash'), nullable=False),
     Column('tag_id', ForeignKey('tag.id'), nullable=False)
 )
 

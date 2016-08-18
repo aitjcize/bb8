@@ -11,12 +11,13 @@ from datetime import datetime
 
 from sqlalchemy import create_engine
 from sqlalchemy import (Column, DateTime, ForeignKey, Integer,
-                        Table, Unicode)
+                        Table, Unicode, String)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (scoped_session, sessionmaker, joinedload,
                             relationship, object_session)
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import has_identity
+from sqlalchemy.schema import UniqueConstraint
 
 
 DeclarativeBase = declarative_base()
@@ -174,10 +175,11 @@ class Tag(DeclarativeBase, ModelMixin):
 
 class Entry(DeclarativeBase, ModelMixin):
     __tablename__ = 'entry'
+    __table_args__ = (UniqueConstraint('link'),)
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    link_hash = Column(String(160), primary_key=True, nullable=False)
     title = Column(Unicode(256), nullable=False)
-    link = Column(Unicode(512), nullable=False, unique=True)
+    link = Column(Unicode(512), nullable=False)
     publish_time = Column(DateTime, nullable=False)
     source = Column(Unicode(64), nullable=False)
     original_source = Column(Unicode(64), nullable=False)
@@ -199,6 +201,6 @@ class Entry(DeclarativeBase, ModelMixin):
 
 t_entry_tag = Table(
     'entry_tag', DeclarativeBase.metadata,
-    Column('entry_id', ForeignKey('entry.id'), nullable=False),
+    Column('entry_link_hash', ForeignKey('entry.link_hash'), nullable=False),
     Column('tag_id', ForeignKey('tag.id'), nullable=False)
 )
