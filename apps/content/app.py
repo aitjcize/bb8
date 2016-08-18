@@ -7,6 +7,7 @@
     Copyright 2016 bb8 Authors
 """
 
+
 import argparse
 import logging
 import time
@@ -17,7 +18,7 @@ from scrapy.utils.log import configure_logging
 
 import content_service
 import service_pb2  # pylint: disable=E0401
-from news.config import spider_configs
+from news import config, spider_configs
 from news.spiders import RSSSpider, WebsiteSpider
 
 
@@ -31,14 +32,15 @@ def main(args):
     configure_logging({'LOG_LEVEL': 'WARNING', 'LOG_ENABLED': True})
 
     while True:
-        try:
-            process = CrawlerProcess(get_project_settings())
-            process.crawl(WebsiteSpider, **spider_configs['storm'])
-            process.crawl(RSSSpider, **spider_configs['yahoo_rss'])
-            process.start()
-        except Exception:
-            logging.exception('Crawler exception, skipping')
-            continue
+        if config.ENABLE_CRAWLER:
+            try:
+                process = CrawlerProcess(get_project_settings())
+                process.crawl(WebsiteSpider, **spider_configs['storm'])
+                process.crawl(RSSSpider, **spider_configs['yahoo_rss'])
+                process.start()
+            except Exception:
+                logging.exception('Crawler exception, skipping')
+                continue
         time.sleep(args.interval)
 
 

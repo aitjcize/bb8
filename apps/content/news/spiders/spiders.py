@@ -56,13 +56,13 @@ class RSSSpider(XMLFeedSpider):
         imgs = extract_imgs(response, self.extractor['images'])
 
         item = EntryItem()
-        item['author'] = author
+        item['author'] = unicode(author)
         item['images'] = imgs
-        item['source'] = self.name
-        item['original_source'] = variables['original_source']
-        item['title'] = title
-        item['link'] = response.url
-        item['content'] = content
+        item['source'] = unicode(self.name)
+        item['original_source'] = unicode(variables['original_source'])
+        item['title'] = unicode(title)
+        item['link'] = unicode(response.url)
+        item['content'] = unicode(content)
         item['publish_time'] = variables['publish_time']
         item['created_at'] = datetime.now()
         return item
@@ -98,13 +98,13 @@ class WebsiteSpider(CrawlSpider):
             if self.extractor['original_source'] else '')
 
         item = EntryItem()
-        item['author'] = author
+        item['author'] = unicode(author)
         item['images'] = imgs
-        item['source'] = self.name
-        item['original_source'] = original_source
-        item['title'] = title
-        item['link'] = response.url
-        item['content'] = content
+        item['source'] = unicode(self.name)
+        item['original_source'] = unicode(original_source)
+        item['title'] = unicode(title)
+        item['link'] = unicode(response.url)
+        item['content'] = unicode(content)
         item['publish_time'] = datetime.now()
         item['created_at'] = datetime.now()
         return item

@@ -6,6 +6,7 @@
     Copyright 2016 bb8 Authors
 """
 
+import hashlib
 import json
 import time
 import traceback
@@ -16,6 +17,7 @@ import pytz
 from gcloud import datastore
 from scrapy.exceptions import DropItem
 
+from news import config
 from news.database import db, Entry
 
 gclient = datastore.Client()
@@ -26,13 +28,15 @@ class SQLPipeline(object):
         item_dict = {k: v for k, v in dict(item).iteritems()
                      if k in Entry.columns()}
 
-        item_dict['image_url'] = (item['images'][0]['src']
-                                  if len(item['images']) > 0 else '')
+        item_dict['image_url'] = unicode(
+            item['images'][0]['src'] if len(item['images']) > 0 else u'')
         try:
+            link_hash = hashlib.sha1(item['link']).hexdigest()
+            item['link_hash'] = item_dict['link_hash'] = link_hash
+
             entry = Entry(**item_dict)
             db.add(entry)
             db.commit()
-            item['id'] = entry.id
         except Exception:
             raise DropItem(
                 'Invalid database operation: %s' % traceback.format_exc())
@@ -66,7 +70,8 @@ class DatastorePipeline(object):
             return rv
 
         data = to_json(item)
-        key = gclient.key('entries', item['id'])
+
+        key = gclient.key(config.ENTRY_ENTITY, item['link_hash'])
         entity = datastore.Entity(
             key=key, exclude_from_indexes=['content', 'images'])
         for k, v in data.iteritems():

@@ -9,6 +9,7 @@
     Copyright 2016 bb8 Authors
 """
 
+import hashlib
 import re
 
 from backports.functools_lru_cache import lru_cache
@@ -16,6 +17,7 @@ from gcloud import datastore
 from sqlalchemy import desc
 
 import service_pb2  # pylint: disable=E0401
+from news import config
 from news.database import Entry, get_session
 
 gclient = datastore.Client()
@@ -23,7 +25,6 @@ gclient = datastore.Client()
 
 def to_proto_entry(obj):
     return service_pb2.Entry(
-        id=obj.id,
         title=obj.title,
         description='',
         link=obj.link,
@@ -71,13 +72,14 @@ class ContentInfo(object):
 
     @classmethod
     @lru_cache(maxsize=512)
-    def GetEntry(cls, entry_id):
-        entry_key = gclient.key('entries', entry_id)
+    def GetEntry(cls, entry_link):
+        link_hash = hashlib.sha1(entry_link).hexdigest()
+        entry_key = gclient.key(config.ENTRY_ENTITY, link_hash)
         return gclient.get(entry_key)
 
     @classmethod
-    def GetContent(cls, entry_id, char_offset, limit):
-        entry = cls.GetEntry(entry_id)
+    def GetContent(cls, entry_link, char_offset, limit):
+        entry = cls.GetEntry(entry_link)
 
         content = entry['content'][char_offset:char_offset+limit]
         if len(content) < limit:
@@ -113,6 +115,6 @@ class ContentInfoServicer(service_pb2.BetaContentInfoServicer):
 
     def GetContent(self, request, unused_context):
         content, char_offset = ContentInfo.GetContent(
-            request.entry_id, request.char_offset, request.limit)
+            request.entry_link, request.char_offset, request.limit)
         return service_pb2.EntryContent(
             content=content, char_offset=char_offset)
