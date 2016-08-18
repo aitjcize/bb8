@@ -24,8 +24,8 @@ from bb8.backend.database import DatabaseManager
 from bb8.backend.database import (Account, Bot, ColletedDatum, Conversation,
                                   ContentModule, Event, Linkage, Node,
                                   ParserModule, Platform, PlatformTypeEnum,
-                                  SenderEnum, User, FeedEnum, Feed, PublicFeed,
-                                  Broadcast, OAuthInfo, Entry, Tag,
+                                  SenderEnum, User, Broadcast,
+                                  FeedEnum, Feed, PublicFeed, OAuthInfo,
                                   OAuthProviderEnum)
 
 from bb8.backend.test_utils import reset_and_setup_bots
@@ -204,7 +204,14 @@ class SchemaUnittest(unittest.TestCase):
         self.assertNotEquals(Conversation.get_by(id=conversation.id,
                                                  single=True), None)
 
-        # Test Feed, PublicFeed, Entry, Broadcast, Tag
+        # Broadcast
+        bc = Broadcast(message={},
+                       scheduled_time=datetime.datetime.utcnow()).add()
+
+        self.dbm.commit()
+        self.assertNotEquals(Broadcast.get_by(id=bc.id, single=True), None)
+
+        # PublicFeed, Feed
         account = Account(name=u'Test Account - 1', username='test1',
                           email='test1@test.com', passwd='test_hashed').add()
         feed1 = Feed(url='example.com/rss', type=FeedEnum.RSS,
@@ -230,37 +237,6 @@ class SchemaUnittest(unittest.TestCase):
 
         self.dbm.commit()
         self.assertNotEquals(PublicFeed.get_by(id=pfeed.id, single=True), None)
-
-        account = Account(name=u'Test Account - 3', username='test3',
-                          email='test3@test.com', passwd='test_hashed').add()
-
-        entry = Entry(title=u'mock-title',
-                      link=u'mock-link',
-                      publish_time=datetime.datetime.utcnow(),
-                      source=u'mock-source',
-                      original_source=u'mock-original-source',
-                      image_url=u'mock-image-src',
-                      author=u'mock-author').add()
-
-        self.dbm.commit()
-
-        tag1 = Tag(name=u'product').add()
-        tag2 = Tag(name=u'article').add()
-
-        entry.tags.append(tag1)
-        entry.tags.append(tag2)
-
-        entry_ = Entry.get_by(link=u'mock-link', single=True)
-        self.assertNotEquals(entry_, None)
-        self.assertEquals(entry_.image_url, u'mock-image-src')
-        self.assertEquals(len(entry_.tags), 2)
-        self.assertEquals(entry_.tags[0].name, 'product')
-
-        bc = Broadcast(message={},
-                       scheduled_time=datetime.datetime.utcnow()).add()
-
-        self.dbm.commit()
-        self.assertNotEquals(Broadcast.get_by(id=bc.id, single=True), None)
 
     def test_timestamp_update(self):
         """Make sure the updated_at timestamp automatically updates on

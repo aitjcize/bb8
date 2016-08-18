@@ -1,7 +1,7 @@
 # Copyright 2016 bb8 Authors
 
 LINT_FILES = $(shell find bb8 apps -name '*.py' -type f | grep -v '_pb2' | sort)
-UNITTESTS = $(shell find bb8 -name '*_unittest.py' | sort)
+UNITTESTS = $(shell find bb8 apps -name '*_unittest.py' | sort)
 
 LINT_OPTIONS = --rcfile=bin/pylintrc \
 	       --msg-template='{path}:{line}: {msg_id}: {msg}'
@@ -12,8 +12,6 @@ DOCKER_IP ?= 127.0.0.1
 DB_URI = "mysql+pymysql://bb8:bb8test@$(DOCKER_IP):$(PORT)/bb8?charset=utf8mb4"
 
 CLOUD_SQL_DIR = "/cloudsql"
-
-STATE_DIR = $(CURDIR)/states
 
 all: test lint validate-bots
 
@@ -34,17 +32,27 @@ remove-database:
 	@docker rm -f bb8_mysql.$(USER)
 
 test: setup-database
-	@export PYTHONPATH=$$PWD; \
-	 export DATABASE=$(DB_URI); \
+	@export DATABASE=$(DB_URI); \
 	 for test in $(UNITTESTS); do \
+           if echo $$test | grep '^apps'; then \
+             export PYTHONPATH=$(CURDIR)/$$(echo $$test | \
+				            sed 's+\(apps/[^/]*/\).*+\1+'); \
+           else \
+             export PYTHONPATH=$(CURDIR); \
+           fi; \
 	   echo Running $$test ...; \
 	   $$test || exit 1; \
 	 done
 
 coverage: setup-database
-	@export PYTHONPATH=$$PWD; \
-	 export DATABASE=$(DB_URI); \
+	@export DATABASE=$(DB_URI); \
 	 for test in $(UNITTESTS); do \
+           if echo $$test | grep '^apps'; then \
+             export PYTHONPATH=$(CURDIR)/$$(echo $$test | \
+				            sed 's+\(apps/[^/]*/\).*+\1+'); \
+           else \
+             export PYTHONPATH=$(CURDIR); \
+           fi; \
 	   COVER=$$(echo $$test | tr '/' '_'); \
 	   echo Running $$test ...; \
 	   COVERAGE_FILE=.coverage_$$COVER coverage run $$test || exit 1; \

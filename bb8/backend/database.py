@@ -6,7 +6,6 @@
     Copyright 2016 bb8 Authors
 """
 
-import hashlib
 import importlib
 import time
 import uuid
@@ -338,7 +337,6 @@ class Account(DeclarativeBase, ModelMixin, JSONSerializer):
     passwd = Column(String(256), nullable=False)
 
     bots = relationship('Bot', secondary='account_bot')
-
     feeds = relationship('Feed', lazy='dynamic')
     oauth_infos = relationship('OAuthInfo', back_populates="account")
 
@@ -617,6 +615,14 @@ class Event(DeclarativeBase, ModelMixin):
     event_value = Column(PickleType, nullable=False)
 
 
+class Broadcast(DeclarativeBase, ModelMixin):
+    __tablename__ = 'broadcast'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    message = Column(PickleType, nullable=False)
+    scheduled_time = Column(DateTime, nullable=False)
+
+
 class FeedEnum(enum.Enum):
     RSS = 'RSS'
     ATOM = 'ATOM'
@@ -651,47 +657,6 @@ class PublicFeed(DeclarativeBase, ModelMixin):
     title = Column(Unicode(128), nullable=False)
     image_url = Column(String(256), nullable=False)
 
-
-class Entry(DeclarativeBase, ModelMixin):
-    __tablename__ = 'entry'
-    __table_args__ = (UniqueConstraint('link'),)
-
-    def generate_link_hash(context):  # pylint: disable=E0213
-        return hashlib.sha1(context.current_parameters['link']).hexdigest()
-
-    link_hash = Column(String(40), primary_key=True,
-                       default=generate_link_hash, nullable=False)
-    title = Column(Unicode(256), nullable=False)
-    link = Column(Unicode(512), nullable=False)
-    publish_time = Column(DateTime, nullable=False)
-    source = Column(Unicode(64), nullable=False)
-    original_source = Column(Unicode(64), nullable=False)
-    image_url = Column(Unicode(512), nullable=False)
-    author = Column(Unicode(64), nullable=False)
-
-    tags = relationship('Tag', secondary='entry_tag')
-
-
-class Broadcast(DeclarativeBase, ModelMixin):
-    __tablename__ = 'broadcast'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    message = Column(PickleType, nullable=False)
-    scheduled_time = Column(DateTime, nullable=False)
-
-
-class Tag(DeclarativeBase, ModelMixin):
-    __tablename__ = 'tag'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(Unicode(64), nullable=False)
-
-
-t_entry_tag = Table(
-    'entry_tag', metadata,
-    Column('entry_link_hash', ForeignKey('entry.link_hash'), nullable=False),
-    Column('tag_id', ForeignKey('tag.id'), nullable=False)
-)
 
 t_account_bot = Table(
     'account_bot', metadata,
