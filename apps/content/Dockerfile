@@ -20,7 +20,6 @@ COPY . /opt/app
 COPY credential/compose-ai.json /opt/app
 
 ENV GOOGLE_APPLICATION_CREDENTIALS=/opt/app/compose-ai.json
-ENV DATABASE=mysql+pymysql://bb8:bb8test@172.17.0.1:3307/bb8?charset=utf8mb4
 
 WORKDIR /opt/app
 CMD ["./app.py"]

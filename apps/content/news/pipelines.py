@@ -6,7 +6,6 @@
     Copyright 2016 bb8 Authors
 """
 
-import hashlib
 import json
 import time
 import traceback
@@ -16,9 +15,10 @@ import enum
 import pytz
 from gcloud import datastore
 from scrapy.exceptions import DropItem
+from sqlalchemy.exc import IntegrityError
 
 from news import config
-from news.database import db, Entry
+from news.database import Session, Entry
 
 gclient = datastore.Client()
 
@@ -31,15 +31,17 @@ class SQLPipeline(object):
         item_dict['image_url'] = unicode(
             item['images'][0]['src'] if len(item['images']) > 0 else u'')
         try:
-            link_hash = hashlib.sha1(item['link']).hexdigest()
-            item['link_hash'] = item_dict['link_hash'] = link_hash
+            entry = Entry(**item_dict).add()
+            entry.commit()
 
-            entry = Entry(**item_dict)
-            db.add(entry)
-            db.commit()
+            item['link_hash'] = entry.link_hash
+        except IntegrityError:
+            Session().rollback()
+            raise DropItem('Duplicate entry ignored')
         except Exception:
-            raise DropItem(
-                'Invalid database operation: %s' % traceback.format_exc())
+            Session().rollback()
+            raise DropItem('Invalid database operation: %s' %
+                           traceback.format_exc())
         return item
 
 
