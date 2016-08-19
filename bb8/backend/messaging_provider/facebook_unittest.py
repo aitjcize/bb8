@@ -36,10 +36,10 @@ class FacebookMessagingUnittest(unittest.TestCase):
         self.dbm.commit()
 
         config = {
-            'access_token': 'EAAP0okfsZCVkBANNgGSRPG0fsOWJKSQCNegqX8s1qxS7bVd'
-                            'AIsfofqEeoiTtVm11Xgy5vm0MQGHyGtji5AwAXSQTQMAfZBu'
-                            'awZCfy4prQ7IZBoTFyu8EGAYRGFZBwcgBjU2sXUtFMNbzp1M'
-                            '9mMfTNZBdfjjRe3S0PM08vvCYkQ6QZDZD'
+            'access_token': 'EAAP0okfsZCVkBAI3BCU5s3u8O0iVFh6NAwFHa7X2bKZCGQ'
+                            'Lw6VYeTpeTsW5WODeDbekU3ZA0JyVCBSmXq8EqwL1GDuZBO'
+                            '7aAlcNEHQ3AZBIx0ZBfFLh95TlJWlLrYetzm9owKNR8Qju8'
+                            'HF6qra20ZC6HqNXwGpaP74knlNvQJqUmwZDZD'
         }
         platform = Platform(bot_id=self.bot.id,
                             type_enum=PlatformTypeEnum.Facebook,
