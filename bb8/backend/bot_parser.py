@@ -68,6 +68,19 @@ def parse_bot(filename, to_bot_id=None):
         to_bot_id = to_bot_id(bot_desc)
 
     if to_bot_id:
+        for platform_desc in bot_json['platforms']:
+            ptype = PlatformTypeEnum(platform_desc['type_enum'])
+            provider = get_messaging_provider(ptype)
+            try:
+                jsonschema.validate(platform_desc['config'],
+                                    provider.get_config_schema())
+            except jsonschema.exceptions.ValidationError:
+                logger.error('Platform `%s\' config validation failed',
+                             platform_desc['type_enum'])
+                raise
+
+            provider.apply_config(platform_desc['config'])
+
         # Update existing bot. Keep associated Platform.
         logger.info('Updating existing bot(id=%d) with %s ...',
                     to_bot_id, filename)

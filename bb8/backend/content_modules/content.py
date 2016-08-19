@@ -123,6 +123,7 @@ def run(content_config, unused_env, variables):
                 Message.ButtonType.WEB_URL, u'去網站讀',
                 url=event.value['link']))
             return [msg]
+
         msg = Message()
         msg.set_buttons_text(u'這則新聞讀完囉！')
         msg.add_button(Message.Button(
@@ -145,7 +146,7 @@ def run(content_config, unused_env, variables):
         news = news_info.trending()
 
     if not len(news):
-        return [Message(u'今天的新聞已經被你讀完囉，去做別的事吧！')]
+        return [Message(u'找不到你要的新聞喔！')]
 
     msg = Message()
     for n in news:
@@ -165,4 +166,5 @@ def run(content_config, unused_env, variables):
             Message.ButtonType.WEB_URL, u'去網站讀',
             url=n.link))
         msg.add_bubble(b)
+
     return [msg]
