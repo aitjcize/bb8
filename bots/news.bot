@@ -47,7 +47,179 @@
           "config": {
             "messages": [
               {
-                "text": "嗨 {{user.first_name}}，歡迎使用 news bot，很高興為你服務。你是我服務過的第 {{statistic.user_count}} 位朋友"
+                "text": "嗨 {{user.first_name}}，歡迎使用新聞小幫手，很高興為你服務。你是我服務過的第 {{statistic.user_count}} 位朋友"
+              }
+            ]
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.passthrough",
+          "config": {
+            "end_node_id": "[[root]]",
+            "ack_message": ""
+          }
+        }
+      },
+      "root": {
+        "name": "Root",
+        "description": "Root node, show usage",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.core.selection",
+          "config": {
+            "text": "今天想要知道什麼呢？",
+            "choices": [
+              {
+                "title": "熱門新聞",
+                "payload": "trending",
+                "acceptable_inputs": ["熱門", "(?i)trending", "(?i)hot"]
+              },
+              {
+                "title": "推薦給我",
+                "payload": "recommend",
+                "acceptable_inputs": ["推薦", "(?i)suggest", "(?i)recommend"]
+              },
+              {
+                "title": "搜尋",
+                "payload": "search",
+                "acceptable_inputs": ["搜尋", "(?i)search"]
+              }
+            ]
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(?i)help", "(?i)tutorial", "幫助", "說明", "支持",
+                    "(?i)support", "你是誰", "(?i)hi", "(?i)hello", "(?i)yo",
+                    "(?i)ya", "(?i)ha"]
+                },
+                "action_ident": "help",
+                "end_node_id": "[[help]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["有趣", "新聞", "新知", "(?i)trending",
+                             "(?i)trend", "(?i)interesting"]
+                },
+                "action_ident": "trending_news",
+                "end_node_id": "[[trending_news]]",
+                "ack_message": "以下是我為您找出今天最該閱讀的新聞："
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["^搜尋$", "^找$", "^search$"]
+                },
+                "action_ident": "search_no_argument",
+                "end_node_id": "[[prompt_search_term]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["搜尋 ?(.*)$", "^找 (.*)$", "search ?(.*)$"]
+                },
+                "action_ident": "search",
+                "end_node_id": "[[search_news]]",
+                "ack_message": "搜尋中..."
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)(yahoo)", "(風傳媒)", "(?i)(hacker news)",
+                             "(?i)(hacker)", "(?i)(inside)"]
+                },
+                "action_ident": "news_source",
+                "end_node_id": "[[get_by_source]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "奧運", "段子", "笑話", "社會", "娛樂", "科技", "汽車",
+                    "財經", "搞笑", "軍事", "時尚", "探索", "養生", "健康",
+                    "美文", "歷史", "體育", "國際", "旅遊", "育兒", "故事",
+                    "遊戲", "美食"]
+                },
+                "action_ident": "news_category",
+                "end_node_id": "[[get_by_category]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)recommend"]
+                },
+                "action_ident": "recommend",
+                "end_node_id": "[[recommend]]",
+                "ack_message": "以下是我們認為您最可能喜歡的新聞："
+              },
+              {
+                "rule": {
+                  "type": "event",
+                  "params": ["TRENDING"]
+                },
+                "action_ident": "trending_news",
+                "end_node_id": "[[trending_news]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "event",
+                  "params": ["GET_CONTENT"]
+                },
+                "action_ident": "get_content",
+                "end_node_id": "[[get_content]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "sticker",
+                  "params": ["369239263222822", "369239343222814", "369239383222810"]
+                },
+                "action_ident": "got_like_sticker",
+                "end_node_id": "[[thanks]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["^建議$", "^feedback$", "意見", "留言"]
+                },
+                "action_ident": "feedback_no_content",
+                "end_node_id": "[[feedback_no_content]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["^建議 ?(.*)$", "^feedback (.*)$"],
+                  "collect_as": "feedback#1"
+                },
+                "ack_message": "謝謝你的建議，我們會根據你的建議改善的！"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)thanks?", "謝", "感恩"]
+                },
+                "action_ident": "got_like_sticker",
+                "end_node_id": "[[thanks]]",
+                "ack_message": ""
+              },
+              {
+                "action_ident": "$error",
+                "end_node_id": null,
+                "ack_message": ["哈哈", "嗯嗯", ":)", ">.<"]
               }
             ]
           }
@@ -126,42 +298,14 @@
           }
         }
       },
-      "help": {
-        "name": "help",
-        "description": "",
-        "expect_input": false,
-        "content_module": {
-          "id": "ai.compose.core.generic_message",
-          "config": {
-            "messages": {
-              "Facebook": [
-                {
-                  "text": "你好，我是 Compose.AI 新聞閱讀器，我的目標是用人工智慧提供您快速吸收每日新知的方法。"
-                },
-                {
-                  "text": "你可以輸入你想讀的新聞來源，比如說 Yahoo, 風傳媒，或是輸入搜尋加上你想搜尋的內容，也可以直接說推薦讓我們來幫你決定。"
-                }
-              ],
-              "Line": [
-                {
-                  "text": "你好，我是 Compose.AI 新聞閱讀器，我的目標是用人工智慧提供您快速吸收每日新知的方法。"
-                },
-                {
-                  "text": "你可以輸入你想讀的新聞來源，比如說 Yahoo, 風傳媒，或是輸入搜尋加上你想搜尋的內容，也可以直接說推薦讓我們來幫你決定。"
-                }
-              ]
-            }
-          }
-        }
-      },
-      "root": {
-        "name": "Root",
-        "description": "Root node, show usage",
+      "prompt_search_term": {
+        "name": "PromptSearchTerm",
+        "description": "search with out term, prompt for term",
         "expect_input": true,
         "content_module": {
           "id": "ai.compose.core.text_message",
           "config": {
-            "text": "今天想要知道什麼呢？"
+            "text": "你想要找什麼樣的主題呢？"
           }
         },
         "parser_module": {
@@ -171,90 +315,81 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)help", "幫助", "說明",
-                    "支持", "(?i)support", "你是誰", "(?i)compose",
-                    "(?i)hi", "(?i)hello", "(?i)yo", "(?i)ya", "(?i)ha"]
+                  "params": ["(.*)"],
+                  "collect_as": "search_term"
                 },
-                "action_ident": "help",
-                "end_node_id": "[[help]]",
-                "ack_message": ""
-              },
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": ["有趣", "新聞", "新知", "(?i)trending", "(?i)trend", "(?i)interesting"]
-                },
-                "action_ident": "trending_news",
-                "end_node_id": "[[trending_news]]",
-                "ack_message": "以下是我為您找出今天最該閱讀的新聞："
-              },
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": ["搜尋 ?(.*)$", "^找 (.*)$", "search ?(.*)$"]
-                },
-                "action_ident": "search",
+                "action_ident": "do_search",
                 "end_node_id": "[[search_news]]",
-                "ack_message": "searching..."
-              },
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": ["((?i)yahoo)", "(風傳媒)", "((?i)hacker news)", "((?i)hacker)", "((?i)inside)"]
-                },
-                "action_ident": "news_source",
-                "end_node_id": "[[get_by_source]]",
-                "ack_message": ""
-              },
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": ["奧運", "段子", "笑話", "社會", "娛樂", "科技", "汽車",
-                    "財經", "搞笑", "軍事", "時尚", "探索", "養生",
-                    "健康", "美文", "歷史", "體育", "國際",
-                    "旅遊", "育兒", "故事", "遊戲", "美食"]
-                },
-                "action_ident": "news_category",
-                "end_node_id": "[[get_by_category]]",
-                "ack_message": ""
-              },
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": ["(?i)recommend"]
-                },
-                "action_ident": "recommend",
-                "end_node_id": "[[recommend]]",
-                "ack_message": "以下是我們認為您最可能喜歡的新聞："
-              },
-              {
-                "rule": {
-                  "type": "event",
-                  "params": ["TRENDING"]
-                },
-                "action_ident": "trending_news",
-                "end_node_id": "[[trending_news]]",
-                "ack_message": ""
-              },
-              {
-                "rule": {
-                  "type": "event",
-                  "params": ["GET_CONTENT"]
-                },
-                "action_ident": "get_content",
-                "end_node_id": "[[get_content]]",
-                "ack_message": ""
-              },
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": ["(.*)"]
-                },
-                "action_ident": "search",
-                "end_node_id": "[[search_news]]",
-                "ack_message": "im searching"
+                "ack_message": "搜尋中..."
               }
             ]
+          }
+        }
+      },
+      "thanks": {
+        "name": "Thanks",
+        "description": "Thank user",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": [
+              "感謝你的支持, 請幫我們的粉絲頁按讚喔! https://goo.gl/OPcdus",
+              "你也可以輸入「建議 {內容}」來告訢我們可以改善的地方"
+            ]
+          }
+        }
+      },
+      "feedback_no_content": {
+        "name": "Feedback",
+        "description": "Feedback without content, guide user to input feedback",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": "你覺得我們可以怎麼樣改善呢？"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [".*"],
+                  "collect_as": "feedback"
+                },
+                "action_ident": "got_feedback",
+                "end_node_id": "[[root]]",
+                "ack_message": "謝謝你的建議，我們會根據你的建議改善的！"
+              }
+            ]
+          }
+        }
+      },
+      "help": {
+        "name": "help",
+        "description": "",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.generic_message",
+          "config": {
+            "messages": [
+                {
+                  "text": "你好，我是 Compose.AI 新聞閱讀器，我的目標是用人工智慧提供您快速吸收每日新知的方法。"
+                },
+                {
+                  "text": "你可以輸入你想讀的新聞來源，比如說 Yahoo, 風傳媒，或是輸入搜尋加上你想搜尋的內容，也可以直接說推薦讓我們來幫你決定。"
+                }
+            ]
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.passthrough",
+          "config": {
+            "end_node_id": "[[root]]",
+            "ack_message": ""
           }
         }
       }
