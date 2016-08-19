@@ -282,6 +282,13 @@
               {
                 "rule": {
                   "type": "regexp",
+                  "params": ["好聰明"]
+                },
+                "ack_message": "謝謝 你也是喔 :D"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
                   "params": ["(?i)(hi|hey|hello|yo|ya)", "嗨", "你好"]
                 },
                 "ack_message": "Hi {{user.first_name}}!"
@@ -338,13 +345,6 @@
               },
               {
                 "rule": {
-                  "type": "regexp",
-                  "params": ["好聰明"]
-                },
-                "ack_message": "謝謝 你也是喔 :D"
-              },
-              {
-                "rule": {
                   "type": "sticker",
                   "params": [".*"]
                 },
@@ -373,7 +373,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["幾台車"]
+                  "params": ["(幾台|多少|剩餘)車", "剩多少車"]
                 },
                 "ack_message": "搜尋結果卡片的下方有車數及空車的資訊唷！"
               },
