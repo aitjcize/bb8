@@ -49,7 +49,8 @@ def schema():
         },
         'definitions': {
             'button': Message.Button.schema(),
-            'bubble': Message.Bubble.schema()
+            'bubble': Message.Bubble.schema(),
+            'quick_reply': Message.QuickReply.schema()
         }
     }
 

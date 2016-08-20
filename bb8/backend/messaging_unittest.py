@@ -60,6 +60,28 @@ class MessageUnittest(unittest.TestCase):
         jsonschema.validate(b.as_dict(), Message.Bubble.schema())
         self.assertEquals(b, b.FromDict(b.as_dict()))
 
+    def test_QuickReply(self):
+        q1 = Message.QuickReply('quick_reply_1',
+                                acceptable_inputs=['1', '2'])
+        jsonschema.validate(q1.as_dict(), Message.QuickReply.schema())
+        self.assertEquals(q1, q1.FromDict(q1.as_dict()))
+
+        q2 = Message.QuickReply('quick_reply_2',
+                                acceptable_inputs=['3', '4'])
+
+        m = Message('test')
+        m.add_quick_reply(q1)
+        m.add_quick_reply(q2)
+
+        jsonschema.validate(m.as_dict(), Message.schema())
+        self.assertEquals(m, m.FromDict(m.as_dict()))
+
+        transform_keys = reduce(lambda x, y: x + y,
+                                [x[0] for x in g.input_transformation], [])
+        self.assertTrue('quick_reply_1' in transform_keys)
+        self.assertTrue('1' in transform_keys)
+        self.assertTrue('3' in transform_keys)
+
     def test_Message(self):
         but1 = Message.Button(Message.ButtonType.WEB_URL, 'test',
                               url='http://test.com')
@@ -207,24 +229,40 @@ class MessagingUnittest(unittest.TestCase):
         DatabaseManager.commit()
         time.sleep(1)
         ColletedDatum(user_id=self.user_1.id, key='data', value='value2').add()
-        ColletedDatum(user_id=self.user_2.id, key='data', value='value3').add()
+        DatabaseManager.commit()
+        time.sleep(1)
+        ColletedDatum(user_id=self.user_1.id, key='data', value='value3').add()
+        ColletedDatum(user_id=self.user_1.id, key='aaa', value='aaa').add()
+        ColletedDatum(user_id=self.user_2.id, key='data', value='value4').add()
         DatabaseManager.commit()
 
         g.user = self.user_1
         m = Message('{{q.data|first|upper}}')
         self.assertEquals(m.as_dict()['text'], 'VALUE1')
 
-        m = Message("{{q.data|last}}")
+        m = Message("{{q.data|get(1)}}")
         self.assertEquals(m.as_dict()['text'], 'value2')
+
+        m = Message("{{q.data|last}}")
+        self.assertEquals(m.as_dict()['text'], 'value3')
+
+        m = Message("{{q.data|lru(0)}}")
+        self.assertEquals(m.as_dict()['text'], 'value3')
+
+        m = Message("{{q.data|lru(1)}}")
+        self.assertEquals(m.as_dict()['text'], 'value2')
+
+        m = Message("{{q.data|get(5)|fallback('valuef')}}")
+        self.assertEquals(m.as_dict()['text'], 'valuef')
 
         m = Message("{{q.data|order_by('-created_at')|first}}")
-        self.assertEquals(m.as_dict()['text'], 'value2')
+        self.assertEquals(m.as_dict()['text'], 'value3')
 
         m = Message("{{q.data|count}}")
-        self.assertEquals(m.as_dict()['text'], '2')
+        self.assertEquals(m.as_dict()['text'], '3')
 
         m = Message("{{qall.data|count}}")
-        self.assertEquals(m.as_dict()['text'], '3')
+        self.assertEquals(m.as_dict()['text'], '4')
 
 
 if __name__ == '__main__':
