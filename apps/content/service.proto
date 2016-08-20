@@ -7,6 +7,7 @@ service ContentInfo {
   rpc Trending (TrendingRequest) returns (EntriesList) {}
   rpc Search (SearchRequest) returns (EntriesList) {}
   rpc GetContent (GetContentRequest) returns (EntryContent) {}
+  rpc GetPicture (GetPictureRequest) returns (PictureContent) {}
 }
 
 message Entry {
@@ -44,7 +45,19 @@ message GetContentRequest {
   int32 limit = 3;
 }
 
+message GetPictureRequest {
+  string entry_link = 1;
+  int32 pic_index = 2;
+}
+
 message EntryContent {
   string content = 1;
   int32 char_offset = 2;
+  int32 total_length = 3;
+}
+
+message PictureContent {
+  string src = 1;
+  string alt = 2;
+  int32 pic_index = 3;
 }

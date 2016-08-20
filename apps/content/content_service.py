@@ -10,6 +10,7 @@
 """
 
 import hashlib
+import json
 import re
 
 from backports.functools_lru_cache import lru_cache
@@ -81,18 +82,34 @@ class ContentInfo(object):
     @classmethod
     def GetContent(cls, entry_link, char_offset, limit):
         entry = cls.GetEntry(entry_link)
+        total_length = len(entry['content'])
 
         content = entry['content'][char_offset:char_offset+limit]
         if len(content) < limit:
-            return content, -1
+            return content, -1, total_length
 
         try:
-            breakpoints = [_ for _ in re.finditer(ur'[。？！\n][^」]', content)]
+            breakpoints = list(re.finditer(ur'[。？！\n][^」]', content))
             index = breakpoints[-1].start(0) + 1
         except Exception:
             # Cannot find suitable break point
             index = len(content) - 1
-        return content[:index], char_offset+index
+        return content[:index], char_offset+index, total_length
+
+    @classmethod
+    def GetPicture(cls, entry_link, pic_index):
+        if pic_index == -1:
+            return '', '', -1
+
+        entry = cls.GetEntry(entry_link)
+
+        pictures = json.loads(entry['images'])
+        if pic_index >= len(pictures):
+            return '', '', -1
+
+        return (pictures[pic_index]['src'],
+                pictures[pic_index]['alt'],
+                pic_index+1)
 
 
 class ContentInfoServicer(service_pb2.BetaContentInfoServicer):
@@ -115,7 +132,14 @@ class ContentInfoServicer(service_pb2.BetaContentInfoServicer):
                 request.query, request.user_id, request.count))
 
     def GetContent(self, request, unused_context):
-        content, char_offset = ContentInfo.GetContent(
+        content, char_offset, total_length = ContentInfo.GetContent(
             request.entry_link, request.char_offset, request.limit)
         return service_pb2.EntryContent(
-            content=content, char_offset=char_offset)
+            content=content, char_offset=char_offset,
+            total_length=total_length)
+
+    def GetPicture(self, request, unused_context):
+        src, alt, pic_index = ContentInfo.GetPicture(
+            request.entry_link, request.pic_index)
+        return service_pb2.PictureContent(
+            src=src, alt=alt, pic_index=pic_index)

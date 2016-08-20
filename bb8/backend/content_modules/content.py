@@ -11,7 +11,8 @@
 from grpc.beta import implementations
 
 from bb8.backend.module_api import (Message, GetgRPCService, Resolve,
-                                    EventPayload, SupportedPlatform)
+                                    EventPayload, TextPayload,
+                                    SupportedPlatform, Render)
 
 GRPC_TIMEOUT = 5
 
@@ -77,7 +78,15 @@ class NewsInfo(object):
                 char_offset=char_offset,
                 limit=limit),
             GRPC_TIMEOUT)
-        return cont.content, cont.char_offset
+        return cont.content, cont.char_offset, cont.total_length
+
+    def get_picture(self, entry_link, pic_index=0, unused_count=1):
+        cont = self._stub.GetPicture(
+            self._pb2_module.GetPictureRequest(
+                entry_link=entry_link,
+                pic_index=pic_index),
+            GRPC_TIMEOUT)
+        return cont.src, cont.alt, cont.pic_index
 
     def get_by_category(self, category_name, count=5):
         return self._stub.GetByCategory(
@@ -103,33 +112,73 @@ def run(content_config, unused_env, variables):
     if content_config['mode'] == 'get_content':
         try:
             event = variables['event']
-            content, char_offset = news_info.get_content(
+            content, char_offset, total_length = news_info.get_content(
+                event.value['entry_link'], event.value['char_offset'])
+            src, alt, pic_index = news_info.get_picture(
                 event.value['entry_link'],
-                event.value['char_offset'])
+                event.value['pic_index'])
         except KeyError:
             return [Message(u'抱歉，有些東西出錯了，請再試一次！')]
 
-        if char_offset != -1:
-            msg = Message()
-            msg.set_buttons_text(content)
-            msg.add_button(Message.Button(
+        msgs = []
+        if content != '' and char_offset != -1:
+            m = Message()
+            m.set_buttons_text(content)
+            m.add_button(Message.Button(
                 Message.ButtonType.POSTBACK,
-                u'繼續讀', payload=EventPayload('GET_CONTENT', {
+                u'繼續讀 ({:.0f}%)'.format(
+                    float(char_offset) / total_length * 100),
+                payload=EventPayload('GET_CONTENT', {
                     'entry_link': event.value['entry_link'],
                     'char_offset': char_offset,
                     'link': event.value['link'],
+                    'pic_index': pic_index,
                 }, False)))
-            msg.add_button(Message.Button(
+            m.add_button(Message.Button(
                 Message.ButtonType.WEB_URL, u'去網站讀',
                 url=event.value['link']))
-            return [msg]
+            msgs.append(m)
+        elif content != '':
+            msgs.append(Message(content))
 
-        msg = Message()
-        msg.set_buttons_text(u'這則新聞讀完囉！')
-        msg.add_button(Message.Button(
-            Message.ButtonType.POSTBACK,
-            u'再推薦我一些！', payload=EventPayload('TRENDING', {}, False)))
-        return [Message(content), msg]
+        if pic_index != -1:
+            src_msg = Message(image_url=src)
+
+            msgs = [src_msg] + msgs
+            if alt.strip():
+                alt_msg = Message()
+                b = Message.Bubble(alt, subtitle=' ')
+                # Only append button to the last message, so if there is no
+                # char_msg, append to pic_msg
+                if not len(msgs):
+                    b.add_button(Message.Button(
+                        Message.ButtonType.POSTBACK,
+                        u'繼續讀 ({:.0f}%)'.format(
+                            float(char_offset) / total_length * 100),
+                        payload=EventPayload('GET_CONTENT', {
+                            'entry_link': event.value['entry_link'],
+                            'char_offset': char_offset,
+                            'link': event.value['link'],
+                            'pic_index': pic_index,
+                        }, False)))
+                    b.add_button(Message.Button(
+                        Message.ButtonType.WEB_URL, u'去網站讀',
+                        url=event.value['link']))
+                alt_msg.add_bubble(b)
+                msgs.insert(1, alt_msg)
+
+        if char_offset == -1:
+            msg = Message()
+            msg.set_buttons_text(u'這則新聞讀完囉！')
+            msg.add_button(Message.Button(
+                Message.ButtonType.POSTBACK,
+                u'再推薦我一些！',
+                payload=TextPayload(
+                    Render('search {{q.query_term|last}}', variables),
+                    send_to_current_node=False)))
+            msgs.append(msg)
+
+        return msgs
 
     if content_config['mode'] == 'get_by_source':
         source_name = Resolve(content_config['query_term'], variables)
@@ -161,6 +210,7 @@ def run(content_config, unused_env, variables):
                 'entry_link': n.link,
                 'char_offset': 0,
                 'link': n.link,
+                'pic_index': 0,
             }, False)))
         b.add_button(Message.Button(
             Message.ButtonType.WEB_URL, u'去網站讀',
