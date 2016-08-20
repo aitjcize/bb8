@@ -103,14 +103,14 @@
       "youbike_demo_desc": {
         "name": "Youbike-Demo-Desc",
         "description": "Give context about the demo",
-        "expect_input": false,
+        "expect_input": true,
         "content_module": {
           "id": "ai.compose.core.generic_message",
           "config": {
             "messages": {
               "Facebook": [
                 {
-                  "text": "請你打開手機版 Messenger ，並使用位置按鍵(按鈕有可能在「...」裡面)。將位置發送給我後，我會替你找出鄰近的 Youbike 站。如果是用電腦版的話，你也可以試著輸入地名。"
+                  "text": "請使用訊息的定位功能將位置發送給我，我會替你找出鄰近的 Youbike 站，你也可以透過輸入地名或地址的方試查詢唷！"
                 },
                 {
                   "attachment": {
@@ -118,15 +118,18 @@
                     "payload": {
                       "url": "http://i.imgur.com/yz5fNt8.png"
                     }
-                  }
-                },
-                {
-                  "text": "比如說，下列就是在 台北101 附近的 Ubike 站："
+                  },
+                  "quick_replies": [
+                    {
+                      "content_type": "text",
+                      "title": "知道了！"
+                    }
+                  ]
                 }
               ],
               "Line": [
                 {
-                  "text": "請你打開手機版 LINE ，並使用位置按鍵。將位置發送給我後，我會替你找出鄰近的 Youbike 站。如果是用電腦版的話，你也可以試著輸入地名。"
+                  "text": "請使用FB訊息的定位功能將位置發送給我，我會替你找出鄰近的 Youbike 站，你也可以透過輸入地名或地址的方試查詢唷！"
                 },
                 {
                   "attachment": {
@@ -135,12 +138,27 @@
                       "url": "http://i.imgur.com/FiLEltL.png"
                     }
                   }
-                },
-                {
-                  "text": "比如說，下列就是在 台北101 附近的 Ubike 站："
                 }
               ]
             }
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.passthrough",
+          "config": {
+            "end_node_id": "[[youbike_demo_desc2]]",
+            "ack_message": ""
+          }
+        }
+      },
+      "youbike_demo_desc2": {
+        "name": "Youbike-Demo-Desc2",
+        "description": "Give context about the demo cont",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": "比如說，下列就是在 台北101 附近的 Ubike 站："
           }
         },
         "parser_module": {
@@ -327,7 +345,7 @@
                 },
                 "action_ident": "got_location",
                 "end_node_id": "[[youbike]]",
-                "ack_message": "收到~"
+                "ack_message": ""
               },
               {
                 "rule": {
@@ -559,6 +577,13 @@
                 }
               ]
             }
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.passthrough",
+          "config": {
+            "end_node_id": "[[root]]",
+            "ack_message": ""
           }
         }
       },
