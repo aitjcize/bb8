@@ -22,13 +22,13 @@ from flask import Flask  # pylint: disable=C0411,C0413
 from sqlalchemy import create_engine
 from sqlalchemy import (Boolean, Column, DateTime, Enum, ForeignKey, Integer,
                         PickleType, Table, Text, String, Unicode, UnicodeText)
+from sqlalchemy.exc import IntegrityError, InvalidRequestError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (scoped_session, sessionmaker, joinedload,
                             relationship, object_session, deferred)
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import has_identity
 from sqlalchemy.schema import UniqueConstraint
-from sqlalchemy.exc import IntegrityError, InvalidRequestError
 
 from bb8 import config
 from bb8.backend.metadata import SessionRecord
