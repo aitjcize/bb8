@@ -10,6 +10,7 @@
 import argparse
 import logging
 import time
+from multiprocessing import Process
 
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
@@ -20,6 +21,17 @@ import service_pb2  # pylint: disable=E0401
 from news import config, spider_configs
 from news.database import Initialize
 from news.spiders import RSSSpider, WebsiteSpider
+
+
+def crawl():
+    try:
+        process = CrawlerProcess(get_project_settings())
+        process.crawl(WebsiteSpider, **spider_configs['storm'])
+        process.crawl(RSSSpider, **spider_configs['yahoo_rss'])
+        process.start()
+        process.stop()
+    except Exception:
+        logging.exception('Crawler exception, skipping')
 
 
 def main(args):
@@ -35,14 +47,9 @@ def main(args):
 
     while True:
         if config.ENABLE_CRAWLER:
-            try:
-                process = CrawlerProcess(get_project_settings())
-                process.crawl(WebsiteSpider, **spider_configs['storm'])
-                process.crawl(RSSSpider, **spider_configs['yahoo_rss'])
-                process.start()
-            except Exception:
-                logging.exception('Crawler exception, skipping')
-                continue
+            p = Process(target=crawl)
+            p.start()
+            p.join()
         time.sleep(args.interval)
 
 
@@ -50,6 +57,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Crawler')
     parser.add_argument('-p', '--port', dest='port', default=9999,
                         help='gRPC service port')
-    parser.add_argument('--interval', type=int, dest='interval', default=3600,
+    parser.add_argument('--interval', type=int, dest='interval', default=1800,
                         help='The interval in seoncds between crawler run')
     main(parser.parse_args())

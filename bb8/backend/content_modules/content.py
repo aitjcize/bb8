@@ -120,14 +120,19 @@ def run(content_config, unused_env, variables):
         except KeyError:
             return [Message(u'抱歉，有些東西出錯了，請再試一次！')]
 
+        content_ended = char_offset == -1
+        picture_ended = pic_index == -1
+        all_ended = content_ended and picture_ended
+        progress = float(char_offset) / total_length * 100 \
+            if char_offset >= 0 else 100.0
+
         msgs = []
-        if content != '' and char_offset != -1:
+        if content != '' and not all_ended:
             m = Message()
             m.set_buttons_text(content)
             m.add_button(Message.Button(
                 Message.ButtonType.POSTBACK,
-                u'繼續讀 ({:.0f}%)'.format(
-                    float(char_offset) / total_length * 100),
+                u'繼續讀 ({:.0f}%)'.format(progress),
                 payload=EventPayload('GET_CONTENT', {
                     'entry_link': event.value['entry_link'],
                     'char_offset': char_offset,
@@ -141,20 +146,17 @@ def run(content_config, unused_env, variables):
         elif content != '':
             msgs.append(Message(content))
 
-        if pic_index != -1:
+        if not picture_ended:
             src_msg = Message(image_url=src)
-
-            msgs = [src_msg] + msgs
             if alt.strip():
                 alt_msg = Message()
                 b = Message.Bubble(alt, subtitle=' ')
-                # Only append button to the last message, so if there is no
-                # char_msg, append to pic_msg
-                if not len(msgs):
+                # Only append button to the last message, so only append if
+                # content is empty
+                if content == '':
                     b.add_button(Message.Button(
                         Message.ButtonType.POSTBACK,
-                        u'繼續讀 ({:.0f}%)'.format(
-                            float(char_offset) / total_length * 100),
+                        u'繼續讀 ({:.0f}%)'.format(progress),
                         payload=EventPayload('GET_CONTENT', {
                             'entry_link': event.value['entry_link'],
                             'char_offset': char_offset,
@@ -165,9 +167,11 @@ def run(content_config, unused_env, variables):
                         Message.ButtonType.WEB_URL, u'去網站讀',
                         url=event.value['link']))
                 alt_msg.add_bubble(b)
-                msgs.insert(1, alt_msg)
+                msgs = [src_msg, alt_msg] + msgs
+            else:
+                msgs = [src_msg] + msgs
 
-        if char_offset == -1:
+        if all_ended:
             msg = Message()
             msg.set_buttons_text(u'這則新聞讀完囉！')
             msg.add_button(Message.Button(
