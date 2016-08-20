@@ -32,10 +32,10 @@ spider_configs = {
         'extractor': {
             'title': '//title/text()',
             'content': '//div[@class="yom-mod yom-art-content "]'
-                       '/div[@class="bd"]/*/text()',
+                       '/div[@class="bd"]',
             'description': '',
             'images': '//div[@class="yom-mod yom-art-content "]'
-                      '/div[@class="bd"]/*//img',
+                      '//img',
             'author': '',
             'source': 'yahoo_rss',
         },

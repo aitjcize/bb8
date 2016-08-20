@@ -125,7 +125,8 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["搜尋 ?(.*)$", "^找 (.*)$", "search ?(.*)$"]
+                  "params": ["搜尋 ?(.*)$", "^找 (.*)$", "search ?(.*)$"],
+                  "collect_as": "query_term#1"
                 },
                 "action_ident": "search",
                 "end_node_id": "[[search_news]]",
