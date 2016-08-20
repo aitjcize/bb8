@@ -130,7 +130,7 @@
                 },
                 "action_ident": "search",
                 "end_node_id": "[[search_news]]",
-                "ack_message": "搜尋中..."
+                "ack_message": ""
               },
               {
                 "rule": {
@@ -321,7 +321,7 @@
                 },
                 "action_ident": "do_search",
                 "end_node_id": "[[search_news]]",
-                "ack_message": "搜尋中..."
+                "ack_message": ""
               }
             ]
           }

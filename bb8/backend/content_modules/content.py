@@ -178,8 +178,8 @@ def run(content_config, unused_env, variables):
                 Message.ButtonType.POSTBACK,
                 u'再推薦我一些！',
                 payload=TextPayload(
-                    Render('search {{q.query_term|last}}', variables),
-                    send_to_current_node=False)))
+                    Render("search {{q.query_term|last|fallback('')}}",
+                           variables))))
             msgs.append(msg)
 
         return msgs
@@ -187,14 +187,14 @@ def run(content_config, unused_env, variables):
     if content_config['mode'] == 'get_by_source':
         source_name = Resolve(content_config['query_term'], variables)
         news = news_info.trending(source_name, 5)
-
     elif content_config['mode'] == 'search':
         query_term = Resolve(content_config['query_term'], variables)
-        news = news_info.search(query_term, 5)
-
+        if query_term:
+            news = news_info.search(query_term, 5)
+        else:
+            news = news_info.trending()
     elif content_config['mode'] == 'trending':
         news = news_info.trending()
-
     else:
         news = news_info.trending()
 

@@ -213,7 +213,9 @@ class Engine(object):
                 if node.parser_module is None:
                     user.goto(bot.root_node_id)
                     user.session.message_sent = True
-                    return self.step(bot, user)
+                    # Run at root instead, so disable jump
+                    user_input.disable_jump()
+                    return self.step(bot, user, user_input)
 
                 matched, link, variables = self.run_parser_module(
                     node, user, user_input, global_variables, False)
