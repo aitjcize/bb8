@@ -587,7 +587,7 @@ class ParserModule(DeclarativeBase, ModelMixin):
 
 
 class ColletedDatum(DeclarativeBase, ModelMixin):
-    __tablename__ = 'colleted_data'
+    __tablename__ = 'collected_data'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(ForeignKey('user.id'), nullable=False)
