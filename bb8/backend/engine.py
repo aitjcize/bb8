@@ -84,7 +84,7 @@ class Engine(object):
     def step(self, bot, user, user_input=None, input_vars=None):
         """Main function for executing a node."""
 
-        try:
+        try:  # pylint: disable=R0101
             now = datetime.datetime.now()
 
             # Flag to detemine if we have jump to a node due to postback being
@@ -241,9 +241,9 @@ class Engine(object):
             # Rollback when error happens, so user won't get stuck in some
             # weird state.
             DatabaseManager.rollback()
-        else:
+        finally:
             user.last_seen = datetime.datetime.now()
-            user.commit()
+            DatabaseManager.commit()
 
     def process_admin_reply(self, bot, user, unused_user_input=None,
                             unused_input_vars=None):

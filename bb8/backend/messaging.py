@@ -13,7 +13,7 @@ import enum
 import jsonschema
 
 from flask import g
-from sqlalchemy import desc
+from sqlalchemy import desc, func
 
 from bb8 import config, logger
 from bb8.backend.query_filters import FILTERS
@@ -114,18 +114,18 @@ class Message(object):
         def schema(cls):
             return {
                 'oneOf': [{
+                    'type': 'object',
                     'required': ['type', 'title', 'url'],
                     'additionalProperties': False,
-                    'type': 'object',
                     'properties': {
                         'type': {'enum': ['web_url']},
                         'title': {'type': 'string'},
                         'url': {'type': 'string'}
                     }
                 }, {
+                    'type': 'object',
                     'required': ['type', 'title', 'payload'],
                     'additionalProperties': False,
-                    'type': 'object',
                     'properties': {
                         'type': {'enum': ['postback']},
                         'title': {'type': 'string'},
@@ -177,9 +177,8 @@ class Message(object):
             """Construct Bubble object given a bubble dictionary."""
             variables = variables or {}
             jsonschema.validate(data, cls.schema())
-            title = data.get('title')
 
-            b = cls(Render(to_unicode(title), variables))
+            b = cls(Render(to_unicode(data['title']), variables))
             b.item_url = data.get('item_url')
             b.image_url = data.get('image_url')
             b.subtitle = Render(to_unicode(data.get('subtitle')), variables)
@@ -231,6 +230,63 @@ class Message(object):
 
             return data
 
+    class QuickReply(object):
+        def __init__(self, title, payload=None, acceptable_inputs=None,
+                     variables=None):
+            variables = variables or {}
+
+            self.title = Render(to_unicode(title), variables)[:20]
+            if payload:
+                if isinstance(payload, str) or isinstance(payload, unicode):
+                    self.payload = str(payload)
+                elif isinstance(payload, dict):
+                    self.payload = json.dumps(payload)
+            else:
+                self.payload = self.title
+
+            if acceptable_inputs:
+                acceptable_inputs.append(title)
+                InputTransformation.add_mapping(
+                    acceptable_inputs, self.payload)
+
+        def __str__(self):
+            return json.dumps(self.as_dict())
+
+        def __eq__(self, other):
+            return (
+                self.title == other.title and
+                self.payload == other.payload
+            )
+
+        def as_dict(self):
+            return {
+                'content_type': 'text',
+                'title': self.title,
+                'payload': self.payload
+            }
+
+        @classmethod
+        def FromDict(cls, data, variables=None):
+            q = cls(Render(to_unicode(data['title']), variables))
+            payload = data.get('payload', q.title)
+            if isinstance(payload, dict):
+                payload = json.dumps(payload)
+            q.payload = Render(to_unicode(payload), variables)
+            return q
+
+        @classmethod
+        def schema(cls):
+            return {
+                'type': 'object',
+                'required': ['content_type', 'title'],
+                'additionalProperties': False,
+                'properties': {
+                    'content_type': {'enum': ['text']},
+                    'title': {'type': 'string'},
+                    'payload': {'type': ['string', 'object']}
+                }
+            }
+
     def __init__(self, text=None, image_url=None,
                  notification_type=NotificationType.REGULAR, variables=None):
         """Constructor.
@@ -251,6 +307,7 @@ class Message(object):
         self.buttons_text = None
         self.bubbles = []
         self.buttons = []
+        self.quick_replies = []
 
     def __str__(self):
         return json.dumps(self.as_dict())
@@ -294,6 +351,12 @@ class Message(object):
                     elements = attachment['payload']['elements']
                     m.bubbles = [Message.Bubble.FromDict(x, variables)
                                  for x in elements]
+
+        quick_replies = data.get('quick_replies')
+        if quick_replies:
+            m.quick_replies = [Message.QuickReply.FromDict(x, variables)
+                               for x in quick_replies]
+
         return m
 
     @classmethod
@@ -304,7 +367,11 @@ class Message(object):
                 'additionalProperties': False,
                 'type': 'object',
                 'properties': {
-                    'text': {'type': 'string'}
+                    'text': {'type': 'string'},
+                    'quick_replies': {
+                        'type': 'array',
+                        'items': {'$ref': '#/definitions/quick_reply'}
+                    }
                 }
             }, {
                 'required': ['attachment'],
@@ -364,12 +431,17 @@ class Message(object):
                                 }]}
                             }
                         }]
+                    },
+                    'quick_replies': {
+                        'type': 'array',
+                        'items': {'$ref': '#/definitions/quick_reply'}
                     }
                 }
             }],
             'definitions': {
                 'button': Message.Button.schema(),
-                'bubble': Message.Bubble.schema()
+                'bubble': Message.Bubble.schema(),
+                'quick_reply': Message.QuickReply.schema()
             }
         }
 
@@ -400,6 +472,10 @@ class Message(object):
                     'elements': [x.as_dict() for x in self.bubbles]
                 }
             }
+
+        if self.quick_replies:
+            data['quick_replies'] = [x.as_dict() for x in self.quick_replies]
+
         return data
 
     def as_facebook_message(self):
@@ -494,8 +570,8 @@ class Message(object):
         button.register_mapping(str(len(self.buttons)))
 
     def add_bubble(self, bubble):
-        if len(self.bubbles) == 7:
-            raise RuntimeError('maxium allowed bubbles reached')
+        if len(self.bubbles) == 10:
+            raise RuntimeError('maximum allowed bubbles reached')
 
         if not isinstance(bubble, Message.Bubble):
             raise RuntimeError('object is not a Message.Bubble object')
@@ -509,6 +585,12 @@ class Message(object):
 
         self.bubbles.append(bubble)
         bubble.register_mapping(str(len(self.bubbles)))
+
+    def add_quick_reply(self, reply):
+        if not isinstance(reply, Message.QuickReply):
+            raise RuntimeError('object is not a Message.QuickReply object')
+
+        self.quick_replies.append(reply)
 
 
 def IsVariable(text):
@@ -529,7 +611,7 @@ def parseQuery(expr):
         return expr
 
     key = m.group(2)
-    q = ColletedDatum.query()
+    q = ColletedDatum.query(ColletedDatum.value, ColletedDatum.created_at)
     q = q.filter_by(key=key)
 
     if m.group(1) is None:  # q.
@@ -544,13 +626,35 @@ def parseQuery(expr):
                 result = q.first()
                 result = result.value if result else None
                 break
+            m = re.match(r'get\((\d+)\)', f)
+            if m:
+                result = q.offset(int(m.group(1))).limit(1).first()
+                result = result.value if result else None
+                break
+            m = re.match(r'lru\((\d+)\)', f)
+            if m:
+                result = ColletedDatum.query(
+                    ColletedDatum.value,
+                    func.max(ColletedDatum.created_at).label('latest')
+                ).filter_by(
+                    key=key,
+                    user_id=g.user.id
+                ).group_by(
+                    ColletedDatum.value
+                ).order_by(
+                    desc('latest')
+                ).offset(int(m.group(1))).limit(1).first()
+                result = result.value if result else None
+                break
             if f == 'last':
-                result = q.order_by(desc('created_at')).first()
+                result = q.order_by(ColletedDatum.created_at.desc()).first()
                 result = result.value if result else None
                 break
             elif f == 'count':
                 result = q.count()
                 break
+            elif f == 'uniq':
+                q = q.distinct(ColletedDatum.value)
             else:
                 m = re.match(r'order_by\(\'(.*)\'\)', f)
                 if m:
@@ -564,6 +668,10 @@ def parseQuery(expr):
         return expr
 
     if result is None:
+        if filters:
+            m = re.match(r'fallback\(\'(.*)\'\)', filters[0])
+            if m:
+                return m.group(1)
         return expr
 
     # Parse transform filter

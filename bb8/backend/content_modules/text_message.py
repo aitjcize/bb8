@@ -33,10 +33,14 @@ def schema():
                     'type': 'array',
                     'items': {'$ref': '#/definitions/messages'}
                 }]
+            },
+            'quick_replies': {
+                'type': 'array',
+                'items': {'$ref': '#/definitions/quick_reply'}
             }
         },
-        "definitions": {
-            "messages": {
+        'definitions': {
+            'messages': {
                 'oneOf': [{
                     'type': 'string'
                 }, {
@@ -48,7 +52,8 @@ def schema():
                         'Line': {'type': 'string'}
                     }
                 }]
-            }
+            },
+            'quick_reply': Message.QuickReply.schema()
         }
     }
 
@@ -78,7 +83,13 @@ def run(content_config, env, variables):
 
     # Platform independent message
     if not isinstance(text[0], dict):
-        return [Message(t, variables=variables) for t in text]
+        msgs = [Message(t, variables=variables) for t in text]
+    else:
+        platform_type = env['platform_type'].value
+        msgs = [Message(t[platform_type], variables=variables) for t in text]
 
-    platform_type = env['platform_type'].value
-    return [Message(t[platform_type], variables=variables) for t in text]
+    for qr in content_config.get('quick_replies', []):
+        msgs[-1].add_quick_reply(
+            Message.QuickReply.FromDict(qr, variables=variables))
+
+    return msgs

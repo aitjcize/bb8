@@ -183,9 +183,12 @@ class ModelMixin(object):
         DatabaseManager.flush()
 
     @classmethod
-    def query(cls):
+    def query(cls, *args):
         """Short hand for query."""
-        return DatabaseManager.db().query(cls)
+        if args:
+            return DatabaseManager.db().query(*args)
+        else:
+            return DatabaseManager.db().query(cls)
 
     @classmethod
     def get_all(cls):
