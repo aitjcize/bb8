@@ -180,7 +180,7 @@ def run(parser_config, user_input, as_root):
     if as_root:
         return ('$bb8.global.nomatch', None, {}, {})
 
-    return ('$error', None, {}, {})
+    return ('$error', None, {'text': user_input.text}, {})
 
 
 def get_linkages(parser_config):

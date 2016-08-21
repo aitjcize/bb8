@@ -68,6 +68,9 @@ def parse_bot(filename, to_bot_id=None):
         to_bot_id = to_bot_id(bot_desc)
 
     if to_bot_id:
+        # Update existing bot.
+        logger.info('Updating existing bot(id=%d) with %s ...',
+                    to_bot_id, filename)
         for platform_desc in bot_json['platforms']:
             ptype = PlatformTypeEnum(platform_desc['type_enum'])
             provider = get_messaging_provider(ptype)
@@ -81,9 +84,6 @@ def parse_bot(filename, to_bot_id=None):
 
             provider.apply_config(platform_desc['config'])
 
-        # Update existing bot. Keep associated Platform.
-        logger.info('Updating existing bot(id=%d) with %s ...',
-                    to_bot_id, filename)
         bot = Bot.get_by(id=to_bot_id, single=True)
         bot.delete_all_node_and_links()  # Delete all previous node and links
 

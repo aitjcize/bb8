@@ -37,7 +37,7 @@ database.install_commands(manager)
 
 if __name__ == "__main__":
     # Warn user about operating on a production database
-    if 'deploy' in config.DATABASE and not config.DEPLOY:
+    if 'deploy' in config.DATABASE:
         print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
         print('!                         WARNING                         !')
         print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
