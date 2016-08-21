@@ -4,7 +4,7 @@ MAINTAINER Wei-Ning Huang <aitjcize@compose.ai>
 RUN apt-get update && apt-get upgrade -y && \
 	apt-get install -y vim git python2.7 python-pip nginx libpcre3-dev \
 	libmysqlclient-dev libjpeg-dev libpng-dev libsqlite3-dev \
-	libncurses-dev supervisor
+	libffi-dev libssl-dev libncurses-dev supervisor
 
 COPY requirements.txt /tmp/requirements.txt
 
