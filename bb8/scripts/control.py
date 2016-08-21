@@ -77,6 +77,8 @@ class App(object):
     BB8_APP_PREFIX = 'bb8.app'
     SCHEMA = get_manifest_schema()
 
+    VOLUME_PRIVILEGE_WHITELIST = ['system', 'content']
+
     def __init__(self, app_dir):
         self._app_dir = app_dir
         with open(os.path.join(app_dir, 'manifest.json'), 'r') as f:
@@ -176,8 +178,8 @@ class App(object):
             for target, path in self._info['resource']['volumes']:
                 # Prevent mapping path outside of app dir except for the
                 # BB8 system app.
-                if (self._app_name != 'system' and
-                        (target.startswith('/') or target.startswith('.'))):
+                if ((target.startswith('/') or target.startswith('.')) and
+                        self._app_name not in self.VOLUME_PRIVILEGE_WHITELIST):
                     print('%s: invalid volume `%s\' detected, abort.' %
                           (self._app_name, target))
                     return

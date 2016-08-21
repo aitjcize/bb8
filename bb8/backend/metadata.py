@@ -197,6 +197,10 @@ class UserInput(object):
     def jump(self):
         return self.jump_node_id is not None
 
+    def disable_jump(self):
+        """Remove the jump node ID so the input does not indicate jumping."""
+        self.jump_node_id = None
+
 
 class InputTransformation(object):
     @classmethod

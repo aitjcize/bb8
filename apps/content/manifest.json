@@ -1,0 +1,13 @@
+{
+  "name": "content",
+  "description": "content crawler and service",
+  "version": "0.1",
+  "service_port": 9999,
+  "resource": {
+    "cpu": "medium",
+    "memory": 256,
+    "volumes": [
+      ["/cloudsql", "/cloudsql"]
+    ]
+  }
+}
