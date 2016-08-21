@@ -95,6 +95,7 @@ class App(object):
                                       self._app_name)
 
     def start(self, force=False):
+        print('=' * 20, 'Starting %s' % self._app_name, '=' * 20)
         self.start_container(force)
 
     def get_cpu_shares(self):
@@ -243,6 +244,7 @@ class BB8(object):
             app = App(app_dir)
             app.start(force)
 
+        print('=' * 20, 'Starting BB8 main container', '=' * 20)
         self.start_container(force)
 
     def get_git_version_hash(self):
