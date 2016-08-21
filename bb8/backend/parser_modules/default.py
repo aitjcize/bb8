@@ -92,6 +92,15 @@ def schema():
                         }
                     }
                 }
+            },
+            'on_error': {
+                'type': 'object',
+                'required': ['pattern', 'collect_as'],
+                'additionalProperties': False,
+                'properties': {
+                    'pattern': {'type': 'string'},
+                    'collect_as': {'type': 'string'}
+                }
             }
         }
     }
@@ -180,7 +189,14 @@ def run(parser_config, user_input, as_root):
     if as_root:
         return ('$bb8.global.nomatch', None, {}, {})
 
-    return ('$error', None, {'text': user_input.text}, {})
+    collect = {}
+    on_error = parser_config.get('on_error')
+    if on_error:
+        m = re.search(on_error['pattern'], user_input.text)
+        if m:
+            collect = parse_collect(on_error['collect_as'], m)
+
+    return ('$error', None, {'text': user_input.text}, collect)
 
 
 def get_linkages(parser_config):
