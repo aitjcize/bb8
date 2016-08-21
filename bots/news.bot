@@ -282,7 +282,7 @@
           "id": "ai.compose.core.content",
           "config": {
             "mode": "get_content",
-            "limit": 320,
+            "limit": 250,
             "count": 5
           }
         }

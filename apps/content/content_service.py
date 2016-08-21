@@ -109,7 +109,7 @@ class ContentInfo(object):
 
         return (pictures[pic_index]['src'],
                 pictures[pic_index]['alt'],
-                pic_index+1)
+                pic_index+1 if pic_index+1 < len(pictures) else -1)
 
 
 class ContentInfoServicer(service_pb2.BetaContentInfoServicer):
