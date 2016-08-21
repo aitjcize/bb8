@@ -56,7 +56,7 @@ def run(content_config, env, variables):
         'text': 'blablabla',
         'choices': [
             {
-                'title': 'option 1'
+                'title': 'option 1',
                 'payload': '1',
                 'acceptable_inputs': ['opt 1']
             },

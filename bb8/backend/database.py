@@ -6,9 +6,9 @@
     Copyright 2016 bb8 Authors
 """
 
+import importlib
 import time
 import uuid
-import importlib
 
 from datetime import datetime, timedelta
 
@@ -19,16 +19,16 @@ import pytz
 from passlib.hash import bcrypt  # pylint: disable=E0611
 from flask import Flask  # pylint: disable=C0411,C0413
 
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine
 from sqlalchemy import (Boolean, Column, DateTime, Enum, ForeignKey, Integer,
                         PickleType, Table, Text, String, Unicode, UnicodeText)
+from sqlalchemy.exc import IntegrityError, InvalidRequestError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (scoped_session, sessionmaker, joinedload,
                             relationship, object_session, deferred)
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import has_identity
 from sqlalchemy.schema import UniqueConstraint
-from sqlalchemy.exc import IntegrityError, InvalidRequestError
 
 from bb8 import config
 from bb8.backend.metadata import SessionRecord
@@ -67,12 +67,6 @@ class DatabaseManager(object):
         if not cls.db:
             cls.db = scoped_session(sessionmaker(bind=cls.engine))
 
-        # pylint: disable=W0612
-        @event.listens_for(cls.db(), 'before_flush')
-        def receive_before_flush(session, unused_context, unused_instances):
-            for row in session.dirty:
-                row.touch()
-
     @classmethod
     def disconnect(cls, commit=True):
         if commit:
@@ -97,26 +91,26 @@ class DatabaseManager(object):
     @classmethod
     def create_all_tables(cls):
         """Create all table."""
-        DeclarativeBase.metadata.create_all(cls.engine)
+        metadata.create_all(cls.engine)
 
     @classmethod
     def drop_all_tables(cls):
         """Drop all table."""
-        DeclarativeBase.metadata.drop_all(cls.engine)
+        metadata.drop_all(cls.engine)
 
     @classmethod
     def create_new_table(cls, k):
-        DeclarativeBase.metadata.tables[k.__tablename__].create(cls.engine)
+        metadata.tables[k.__tablename__].create(cls.engine)
 
     @classmethod
     def drop_table(cls, k):
-        DeclarativeBase.metadata.tables[k.__tablename__].drop(cls.engine)
+        metadata.tables[k.__tablename__].drop(cls.engine)
 
     @classmethod
     def reset(cls):
         """Reset and initialize database."""
-        DeclarativeBase.metadata.drop_all(cls.engine)
-        DeclarativeBase.metadata.create_all(cls.engine)
+        metadata.drop_all(cls.engine)
+        metadata.create_all(cls.engine)
 
     @classmethod
     def commit(cls):
@@ -169,10 +163,15 @@ class DatabaseSession(object):
 class ModelMixin(object):
     """Provides common field and methods for models."""
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow,
+                        onupdate=datetime.utcnow)
 
     def __repr__(self):
         return '<%s(\'%s\')>' % (type(self).__name__, self.id)
+
+    @classmethod
+    def columns(cls):
+        return [m.key for m in cls.__table__.columns]
 
     @classmethod
     def commit(cls):
@@ -252,10 +251,6 @@ class ModelMixin(object):
     def count_by(cls, **kwargs):
         """Get count by condition."""
         return cls.query().filter_by(**kwargs).count()
-
-    def touch(self):
-        """Update update_at timestamp."""
-        self.updated_at = datetime.utcnow()
 
     def add(self):
         """Register object."""
@@ -342,9 +337,7 @@ class Account(DeclarativeBase, ModelMixin, JSONSerializer):
     passwd = Column(String(256), nullable=False)
 
     bots = relationship('Bot', secondary='account_bot')
-
     feeds = relationship('Feed', lazy='dynamic')
-    entries = relationship('Entry')
     oauth_infos = relationship('OAuthInfo', back_populates="account")
 
     def set_passwd(self, passwd):
@@ -550,7 +543,7 @@ class SupportedPlatform(enum.Enum):
 class ContentModule(DeclarativeBase, ModelMixin):
     __tablename__ = 'content_module'
 
-    id = Column(String(128), primary_key=True)
+    id = Column(String(128), primary_key=True, nullable=False)
     name = Column(String(256), nullable=False)
     description = Column(Text, nullable=False)
     supported_platform = Column(Enum(SupportedPlatform), nullable=False,
@@ -568,7 +561,7 @@ class ContentModule(DeclarativeBase, ModelMixin):
 class ParserModule(DeclarativeBase, ModelMixin):
     __tablename__ = 'parser_module'
 
-    id = Column(String(128), primary_key=True)
+    id = Column(String(128), primary_key=True, nullable=False)
     name = Column(String(256), nullable=False)
     description = Column(Text, nullable=False)
     supported_platform = Column(Enum(SupportedPlatform), nullable=False,
@@ -622,6 +615,14 @@ class Event(DeclarativeBase, ModelMixin):
     event_value = Column(PickleType, nullable=False)
 
 
+class Broadcast(DeclarativeBase, ModelMixin):
+    __tablename__ = 'broadcast'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    message = Column(PickleType, nullable=False)
+    scheduled_time = Column(DateTime, nullable=False)
+
+
 class FeedEnum(enum.Enum):
     RSS = 'RSS'
     ATOM = 'ATOM'
@@ -656,44 +657,6 @@ class PublicFeed(DeclarativeBase, ModelMixin):
     title = Column(Unicode(128), nullable=False)
     image_url = Column(String(256), nullable=False)
 
-
-class Entry(DeclarativeBase, ModelMixin):
-    __tablename__ = 'entry'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    account_id = Column(ForeignKey('account.id'), nullable=False)
-    title = Column(Unicode(128), nullable=False)
-    link = Column(Unicode(256), nullable=False)
-    description = Column(UnicodeText, nullable=False)
-    publish_time = Column(DateTime, nullable=False)
-    source_name = Column(Unicode(64), nullable=False)
-    image_url = Column(String(256), nullable=False)
-    author = Column(Unicode(64), nullable=False)
-    content = Column(UnicodeText, nullable=False)
-
-    tags = relationship('Tag', secondary='entry_tag')
-
-
-class Broadcast(DeclarativeBase, ModelMixin):
-    __tablename__ = 'broadcast'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    message = Column(PickleType, nullable=False)
-    scheduled_time = Column(DateTime, nullable=False)
-
-
-class Tag(DeclarativeBase, ModelMixin):
-    __tablename__ = 'tag'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(Unicode(64), nullable=False)
-
-
-t_entry_tag = Table(
-    'entry_tag', metadata,
-    Column('entry_id', ForeignKey('entry.id'), nullable=False),
-    Column('tag_id', ForeignKey('tag.id'), nullable=False)
-)
 
 t_account_bot = Table(
     'account_bot', metadata,
