@@ -225,7 +225,11 @@
                 "end_node_id": "[[search_news]]",
                 "ack_message": ""
               }
-            ]
+            ],
+            "on_error": {
+              "pattern": ".*",
+              "collect_as": "query_term"
+            }
           }
         }
       },
