@@ -19,6 +19,9 @@ RUN mkdir -p /opt/app /var/lib/crawler
 COPY . /opt/app
 COPY credential/compose-ai.json /opt/app
 
+# CloudSQL
+RUN mkdir -p /cloudsql
+
 ENV GOOGLE_APPLICATION_CREDENTIALS=/opt/app/compose-ai.json
 
 WORKDIR /opt/app

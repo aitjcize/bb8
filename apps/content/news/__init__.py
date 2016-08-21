@@ -88,6 +88,9 @@ class DevelopmentConfig(Config):
 
 
 class DeployConfig(Config):
+    DATABASE = ('mysql+pymysql://contentdeploy:contentdeploymysql@/content?'
+                'unix_socket=/cloudsql/dotted-lexicon-133523:asia-east1:bb8&'
+                'charset=utf8mb4')
     ENTRY_ENTITY = 'entries'
     ENABLE_CRAWLER = True
 
