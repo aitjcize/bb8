@@ -218,7 +218,7 @@ def run(content_config, unused_env, variables):
                 'entry_link': n.link,
                 'char_offset': 0,
                 'link': n.link,
-                'pic_index': 0,
+                'pic_index': 1,
             }, False)))
         b.add_button(Message.Button(
             Message.ButtonType.WEB_URL, u'去網站讀',

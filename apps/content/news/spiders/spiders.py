@@ -6,15 +6,16 @@
     Copyright 2016 bb8 Authors
 """
 
+import traceback
+import itertools
 from datetime import datetime
 from functools import partial
-import traceback
 
 from dateutil import parser
-from scrapy.exceptions import DropItem
-from scrapy.spiders import CrawlSpider
-from scrapy.spiders import XMLFeedSpider
+
 import scrapy
+from scrapy.exceptions import DropItem
+from scrapy.spiders import CrawlSpider, XMLFeedSpider
 
 from news.items import EntryItem
 
@@ -31,20 +32,29 @@ def extract_content(response, xpath):
     content = []
     nodes = response.xpath(xpath)
     for node in nodes:
-        value = ''.join(node.xpath('.//text()').extract()).strip()
+        value = ''.join(
+            node.xpath('.//text()[not(parent::script)]').extract()).strip()
         if value != '':
             content.append(value)
     return '\n'.join(content)
 
 
-def extract_imgs(response, xpath):
-    imgs = response.xpath(xpath) if xpath else []
-    if len(imgs) > 0:
-        srcs = imgs.xpath('@src').extract()
-        alts = imgs.xpath('@alt').extract()
+def extract_imgs(response, rules):
+    def __extract_xpath(response, rule):
+        xpath, src_path, alt_path = rule
+        imgs = response.xpath(xpath)
+        if not len(imgs):
+            return []
+        srcs = imgs.xpath(src_path).extract()
+        alts = imgs.xpath(alt_path).extract() if alt_path else [''] * len(imgs)
         return [dict(src=s, alt=a) for s, a in zip(srcs, alts)]
-    else:
-        return []
+
+    if isinstance(rules, tuple):
+        return __extract_xpath(response, rules)
+    elif isinstance(rules, list):
+        return list(itertools.chain.from_iterable(
+            [__extract_xpath(response, rule) for rule in rules]))
+    raise RuntimeError('Not supported xpaths type')
 
 
 class RSSSpider(XMLFeedSpider):
@@ -78,7 +88,6 @@ class RSSSpider(XMLFeedSpider):
                 partial(self.parse_page,
                         dict(publish_time=publish_time,
                              original_source=original_source)))
-
         except IndexError:
             pass
 

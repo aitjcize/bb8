@@ -4,7 +4,7 @@
       "type_enum": "Facebook",
       "provider_ident": "1575851966077688",
       "config": {
-        "access_token": "EAADKDZAav7dsBANR1XCtmd3atInN0rtIfsRjx1ZCTZBtiXpkWjsLOvY0g1BOIrDEPBOxgFIkGmyZCEvE20jm4uSsWQBSHCj0afKLk3T23vUzgTXqDZCrAGyPiZCpkmBh1u84z5DOp1yrtDr3COo7K2xOAC01w9bp1Q8Bg5iOjjqgZDZD",
+        "access_token": "EAADKDZAav7dsBAISNO6GpzmEEsqfqX0ZAhMhfBNj5C8wSE1E76QzZCyZAYwZAHwDkvB0DJdN1gZCdlKqrVIsYQVzVh0Quj4bOexLdqN9aWSvogkZBdFHUVmeBgODZAVQ0zwuTKGUUbZB6LC79lFHRkZCQiZAPSkFKeTDSZCsLYYUaZCwxXgZDZD",
         "get_start_button": {"message": {"text": "Hi"}},
         "persistent_menu": [
           {
