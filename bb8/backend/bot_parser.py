@@ -82,7 +82,8 @@ def parse_bot(filename, to_bot_id=None):
                              platform_desc['type_enum'])
                 raise
 
-            provider.apply_config(platform_desc['config'])
+            if not platform_desc['deployed']:
+                provider.apply_config(platform_desc['config'])
 
         bot = Bot.get_by(id=to_bot_id, single=True)
         bot.delete_all_node_and_links()  # Delete all previous node and links
@@ -114,8 +115,13 @@ def parse_bot(filename, to_bot_id=None):
                              platform_desc['type_enum'])
                 raise
 
-            provider.apply_config(platform_desc['config'])
-            Platform(bot_id=bot.id, **platform_desc).add()
+            Platform(bot_id=bot.id,
+                     type_enum=platform_desc['type_enum'],
+                     provider_ident=platform_desc['provider_ident'],
+                     config=platform_desc['config']).add()
+
+            if not platform_desc['deployed']:
+                provider.apply_config(platform_desc['config'])
 
     nodes = bot_desc['nodes']
     name_id_map = {}

@@ -2,6 +2,7 @@
   "platforms": [
     {
       "type_enum": "Facebook",
+      "deployed": false,
       "config": {
         "access_token": "EAAP0okfsZCVkBAHrn40QYuPkFp8Kbj1eblS2HOscOrAPzpdIDTqTriltMFJ42zATQTEGgJRw0HLhrL3swwLcVaXR27E5EHx3H8OzX0Vv4ILTFD1zAnxrY8jRilSe68QpIyLnnqUUj9rl016ckJhIH4r3Mivm5EK8tV4scjwZDZD",
         "get_start_button": {
