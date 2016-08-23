@@ -46,10 +46,14 @@ def mod_bot_for_testing(bot, platform):
         bot_json = json.load(f)
 
     with open(platform_file) as f:
-        platform_json = json.load(f)
+        old_bot_json = json.load(f)
 
     print('Modifying bot ...')
-    bot_json['platforms'] = platform_json['platforms']
+
+    for plat in old_bot_json['platforms']:
+        plat['deployed'] = False
+
+    bot_json['platforms'] = old_bot_json['platforms']
     bot_json['bot']['name'] += '-' + platform
 
     def to_unicode(m):

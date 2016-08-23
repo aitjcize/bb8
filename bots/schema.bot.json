@@ -9,12 +9,16 @@
       "type": "array",
       "items": {
         "required": [
+          "deployed",
           "type_enum",
           "provider_ident",
           "config"
         ],
         "type": "object",
         "properties": {
+          "deployed": {
+            "type": "boolean"
+          },
           "type_enum": {
             "type": "string"
           },

@@ -2,6 +2,7 @@
   "platforms": [
     {
       "type_enum": "Facebook",
+      "deployed": false,
       "provider_ident": "facebook_page_id_simple",
       "config": {
         "access_token": "access_token"
