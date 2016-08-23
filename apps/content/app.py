@@ -27,6 +27,7 @@ def crawl():
     try:
         process = CrawlerProcess(get_project_settings())
         process.crawl(WebsiteSpider, **spider_configs['storm'])
+        process.crawl(WebsiteSpider, **spider_configs['thenewslens'])
         process.crawl(RSSSpider, **spider_configs['yahoo_rss'])
         process.start()
         process.stop()

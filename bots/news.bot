@@ -125,9 +125,10 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(yahoo)", "(storm|風傳媒)",
+                  "params": ["(?i)(yahoo)", "((?i)(storm)|風傳媒)",
                              "(?i)(hacker news)", "(?i)(hacker)",
-                             "(?i)(inside)"]
+                             "(?i)(inside)", "(關鍵評論)",
+                             "(?i)(news ?lens)"]
                 },
                 "action_ident": "news_source",
                 "end_node_id": "[[get_by_source]]",
