@@ -83,7 +83,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["好", "是", "(?i)ok", "(?i)y", "1"]
+                  "params": ["^好", "^想", "^是", "(?i)ok", "(?i)y", "1"]
                 },
                 "action_ident": "goto_real_youbike_demo",
                 "end_node_id": "[[youbike_demo_desc]]",
