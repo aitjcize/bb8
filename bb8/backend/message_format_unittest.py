@@ -133,8 +133,7 @@ class MessageUnittest(unittest.TestCase):
         self.assertEquals(m, m.FromDict(m.as_dict()))
 
         # Button message
-        m = Message()
-        m.set_buttons_text('question')
+        m = Message(buttons_text='question')
         m.add_button(but1)
         m.add_button(but2)
         jsonschema.validate(m.as_dict(), Message.schema())
