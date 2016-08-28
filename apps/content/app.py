@@ -18,8 +18,8 @@ from scrapy.utils.log import configure_logging
 
 import content_service
 import service_pb2  # pylint: disable=E0401
-from news import config, spider_configs
-from news.database import Initialize
+from news import config, spider_configs, keywords
+from news.database import Initialize, Keyword
 from news.spiders import RSSSpider, WebsiteSpider
 
 
@@ -31,6 +31,15 @@ def crawl():
         process.crawl(RSSSpider, **spider_configs['yahoo_rss'])
         process.start()
         process.stop()
+
+        kws = keywords.extract_keywords_ct()
+        for kw, related in kws.iteritems():
+            k = Keyword(name=kw).add()
+            for r in related:
+                related_kw = Keyword(name=r).add()
+                k.related_keywords.append(related_kw)
+        Keyword.commit()
+
     except Exception:
         logging.exception('Crawler exception, skipping')
 
@@ -51,6 +60,7 @@ def main(args):
             p = Process(target=crawl)
             p.start()
             p.join()
+
         time.sleep(args.interval)
 
 

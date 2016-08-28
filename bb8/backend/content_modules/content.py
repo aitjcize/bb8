@@ -11,8 +11,8 @@
 from grpc.beta import implementations
 
 from bb8.backend.module_api import (Message, GetgRPCService, Resolve,
-                                    EventPayload, TextPayload,
-                                    SupportedPlatform, Render, GetUserId)
+                                    EventPayload, SupportedPlatform,
+                                    Render, GetUserId)
 
 GRPC_TIMEOUT = 5
 
@@ -35,6 +35,7 @@ def schema():
         'properties': {
             'mode': {
                 'enum': [
+                    'prompt',
                     'trending',
                     'recommend',
                     'search',
@@ -65,7 +66,7 @@ class NewsInfo(object):
         compose_default_image = 'http://i.imgur.com/xa9wSAU.png'
         return source_default_images.get(source, compose_default_image)
 
-    def trending(self, user_id, source_name='', count=5):
+    def trending(self, user_id, source_name=None, count=5):
         return self._stub.Trending(
             self._pb2_module.TrendingRequest(
                 user_id=user_id,
@@ -107,102 +108,19 @@ class NewsInfo(object):
             self._pb2_module.SearchRequest(query=query, count=count),
             GRPC_TIMEOUT).entries
 
+    def get_keywords(self, count=5):
+        return self._stub.GetKeywords(
+            self._pb2_module.GetKeywordsRequest(limit=count),
+            GRPC_TIMEOUT).keywords
 
-def run(content_config, unused_env, variables):
-    news_info = NewsInfo()
-    user_id = GetUserId()
+    def get_related_keywords(self, name, count=5):
+        return self._stub.GetRelatedKeywords(
+            self._pb2_module.GetRelatedKeywordsRequest(
+                name=name, limit=count),
+            GRPC_TIMEOUT).keywords
 
-    if content_config['mode'] == 'get_content':
-        try:
-            event = variables['event']
-            content, char_offset, total_length = news_info.get_content(
-                event.value['entry_link'], event.value['char_offset'])
-            src, alt, pic_index = news_info.get_picture(
-                event.value['entry_link'],
-                event.value['pic_index'])
-        except KeyError:
-            return [Message(u'抱歉，有些東西出錯了，請再試一次！')]
 
-        content_ended = char_offset == -1
-        picture_ended = pic_index == -1
-        all_ended = content_ended and picture_ended
-
-        has_picture = src and alt
-        has_content = content != ''
-
-        progress = float(char_offset) / total_length * 100 \
-            if char_offset >= 0 else 100.0
-
-        msgs = []
-        if has_content and not all_ended:
-            m = Message(buttons_text=content)
-            m.add_button(Message.Button(
-                Message.ButtonType.POSTBACK,
-                u'繼續讀 ({:.0f}%)'.format(progress),
-                payload=EventPayload('GET_CONTENT', {
-                    'entry_link': event.value['entry_link'],
-                    'char_offset': char_offset,
-                    'link': event.value['link'],
-                    'pic_index': pic_index,
-                }, False)))
-            m.add_button(Message.Button(
-                Message.ButtonType.WEB_URL, u'去網站讀',
-                url=event.value['link']))
-            msgs.append(m)
-        elif has_content:
-            msgs.append(Message(content))
-
-        if has_picture:
-            src_msg = Message(image_url=src)
-            if alt.strip():
-                alt_msg = Message()
-                b = Message.Bubble(alt, subtitle=' ')
-                # Only append button to the last message, so only append if
-                # content is empty
-                if not has_content and not all_ended:
-                    b.add_button(Message.Button(
-                        Message.ButtonType.POSTBACK,
-                        u'繼續看圖 (文字已結束)',
-                        payload=EventPayload('GET_CONTENT', {
-                            'entry_link': event.value['entry_link'],
-                            'char_offset': char_offset,
-                            'link': event.value['link'],
-                            'pic_index': pic_index,
-                        }, False)))
-                    b.add_button(Message.Button(
-                        Message.ButtonType.WEB_URL, u'去網站讀',
-                        url=event.value['link']))
-                alt_msg.add_bubble(b)
-                msgs = [src_msg, alt_msg] + msgs
-            else:
-                msgs = [src_msg] + msgs
-
-        if all_ended:
-            msg = Message(buttons_text=u'這則新聞讀完囉！')
-            msg.add_button(Message.Button(
-                Message.ButtonType.POSTBACK,
-                u'再推薦我一些！',
-                payload=TextPayload(
-                    Render("search {{q.query_term|last|fallback('')}}",
-                           variables))))
-            msgs.append(msg)
-
-        return msgs
-
-    if content_config['mode'] == 'get_by_source':
-        source_name = Resolve(content_config['query_term'], variables)
-        news = news_info.trending(user_id, source_name, 5)
-    elif content_config['mode'] == 'search':
-        query_term = Resolve(content_config['query_term'], variables)
-        if query_term:
-            news = news_info.search(query_term, 5)
-        else:
-            news = news_info.trending(user_id)
-    elif content_config['mode'] == 'trending':
-        news = news_info.trending(user_id)
-    else:
-        news = news_info.trending(user_id)
-
+def render_cards(news, news_info):
     if not len(news):
         return [Message(u'找不到你要的新聞喔！')]
 
@@ -225,5 +143,129 @@ def run(content_config, unused_env, variables):
             Message.ButtonType.WEB_URL, u'去網站讀',
             url=n.link))
         msg.add_bubble(b)
-
     return [msg]
+
+
+def run_get_content(variables, news_info):
+    try:
+        event = variables['event']
+        content, char_offset, total_length = news_info.get_content(
+            event.value['entry_link'], event.value['char_offset'])
+        src, alt, pic_index = news_info.get_picture(
+            event.value['entry_link'],
+            event.value['pic_index'])
+    except KeyError:
+        return [Message(u'抱歉，有些東西出錯了，請再試一次！')]
+
+    content_ended = char_offset == -1
+    picture_ended = pic_index == -1
+    all_ended = content_ended and picture_ended
+
+    has_picture = src and alt
+    has_content = content != ''
+
+    progress = float(char_offset) / total_length * 100 \
+        if char_offset >= 0 else 100.0
+
+    msgs = []
+    if has_content and not all_ended:
+        m = Message()
+        m.set_buttons_text(content)
+        m.add_button(Message.Button(
+            Message.ButtonType.POSTBACK,
+            u'繼續讀 ({:.0f}%)'.format(progress),
+            payload=EventPayload('GET_CONTENT', {
+                'entry_link': event.value['entry_link'],
+                'char_offset': char_offset,
+                'link': event.value['link'],
+                'pic_index': pic_index,
+            }, False)))
+        m.add_button(Message.Button(
+            Message.ButtonType.WEB_URL, u'去網站讀',
+            url=event.value['link']))
+        msgs.append(m)
+    elif has_content:
+        msgs.append(Message(content))
+
+    if has_picture:
+        src_msg = Message(image_url=src)
+        if alt.strip():
+            alt_msg = Message()
+            b = Message.Bubble(alt, subtitle=' ')
+            # Only append button to the last message, so only append if
+            # content is empty
+            if not has_content and not all_ended:
+                b.add_button(Message.Button(
+                    Message.ButtonType.POSTBACK,
+                    u'繼續看圖 (文字已結束)',
+                    payload=EventPayload('GET_CONTENT', {
+                        'entry_link': event.value['entry_link'],
+                        'char_offset': char_offset,
+                        'link': event.value['link'],
+                        'pic_index': pic_index,
+                    }, False)))
+                b.add_button(Message.Button(
+                    Message.ButtonType.WEB_URL, u'去網站讀',
+                    url=event.value['link']))
+            alt_msg.add_bubble(b)
+            msgs = [src_msg, alt_msg] + msgs
+        else:
+            msgs = [src_msg] + msgs
+
+    if all_ended:
+        msg = Message(u'這則新聞讀完囉！')
+
+        query_term = Render("{{q.query_term|last|fallback('')}}",
+                            variables)
+
+        keywords = news_info.get_keywords(5)
+        related_kws = news_info.get_related_keywords(query_term, 5)
+
+        reply_kws = []
+        for kw in related_kws:
+            reply_kws.append(kw.name)
+
+        for kw in keywords:
+            if len(reply_kws) < 5 and kw.name not in reply_kws:
+                reply_kws.append(kw.name)
+
+        for kw in reply_kws:
+            msg.add_quick_reply(Message.QuickReply(kw))
+
+        msg.add_quick_reply(Message.QuickReply('熱門新聞'))
+        msg.add_quick_reply(Message.QuickReply('搜尋'))
+        msgs.append(msg)
+
+    return msgs
+
+
+def run(content_config, unused_env, variables):
+    news_info = NewsInfo()
+    user_id = GetUserId()
+
+    if content_config['mode'] == 'get_content':
+        return run_get_content(variables, news_info)
+
+    if content_config['mode'] == 'get_by_source':
+        source_name = Resolve(content_config['query_term'], variables)
+        return render_cards(
+            news_info.trending(user_id, source_name, 5), news_info)
+
+    elif content_config['mode'] == 'prompt':
+        m = Message('想要知道什麼呢？今天這些字最夯！')
+        keywords = news_info.get_keywords(5)
+
+        for kw in keywords:
+            m.add_quick_reply(Message.QuickReply(kw.name))
+
+        m.add_quick_reply(Message.QuickReply('熱門新聞'))
+        m.add_quick_reply(Message.QuickReply('搜尋'))
+        return [m]
+
+    elif content_config['mode'] == 'search':
+        query_term = Resolve(content_config['query_term'], variables)
+        return render_cards(
+            (news_info.search(query_term, 5)
+             if query_term else news_info.trending(user_id)), news_info)
+
+    return render_cards(news_info.trending(user_id), news_info)

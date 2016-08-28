@@ -8,6 +8,8 @@ service ContentInfo {
   rpc Search (SearchRequest) returns (EntriesList) {}
   rpc GetContent (GetContentRequest) returns (EntryContent) {}
   rpc GetPicture (GetPictureRequest) returns (PictureContent) {}
+  rpc GetKeywords (GetKeywordsRequest) returns (KeywordsContent) {}
+  rpc GetRelatedKeywords (GetRelatedKeywordsRequest) returns (KeywordsContent) {}
 }
 
 message Entry {
@@ -50,6 +52,15 @@ message GetPictureRequest {
   int32 pic_index = 2;
 }
 
+message GetKeywordsRequest {
+  uint32 limit = 1;
+}
+
+message GetRelatedKeywordsRequest {
+  string name = 1;
+  uint32 limit = 2;
+}
+
 message EntryContent {
   string content = 1;
   int32 char_offset = 2;
@@ -60,4 +71,13 @@ message PictureContent {
   string src = 1;
   string alt = 2;
   int32 pic_index = 3;
+}
+
+message Keyword {
+  uint32 id = 1;
+  string name = 2;
+}
+
+message KeywordsContent {
+  repeated Keyword keywords = 1;
 }

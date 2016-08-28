@@ -10,7 +10,7 @@
 import datetime
 import unittest
 
-from news.database import Reset, GetSession, Entry, Tag
+from news.database import Reset, GetSession, Entry, Tag, Keyword
 
 
 class SchemaUnittest(unittest.TestCase):
@@ -50,6 +50,22 @@ class SchemaUnittest(unittest.TestCase):
         self.assertEquals(entry2.image_url, u'mock-image-src')
         self.assertEquals(len(entry2.tags), 2)
         self.assertEquals(entry2.tags[0].name, 'product')
+
+        keyword1 = Keyword(name='kw1').add()
+        keyword2 = Keyword(name='kw2').add()
+        keyword3 = Keyword(name='kw3').add()
+
+        keyword1.related_keywords.append(keyword2)
+        keyword1.related_keywords.append(keyword3)
+        self.dbm.commit()
+
+        keyword = Keyword.get_by(name='kw1', single=True)
+        self.assertEquals(keyword.name, 'kw1')
+        self.assertEquals(len(keyword.related_keywords), 2)
+        self.assertEquals(
+            keyword.related_keywords[0].name, 'kw2')
+        self.assertEquals(
+            keyword.related_keywords[1].name, 'kw3')
 
 
 if __name__ == '__main__':
