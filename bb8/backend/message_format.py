@@ -26,15 +26,6 @@ VARIABLE_RE = re.compile('^{{(.*?)}}$')
 HAS_VARIABLE_RE = re.compile('{{(.*?)}}')
 
 
-def to_unicode(text):
-    if text is None:
-        return None
-
-    if not isinstance(text, unicode):
-        return unicode(text, 'utf8')
-    return text
-
-
 class Message(object):
     """The Message class is a representation of messages.
 
@@ -59,16 +50,16 @@ class Message(object):
 
             variables = variables or {}
             self.type = b_type
-            self.title = Render(to_unicode(title), variables)
-            self.url = Render(to_unicode(url), variables)
+            self.title = Render(title, variables)
+            self.url = Render(url, variables)
             self.payload = None
             self.acceptable_inputs = acceptable_inputs or []
 
             if payload:
                 if isinstance(payload, str) or isinstance(payload, unicode):
-                    self.payload = str(payload)
+                    self.payload = Render(payload, variables)
                 elif isinstance(payload, dict):
-                    self.payload = json.dumps(payload)
+                    self.payload = Render(json.dumps(payload), variables)
 
         def __str__(self):
             return json.dumps(self.as_dict())
@@ -90,23 +81,16 @@ class Message(object):
         @classmethod
         def FromDict(cls, data, variables=None, set_node_id=True):
             """Construct Button object given a button dictionary."""
-            variables = variables or {}
             jsonschema.validate(data, cls.schema())
-            b_type = Message.ButtonType(data['type'])
 
-            b = cls(b_type)
-            b.title = Render(to_unicode(data['title']), variables)
-
-            b.url = data.get('url')
             payload = data.get('payload')
-            if payload:
-                if isinstance(payload, dict):
-                    payload['node_id'] = g.node.id if set_node_id else None
-                    b.payload = json.dumps(payload)
-                else:
-                    b.payload = Render(to_unicode(payload), variables)
+            if payload and isinstance(payload, dict):
+                payload['node_id'] = g.node.id if set_node_id else None
+                payload = json.dumps(payload)
 
-            return b
+            return cls(Message.ButtonType(data['type']),
+                       data['title'], data.get('url'), payload,
+                       data.get('acceptable_inputs'), variables)
 
         @classmethod
         def schema(cls):
@@ -114,20 +98,26 @@ class Message(object):
                 'oneOf': [{
                     'type': 'object',
                     'required': ['type', 'title', 'url'],
-                    'additionalProperties': False,
                     'properties': {
                         'type': {'enum': ['web_url']},
                         'title': {'type': 'string'},
-                        'url': {'type': 'string'}
+                        'url': {'type': 'string'},
+                        'acceptable_inputs': {
+                            'type': 'array',
+                            'items': {'type': 'string'}
+                        }
                     }
                 }, {
                     'type': 'object',
                     'required': ['type', 'title', 'payload'],
-                    'additionalProperties': False,
                     'properties': {
                         'type': {'enum': ['postback']},
                         'title': {'type': 'string'},
-                        'payload': {'type': ['string', 'object']}
+                        'payload': {'type': ['string', 'object']},
+                        'acceptable_inputs': {
+                            'type': 'array',
+                            'items': {'type': 'string'}
+                        }
                     }
                 }]
             }
@@ -147,10 +137,10 @@ class Message(object):
         def __init__(self, title, item_url=None, image_url=None, subtitle=None,
                      buttons=None, variables=None):
             variables = variables or {}
-            self.title = Render(to_unicode(title), variables)
-            self.item_url = Render(to_unicode(item_url), variables)
-            self.image_url = Render(to_unicode(image_url), variables)
-            self.subtitle = Render(to_unicode(subtitle), variables)
+            self.title = Render(title, variables)
+            self.item_url = Render(item_url, variables)
+            self.image_url = Render(image_url, variables)
+            self.subtitle = Render(subtitle, variables)
             self.buttons = buttons or []
 
         def __str__(self):
@@ -173,16 +163,13 @@ class Message(object):
         @classmethod
         def FromDict(cls, data, variables=None):
             """Construct Bubble object given a bubble dictionary."""
-            variables = variables or {}
             jsonschema.validate(data, cls.schema())
 
-            b = cls(Render(to_unicode(data['title']), variables))
-            b.item_url = data.get('item_url')
-            b.image_url = data.get('image_url')
-            b.subtitle = Render(to_unicode(data.get('subtitle')), variables)
-            b.buttons = [Message.Button.FromDict(x, variables)
-                         for x in data.get('buttons', [])]
-            return b
+            buttons = [Message.Button.FromDict(x, variables)
+                       for x in data.get('buttons', [])]
+            return cls(data['title'], data.get('item_url'),
+                       data.get('image_url'), data.get('subtitle'),
+                       buttons, variables)
 
         @classmethod
         def schema(cls):
@@ -216,7 +203,6 @@ class Message(object):
 
             if self.item_url:
                 data['item_url'] = self.item_url
-
             if self.image_url:
                 data['image_url'] = self.image_url
 
@@ -232,8 +218,7 @@ class Message(object):
         def __init__(self, title, payload=None, acceptable_inputs=None,
                      variables=None):
             variables = variables or {}
-
-            self.title = Render(to_unicode(title), variables)[:20]
+            self.title = Render(title, variables)
             if payload:
                 if isinstance(payload, str) or isinstance(payload, unicode):
                     self.payload = str(payload)
@@ -265,27 +250,28 @@ class Message(object):
 
         @classmethod
         def FromDict(cls, data, variables=None):
-            q = cls(Render(to_unicode(data['title']), variables))
-            payload = data.get('payload', q.title)
-            if isinstance(payload, dict):
-                payload = json.dumps(payload)
-            q.payload = Render(to_unicode(payload), variables)
-            return q
+            jsonschema.validate(data, cls.schema())
+
+            return cls(data['title'], data.get('payload'),
+                       data.get('acceptable_inputs'), variables)
 
         @classmethod
         def schema(cls):
             return {
                 'type': 'object',
                 'required': ['content_type', 'title'],
-                'additionalProperties': False,
                 'properties': {
                     'content_type': {'enum': ['text']},
                     'title': {'type': 'string'},
-                    'payload': {'type': ['string', 'object']}
+                    'payload': {'type': ['string', 'object']},
+                    'acceptable_inputs': {
+                        'type': 'array',
+                        'items': {'type': 'string'}
+                    }
                 }
             }
 
-    def __init__(self, text=None, image_url=None,
+    def __init__(self, text=None, image_url=None, buttons_text=None,
                  notification_type=NotificationType.REGULAR, variables=None):
         """Constructor.
 
@@ -299,10 +285,11 @@ class Message(object):
             raise RuntimeError('can not specify text and image at the same '
                                'time')
 
+        variables = variables or {}
         self.notification_type = notification_type
-        self.text = Render(to_unicode(text), variables or {})
-        self.image_url = image_url
-        self.buttons_text = None
+        self.text = Render(text, variables)
+        self.image_url = Render(image_url, variables)
+        self.buttons_text = Render(buttons_text, variables)
         self.bubbles = []
         self.buttons = []
         self.quick_replies = []
@@ -328,8 +315,7 @@ class Message(object):
         variables = variables or {}
         jsonschema.validate(data, cls.schema())
 
-        m = cls()
-        m.text = Render(to_unicode(data.get('text')), variables)
+        m = cls(data.get('text'), variables=variables)
 
         attachment = data.get('attachment')
         if attachment:
@@ -339,16 +325,11 @@ class Message(object):
                 ttype = attachment['payload']['template_type']
                 if ttype == 'button':
                     m.buttons_text = attachment['payload']['text']
-                    buttons = attachment['payload']['buttons']
-                    m.buttons = [Message.Button.FromDict(x, variables)
-                                 for x in buttons]
-                    if variables:
-                        m.buttons_text = Render(to_unicode(m.buttons_text),
-                                                variables)
+                    for x in attachment['payload']['buttons']:
+                        m.add_button(Message.Button.FromDict(x, variables))
                 elif ttype == 'generic':
-                    elements = attachment['payload']['elements']
-                    m.bubbles = [Message.Bubble.FromDict(x, variables)
-                                 for x in elements]
+                    for x in attachment['payload']['elements']:
+                        m.add_bubble(Message.Bubble.FromDict(x, variables))
 
         quick_replies = data.get('quick_replies')
         if quick_replies:
@@ -546,9 +527,6 @@ class Message(object):
 
         self.notification_type = value
 
-    def set_buttons_text(self, text, variables=None):
-        self.buttons_text = Render(to_unicode(text), variables or {})
-
     def add_button(self, button):
         if len(self.buttons) == 3:
             raise RuntimeError('maxium allowed buttons reached')
@@ -721,6 +699,15 @@ def parseVariable(expr, variables):
     return result
 
 
+def to_unicode(text):
+    if text is None:
+        return None
+
+    if not isinstance(text, unicode):
+        return unicode(text, 'utf8')
+    return text
+
+
 def Render(template, variables):
     """Render template with variables."""
     if template is None:
@@ -733,7 +720,7 @@ def Render(template, variables):
         else:
             ret = parseVariable(expr, variables)
         return ret if ret else m.group(0)
-    return HAS_VARIABLE_RE.sub(replace, template)
+    return HAS_VARIABLE_RE.sub(replace, to_unicode(template))
 
 
 def Resolve(obj, variables):
