@@ -11,7 +11,7 @@ import os
 from flask import Flask, jsonify
 
 from bb8 import config as Config
-from bb8.logger import Logger
+from bb8.logging_utils import Logger
 from bb8.error import AppError
 
 config = None
@@ -26,7 +26,7 @@ else:
 app = Flask(__name__)
 app.config.from_object(config)
 
-logger = Logger(config)
+logger = Logger(os.path.join(config.LOG_DIR, config.LOG_FILE))
 
 
 def on_app_error(e):

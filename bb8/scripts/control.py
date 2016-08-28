@@ -12,6 +12,7 @@
 from __future__ import print_function
 
 import argparse
+import glob
 import json
 import os
 import re
@@ -239,13 +240,55 @@ class BB8(object):
                 for app_dir in os.listdir(apps_dir)
                 if os.path.isdir(os.path.join(apps_dir, app_dir))]
 
+    def copy_extra_source(self):
+        """Copy extra source required by client module."""
+
+        for filename in ['base_message.py', 'query_filters.py']:
+            run('cp %s %s' %
+                (os.path.join(BB8_SRC_ROOT, 'bb8', 'backend', filename),
+                 os.path.join(BB8_SRC_ROOT, 'bb8_client')))
+
+    def compile_and_install_proto(self):
+        """Compile and install gRPC module."""
+        proto_dir = os.path.join(BB8_SRC_ROOT, 'bb8', 'proto')
+
+        # Compile protobuf python module
+        run('docker run -it --rm -v %s:/defs namely/protoc-python' % proto_dir)
+
+        # Copy to bb8.pb_modules
+        for proto in glob.glob('%s/*.proto' % proto_dir):
+            name = os.path.basename(proto).rstrip('.proto')
+            run('cp %(path)s/%(name)s_pb2.py %(dest)s' %
+                {'path': os.path.join(proto_dir, 'pb-python'),
+                 'name': name,
+                 'dest': os.path.join(BB8_SRC_ROOT, 'bb8', 'pb_modules')})
+
+        # Copy app_service to bb8_client package
+        run('cp %s/pb-python/app_service_pb2.py %s' %
+            (proto_dir,
+             os.path.join(BB8_SRC_ROOT, 'bb8_client')))
+
+        # Remove pb-python dir
+        run('sudo rm -rf %s/pb-python' % proto_dir)
+
     def start(self, force=False):
+        self.copy_extra_source()
+        self.compile_and_install_proto()
+
         for app_dir in self._app_dirs:
             app = App(app_dir)
             app.start(force)
 
         print('=' * 20, 'Starting BB8 main container', '=' * 20)
         self.start_container(force)
+
+    def compile_resource(self):
+        self.copy_extra_source()
+        self.compile_and_install_proto()
+
+        for app_dir in self._app_dirs:
+            app = App(app_dir)
+            app.compile_and_install_service_proto()
 
     def get_git_version_hash(self):
         commit_hash = get_output('cd %s; git rev-parse HEAD' %
@@ -342,6 +385,11 @@ def main():
     status_parser = subparsers.add_parser('status', help='show bb8 status')
     status_parser.set_defaults(which='status')
 
+    # status sub-command
+    compile_resource_parser = subparsers.add_parser(
+        'compile-resource', help='compile bb8 resource')
+    compile_resource_parser.set_defaults(which='compile-resource')
+
     args = root_parser.parse_args()
 
     bb8 = BB8()
@@ -370,6 +418,8 @@ def main():
             bb8.logs()
     elif args.which == 'status':
         bb8.status()
+    elif args.which == 'compile-resource':
+        bb8.compile_resource()
     else:
         raise RuntimeError('invalid sub-command')
 
