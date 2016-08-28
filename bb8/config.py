@@ -28,11 +28,15 @@ class Config(object):
 
     # Log
     LOG_DIR = BB8_ROOT + '/log'
-    LOG_FILE = LOG_DIR + '/message.log'
+    LOG_FILE = 'message.log'
+    API_SERVICER_LOG_FILE = 'api_servicer.log'
 
     # Server
     HOSTNAME = 'bot.azhuang.me'
     PORT = int(os.getenv('HTTP_PORT', 7000))
+
+    # App API
+    APP_API_SERVICE_PORT = 62629
 
     # Webhooks
     BOT_WEBHOOOK_ROOT = '/bot'
@@ -50,7 +54,6 @@ class Config(object):
 
     # Misc
     YOUBIKE_BOT_GA_ID = 'UA-79887532-2'
-    YOUBIKE_PICKLE = '/tmp/bb8/youbike.pickle'
 
     # Third-Party apps address mapping
     APPS_ADDR_MAP = {
@@ -75,7 +78,10 @@ class DeployConfig(DevelopmentConfig):
     DEBUG = False
     DEPLOY = True
 
-    YOUBIKE_PICKLE = '/var/lib/bb8/third_party/youbike.pickle'
+    BB8_ROOT = '/var/lib/bb8'
+
+    # Log
+    LOG_DIR = BB8_ROOT + '/app_log'
 
     # Server
     HOSTNAME = 'bot.compose.ai'
