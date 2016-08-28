@@ -162,7 +162,6 @@ class Engine(object):
                 # Prepare input variables
                 input_vars = input_vars or {}
                 input_vars.update(global_variables)
-                g.variables = input_vars
 
                 # TODO(aitjcize): figure out how to deal with cm exceptions
                 cm = node.content_module.get_module()

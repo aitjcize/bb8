@@ -16,7 +16,7 @@ from bb8 import config
 # pylint: disable=W0611
 from bb8.backend.database import PlatformTypeEnum, SupportedPlatform
 # pylint: disable=W0611
-from bb8.backend.message_format import Message, Render, Resolve, IsVariable
+from bb8.backend.message import Message, Render, Resolve, IsVariable
 
 
 CONFIG = {

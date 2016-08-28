@@ -15,7 +15,7 @@ import pytz
 from bb8.backend.database import (Bot, DatabaseManager, Platform,
                                   PlatformTypeEnum, User)
 from bb8.backend import messaging
-from bb8.backend.message_format import Message
+from bb8.backend.message import Message
 
 
 class MessagingUnittest(unittest.TestCase):

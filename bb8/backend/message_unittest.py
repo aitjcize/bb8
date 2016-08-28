@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-    Messaging unittest
-    ~~~~~~~~~~~~~~~~~~
+    Message unittest
+    ~~~~~~~~~~~~~~~~
 
     Copyright 2016 bb8 Authors
 """
@@ -19,7 +19,7 @@ from flask import g
 from bb8 import app
 from bb8.backend.database import (Bot, ColletedDatum, DatabaseManager,
                                   Platform, PlatformTypeEnum, User)
-from bb8.backend.message_format import Message
+from bb8.backend.message import Message
 
 
 class MessageUnittest(unittest.TestCase):
