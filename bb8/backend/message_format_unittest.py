@@ -188,6 +188,11 @@ class MessageUnittest(unittest.TestCase):
         self.assertEquals(bubble['subtitle'], 'Isaac')
         self.assertEquals(bubble['buttons'][0]['title'], 'Huang')
 
+        # Test error
+        wrong_tmpl = 'Hi {{some.key}}'
+        m = Message(wrong_tmpl)
+        self.assertEquals(m.as_dict()['text'], wrong_tmpl)
+
     def test_query_expression_rendering(self):
         """Test that query expresssion can be query and rendered correctly."""
         ColletedDatum(user_id=self.user_1.id, key='data', value='value1').add()
@@ -228,6 +233,15 @@ class MessageUnittest(unittest.TestCase):
 
         m = Message("{{qall.data|count}}")
         self.assertEquals(m.as_dict()['text'], '4')
+
+        # Test error
+        wrong_tmpl = '{{q.data|some_filter}}'
+        m = Message(wrong_tmpl)
+        self.assertEquals(m.as_dict()['text'], wrong_tmpl)
+
+        wrong_tmpl = '{{q.some_key|first}}'
+        m = Message(wrong_tmpl)
+        self.assertEquals(m.as_dict()['text'], wrong_tmpl)
 
 
 if __name__ == '__main__':
