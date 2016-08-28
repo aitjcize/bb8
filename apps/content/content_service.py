@@ -20,7 +20,7 @@ from sqlalchemy import desc
 
 import service_pb2  # pylint: disable=E0401
 from news import config
-from news.database import Entry, GetSession
+from news.database import Entry, GetSession, Keyword
 
 
 gclient = datastore.Client()
@@ -64,7 +64,7 @@ class ContentInfo(object):
     def Trending(cls, unused_user_id, source_name=None, count=5):
         with contextlib.closing(GetSession()) as session:
             source_name = normalize_source(source_name)
-            if source_name is None:
+            if not source_name:
                 entries = session.query(Entry).order_by(
                     desc('created_at')).limit(count)
             else:
@@ -112,6 +112,20 @@ class ContentInfo(object):
                 pictures[pic_index]['alt'],
                 pic_index+1 if pic_index+1 < len(pictures) else -1)
 
+    @classmethod
+    def GetKeywords(cls, limit=5):
+        with contextlib.closing(GetSession()) as session:
+            keywords = session.query(Keyword).order_by(
+                desc('created_at')).limit(limit)
+            return keywords
+
+    @classmethod
+    def GetRelatedKeywords(cls, name, limit=5):
+        kw = Keyword.get_by(name=name, single=True)
+        if not kw:
+            return []
+        return Keyword.get_by(parent_id=kw.id, limit=limit)
+
 
 class ContentInfoServicer(service_pb2.BetaContentInfoServicer):
     def __init__(self):
@@ -144,3 +158,14 @@ class ContentInfoServicer(service_pb2.BetaContentInfoServicer):
             request.entry_link, request.pic_index)
         return service_pb2.PictureContent(
             src=src, alt=alt, pic_index=pic_index)
+
+    def GetKeywords(self, request, unused_context):
+        keywords = [dict(id=k.id, name=k.name)
+                    for k in ContentInfo.GetKeywords(request.limit)]
+        return service_pb2.KeywordsContent(keywords=keywords)
+
+    def GetRelatedKeywords(self, request, unused_context):
+        keywords = [dict(id=k.id, name=k.name)
+                    for k in ContentInfo.GetRelatedKeywords(
+                        request.name, request.limit)]
+        return service_pb2.KeywordsContent(keywords=keywords)

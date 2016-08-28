@@ -212,12 +212,26 @@ class Entry(DeclarativeBase, ModelMixin):
     def search(cls, term, count):
         query = Session().query(cls)
         return query.filter(
-            cls.title.like(unicode('%' + term + '%'))).limit(count)
+            cls.title.like(unicode('%' + term + '%'))
+        ).limit(count).all()
 
     @classmethod
     def columns(cls):
         return [m.key for m in cls.__table__.columns]
 
+    def __repr__(self):
+        return '<%s(\'%s\')>' % (type(self).__name__, self.link)
+
+
+class Keyword(DeclarativeBase, ModelMixin):
+    __tablename__ = 'keyword'
+    __table_args__ = (UniqueConstraint('name'),)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    parent_id = Column(Integer, ForeignKey('keyword.id'))
+    name = Column(Unicode(64), nullable=False)
+
+    related_keywords = relationship('Keyword')
 
 t_entry_tag = Table(
     'entry_tag', metadata,

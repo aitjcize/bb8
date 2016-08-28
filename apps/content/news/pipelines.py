@@ -54,8 +54,7 @@ class DatastorePipeline(object):
                 return int(time.mktime((dt.year, dt.month, dt.day,
                                         dt.hour, dt.minute, dt.second,
                                         -1, -1, -1)) + dt.microsecond / 1e6)
-            else:
-                return int((dt - _EPOCH).total_seconds())
+            return int((dt - _EPOCH).total_seconds())
 
         def to_json(item):
             rv = dict(item)

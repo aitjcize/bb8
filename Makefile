@@ -1,7 +1,6 @@
 # Copyright 2016 bb8 Authors
 
-LINT_FILES = $(shell find bb8 bb8_client apps -name '*.py' -type f | \
-	       grep -v '_pb2' | sort)
+LINT_FILES = $(shell find bb8 bb8_client apps -name '*.py' -type f | egrep -v '(_pb2|alembic)' | sort)
 UNITTESTS = $(shell find bb8 bb8_client apps -name '*_unittest.py' | sort)
 
 LINT_OPTIONS = --rcfile=bin/pylintrc \
@@ -26,9 +25,9 @@ setup-database:
 	       -e MYSQL_PASSWORD=bb8test \
 	       -e MYSQL_DATABASE=bb8 \
 	       -d mysql:latest; \
-	   echo 'Waiting 20 sec for MySQL to initialize ...'; \
-	   sleep 20; \
-	 fi
+			echo 'Waiting 20 sec for MySQL to initialize ...'; \
+			sleep 20; \
+	 fi;
 
 remove-database:
 	@docker rm -f bb8_mysql.$(USER)
