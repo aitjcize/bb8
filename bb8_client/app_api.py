@@ -10,7 +10,8 @@ import cPickle
 
 from grpc.beta import implementations
 
-from bb8_client import config, app_service_pb2
+from bb8_client import config
+from bb8_client import app_service_pb2  # pylint: disable=E0611
 
 # pylint: disable=E0611,E0401,W0611
 from bb8_client.base_message import Message, Render
@@ -33,20 +34,30 @@ class MessagingService(object):
             raise RuntimeError('Ping: %s' % res.msg)
 
     def Send(self, user_ids, msgs):
+        try:
+            serialized_message = [m.as_dict() for m in msgs]
+        except Exception as e:
+            raise RuntimeError('Failed to serialize message: %s' % e)
+
         res = self._stub.Send(
             app_service_pb2.SendRequest(
                 user_ids=user_ids,
-                messages_object=cPickle.dumps([m.as_dict() for m in msgs])),
+                messages_object=cPickle.dumps(serialized_message)),
             self._timeout)
 
         if not res.success:
             raise RuntimeError('Send: %s' % res.msg)
 
     def Broadcast(self, bot_id, msgs):
+        try:
+            serialized_message = [m.as_dict() for m in msgs]
+        except Exception as e:
+            raise RuntimeError('Failed to serialize message: %s' % e)
+
         res = self._stub.Broadcast(
             app_service_pb2.BroadcastRequest(
                 bot_id=bot_id,
-                messages_object=cPickle.dumps([m.as_dict() for m in msgs])),
+                messages_object=cPickle.dumps(serialized_message)),
             self._timeout)
 
         if not res.success:
