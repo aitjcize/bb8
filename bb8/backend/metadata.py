@@ -116,6 +116,7 @@ class UserInput(object):
         try:
             payload = json.loads(payload)
         except Exception:
+            u.text = payload  # assume text when failed
             return u
 
         message = payload.get('message', None)

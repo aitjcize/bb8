@@ -183,11 +183,10 @@ def run(content_config, unused_env, variables):
 
     in_currrent = content_config['send_payload_to_current_node']
 
-    m = Message()
     if not results:
-        m.text = u'對不起，我找不到這個地址, 請重新輸入 >_<'
+        m = Message(u'對不起，我找不到這個地址, 請重新輸入 >_<')
     elif len(results) == 1:
-        m.text = u'你指的是「%s」嗎？' % results[0]['address']
+        m = Message(u'你指的是「%s」嗎？' % results[0]['address'])
         m.add_quick_reply(
             Message.QuickReply(u'是',
                                payload=LocationPayload(results[0]['location'],
@@ -200,11 +199,10 @@ def run(content_config, unused_env, variables):
                                                     in_currrent),
                                acceptable_inputs=[u'不', '(?i)n']))
     else:
-        m.set_buttons_text(u'你指的是以下哪一個地址呢?')
+        m = Message(buttons_text=u'你指的是以下哪一個地址呢?')
         for r in results:
             m.add_button(Message.Button(Message.ButtonType.POSTBACK,
                                         r['address'],
                                         payload=LocationPayload(r['location'],
                                                                 in_currrent)))
-
     return [m]
