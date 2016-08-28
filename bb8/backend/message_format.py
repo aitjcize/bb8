@@ -663,14 +663,14 @@ def parseQuery(expr):
                         q = q.order_by(field)
     except Exception as e:
         logger.exception(e)
-        return expr
+        return None
 
     if result is None:
         if filters:
             m = re.match(r'fallback\(\'(.*)\'\)', filters[0])
             if m:
                 return m.group(1)
-        return expr
+        return None
 
     # Parse transform filter
     for f in filters:
@@ -707,7 +707,7 @@ def parseVariable(expr, variables):
         else:
             break
     else:
-        return expr
+        return None
 
     # Parse transform filter
     result = var
@@ -729,8 +729,10 @@ def Render(template, variables):
     def replace(m):
         expr = m.group(1)
         if re.match(r'^q(all)?\.', expr):  # Query expression
-            return parseQuery(expr)
-        return parseVariable(expr, variables)
+            ret = parseQuery(expr)
+        else:
+            ret = parseVariable(expr, variables)
+        return ret if ret else m.group(0)
     return HAS_VARIABLE_RE.sub(replace, template)
 
 
