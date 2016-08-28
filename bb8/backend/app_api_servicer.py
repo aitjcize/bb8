@@ -11,13 +11,14 @@ import contextlib
 import cPickle
 import os
 import time
+import traceback
 
 from bb8 import config
 from bb8.backend.database import DatabaseManager, Bot, User
 from bb8.backend import messaging
 from bb8.backend.message import Message
 from bb8.logging_utils import Logger
-from bb8.pb_modules import app_service_pb2
+from bb8.pb_modules import app_service_pb2  # pylint: disable=E0611
 
 
 SECONDS_IN_A_DAY = 86400
@@ -27,12 +28,19 @@ logger = Logger(os.path.join(config.LOG_DIR, config.API_SERVICER_LOG_FILE),
 
 
 class MessagingServicer(app_service_pb2.BetaMessagingServiceServicer):
-    def Ping(self, request, unused_context):
+    def Ping(self, unused_request, unused_context):
         return app_service_pb2.Status(success=True, msg=None)
 
     def Send(self, request, unused_context):
-        msgs = [Message.FromDict(m) for m in
-                cPickle.loads(request.messages_object)]
+        try:
+            msgs = [Message.FromDict(m) for m in
+                    cPickle.loads(request.messages_object)]
+        except Exception:
+            return app_service_pb2.Status(
+                success=False,
+                msg=('Failed to deserialize message:\n%s' %
+                     traceback.format_exc()))
+
         with contextlib.closing(DatabaseManager.session()) as sess:
             for user_id in request.user_ids:
                 user = sess.query(User).filter_by(id=user_id).limit(1).one()
@@ -49,8 +57,14 @@ class MessagingServicer(app_service_pb2.BetaMessagingServiceServicer):
                     success=False,
                     msg='Bot<%d> does not exist' % request.bot_id)
 
-            msgs = [Message.FromDict(m) for m in
-                    cPickle.loads(request.messages_object)]
+            try:
+                msgs = [Message.FromDict(m) for m in
+                        cPickle.loads(request.messages_object)]
+            except Exception:
+                return app_service_pb2.Status(
+                    success=False,
+                    msg=('Failed to deserialize message:\n%s' %
+                         traceback.format_exc()))
 
             users = sess.query(User).filter_by(bot_id=request.bot_id)
             for user in users:

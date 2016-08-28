@@ -19,7 +19,7 @@ dependencies:
 test:
   override:
     - make lint
-    - make coverage && mv htmlcov/* $CIRCLE_ARTIFACTS/
+    - source bin/env.sh && make coverage && mv htmlcov/* $CIRCLE_ARTIFACTS/
 
 notify:
   webhooks:

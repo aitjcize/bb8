@@ -44,7 +44,7 @@ setup-redis:
 remove-redis:
 	@docker rm -f bb8_redis.$(USER)
 
-test: setup-database
+test: setup-database compile-resource
 	@export DATABASE=$(DB_URI); \
 	 for test in $(UNITTESTS); do \
            if echo $$test | grep '^apps'; then \
@@ -57,7 +57,7 @@ test: setup-database
 	   $$test || exit 1; \
 	 done
 
-coverage: setup-database
+coverage: setup-database compile-resource
 	@export DATABASE=$(DB_URI); \
 	 for test in $(UNITTESTS); do \
            if echo $$test | grep '^apps'; then \

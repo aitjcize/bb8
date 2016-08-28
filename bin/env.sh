@@ -7,7 +7,7 @@ if [ -e $GITROOT/.env ]; then
   source $GITROOT/.env/bin/activate
 fi
 
-export PATH=$PWD/$SCRIPT_DIR:$PATH
+export PATH=$PWD/bin:$PWD/$SCRIPT_DIR:$PATH
 export PYTHONPATH=$PWD/$GITROOT
 
 # Default configuration for CI
