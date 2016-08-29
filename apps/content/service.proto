@@ -23,26 +23,26 @@ message EntriesList {
 }
 
 message SearchRequest {
-  string query = 1;
-  int32 user_id = 2;
-  int32 count = 3;
+  uint32 user_id = 1;
+  string query = 2;
+  uint32 count = 3;
 }
 
 message TrendingRequest {
-  int32 user_id = 1;
+  uint32 user_id = 1;
   string source_name = 2;
-  int32 count = 3;
+  uint32 count = 3;
 }
 
 message RecommendRequest {
-  int32 user_id = 1;
-  int32 count = 2;
+  uint32 user_id = 1;
+  uint32 count = 2;
 }
 
 message GetContentRequest {
   string entry_link = 1;
   int32 char_offset = 2;
-  int32 limit = 3;
+  uint32 limit = 3;
 }
 
 message GetPictureRequest {
@@ -53,7 +53,7 @@ message GetPictureRequest {
 message EntryContent {
   string content = 1;
   int32 char_offset = 2;
-  int32 total_length = 3;
+  uint32 total_length = 3;
 }
 
 message PictureContent {

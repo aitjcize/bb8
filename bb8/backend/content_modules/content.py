@@ -12,7 +12,7 @@ from grpc.beta import implementations
 
 from bb8.backend.module_api import (Message, GetgRPCService, Resolve,
                                     EventPayload, TextPayload,
-                                    SupportedPlatform, Render)
+                                    SupportedPlatform, Render, GetUserId)
 
 GRPC_TIMEOUT = 5
 
@@ -65,10 +65,12 @@ class NewsInfo(object):
         compose_default_image = 'http://i.imgur.com/xa9wSAU.png'
         return source_default_images.get(source, compose_default_image)
 
-    def trending(self, source_name='', count=5):
+    def trending(self, user_id, source_name='', count=5):
         return self._stub.Trending(
             self._pb2_module.TrendingRequest(
-                source_name=source_name, count=count),
+                user_id=user_id,
+                source_name=source_name,
+                count=count),
             GRPC_TIMEOUT).entries
 
     def get_content(self, entry_link, char_offset=0, limit=320):
@@ -108,6 +110,7 @@ class NewsInfo(object):
 
 def run(content_config, unused_env, variables):
     news_info = NewsInfo()
+    user_id = GetUserId()
 
     if content_config['mode'] == 'get_content':
         try:
@@ -190,17 +193,17 @@ def run(content_config, unused_env, variables):
 
     if content_config['mode'] == 'get_by_source':
         source_name = Resolve(content_config['query_term'], variables)
-        news = news_info.trending(source_name, 5)
+        news = news_info.trending(user_id, source_name, 5)
     elif content_config['mode'] == 'search':
         query_term = Resolve(content_config['query_term'], variables)
         if query_term:
             news = news_info.search(query_term, 5)
         else:
-            news = news_info.trending()
+            news = news_info.trending(user_id)
     elif content_config['mode'] == 'trending':
-        news = news_info.trending()
+        news = news_info.trending(user_id)
     else:
-        news = news_info.trending()
+        news = news_info.trending(user_id)
 
     if not len(news):
         return [Message(u'找不到你要的新聞喔！')]

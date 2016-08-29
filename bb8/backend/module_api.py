@@ -96,6 +96,10 @@ def EventPayload(key, value, send_to_current_node=True):
     }
 
 
+def GetUserId():
+    return g.user.id
+
+
 def GetUserTime():
     """Get current time according to user's timezone."""
     return datetime.utcnow() + timedelta(hours=g.user.timezone)

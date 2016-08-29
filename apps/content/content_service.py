@@ -47,7 +47,7 @@ def normalize_source(query):
 
 class ContentInfo(object):
     @classmethod
-    def Search(cls, term, unused_user_id, count):
+    def Search(cls, unused_user_id, term, count):
         with contextlib.closing(GetSession()) as session:
             entries = session.query(Entry).filter(
                 Entry.title.like(unicode('%' + term + '%'))).limit(count)
@@ -130,7 +130,7 @@ class ContentInfoServicer(service_pb2.BetaContentInfoServicer):
     def Search(self, request, unused_context):
         return service_pb2.EntriesList(
             entries=ContentInfo.Search(
-                request.query, request.user_id, request.count))
+                request.user_id, request.query, request.count))
 
     def GetContent(self, request, unused_context):
         content, char_offset, total_length = ContentInfo.GetContent(
