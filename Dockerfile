@@ -30,11 +30,13 @@ COPY . ${BB8_ROOT}
 # Environment variables
 ENV BB8_DEPLOY=true
 ENV PYTHONPATH=${BB8_ROOT}
+ENV DATABASE=mysql+pymysql://bb8deploy:bb8deploymysql@/bb8?unix_socket=/cloudsql/dotted-lexicon-133523:asia-east1:bb8&charset=utf8mb4
+
 
 # CloudSQL
 RUN mkdir -p /cloudsql
 
 VOLUME /var/log
 
-EXPOSE 5000
+EXPOSE 5000 62629
 CMD ["/usr/bin/supervisord"]

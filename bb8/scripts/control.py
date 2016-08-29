@@ -345,9 +345,12 @@ class BB8(object):
             run('docker rm -f %s' % instance, True)
 
         run('docker run --name %(name)s '
-            '-p 5000:5000 '
+            '-p %(port)d:%(port)d '
+            '-p %(app_api_service_port)d:%(app_api_service_port)d '
             '-v %(cloud_sql_dir)s:%(cloud_sql_dir)s '
             '-d %(image_name)s' % {
+                'port': config.PORT,
+                'app_api_service_port': config.APP_API_SERVICE_PORT,
                 'name': new_container_name,
                 'cloud_sql_dir': self.CLOUD_SQL_DIR,
                 'image_name': self.BB8_IMAGE_NAME
