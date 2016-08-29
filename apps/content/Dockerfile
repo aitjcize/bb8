@@ -15,12 +15,8 @@ RUN pip2 install -r /tmp/requirements.txt
 # Create required dir
 RUN mkdir -p /opt/app /var/lib/crawler
 
-# Install app script
-COPY . /opt/app
+# Copy credentials
 COPY credential/compose-ai.json /opt/app
-
-# Install client package
-RUN pip install /opt/app/bb8-client-9999.tar.gz
 
 # CloudSQL
 RUN mkdir -p /cloudsql
@@ -29,3 +25,9 @@ ENV GOOGLE_APPLICATION_CREDENTIALS=/opt/app/compose-ai.json
 
 WORKDIR /opt/app
 CMD ["./app.py"]
+
+# Install app script
+COPY . /opt/app
+
+# Install client package
+RUN pip install /opt/app/bb8-client-9999.tar.gz
