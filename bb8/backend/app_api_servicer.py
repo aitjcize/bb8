@@ -13,9 +13,10 @@ import os
 import time
 import traceback
 
+from flask import g
 from sqlalchemy.orm.exc import NoResultFound
 
-from bb8 import config
+from bb8 import app, config
 from bb8.backend.database import DatabaseManager, Bot, User
 from bb8.backend import messaging
 from bb8.backend.message import Message
@@ -38,22 +39,29 @@ class MessagingServicer(app_service_pb2.BetaMessagingServiceServicer):
     def Ping(self, unused_request, unused_context):
         return app_service_pb2.Status(success=True, msg=None)
 
+    def _SendToUsers(self, sess, users, messages_dict):
+        """Helper function for sending messages to users."""
+        with app.test_request_context():
+            user_count = sess.query(User).count()
+            for user in users:
+                g.user = user
+                variables = {
+                    'statistic': {
+                        'user_count': user_count
+                    },
+                    'user': user.to_json()
+                }
+                msgs = [Message.FromDict(m, variables) for m in messages_dict]
+
+                messaging.send_message(user, msgs)
+                sess.commit()
+
     def Send(self, request, unused_context):
         try:
-            msgs = [Message.FromDict(m) for m in
-                    cPickle.loads(request.messages_object)]
-
             with contextlib.closing(DatabaseManager.session()) as sess:
-                for user_id in request.user_ids:
-                    try:
-                        user = sess.query(User).filter_by(
-                            id=user_id).limit(1).one()
-                    except NoResultFound:
-                        logger.error('No such User<%d>' % user_id)
-                        user = None
-
-                    if user:
-                        messaging.send_message(user, msgs)
+                messages_dict = cPickle.loads(request.messages_object)
+                users = sess.query(User).filter(User.id.in_(request.user_ids))
+                self._SendToUsers(sess, users, messages_dict)
         except Exception:
             return self._Error('Failed to send message:\n%s' %
                                traceback.format_exc())
@@ -69,12 +77,9 @@ class MessagingServicer(app_service_pb2.BetaMessagingServiceServicer):
                 return self._Error('Bot<%d> does not exist' % request.bot_id)
 
             try:
-                msgs = [Message.FromDict(m) for m in
-                        cPickle.loads(request.messages_object)]
-
+                messages_dict = cPickle.loads(request.messages_object)
                 users = sess.query(User).filter_by(bot_id=request.bot_id)
-                for user in users:
-                    messaging.send_message(user, msgs)
+                self._SendToUsers(sess, users, messages_dict)
             except Exception:
                 return self._Error('Failed to broadcast message:\n%s' %
                                    traceback.format_exc())

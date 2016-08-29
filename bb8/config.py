@@ -67,7 +67,9 @@ class DevelopmentConfig(Config):
     DEBUG = True
 
     # Database
-    DATABASE = os.getenv('DATABASE', 'sqlite:////tmp/bb8.db')
+    DATABASE = os.getenv(
+        'DATABASE',
+        'mysql+pymysql://bb8:bb8test@127.0.0.1:3307/bb8?charset=utf8mb4')
 
 
 class TestingConfig(DevelopmentConfig):
