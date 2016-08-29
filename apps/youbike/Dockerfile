@@ -13,8 +13,8 @@ RUN pip2 install -r /tmp/requirements.txt
 # Create required dir
 RUN mkdir -p /opt/app /var/lib/youbike
 
-# Install app script
-COPY . /opt/app
-
 EXPOSE 9999
 CMD ["/opt/app/app.py"]
+
+# Install app script
+COPY . /opt/app
