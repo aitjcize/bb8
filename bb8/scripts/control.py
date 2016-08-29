@@ -28,6 +28,7 @@ BB8_SRC_ROOT = os.path.normpath(os.path.join(
     os.path.abspath(os.path.dirname(os.path.realpath(__file__))),
     '..', '..'))
 BB8_DATA_ROOT = '/var/lib/bb8'
+BB8_CLIENT_PACKAGE_NAME = 'bb8-client-9999.tar.gz'
 
 
 def get_manifest_schema():
@@ -200,7 +201,13 @@ class App(object):
             print('Fatal: no port mapping for app `%s\'' % self._app_name)
             sys.exit(1)
 
+        run('cp %s %s' %
+            (os.path.join(BB8_SRC_ROOT, 'dist', BB8_CLIENT_PACKAGE_NAME),
+             self._app_dir))
+
         run('docker build -t %s %s' % (self._image_name, self._app_dir))
+
+        run('rm %s' % os.path.join(self._app_dir, BB8_CLIENT_PACKAGE_NAME))
 
         if instance:
             run('docker rm -f %s' % instance, True)
@@ -271,9 +278,24 @@ class BB8(object):
         # Remove pb-python dir
         run('sudo rm -rf %s/pb-python' % proto_dir)
 
-    def start(self, force=False):
+    def build_client_package(self):
+        run('cd %s; python setup.py sdist' % BB8_SRC_ROOT)
+        run('rm -rf %s' % os.path.join(BB8_SRC_ROOT, 'bb8_client.egg-info'))
+
+    def prepare_resource(self):
         self.copy_extra_source()
+        self.build_client_package()
         self.compile_and_install_proto()
+
+    def compile_resource(self):
+        self.prepare_resource()
+
+        for app_dir in self._app_dirs:
+            app = App(app_dir)
+            app.compile_and_install_service_proto()
+
+    def start(self, force=False):
+        self.prepare_resource()
 
         for app_dir in self._app_dirs:
             app = App(app_dir)
@@ -281,14 +303,6 @@ class BB8(object):
 
         print('=' * 20, 'Starting BB8 main container', '=' * 20)
         self.start_container(force)
-
-    def compile_resource(self):
-        self.copy_extra_source()
-        self.compile_and_install_proto()
-
-        for app_dir in self._app_dirs:
-            app = App(app_dir)
-            app.compile_and_install_service_proto()
 
     def get_git_version_hash(self):
         commit_hash = get_output('cd %s; git rev-parse HEAD' %
