@@ -169,8 +169,7 @@ def run_get_content(variables, news_info):
 
     msgs = []
     if has_content and not all_ended:
-        m = Message()
-        m.set_buttons_text(content)
+        m = Message(buttons_text=content)
         m.add_button(Message.Button(
             Message.ButtonType.POSTBACK,
             u'繼續讀 ({:.0f}%)'.format(progress),
