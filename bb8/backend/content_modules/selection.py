@@ -66,8 +66,7 @@ def run(content_config, env, variables):
     """
     platform_type = env['platform_type'].value
 
-    m = Message()
-    m.set_buttons_text(content_config['text'], variables)
+    m = Message(buttons_text=content_config['text'], variables=variables)
 
     for i, choice in enumerate(content_config['choices']):
         # Facebook only support 3 buttons

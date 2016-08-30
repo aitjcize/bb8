@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package bb8.core;
+
+service MessagingService {
+  rpc Ping (Empty) returns (Status) {}
+  rpc Send (SendRequest) returns (Status) {}
+  rpc Broadcast (BroadcastRequest) returns (Status) {}
+}
+
+message Status {
+  bool success = 1;
+  string msg = 2;
+}
+
+message Empty {
+}
+
+message SendRequest {
+  repeated uint32 user_ids = 1;
+  bytes messages_object = 2;
+}
+
+message BroadcastRequest {
+  uint32 bot_id = 1;
+  bytes messages_object = 2;
+}

@@ -6,20 +6,20 @@
     Copyright 2016 bb8 Authors
 """
 
-import sys
 import logging
-
 from logging.handlers import RotatingFileHandler
-from os import makedirs
+
+import os
+import sys
 
 
 class Logger(object):
-    def __init__(self, config):
+    def __init__(self, filename, name='bb8'):
         try:
-            makedirs(config.LOG_DIR)
+            os.makedirs(os.path.dirname(filename))
         except Exception:
             pass
-        self.logger = self.create_logger(config.LOG_FILE, 'bb8')
+        self.logger = self.create_logger(filename, name)
 
     @classmethod
     def get_logger(cls, name):

@@ -7,7 +7,7 @@ RUN apt-get update && apt-get upgrade -y && \
 # Dirs
 RUN mkdir -p /var/lib/bb8/apps /opt/app
 
+CMD ["/opt/app/sync_app_states.sh"]
+
 # App
 COPY . /opt/app
-
-CMD ["/opt/app/sync_app_states.sh"]

@@ -135,8 +135,7 @@ def run(content_config, unused_env, variables):
 
         msgs = []
         if has_content and not all_ended:
-            m = Message()
-            m.set_buttons_text(content)
+            m = Message(buttons_text=content)
             m.add_button(Message.Button(
                 Message.ButtonType.POSTBACK,
                 u'繼續讀 ({:.0f}%)'.format(progress),
@@ -179,8 +178,7 @@ def run(content_config, unused_env, variables):
                 msgs = [src_msg] + msgs
 
         if all_ended:
-            msg = Message()
-            msg.set_buttons_text(u'這則新聞讀完囉！')
+            msg = Message(buttons_text=u'這則新聞讀完囉！')
             msg.add_button(Message.Button(
                 Message.ButtonType.POSTBACK,
                 u'再推薦我一些！',

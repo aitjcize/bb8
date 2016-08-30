@@ -1,15 +1,17 @@
 # Copyright 2016 bb8 Authors
 
-LINT_FILES = $(shell find bb8 apps -name '*.py' -type f | grep -v '_pb2' | sort)
-UNITTESTS = $(shell find bb8 apps -name '*_unittest.py' | sort)
+LINT_FILES = $(shell find bb8 bb8_client apps -name '*.py' -type f | \
+	       grep -v '_pb2' | sort)
+UNITTESTS = $(shell find bb8 bb8_client apps -name '*_unittest.py' | sort)
 
 LINT_OPTIONS = --rcfile=bin/pylintrc \
 	       --msg-template='{path}:{line}: {msg_id}: {msg}'
 
-PORT ?= 3307
+MYSQL_PORT ?= 3307
 DOCKER_IP ?= 127.0.0.1
 
-DB_URI = "mysql+pymysql://bb8:bb8test@$(DOCKER_IP):$(PORT)/bb8?charset=utf8mb4"
+DB_URI = "mysql+pymysql://bb8:bb8test@$(DOCKER_IP):$(MYSQL_PORT)/bb8?" \
+	 "charset=utf8mb4"
 
 CLOUD_SQL_DIR = "/cloudsql"
 
@@ -17,7 +19,7 @@ all: test lint validate-bots
 
 setup-database:
 	@if ! docker ps | grep bb8_mysql.$(USER); then \
-	   docker run --name bb8_mysql.$(USER) -p $(PORT):3306 \
+	   docker run --name bb8_mysql.$(USER) -p $(MYSQL_PORT):3306 \
 	       -v $(CURDIR)/conf/mysql:/etc/mysql/conf.d \
 	       -e MYSQL_ROOT_PASSWORD=root \
 	       -e MYSQL_USER=bb8 \
@@ -31,7 +33,18 @@ setup-database:
 remove-database:
 	@docker rm -f bb8_mysql.$(USER)
 
-test: setup-database
+setup-redis:
+	@if ! docker ps | grep bb8_redis.$(USER); then \
+	   docker run --name bb8_redis.$(USER) -p $(REDIS_PORT):6379 \
+	       -d redis; \
+	   echo 'Waiting 10 sec for Redis to initialize ...'; \
+	   sleep 10; \
+	 fi
+
+remove-redis:
+	@docker rm -f bb8_redis.$(USER)
+
+test: setup-database compile-resource
 	@export DATABASE=$(DB_URI); \
 	 for test in $(UNITTESTS); do \
            if echo $$test | grep '^apps'; then \
@@ -44,7 +57,7 @@ test: setup-database
 	   $$test || exit 1; \
 	 done
 
-coverage: setup-database
+coverage: setup-database compile-resource
 	@export DATABASE=$(DB_URI); \
 	 for test in $(UNITTESTS); do \
            if echo $$test | grep '^apps'; then \
@@ -64,6 +77,9 @@ lint:
 	@pep8 $(LINT_FILES)
 	@pylint $(LINT_OPTIONS) $(LINT_FILES)
 
+compile-resource:
+	@bb8ctl compile-resource
+
 validate-bots:
 	make -C bots
 
@@ -75,7 +91,7 @@ cleanup-docker:
 	@docker rmi $(docker images -f "dangling=true" -q) 2>/dev/null || true
 
 clean:
-	find bb8 apps -name '*_pb2.py' -exec rm -f {} \;
+	find bb8 bb8_client apps -name '*_pb2.py' -exec rm -f {} \;
 
 deploy:
-	@bb8ctl start
+	@BB8_DEPLOY=true bb8ctl start

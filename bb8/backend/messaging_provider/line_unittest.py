@@ -66,8 +66,7 @@ class LineMessagingUnittest(unittest.TestCase):
         line.send_message(self.user, [m])
 
         # Test button template message
-        m = Message()
-        m.set_buttons_text('Button template test')
+        m = Message(buttons_text='Button template test')
         m.add_button(Message.Button(Message.ButtonType.WEB_URL,
                                     'Google', url='http://www.google.com/'))
         m.add_button(Message.Button(Message.ButtonType.WEB_URL,

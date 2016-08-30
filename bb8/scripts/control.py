@@ -12,6 +12,7 @@
 from __future__ import print_function
 
 import argparse
+import glob
 import json
 import os
 import re
@@ -27,6 +28,7 @@ BB8_SRC_ROOT = os.path.normpath(os.path.join(
     os.path.abspath(os.path.dirname(os.path.realpath(__file__))),
     '..', '..'))
 BB8_DATA_ROOT = '/var/lib/bb8'
+BB8_CLIENT_PACKAGE_NAME = 'bb8-client-9999.tar.gz'
 
 
 def get_manifest_schema():
@@ -199,7 +201,13 @@ class App(object):
             print('Fatal: no port mapping for app `%s\'' % self._app_name)
             sys.exit(1)
 
+        run('cp %s %s' %
+            (os.path.join(BB8_SRC_ROOT, 'dist', BB8_CLIENT_PACKAGE_NAME),
+             self._app_dir))
+
         run('docker build -t %s %s' % (self._image_name, self._app_dir))
+
+        run('rm %s' % os.path.join(self._app_dir, BB8_CLIENT_PACKAGE_NAME))
 
         if instance:
             run('docker rm -f %s' % instance, True)
@@ -239,7 +247,56 @@ class BB8(object):
                 for app_dir in os.listdir(apps_dir)
                 if os.path.isdir(os.path.join(apps_dir, app_dir))]
 
+    def copy_extra_source(self):
+        """Copy extra source required by client module."""
+
+        for filename in ['base_message.py', 'query_filters.py']:
+            run('cp %s %s' %
+                (os.path.join(BB8_SRC_ROOT, 'bb8', 'backend', filename),
+                 os.path.join(BB8_SRC_ROOT, 'bb8_client')))
+
+    def compile_and_install_proto(self):
+        """Compile and install gRPC module."""
+        proto_dir = os.path.join(BB8_SRC_ROOT, 'bb8', 'proto')
+
+        # Compile protobuf python module
+        run('docker run -it --rm -v %s:/defs namely/protoc-python' % proto_dir)
+
+        # Copy to bb8.pb_modules
+        for proto in glob.glob('%s/*.proto' % proto_dir):
+            name = os.path.basename(proto).rstrip('.proto')
+            run('cp %(path)s/%(name)s_pb2.py %(dest)s' %
+                {'path': os.path.join(proto_dir, 'pb-python'),
+                 'name': name,
+                 'dest': os.path.join(BB8_SRC_ROOT, 'bb8', 'pb_modules')})
+
+        # Copy app_service to bb8_client package
+        run('cp %s/pb-python/app_service_pb2.py %s' %
+            (proto_dir,
+             os.path.join(BB8_SRC_ROOT, 'bb8_client')))
+
+        # Remove pb-python dir
+        run('sudo rm -rf %s/pb-python' % proto_dir)
+
+    def build_client_package(self):
+        run('cd %s; python setup.py sdist' % BB8_SRC_ROOT)
+        run('rm -rf %s' % os.path.join(BB8_SRC_ROOT, 'bb8_client.egg-info'))
+
+    def prepare_resource(self):
+        self.copy_extra_source()
+        self.build_client_package()
+        self.compile_and_install_proto()
+
+    def compile_resource(self):
+        self.prepare_resource()
+
+        for app_dir in self._app_dirs:
+            app = App(app_dir)
+            app.compile_and_install_service_proto()
+
     def start(self, force=False):
+        self.prepare_resource()
+
         for app_dir in self._app_dirs:
             app = App(app_dir)
             app.start(force)
@@ -288,9 +345,12 @@ class BB8(object):
             run('docker rm -f %s' % instance, True)
 
         run('docker run --name %(name)s '
-            '-p 5000:5000 '
+            '-p %(port)d:%(port)d '
+            '-p %(app_api_service_port)d:%(app_api_service_port)d '
             '-v %(cloud_sql_dir)s:%(cloud_sql_dir)s '
             '-d %(image_name)s' % {
+                'port': config.PORT,
+                'app_api_service_port': config.APP_API_SERVICE_PORT,
                 'name': new_container_name,
                 'cloud_sql_dir': self.CLOUD_SQL_DIR,
                 'image_name': self.BB8_IMAGE_NAME
@@ -342,6 +402,11 @@ def main():
     status_parser = subparsers.add_parser('status', help='show bb8 status')
     status_parser.set_defaults(which='status')
 
+    # status sub-command
+    compile_resource_parser = subparsers.add_parser(
+        'compile-resource', help='compile bb8 resource')
+    compile_resource_parser.set_defaults(which='compile-resource')
+
     args = root_parser.parse_args()
 
     bb8 = BB8()
@@ -370,6 +435,8 @@ def main():
             bb8.logs()
     elif args.which == 'status':
         bb8.status()
+    elif args.which == 'compile-resource':
+        bb8.compile_resource()
     else:
         raise RuntimeError('invalid sub-command')
 
