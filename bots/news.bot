@@ -118,7 +118,7 @@
                              "(?i)(news ?lens)"]
                 },
                 "action_ident": "news_source",
-                "end_node_id": "[[get_by_source]]",
+                "end_node_id": "[[list_by_source]]",
                 "ack_message": ""
               },
               {
@@ -221,26 +221,14 @@
           }
         }
       },
-      "get_by_source": {
+      "list_by_source": {
         "name": "Get by source",
         "description": "Get content by source name",
         "expect_input": true,
         "content_module": {
           "id": "ai.compose.core.content",
           "config": {
-            "mode": "get_by_source",
-            "query_term": "{{matches#0}}"
-          }
-        }
-      },
-      "get_by_category": {
-        "name": "Get by category",
-        "description": "Get by category name",
-        "expect_input": true,
-        "content_module": {
-          "id": "ai.compose.core.content",
-          "config": {
-            "mode": "get_by_category",
+            "mode": "list_by_source",
             "query_term": "{{matches#0}}"
           }
         }

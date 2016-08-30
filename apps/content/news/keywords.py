@@ -27,7 +27,6 @@ def extract_keywords_ct():
             keyword, and the value is a list of correlated
             keywords of the key
     """
-
     try:
         with contextlib.closing(urllib.urlopen(CHINA_TIMES)) as page:
             response = lxml.html.fromstring(page.read())

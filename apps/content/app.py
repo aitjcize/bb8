@@ -39,7 +39,6 @@ def crawl():
                 related_kw = Keyword(name=r).add()
                 k.related_keywords.append(related_kw)
         Keyword.commit()
-
     except Exception:
         logging.exception('Crawler exception, skipping')
 
