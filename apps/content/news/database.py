@@ -39,7 +39,7 @@ def Reset():
 
 def Initialize():
     """Initialize the database and create all tables if there don't exist."""
-    for table in ['entry', 'tag']:
+    for table in ['entry', 'tag', 'keyword']:
         if table not in engine.table_names():
             Reset()
             return
@@ -232,6 +232,7 @@ class Keyword(DeclarativeBase, ModelMixin):
     name = Column(Unicode(64), nullable=False)
 
     related_keywords = relationship('Keyword')
+
 
 t_entry_tag = Table(
     'entry_tag', metadata,
