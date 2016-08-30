@@ -83,6 +83,12 @@ class DatabaseManager(object):
         cls.connect()
 
     @classmethod
+    def session(cls):
+        if cls.engine is None:
+            cls.create_engine()
+        return sessionmaker(bind=cls.engine)()
+
+    @classmethod
     def create_engine(cls):
         cls.engine = create_engine(config.DATABASE, echo=False,
                                    encoding='utf-8', pool_size=8,

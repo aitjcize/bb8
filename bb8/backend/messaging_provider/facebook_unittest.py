@@ -10,7 +10,6 @@
 import unittest
 import datetime
 
-from bb8 import app
 from bb8.backend.database import DatabaseManager
 from bb8.backend.database import Bot, Platform, PlatformTypeEnum, User
 from bb8.backend.messaging import Message
@@ -66,8 +65,7 @@ class FacebookMessagingUnittest(unittest.TestCase):
         facebook.send_message(self.user, [m])
 
         # Test button template message
-        m = Message()
-        m.set_buttons_text('Button template test')
+        m = Message(buttons_text='Button template test')
         m.add_button(Message.Button(Message.ButtonType.WEB_URL,
                                     'Google', url='http://www.google.com/'))
         m.add_button(Message.Button(Message.ButtonType.WEB_URL,
@@ -97,5 +95,4 @@ class FacebookMessagingUnittest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    with app.test_request_context():
-        unittest.main()
+    unittest.main()
