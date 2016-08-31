@@ -7,10 +7,12 @@
     Copyright 2016 bb8 Authors
 """
 
+from __future__ import print_function
+
 import argparse
 import logging
 import time
-from multiprocessing import Process
+import multiprocessing
 
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.log import configure_logging
@@ -24,8 +26,12 @@ from news.database import Session, Initialize, Keyword
 from news.spiders import RSSSpider, WebsiteSpider
 
 
+SECS_IN_A_DAY = 86400
+
+
 def crawl():
     try:
+        print('Crawler: started')
         process = CrawlerProcess(get_project_settings())
         process.crawl(WebsiteSpider, **spider_configs['storm'])
         process.crawl(WebsiteSpider, **spider_configs['thenewslens'])
@@ -33,6 +39,7 @@ def crawl():
         process.start()
         process.stop()
 
+        print('Crawler: extracting keywords')
         kws = keywords.extract_keywords_ct()
         for kw, related in kws.iteritems():
             try:
@@ -49,23 +56,31 @@ def crawl():
                 except IntegrityError:
                     Session().rollback()
     except Exception:
-        logging.exception('Crawler exception, skipping')
+        logging.exception('Crawler: exception, skipped')
+    else:
+        print('Crawler: finished gracefully')
+
+
+def grpc_server(port):
+    server = service_pb2.beta_create_ContentInfo_server(
+        content_service.ContentInfoServicer())
+    server.add_insecure_port('[::]:%d' % port)
+    server.start()
+
+    while True:
+        time.sleep(SECS_IN_A_DAY)
 
 
 def main(args):
     Initialize()
 
-    # Start gRPC
-    server = service_pb2.beta_create_ContentInfo_server(
-        content_service.ContentInfoServicer())
-    server.add_insecure_port('[::]:%d' % args.port)
-    server.start()
+    grpcp = multiprocessing.Process(target=grpc_server, args=(args.port,))
+    grpcp.start()
 
     configure_logging({'LOG_LEVEL': 'WARNING', 'LOG_ENABLED': True})
-
     while True:
         if config.ENABLE_CRAWLER:
-            p = Process(target=crawl)
+            p = multiprocessing.Process(target=crawl)
             p.start()
             p.join()
 
