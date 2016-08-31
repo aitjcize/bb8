@@ -126,8 +126,8 @@
                   "type": "regexp",
                   "params": [
                     "(?i)help", "(?i)tutorial", "幫助", "說明", "支持",
-                    "(?i)support", "你是誰", "(?i)hi", "(?i)hello", "(?i)yo",
-                    "(?i)ya", "(?i)ha"]
+                    "(?i)support", "你是誰", "(?i)hi", "(?i)hello", "(?i)yo$",
+                    "(?i)ya$", "(?i)ha$"]
                 },
                 "action_ident": "help",
                 "end_node_id": "[[help]]",
