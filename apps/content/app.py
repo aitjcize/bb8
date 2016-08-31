@@ -13,13 +13,14 @@ import time
 from multiprocessing import Process
 
 from scrapy.crawler import CrawlerProcess
-from scrapy.utils.project import get_project_settings
 from scrapy.utils.log import configure_logging
+from scrapy.utils.project import get_project_settings
+from sqlalchemy.exc import IntegrityError
 
 import content_service
 import service_pb2  # pylint: disable=E0401
 from news import config, spider_configs, keywords
-from news.database import Initialize, Keyword
+from news.database import Session, Initialize, Keyword
 from news.spiders import RSSSpider, WebsiteSpider
 
 
@@ -34,11 +35,19 @@ def crawl():
 
         kws = keywords.extract_keywords_ct()
         for kw, related in kws.iteritems():
-            k = Keyword(name=kw).add()
+            try:
+                k = Keyword(name=kw).add()
+                Session().commit()
+            except IntegrityError:
+                Session().rollback()
+
             for r in related:
-                related_kw = Keyword(name=r).add()
-                k.related_keywords.append(related_kw)
-        Keyword.commit()
+                try:
+                    related_kw = Keyword(name=r).add()
+                    k.related_keywords.append(related_kw)
+                    Session().commit()
+                except IntegrityError:
+                    Session().rollback()
     except Exception:
         logging.exception('Crawler exception, skipping')
 
