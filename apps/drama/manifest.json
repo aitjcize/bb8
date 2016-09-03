@@ -1,0 +1,9 @@
+{
+  "name": "drama",
+  "description": "drama crawler and service",
+  "version": "0.1",
+  "resource": {
+    "cpu": "medium",
+    "memory": 256
+  }
+}
