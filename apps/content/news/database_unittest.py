@@ -49,23 +49,23 @@ class SchemaUnittest(unittest.TestCase):
         self.assertNotEquals(entry2, None)
         self.assertEquals(entry2.image_url, u'mock-image-src')
         self.assertEquals(len(entry2.tags), 2)
-        self.assertEquals(entry2.tags[0].name, 'product')
+        self.assertEquals(entry2.tags[0].name, u'product')
 
-        keyword1 = Keyword(name='kw1').add()
-        keyword2 = Keyword(name='kw2').add()
-        keyword3 = Keyword(name='kw3').add()
+        keyword1 = Keyword(name=u'kw1').add()
+        keyword2 = Keyword(name=u'kw2').add()
+        keyword3 = Keyword(name=u'kw3').add()
 
         keyword1.related_keywords.append(keyword2)
         keyword1.related_keywords.append(keyword3)
         self.dbm.commit()
 
-        keyword = Keyword.get_by(name='kw1', single=True)
-        self.assertEquals(keyword.name, 'kw1')
+        keyword = Keyword.get_by(name=u'kw1', single=True)
+        self.assertEquals(keyword.name, u'kw1')
         self.assertEquals(len(keyword.related_keywords), 2)
         self.assertEquals(
-            keyword.related_keywords[0].name, 'kw2')
+            keyword.related_keywords[0].name, u'kw2')
         self.assertEquals(
-            keyword.related_keywords[1].name, 'kw3')
+            keyword.related_keywords[1].name, u'kw3')
 
 
 if __name__ == '__main__':
