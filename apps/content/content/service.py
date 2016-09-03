@@ -9,14 +9,18 @@
     Copyright 2016 bb8 Authors
 """
 
-import time
 import contextlib
 import hashlib
 import json
+import logging
 import multiprocessing
 import re
+import time
+
+import grpc
 
 from backports.functools_lru_cache import lru_cache
+from concurrent import futures
 from gcloud import datastore
 from sqlalchemy import desc
 
@@ -25,6 +29,7 @@ from content import config
 from content.database import Entry, GetSession, Keyword
 
 
+_GRPC_MAX_WORKERS = 10
 _SECS_IN_A_DAY = 86400
 
 gclient = datastore.Client()
@@ -131,7 +136,7 @@ class ContentInfo(object):
         return Keyword.get_by(parent_id=kw.id, limit=limit)
 
 
-class ContentInfoServicer(service_pb2.BetaContentInfoServicer):
+class ContentInfoServicer(service_pb2.ContentInfoServicer):
     def __init__(self):
         super(ContentInfoServicer, self).__init__()
 
@@ -176,10 +181,13 @@ class ContentInfoServicer(service_pb2.BetaContentInfoServicer):
 
 
 def _grpc_server(port):
-    server = service_pb2.beta_create_ContentInfo_server(
-        ContentInfoServicer())
+    server = grpc.server(futures.ThreadPoolExecutor(
+        max_workers=_GRPC_MAX_WORKERS))
+    service_pb2.add_ContentInfoServicer_to_server(
+        ContentInfoServicer(), server)
     server.add_insecure_port('[::]:%d' % port)
     server.start()
+    logging.info('gRPC server started.')
 
     while True:
         time.sleep(_SECS_IN_A_DAY)

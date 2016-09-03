@@ -13,6 +13,9 @@ import os
 import time
 import traceback
 
+import grpc
+
+from concurrent import futures
 from flask import g
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -24,13 +27,14 @@ from bb8.logging_utils import Logger
 from bb8.pb_modules import app_service_pb2  # pylint: disable=E0611
 
 
-SECONDS_IN_A_DAY = 86400
+_GRPC_MAX_WORKERS = 10
+_SECONDS_IN_A_DAY = 86400
 
 logger = Logger(os.path.join(config.LOG_DIR, config.API_SERVICER_LOG_FILE),
                 'app-api-servicer')
 
 
-class MessagingServicer(app_service_pb2.BetaMessagingServiceServicer):
+class MessagingServicer(app_service_pb2.MessagingServiceServicer):
     def _Error(self, msg):
         """Helper method for logging and creating error response."""
         logger.error(msg)
@@ -88,15 +92,18 @@ class MessagingServicer(app_service_pb2.BetaMessagingServiceServicer):
 
 
 def start_server():
-    server = app_service_pb2.beta_create_MessagingService_server(
-        MessagingServicer())
+    server = grpc.server(futures.ThreadPoolExecutor(
+        max_workers=_GRPC_MAX_WORKERS))
+    app_service_pb2.add_MessagingServiceServicer_to_server(
+        MessagingServicer(), server)
     server.add_insecure_port('[::]:%d' % config.APP_API_SERVICE_PORT)
     server.start()
+
     logger.info('BB8 Application API servicer started.')
 
     try:
         while True:
-            time.sleep(SECONDS_IN_A_DAY)
+            time.sleep(_SECONDS_IN_A_DAY)
     except KeyboardInterrupt:
         logger.info('Recieved KeyboardInterrupt, server stopped.')
 
