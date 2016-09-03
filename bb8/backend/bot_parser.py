@@ -16,7 +16,7 @@ import sys
 
 import jsonschema
 
-from bb8 import logger
+from bb8 import config, logger
 from bb8.backend.messaging import get_messaging_provider
 from bb8.backend.database import (Bot, ContentModule, Node, Platform,
                                   PlatformTypeEnum)
@@ -82,7 +82,8 @@ def parse_bot(filename, to_bot_id=None):
                              platform_desc['type_enum'])
                 raise
 
-            if not platform_desc['deployed']:
+            if (not platform_desc['deployed'] or
+                    (config.DEPLOY and platform_desc['deployed'])):
                 provider.apply_config(platform_desc['config'])
 
         bot = Bot.get_by(id=to_bot_id, single=True)
@@ -120,7 +121,8 @@ def parse_bot(filename, to_bot_id=None):
                      provider_ident=platform_desc['provider_ident'],
                      config=platform_desc['config']).add()
 
-            if not platform_desc['deployed']:
+            if (not platform_desc['deployed'] or
+                    (config.DEPLOY and platform_desc['deployed'])):
                 provider.apply_config(platform_desc['config'])
 
     nodes = bot_desc['nodes']
