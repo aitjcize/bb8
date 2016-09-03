@@ -1,0 +1,263 @@
+{
+  "platforms": [
+    {
+      "type_enum": "Facebook",
+      "deployed": true,
+      "provider_ident": "1764224463860405",
+      "config": {
+        "access_token": "EAADKDZAav7dsBAFTDHW95y1CxJ2ZBpzK0mGmVcvM0o3qFTdItn3KHxYxF42e32miD4QUnRX6RWpKUytkUwVQuPM1YwJZB4wicdb4ddU37BF8AYYybv0QofAHrBudKex8sAbeUjIsRXzRofq0B3Mn5u6PmHyQ3S0PiCChR9ZBUgZDZD",
+        "get_start_button": {"message": {"text": "Hi"}},
+        "persistent_menu": [
+          {
+            "type": "postback",
+            "title": "熱門韓劇",
+            "payload": {"message": {"text": "trending_kr"}}
+          },
+          {
+            "type": "postback",
+            "title": "熱門日劇",
+            "payload": {"message": {"text": "trending_jp"}}
+          },
+          {
+            "type": "postback",
+            "title": "熱門台劇",
+            "payload": {"message": {"text": "trending_tw"}}
+          },
+          {
+            "type": "postback",
+            "title": "推薦給我",
+            "payload": {"message": {"text": "recommend"}}
+          }
+        ]
+      }
+    }
+  ],
+  "bot": {
+    "name": "Drama",
+    "description": "Drama",
+    "interaction_timeout": 120,
+    "session_timeout": 0,
+    "admin_interaction_timeout": 10,
+    "nodes": {
+      "start": {
+        "name": "Greet",
+        "description": "Greet user",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.generic_message",
+          "config": {
+            "messages": [
+              {
+                "text": "嗨 {{user.first_name}}，我是「追劇吧」。你是第 {{statistic.user_count}} 個愛看劇的人！"
+              }
+            ]
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.passthrough",
+          "config": {
+            "end_node_id": "[[root]]",
+            "ack_message": ""
+          }
+        }
+      },
+      "subscribe": {
+        "name": "Subscribe",
+        "description": "Subscribe drama",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.third_party.drama",
+          "config": {
+            "mode": "subscribe"
+          }
+        }
+      },
+      "trending_kr": {
+        "name": "trending_kr",
+        "description": "Trending Korea Drama",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.third_party.drama",
+          "config": {
+            "mode": "trending_kr",
+            "count": 10
+          }
+        }
+      },
+      "trending_jp": {
+        "name": "trending_jp",
+        "description": "Trending Japan Drama",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.third_party.drama",
+          "config": {
+            "mode": "trending_jp",
+            "count": 10
+          }
+        }
+      },
+      "trending_tw": {
+        "name": "trending_tw",
+        "description": "Trending Taiwan Drama",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.third_party.drama",
+          "config": {
+            "mode": "trending_tw",
+            "count": 10
+          }
+        }
+      },
+      "trending_cn": {
+        "name": "trending_cn",
+        "description": "Trending China Drama",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.third_party.drama",
+          "config": {
+            "mode": "trending_cn",
+            "count": 10
+          }
+        }
+      },
+      "root": {
+        "name": "Root",
+        "description": "Root node, show usage",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.third_party.drama",
+          "config": {
+            "mode": "default"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "sticker",
+                  "params": ["369239263222822", "369239343222814", "369239383222810"]
+                },
+                "action_ident": "got_like_sticker",
+                "end_node_id": "[[thanks]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "event",
+                  "params": ["SUBSCRIBE"]
+                },
+                "action_ident": "subscribe_drama",
+                "end_node_id": "[[subscribe]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)thanks?", "謝", "感恩"]
+                },
+                "action_ident": "got_like_sticker",
+                "end_node_id": "[[thanks]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["trending_kr"]
+                },
+                "action_ident": "trending_kr",
+                "end_node_id": "[[trending_kr]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["trending_jp"]
+                },
+                "action_ident": "trending_jp",
+                "end_node_id": "[[trending_jp]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["trending_tw"]
+                },
+                "action_ident": "trending_tw",
+                "end_node_id": "[[trending_tw]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["trending_cn"]
+                },
+                "action_ident": "trending_cn",
+                "end_node_id": "[[trending_cn]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(?i)help", "(?i)tutorial", "幫助", "說明", "支持",
+                    "(?i)support", "你是誰", "(?i)hi", "(?i)hello", "(?i)yo$",
+                    "(?i)ya$", "(?i)ha$"]
+                },
+                "action_ident": "help",
+                "end_node_id": "[[help]]",
+                "ack_message": ""
+              },
+              {
+                "action_ident": "$error",
+                "end_node_id": "[[root]]",
+                "ack_message": ""
+              }
+            ],
+            "on_error": {
+              "pattern": ".*",
+              "collect_as": "query_term"
+            }
+          }
+        }
+      },
+      "thanks": {
+        "name": "Thanks",
+        "description": "Thank user",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.text_message",
+          "config": {
+            "text": [
+              "感謝你的支持, 請幫我們的粉絲頁按讚喔! https://goo.gl/OPcdus",
+              "你也可以輸入「建議 {內容}」來告訢我們可以改善的地方"
+            ]
+          }
+        }
+      },
+      "help": {
+        "name": "help",
+        "description": "",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.core.generic_message",
+          "config": {
+            "messages": [
+                {
+                  "text": "你好，我是 Compose.AI 的追劇機器人，我的目標是幫愛看劇的你不漏看任何一集"
+                }
+            ]
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.core.passthrough",
+          "config": {
+            "end_node_id": "[[root]]",
+            "ack_message": ""
+          }
+        }
+      }
+    }
+  }
+}
