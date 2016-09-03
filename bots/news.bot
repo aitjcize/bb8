@@ -15,11 +15,6 @@
           },
           {
             "type": "postback",
-            "title": "推薦給我",
-            "payload": {"message": {"text": "recommend"}}
-          },
-          {
-            "type": "postback",
             "title": "使用說明",
             "payload": {"message": {"text": "tutorial"}}
           },
