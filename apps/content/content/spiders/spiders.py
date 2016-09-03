@@ -17,7 +17,7 @@ import scrapy
 from scrapy.exceptions import DropItem
 from scrapy.spiders import CrawlSpider, XMLFeedSpider
 
-from news.items import EntryItem
+from content.items import EntryItem
 
 
 def extract_xpath(response, xpath, default_val=''):

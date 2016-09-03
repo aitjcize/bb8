@@ -19,14 +19,9 @@ from scrapy.utils.log import configure_logging
 from scrapy.utils.project import get_project_settings
 from sqlalchemy.exc import IntegrityError
 
-import content_service
-import service_pb2  # pylint: disable=E0401
-from news import config, spider_configs, keywords
-from news.database import Session, Initialize, Keyword
-from news.spiders import RSSSpider, WebsiteSpider
-
-
-SECS_IN_A_DAY = 86400
+from content import config, spider_configs, keywords, service
+from content.database import Session, Initialize, Keyword
+from content.spiders import RSSSpider, WebsiteSpider
 
 
 def crawl():
@@ -61,21 +56,10 @@ def crawl():
         print('Crawler: finished gracefully')
 
 
-def grpc_server(port):
-    server = service_pb2.beta_create_ContentInfo_server(
-        content_service.ContentInfoServicer())
-    server.add_insecure_port('[::]:%d' % port)
-    server.start()
-
-    while True:
-        time.sleep(SECS_IN_A_DAY)
-
-
 def main(args):
     Initialize()
 
-    grpcp = multiprocessing.Process(target=grpc_server, args=(args.port,))
-    grpcp.start()
+    service.start_grpc_server(args.port)
 
     configure_logging({'LOG_LEVEL': 'WARNING', 'LOG_ENABLED': True})
     while True:

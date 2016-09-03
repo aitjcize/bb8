@@ -17,8 +17,8 @@ from gcloud import datastore
 from scrapy.exceptions import DropItem
 from sqlalchemy.exc import IntegrityError
 
-from news import config
-from news.database import Session, Entry
+from content import config
+from content.database import Session, Entry
 
 
 gclient = datastore.Client()

@@ -13,7 +13,7 @@ import urllib
 
 import lxml.html
 
-from news.database import Entry
+from content.database import Entry
 
 
 CHINA_TIMES = 'http://www.chinatimes.com/search/keyword/'

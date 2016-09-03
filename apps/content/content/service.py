@@ -9,9 +9,11 @@
     Copyright 2016 bb8 Authors
 """
 
+import time
 import contextlib
 import hashlib
 import json
+import multiprocessing
 import re
 
 from backports.functools_lru_cache import lru_cache
@@ -19,9 +21,11 @@ from gcloud import datastore
 from sqlalchemy import desc
 
 import service_pb2  # pylint: disable=E0401
-from news import config
-from news.database import Entry, GetSession, Keyword
+from content import config
+from content.database import Entry, GetSession, Keyword
 
+
+_SECS_IN_A_DAY = 86400
 
 gclient = datastore.Client()
 
@@ -169,3 +173,19 @@ class ContentInfoServicer(service_pb2.BetaContentInfoServicer):
                     for k in ContentInfo.GetRelatedKeywords(
                         request.name, request.limit)]
         return service_pb2.KeywordsContent(keywords=keywords)
+
+
+def _grpc_server(port):
+    server = service_pb2.beta_create_ContentInfo_server(
+        ContentInfoServicer())
+    server.add_insecure_port('[::]:%d' % port)
+    server.start()
+
+    while True:
+        time.sleep(_SECS_IN_A_DAY)
+
+
+def start_grpc_server(port):
+    """Start gRPC server."""
+    p = multiprocessing.Process(target=_grpc_server, args=(port,))
+    p.start()

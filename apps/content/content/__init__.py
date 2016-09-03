@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    Initialization of news module
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Initialization of content module
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Copyright 2016 bb8 Authors
 """
@@ -133,7 +133,7 @@ class DeployConfig(Config):
 
 
 def ConfigureLogger():
-    logger_ = logging.getLogger('news')
+    logger_ = logging.getLogger('content')
     logger_.setLevel(logging.DEBUG)
 
     ch = logging.StreamHandler()

@@ -19,7 +19,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import has_identity
 from sqlalchemy.schema import UniqueConstraint
 
-from news import config
+from content import config
 
 
 DeclarativeBase = declarative_base()

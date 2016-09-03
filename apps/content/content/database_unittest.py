@@ -10,7 +10,7 @@
 import datetime
 import unittest
 
-from news.database import Reset, GetSession, Entry, Tag, Keyword
+from content.database import Reset, GetSession, Entry, Tag, Keyword
 
 
 class SchemaUnittest(unittest.TestCase):
