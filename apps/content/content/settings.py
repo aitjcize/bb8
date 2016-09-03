@@ -58,10 +58,6 @@ SPIDER_MIDDLEWARES = {
     'scrapy.spidermiddlewares.depth.DepthMiddleware': 10,
 }
 
-LOG_ENABLED = False
-
-LOG_LEVEL = 'ERROR'
-
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 # DOWNLOADER_MIDDLEWARES = {
@@ -102,6 +98,10 @@ ITEM_PIPELINES = {
 # HTTPCACHE_DIR = 'httpcache'
 # HTTPCACHE_IGNORE_HTTP_CODES = []
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+# Logging
+LOG_ENABLED = True
+LOG_LEVEL = 'INFO'
 
 # Custom log formatter
 LOG_FORMATTER = 'content.utils.ContentLogFormatter'
