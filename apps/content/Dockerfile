@@ -13,7 +13,7 @@ RUN pip2 install --upgrade pip setuptools
 RUN pip2 install -r /tmp/requirements.txt
 
 # Create required dir
-RUN mkdir -p /opt/app /var/lib/crawler
+RUN mkdir -p /opt/app
 
 # Copy credentials
 COPY credential/compose-ai.json /opt/app
@@ -21,10 +21,13 @@ COPY credential/compose-ai.json /opt/app
 # CloudSQL
 RUN mkdir -p /cloudsql
 
+# Environment variables
+ENV PYTHONPATH=/opt/app
 ENV GOOGLE_APPLICATION_CREDENTIALS=/opt/app/compose-ai.json
 
-WORKDIR /opt/app
-CMD ["./app.py"]
+EXPOSE 9999
+WORKDIR "/opt/app"
+CMD ["/opt/app/app.py"]
 
 # Install app script
 COPY . /opt/app

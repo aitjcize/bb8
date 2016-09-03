@@ -15,7 +15,6 @@ import time
 import multiprocessing
 
 from scrapy.crawler import CrawlerProcess
-from scrapy.utils.log import configure_logging
 from scrapy.utils.project import get_project_settings
 from sqlalchemy.exc import IntegrityError
 
@@ -61,7 +60,6 @@ def main(args):
 
     service.start_grpc_server(args.port)
 
-    configure_logging({'LOG_LEVEL': 'WARNING', 'LOG_ENABLED': True})
     while True:
         if config.ENABLE_CRAWLER:
             p = multiprocessing.Process(target=crawl)
