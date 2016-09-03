@@ -8,7 +8,7 @@
 """
 
 
-from grpc.beta import implementations
+import grpc
 
 from bb8.backend.module_api import (Message, GetgRPCService, Resolve,
                                     EventPayload, SupportedPlatform,
@@ -60,8 +60,8 @@ class NewsInfo(object):
 
     def __init__(self):
         pb2_module, addr = GetgRPCService('content')
-        channel = implementations.insecure_channel(*addr)
-        self._stub = pb2_module.beta_create_ContentInfo_stub(channel)
+        channel = grpc.insecure_channel('%s:%d' % addr)
+        self._stub = pb2_module.ContentInfoStub(channel)
         self._pb2_module = pb2_module
 
     def get_default_image(self, source):

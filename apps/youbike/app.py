@@ -27,8 +27,14 @@ import urllib
 from datetime import datetime, timedelta
 
 import enum
+import grpc
+
+from concurrent import futures
 
 import service_pb2  # pylint: disable=E0401
+
+
+_GRPC_MAX_WORKERS = 10
 
 
 class WeatherAPIParser(object):
@@ -269,7 +275,7 @@ class YoubikeDataCollector(object):
                    max(self._running_sum[sno][direction.value], 1))
 
 
-class YoubikeInfoServicer(service_pb2.BetaYoubikeInfoServicer):
+class YoubikeInfoServicer(service_pb2.YoubikeInfoServicer):
     def __init__(self, _collector):
         self._collector = _collector
         super(YoubikeInfoServicer, self).__init__()
@@ -327,8 +333,11 @@ if __name__ == '__main__':
     ubike_api = YoubikeAPI()
     collector = YoubikeDataCollector(pickle_path=args.pickle_path,
                                      interval=args.interval)
-    server = service_pb2.beta_create_YoubikeInfo_server(
-        YoubikeInfoServicer(collector))
+
+    server = grpc.server(futures.ThreadPoolExecutor(
+        max_workers=_GRPC_MAX_WORKERS))
+    service_pb2.add_YoubikeInfoServicer_to_server(
+        YoubikeInfoServicer(collector), server)
     server.add_insecure_port('[::]:%d' % args.port)
     server.start()
 

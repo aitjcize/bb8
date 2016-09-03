@@ -8,7 +8,7 @@
 
 import cPickle
 
-from grpc.beta import implementations
+import grpc
 
 from bb8_client import config
 from bb8_client import app_service_pb2  # pylint: disable=E0611
@@ -23,8 +23,8 @@ _DEFAULT_TIMEOUT_SECS = 10
 class MessagingService(object):
 
     def __init__(self, timeout=_DEFAULT_TIMEOUT_SECS):
-        channel = implementations.insecure_channel(config.HOST, config.PORT)
-        self._stub = app_service_pb2.beta_create_MessagingService_stub(channel)
+        channel = grpc.insecure_channel('%s:%d' % (config.HOST, config.PORT))
+        self._stub = app_service_pb2.MessagingServiceStub(channel)
         self._timeout = timeout
 
     def Ping(self):

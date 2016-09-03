@@ -129,7 +129,7 @@ class App(object):
     def compile_and_install_service_proto(self):
         """Compile and install service gRPC module."""
         # Compile protobuf python module
-        run('docker run -it --rm -v %s:/defs namely/protoc-python' %
+        run('docker run -it --rm -v %s:/defs aitjcize/protoc-python' %
             (self._app_dir))
         # Copy to app dir
         run('cp %(path)s/pb-python/service_pb2.py %(path)s' %
@@ -260,7 +260,8 @@ class BB8(object):
         proto_dir = os.path.join(BB8_SRC_ROOT, 'bb8', 'proto')
 
         # Compile protobuf python module
-        run('docker run -it --rm -v %s:/defs namely/protoc-python' % proto_dir)
+        run('docker run -it --rm -v %s:/defs aitjcize/protoc-python' %
+            proto_dir)
 
         # Copy to bb8.pb_modules
         for proto in glob.glob('%s/*.proto' % proto_dir):
