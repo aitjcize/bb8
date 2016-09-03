@@ -6,7 +6,7 @@
     Copyright 2016 bb8 Authors
 """
 
-# Scrapy settings for news project
+# Scrapy settings for content project
 #
 # For simplicity, this file contains only settings considered important or
 # commonly used. You can find more settings consulting the documentation:
@@ -15,15 +15,14 @@
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = 'news'
+BOT_NAME = 'content'
 
-SPIDER_MODULES = ['news.spiders']
-NEWSPIDER_MODULE = 'news.spiders'
+SPIDER_MODULES = ['content.spiders']
 
 
 # Crawl responsibly by identifying yourself
 # (and your website) on the user-agent
-# USER_AGENT = 'news (+http://www.yourdomain.com)'
+# USER_AGENT = 'content (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
@@ -66,7 +65,7 @@ LOG_LEVEL = 'ERROR'
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 # DOWNLOADER_MIDDLEWARES = {
-#     'news.middlewares.MyCustomDownloaderMiddleware': 543,
+#     'content.middlewares.MyCustomDownloaderMiddleware': 543,
 # }
 
 # Enable or disable extensions
@@ -78,8 +77,8 @@ LOG_LEVEL = 'ERROR'
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    'news.pipelines.SQLPipeline': 10,
-    'news.pipelines.DatastorePipeline': 20,
+    'content.pipelines.SQLPipeline': 10,
+    'content.pipelines.DatastorePipeline': 20,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -105,4 +104,4 @@ ITEM_PIPELINES = {
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 # Custom log formatter
-LOG_FORMATTER = 'news.utils.ContentLogFormatter'
+LOG_FORMATTER = 'content.utils.ContentLogFormatter'
