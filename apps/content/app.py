@@ -18,8 +18,9 @@ from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 from sqlalchemy.exc import IntegrityError
 
-from content import config, spider_configs, keywords, service
+from content import config, keywords, service
 from content.database import Session, Initialize, Keyword
+from content.spiders.config import spider_configs
 from content.spiders import RSSSpider, WebsiteSpider
 
 

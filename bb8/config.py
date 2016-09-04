@@ -18,7 +18,10 @@ class Config(object):
 
     BB8_ROOT = '/tmp/bb8'
     LOCK_DIR = BB8_ROOT + '/lock'
-    RECORDS_PER_PAGE = 50
+
+    # Number of threads that serve the requests. This should be the same
+    # as processes * threads in uwsgi.ini
+    N_THREADS = 32
 
     # Secrets
     # FIXME: Replace these secrets in production
