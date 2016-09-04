@@ -29,7 +29,6 @@ from content import config
 from content.database import Entry, GetSession, Keyword
 
 
-_GRPC_MAX_WORKERS = 10
 _SECS_IN_A_DAY = 86400
 
 gclient = datastore.Client()
@@ -182,7 +181,7 @@ class ContentInfoServicer(service_pb2.ContentInfoServicer):
 
 def _grpc_server(port):
     server = grpc.server(futures.ThreadPoolExecutor(
-        max_workers=_GRPC_MAX_WORKERS))
+        max_workers=config.N_THREADS))
     service_pb2.add_ContentInfoServicer_to_server(
         ContentInfoServicer(), server)
     server.add_insecure_port('[::]:%d' % port)

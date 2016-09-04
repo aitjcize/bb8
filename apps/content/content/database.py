@@ -27,6 +27,7 @@ metadata = DeclarativeBase.metadata
 
 engine = create_engine(config.DATABASE, echo=False,
                        encoding='utf-8',
+                       pool_size=config.N_THREADS,
                        pool_recycle=3600 * 8)
 
 Session = scoped_session(sessionmaker(engine))
