@@ -53,6 +53,8 @@ def crawl():
         logging.exception('Crawler: exception, skipped')
     else:
         print('Crawler: finished gracefully')
+    finally:
+        Session().close()
 
 
 def main(args):
