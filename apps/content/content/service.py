@@ -23,6 +23,7 @@ from backports.functools_lru_cache import lru_cache
 from concurrent import futures
 from gcloud import datastore
 from sqlalchemy import desc
+from sqlalchemy.orm.exc import NoResultFound
 
 import service_pb2  # pylint: disable=E0401
 from content import config
@@ -129,10 +130,13 @@ class ContentInfo(object):
 
     @classmethod
     def GetRelatedKeywords(cls, name, limit=5):
-        kw = Keyword.get_by(name=name, single=True)
-        if not kw:
-            return []
-        return Keyword.get_by(parent_id=kw.id, limit=limit)
+        with contextlib.closing(GetSession()) as session:
+            try:
+                kw = session.query(Keyword).filter_by(name=name).limit(1).one()
+            except NoResultFound:
+                return []
+            return session.query(Keyword).filter_by(
+                parent_id=kw.id).order_by('created_at').limit(limit).all()
 
 
 class ContentInfoServicer(service_pb2.ContentInfoServicer):
