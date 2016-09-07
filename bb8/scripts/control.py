@@ -249,8 +249,8 @@ class BB8(object):
 
     def copy_extra_source(self):
         """Copy extra source required by client module."""
-
-        for filename in ['base_message.py', 'query_filters.py']:
+        LIST = ['base_message.py', 'database_utils.py', 'query_filters.py']
+        for filename in LIST:
             run('cp %s %s' %
                 (os.path.join(BB8_SRC_ROOT, 'bb8', 'backend', filename),
                  os.path.join(BB8_SRC_ROOT, 'bb8_client')))

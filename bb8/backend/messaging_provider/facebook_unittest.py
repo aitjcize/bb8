@@ -18,21 +18,20 @@ from bb8.backend.messaging_provider import facebook
 
 class FacebookMessagingUnittest(unittest.TestCase):
     def setUp(self):
-        self.dbm = DatabaseManager()
-        self.dbm.connect()
+        DatabaseManager.connect()
         self.account = None
         self.bot = None
         self.setup_prerequisite()
 
     def tearDown(self):
-        self.dbm.disconnect()
+        DatabaseManager.disconnect()
 
     def setup_prerequisite(self):
-        self.dbm.reset()
+        DatabaseManager.reset()
 
         self.bot = Bot(name=u'test', description=u'test',
                        interaction_timeout=120, session_timeout=86400).add()
-        self.dbm.commit()
+        DatabaseManager.commit()
 
         config = {
             'access_token': 'EAAP0okfsZCVkBAI3BCU5s3u8O0iVFh6NAwFHa7X2bKZCGQ'
@@ -44,14 +43,14 @@ class FacebookMessagingUnittest(unittest.TestCase):
                             type_enum=PlatformTypeEnum.Facebook,
                             provider_ident='facebook_page_id',
                             config=config).add()
-        self.dbm.commit()
+        DatabaseManager.commit()
 
         self.user = User(bot_id=self.bot.id,
                          platform_id=platform.id,
                          platform_user_ident='1153206858057166',
                          last_seen=datetime.datetime.now()).add()
 
-        self.dbm.commit()
+        DatabaseManager.commit()
 
     def test_send_message(self):
         """Test facebook message sending."""

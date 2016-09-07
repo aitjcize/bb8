@@ -9,7 +9,6 @@
     Copyright 2016 bb8 Authors
 """
 
-import contextlib
 import hashlib
 import json
 import logging
@@ -23,11 +22,10 @@ from backports.functools_lru_cache import lru_cache
 from concurrent import futures
 from gcloud import datastore
 from sqlalchemy import desc
-from sqlalchemy.orm.exc import NoResultFound
 
 import service_pb2  # pylint: disable=E0401
 from content import config
-from content.database import Entry, GetSession, Keyword
+from content.database import DatabaseSession, Entry, Keyword
 
 
 _SECS_IN_A_DAY = 86400
@@ -44,6 +42,10 @@ def to_proto_entry(obj):
         image_url=obj.image_url)
 
 
+def to_proto_keyword(obj):
+    return service_pb2.Keyword(name=obj.name)
+
+
 def normalize_source(query):
     mapping = {
         'yahoo': 'yahoo_rss',
@@ -57,30 +59,30 @@ def normalize_source(query):
 class ContentInfo(object):
     @classmethod
     def Search(cls, unused_user_id, term, count):
-        with contextlib.closing(GetSession()) as session:
-            entries = session.query(Entry).filter(
-                Entry.title.like(unicode('%' + term + '%'))).limit(count)
-            return [to_proto_entry(ent) for ent in entries.all()]
+        with DatabaseSession():
+            entries = Entry.search(term, count)
+            return [to_proto_entry(ent) for ent in entries]
 
     @classmethod
     def Recommend(cls, unused_user_id, count):
-        with contextlib.closing(GetSession()) as session:
-            entries = session.query(Entry).order_by(
-                desc('created_at')).limit(count)
-            return [to_proto_entry(ent) for ent in entries.all()]
+        with DatabaseSession():
+            entries = Entry.get_by(order_by=[desc('created_at')], limit=count)
+            return [to_proto_entry(ent) for ent in entries]
 
     @classmethod
     def Trending(cls, unused_user_id, source_name=None, count=5):
-        with contextlib.closing(GetSession()) as session:
+        with DatabaseSession():
             source_name = normalize_source(source_name)
             if not source_name:
-                entries = session.query(Entry).order_by(
-                    desc('created_at')).limit(count)
+                entries = Entry.get_by(
+                    order_by=[desc('created_at')],
+                    limit=count)
             else:
-                entries = session.query(Entry).filter(
-                    Entry.source == source_name,
-                ).order_by(desc('created_at')).limit(count)
-            return [to_proto_entry(ent) for ent in entries.all()]
+                entries = Entry.get_by(
+                    source=source_name,
+                    order_by=[desc('created_at')],
+                    limit=count)
+            return [to_proto_entry(ent) for ent in entries]
 
     @classmethod
     @lru_cache(maxsize=512)
@@ -123,20 +125,19 @@ class ContentInfo(object):
 
     @classmethod
     def GetKeywords(cls, limit=5):
-        with contextlib.closing(GetSession()) as session:
-            keywords = session.query(Keyword).order_by(
-                desc('created_at')).limit(limit)
-            return keywords
+        with DatabaseSession():
+            kws = Keyword.get_by(order_by=[desc('created_at')], limit=limit)
+            return [to_proto_keyword(kw) for kw in kws]
 
     @classmethod
     def GetRelatedKeywords(cls, name, limit=5):
-        with contextlib.closing(GetSession()) as session:
-            try:
-                kw = session.query(Keyword).filter_by(name=name).limit(1).one()
-            except NoResultFound:
-                return []
-            return session.query(Keyword).filter_by(
-                parent_id=kw.id).order_by('created_at').limit(limit).all()
+        with DatabaseSession():
+            kw = Keyword.get_by(name=name, single=True)
+            if kw:
+                kws = Keyword.get_by(parent_id=kw.id,
+                                     order_by=['created_at'], limit=limit)
+                return [to_proto_keyword(kw) for kw in kws]
+            return []
 
 
 class ContentInfoServicer(service_pb2.ContentInfoServicer):
@@ -172,15 +173,13 @@ class ContentInfoServicer(service_pb2.ContentInfoServicer):
             src=src, alt=alt, pic_index=pic_index)
 
     def GetKeywords(self, request, unused_context):
-        keywords = [dict(id=k.id, name=k.name)
-                    for k in ContentInfo.GetKeywords(request.limit)]
-        return service_pb2.KeywordsContent(keywords=keywords)
+        return service_pb2.KeywordsContent(
+            keywords=ContentInfo.GetKeywords(request.limit))
 
     def GetRelatedKeywords(self, request, unused_context):
-        keywords = [dict(id=k.id, name=k.name)
-                    for k in ContentInfo.GetRelatedKeywords(
-                        request.name, request.limit)]
-        return service_pb2.KeywordsContent(keywords=keywords)
+        return service_pb2.KeywordsContent(
+            keywords=ContentInfo.GetRelatedKeywords(request.name,
+                                                    request.limit))
 
 
 def _grpc_server(port):

@@ -22,14 +22,13 @@ from bb8.backend.test_utils import reset_and_setup_bots
 
 class EngineUnittest(unittest.TestCase):
     def setUp(self):
-        self.dbm = DatabaseManager()
         self.bot = None
         self.user = None
 
-        self.dbm.connect()
+        DatabaseManager.connect()
 
     def tearDown(self):
-        self.dbm.disconnect()
+        DatabaseManager.disconnect()
 
     def setup_prerequisite(self, bot_file):
         InputTransformation.clear()
@@ -39,7 +38,7 @@ class EngineUnittest(unittest.TestCase):
                          platform_user_ident='blablabla',
                          last_seen=datetime.datetime.now()).add()
 
-        self.dbm.commit()
+        DatabaseManager.commit()
 
     def test_simple_graph(self):
         """Test a simple graph (test/simple.bot)

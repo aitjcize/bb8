@@ -10,22 +10,25 @@
 import datetime
 import unittest
 
-from content.database import Reset, GetSession, Entry, Tag, Keyword
+from content.database import DatabaseManager, Entry, Tag, Keyword
 
 
 class SchemaUnittest(unittest.TestCase):
     def setUp(self):
-        self.dbm = GetSession()
+        DatabaseManager.connect()
+
+    def tearDown(self):
+        DatabaseManager.disconnect()
 
     def test_schema(self):
         """Test database schema and make sure all the tables can be created
         without problems."""
-        Reset()
-        self.dbm.commit()
+        DatabaseManager.reset()
+        DatabaseManager.commit()
 
     def test_schema_sanity(self):
         """Populate data into all tables and make sure there are no error."""
-        Reset()
+        DatabaseManager.reset()
 
         entry = Entry(title=u'mock-title',
                       link=u'mock-link',
@@ -35,7 +38,7 @@ class SchemaUnittest(unittest.TestCase):
                       image_url=u'mock-image-src',
                       author=u'mock-author').add()
 
-        self.dbm.commit()
+        DatabaseManager.commit()
 
         tag1 = Tag(name=u'product').add()
         tag2 = Tag(name=u'article').add()
@@ -43,7 +46,7 @@ class SchemaUnittest(unittest.TestCase):
         entry.tags.append(tag1)
         entry.tags.append(tag2)
 
-        self.dbm.commit()
+        DatabaseManager.commit()
 
         entry2 = Entry.get_by(link=u'mock-link', single=True)
         self.assertNotEquals(entry2, None)
@@ -57,7 +60,7 @@ class SchemaUnittest(unittest.TestCase):
 
         keyword1.related_keywords.append(keyword2)
         keyword1.related_keywords.append(keyword3)
-        self.dbm.commit()
+        DatabaseManager.commit()
 
         keyword = Keyword.get_by(name=u'kw1', single=True)
         self.assertEquals(keyword.name, u'kw1')

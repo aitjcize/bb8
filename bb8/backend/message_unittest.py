@@ -24,25 +24,24 @@ from bb8.backend.message import Message
 
 class MessageUnittest(unittest.TestCase):
     def setUp(self):
-        self.dbm = DatabaseManager()
-        self.dbm.connect()
+        DatabaseManager.connect()
         self.setup_prerequisite()
 
     def tearDown(self):
-        self.dbm.disconnect()
+        DatabaseManager.disconnect()
 
     def setup_prerequisite(self):
-        self.dbm.reset()
+        DatabaseManager.reset()
 
         self.bot = Bot(name=u'test', description=u'test',
                        interaction_timeout=120, session_timeout=86400).add()
-        self.dbm.commit()
+        DatabaseManager.commit()
 
         self.platform = Platform(bot_id=self.bot.id,
                                  type_enum=PlatformTypeEnum.Facebook,
                                  provider_ident='facebook_page_id',
                                  config={}).add()
-        self.dbm.commit()
+        DatabaseManager.commit()
 
         self.user_1 = User(bot_id=self.bot.id,
                            platform_id=self.platform.id,
@@ -54,7 +53,7 @@ class MessageUnittest(unittest.TestCase):
                            platform_user_ident='1318395614844436',
                            last_seen=datetime.datetime(2016, 6, 2, 12, 44, 56,
                                                        tzinfo=pytz.utc)).add()
-        self.dbm.commit()
+        DatabaseManager.commit()
 
     def test_Button(self):
         with self.assertRaises(RuntimeError):

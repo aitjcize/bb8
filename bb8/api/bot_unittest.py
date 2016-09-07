@@ -21,15 +21,14 @@ class BotAPIUnittest(unittest.TestCase):
     def setUp(self):
         app.config['TESTING'] = True
 
-        self.dbm = DatabaseManager()
-        self.dbm.connect()
-        self.dbm.reset()
+        DatabaseManager.connect()
+        DatabaseManager.reset()
 
         self.app = app.test_client()
         self.setup_prerequisite()
 
     def tearDown(self):
-        self.dbm.disconnect()
+        DatabaseManager.disconnect()
 
     def setup_prerequisite(self):
         Account(name=u'test',
@@ -37,7 +36,7 @@ class BotAPIUnittest(unittest.TestCase):
                 email='test@gmail.com') \
             .set_passwd('12345678') \
             .add()
-        self.dbm.commit()
+        DatabaseManager.commit()
 
     def test_create_get_bot(self):
         rv = self.app.post('/login', data=dict(
