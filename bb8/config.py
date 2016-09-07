@@ -45,11 +45,11 @@ class Config(object):
     BOT_WEBHOOOK_ROOT = '/bot'
 
     # Facebook
-    FACEBOOK_WEBHOOK_PATH = BOT_WEBHOOOK_ROOT + "/facebook"
-    FACEBOOK_WEBHOOK_VALIDATION_TOKEN = "meow_meow_meow"
+    FACEBOOK_WEBHOOK_PATH = BOT_WEBHOOOK_ROOT + '/facebook'
+    FACEBOOK_WEBHOOK_VALIDATION_TOKEN = 'meow_meow_meow'
 
     # Line
-    LINE_WEBHOOK_PATH = BOT_WEBHOOOK_ROOT + "/line"
+    LINE_WEBHOOK_PATH = BOT_WEBHOOOK_ROOT + '/line'
 
     # Option
     COMMIT_ON_APP_TEARDOWN = True

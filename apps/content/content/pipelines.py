@@ -18,7 +18,7 @@ from scrapy.exceptions import DropItem
 from sqlalchemy.exc import IntegrityError
 
 from content import config
-from content.database import DatabaseManager, Entry
+from content.database import DatabaseManager, DatabaseSession, Entry
 
 
 gclient = datastore.Client()
@@ -31,18 +31,19 @@ class SQLPipeline(object):
 
         item_dict['image_url'] = unicode(
             item['images'][0]['src'] if len(item['images']) > 0 else u'')
-        try:
-            entry = Entry(**item_dict).add()
-            entry.commit()
+        with DatabaseSession():
+            try:
+                entry = Entry(**item_dict).add()
+                entry.commit()
 
-            item['link_hash'] = entry.link_hash
-        except IntegrityError:
-            DatabaseManager.rollback()
-            raise DropItem('Duplicate entry ignored')
-        except Exception:
-            DatabaseManager.rollback()
-            raise DropItem('Invalid database operation: %s' %
-                           traceback.format_exc())
+                item['link_hash'] = entry.link_hash
+            except IntegrityError:
+                DatabaseManager.rollback()
+                raise DropItem('Duplicate entry ignored')
+            except Exception:
+                DatabaseManager.rollback()
+                raise DropItem('Invalid database operation: %s' %
+                               traceback.format_exc())
         return item
 
 

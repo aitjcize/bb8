@@ -12,7 +12,6 @@
 import hashlib
 import json
 import logging
-import multiprocessing
 import re
 import time
 
@@ -186,7 +185,7 @@ class ContentInfoServicer(service_pb2.ContentInfoServicer):
                                                     request.limit))
 
 
-def _grpc_server(port):
+def start_grpc_server(port):
     server = grpc.server(futures.ThreadPoolExecutor(
         max_workers=config.N_THREADS))
     service_pb2.add_ContentInfoServicer_to_server(
@@ -197,9 +196,3 @@ def _grpc_server(port):
 
     while True:
         time.sleep(_SECS_IN_A_DAY)
-
-
-def start_grpc_server(port):
-    """Start gRPC server."""
-    p = multiprocessing.Process(target=_grpc_server, args=(port,))
-    p.start()
