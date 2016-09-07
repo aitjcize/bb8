@@ -107,7 +107,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(yahoo)", "((?i)(storm)|風傳媒)",
+                  "params": ["(?i)(yahoo)", "(?i)(storm|風傳媒)",
                              "(?i)(hacker news)", "(?i)(hacker)",
                              "(?i)(inside)", "(關鍵評論)",
                              "(?i)(news ?lens)"]

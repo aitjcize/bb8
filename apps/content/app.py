@@ -26,16 +26,16 @@ from content.spiders import RSSSpider, WebsiteSpider
 
 def crawl():
     try:
-        print('Crawler: started')
-        process = CrawlerProcess(get_project_settings())
-        process.crawl(WebsiteSpider, **spider_configs['storm'])
-        process.crawl(WebsiteSpider, **spider_configs['thenewslens'])
-        process.crawl(RSSSpider, **spider_configs['yahoo_rss'])
-        process.start()
-        process.stop()
-
-        print('Crawler: extracting keywords')
         with DatabaseSession():
+            print('Crawler: started')
+            process = CrawlerProcess(get_project_settings())
+            process.crawl(WebsiteSpider, **spider_configs['storm'])
+            process.crawl(WebsiteSpider, **spider_configs['thenewslens'])
+            process.crawl(RSSSpider, **spider_configs['yahoo_rss'])
+            process.start()
+            process.stop()
+
+            print('Crawler: extracting keywords')
             kws = keywords.extract_keywords_ct()
             for kw, related in kws.iteritems():
                 k = Keyword(name=kw).commit_unique()
