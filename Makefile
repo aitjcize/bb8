@@ -25,8 +25,8 @@ setup-database:
 	       -e MYSQL_PASSWORD=bb8test \
 	       -e MYSQL_DATABASE=bb8 \
 	       -d mysql:latest; \
-			echo 'Waiting 20 sec for MySQL to initialize ...'; \
-			sleep 20; \
+	   echo 'Waiting 20 sec for MySQL to initialize ...'; \
+	   sleep 20; \
 	 fi;
 
 remove-database:
@@ -46,12 +46,12 @@ remove-redis:
 test: setup-database compile-resource
 	@export DATABASE=$(DB_URI); \
 	 for test in $(UNITTESTS); do \
-           if echo $$test | grep '^apps'; then \
-             export PYTHONPATH=$(CURDIR)/$$(echo $$test | \
-				            sed 's+\(apps/[^/]*/\).*+\1+'); \
-           else \
-             export PYTHONPATH=$(CURDIR); \
-           fi; \
+	   if echo $$test | grep '^apps'; then \
+	     export PYTHONPATH=$(CURDIR):$(CURDIR)/$$(echo $$test | \
+	       sed 's+\(apps/[^/]*/\).*+\1+'); \
+	   else \
+	     export PYTHONPATH=$(CURDIR); \
+	   fi; \
 	   echo Running $$test ...; \
 	   $$test || exit 1; \
 	 done
@@ -59,12 +59,12 @@ test: setup-database compile-resource
 coverage: setup-database compile-resource
 	@export DATABASE=$(DB_URI); \
 	 for test in $(UNITTESTS); do \
-           if echo $$test | grep '^apps'; then \
-             export PYTHONPATH=$(CURDIR)/$$(echo $$test | \
-				            sed 's+\(apps/[^/]*/\).*+\1+'); \
-           else \
-             export PYTHONPATH=$(CURDIR); \
-           fi; \
+	   if echo $$test | grep '^apps'; then \
+	     export PYTHONPATH=$(CURDIR):$(CURDIR)/$$(echo $$test | \
+	       sed 's+\(apps/[^/]*/\).*+\1+'); \
+	   else \
+	     export PYTHONPATH=$(CURDIR); \
+	   fi; \
 	   COVER=$$(echo $$test | tr '/' '_'); \
 	   echo Running $$test ...; \
 	   COVERAGE_FILE=.coverage_$$COVER coverage run $$test || exit 1; \
@@ -72,7 +72,7 @@ coverage: setup-database compile-resource
 	@coverage combine .coverage_*
 	@coverage html --include=bb8/*
 
-lint:
+lint: compile-resource
 	@pep8 $(LINT_FILES)
 	@pylint $(LINT_OPTIONS) $(LINT_FILES)
 

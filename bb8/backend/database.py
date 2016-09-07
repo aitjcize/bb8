@@ -7,128 +7,34 @@
 """
 
 import importlib
-import time
 import uuid
 
 from datetime import datetime, timedelta
 
 import enum
 import jwt
-import pytz
 
 from passlib.hash import bcrypt  # pylint: disable=E0611
 from flask import Flask  # pylint: disable=C0411,C0413
 
-from sqlalchemy import create_engine
 from sqlalchemy import (Boolean, Column, DateTime, Enum, ForeignKey, Integer,
                         PickleType, Table, Text, String, Unicode, UnicodeText)
-from sqlalchemy.exc import IntegrityError, InvalidRequestError
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import (scoped_session, sessionmaker, joinedload,
-                            relationship, object_session, deferred)
-from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.orm.util import has_identity
+from sqlalchemy.orm import relationship, deferred
 from sqlalchemy.schema import UniqueConstraint
 
 from bb8 import config
+
+# pylint: disable=W0611
+from bb8.backend.database_utils import (DeclarativeBase, DatabaseManager,
+                                        DatabaseSession, ModelMixin,
+                                        JSONSerializer)
 from bb8.backend.metadata import SessionRecord
 from bb8.error import AppError
 from bb8.constant import HTTPStatus, CustomError
 
 
-DeclarativeBase = declarative_base()
-metadata = DeclarativeBase.metadata
-
-
-class DatabaseManager(object):
-    """
-    Database Manager class
-    """
-    engine = None
-    db = None
-
-    @classmethod
-    def connect(cls, engine=None):
-        """Set DatabaseManager.db to a scoped_session instance.
-
-        engine is the source of database connections, it provide pooling
-        functions. A scoped_session is a thread-local object using the Registry
-        pattern, which means every call to the scoped_session instance returns
-        the same session object. We store scoped_session instance as
-        DatabaseManager.db for easier access in ModelMixin. When the remove()
-        method of a scoped_session is called, the database connection is
-        returned to the engine pool.
-        """
-        if engine:
-            cls.engine = engine
-        elif cls.engine is None:
-            cls.create_engine()
-
-        if not cls.db:
-            cls.db = scoped_session(sessionmaker(bind=cls.engine))
-
-    @classmethod
-    def disconnect(cls, commit=True):
-        if commit:
-            try:
-                cls.db().commit()
-            except InvalidRequestError:
-                cls.db().rollback()
-        cls.db().close()
-        cls.db.remove()
-
-    @classmethod
-    def reconnect(cls, commit=True):
-        cls.disconnect(commit)
-        cls.connect()
-
-    @classmethod
-    def session(cls):
-        if cls.engine is None:
-            cls.create_engine()
-        return sessionmaker(bind=cls.engine)()
-
-    @classmethod
-    def create_engine(cls):
-        cls.engine = create_engine(config.DATABASE, echo=False,
-                                   encoding='utf-8', pool_size=8,
-                                   pool_recycle=3600 * 8)
-
-    @classmethod
-    def create_all_tables(cls):
-        """Create all table."""
-        metadata.create_all(cls.engine)
-
-    @classmethod
-    def drop_all_tables(cls):
-        """Drop all table."""
-        metadata.drop_all(cls.engine)
-
-    @classmethod
-    def create_new_table(cls, k):
-        metadata.tables[k.__tablename__].create(cls.engine)
-
-    @classmethod
-    def drop_table(cls, k):
-        metadata.tables[k.__tablename__].drop(cls.engine)
-
-    @classmethod
-    def reset(cls):
-        """Reset and initialize database."""
-        metadata.drop_all(cls.engine)
-        metadata.create_all(cls.engine)
-
-    @classmethod
-    def commit(cls):
-        cls.db().commit()
-
-    @classmethod
-    def flush(cls):
-        cls.db().flush()
-
-    @classmethod
-    def rollback(cls):
-        cls.db().rollback()
+# Set Database URI
+DatabaseManager.set_database_uri(config.DATABASE)
 
 
 class AppContext(object):
@@ -147,187 +53,6 @@ class AppContext(object):
     def __exit__(self, exc_type, exc_value, tb):
         DatabaseManager.disconnect()
         self.context.__exit__(exc_type, exc_value, tb)
-
-
-class DatabaseSession(object):
-    def __init__(self, disconnect=True):
-        self._disconnect = disconnect
-
-    def __enter__(self):
-        DatabaseManager.connect()
-
-    def __exit__(self, exc_type, exc_value, tb):
-        if exc_type == IntegrityError:
-            DatabaseManager.rollback()
-            return
-
-        DatabaseManager.commit()
-        if self._disconnect:
-            DatabaseManager.disconnect()
-
-
-class ModelMixin(object):
-    """Provides common field and methods for models."""
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow,
-                        onupdate=datetime.utcnow)
-
-    def __repr__(self):
-        return '<%s(\'%s\')>' % (type(self).__name__, self.id)
-
-    @classmethod
-    def columns(cls):
-        return [m.key for m in cls.__table__.columns]
-
-    @classmethod
-    def commit(cls):
-        DatabaseManager.commit()
-
-    @classmethod
-    def flush(cls):
-        DatabaseManager.flush()
-
-    @classmethod
-    def query(cls, *args):
-        """Short hand for query."""
-        if args:
-            return DatabaseManager.db().query(*args)
-        else:
-            return DatabaseManager.db().query(cls)
-
-    @classmethod
-    def get_all(cls):
-        """Get all record from a table."""
-        query_object = cls.query()
-        return query_object.all()
-
-    @classmethod
-    def get_by(cls, eager=None, order_by=None, offset=0, limit=0,
-               single=False, lock=False, query=False, **kwargs):
-        """Get item by kwargs."""
-        query_object = cls.query()
-        if eager:
-            joinloads = [joinedload(x) for x in eager]
-            query_object = query_object.options(*joinloads)
-
-        query_object = query_object.filter_by(**kwargs)
-
-        if order_by:
-            query_object = query_object.order_by(*order_by)
-
-        if offset:
-            query_object = query_object.offset(offset)
-
-        if limit:
-            query_object = query_object.limit(limit)
-
-        if lock:
-            query_object = query_object.with_lockmode('update')
-
-        if query:
-            return query_object
-
-        if single:
-            try:
-                return query_object.limit(1).one()
-            except NoResultFound:
-                return None
-        return query_object.all()
-
-    @classmethod
-    def delete_by(cls, **kwargs):
-        """Delete by kwargs."""
-        return cls.query().filter_by(**kwargs).delete()
-
-    @classmethod
-    def delete_all(cls):
-        """Delete all records from a table."""
-        return cls.query().delete()
-
-    @classmethod
-    def exists(cls, **kwargs):
-        return cls.get_by(**kwargs)
-
-    @classmethod
-    def count(cls):
-        """Get count."""
-        return cls.query().count()
-
-    @classmethod
-    def count_by(cls, **kwargs):
-        """Get count by condition."""
-        return cls.query().filter_by(**kwargs).count()
-
-    def add(self):
-        """Register object."""
-        DatabaseManager.db().add(self)
-        return self
-
-    def delete(self):
-        """Unregister object."""
-        self.query().filter_by(id=self.id).delete()
-        return self
-
-    def refresh(self):
-        """Refresh object and reconnect it with session."""
-        #: Detached
-        if object_session(self) is None and has_identity(self):
-            DatabaseManager.db().add(self)
-        DatabaseManager.db().refresh(self)
-        return self
-
-    def rexpunge(self):
-        """Refresh then detach from session."""
-        DatabaseManager.db().refresh(self)
-        DatabaseManager.db().expunge(self)
-        return self
-
-    def expunge(self):
-        """Detach from session."""
-        DatabaseManager.db().expunge(self)
-        return self
-
-    def merge(self):
-        """Merge a object with current session"""
-        DatabaseManager.db().merge(self)
-        return self
-
-
-class JSONSerializer(object):
-    __json_public__ = None
-    __json_hidden__ = None
-
-    def unix_timestamp(self, dt):
-        """ Return the time in seconds since the epoch as an integer """
-
-        _EPOCH = datetime(1970, 1, 1, tzinfo=pytz.utc)
-        if dt.tzinfo is None:
-            return int(time.mktime((dt.year, dt.month, dt.day,
-                                    dt.hour, dt.minute, dt.second,
-                                    -1, -1, -1)) + dt.microsecond / 1e6)
-        else:
-            return int((dt - _EPOCH).total_seconds())
-
-    def get_field_names(self):
-        for p in self.__mapper__.iterate_properties:
-            yield p.key
-
-    def to_json(self):
-        field_names = self.get_field_names()
-
-        public = self.__json_public__ or field_names
-        hidden = self.__json_hidden__ or []
-
-        rv = dict()
-        for key in public:
-            rv[key] = getattr(self, key)
-            if isinstance(rv[key], datetime):
-                rv[key] = self.unix_timestamp(rv[key])
-            elif isinstance(rv[key], enum.Enum):
-                rv[key] = rv[key].value
-        for key in hidden:
-            rv.pop(key, None)
-        return rv
 
 
 class Account(DeclarativeBase, ModelMixin, JSONSerializer):
@@ -665,14 +390,14 @@ class PublicFeed(DeclarativeBase, ModelMixin):
 
 
 t_account_bot = Table(
-    'account_bot', metadata,
+    'account_bot', DeclarativeBase.metadata,
     Column('account_id', ForeignKey('account.id'), nullable=False),
     Column('bot_id', ForeignKey('bot.id'), nullable=False)
 )
 
 
 t_bot_node = Table(
-    'bot_node', metadata,
+    'bot_node', DeclarativeBase.metadata,
     Column('bot_id', ForeignKey('bot.id'), nullable=False),
     Column('node_id', ForeignKey('node.id'), nullable=False)
 )

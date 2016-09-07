@@ -16,10 +16,10 @@ import multiprocessing
 
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
-from sqlalchemy.exc import IntegrityError
 
 from content import config, keywords, service
-from content.database import Session, Initialize, Keyword
+from content.database import (DatabaseManager, DatabaseSession, Initialize,
+                              Keyword)
 from content.spiders.config import spider_configs
 from content.spiders import RSSSpider, WebsiteSpider
 
@@ -35,27 +35,19 @@ def crawl():
         process.stop()
 
         print('Crawler: extracting keywords')
-        kws = keywords.extract_keywords_ct()
-        for kw, related in kws.iteritems():
-            try:
-                k = Keyword(name=kw).add()
-                Session().commit()
-            except IntegrityError:
-                Session().rollback()
-
-            for r in related:
-                try:
-                    related_kw = Keyword(name=r).add()
-                    k.related_keywords.append(related_kw)
-                    Session().commit()
-                except IntegrityError:
-                    Session().rollback()
+        with DatabaseSession():
+            kws = keywords.extract_keywords_ct()
+            for kw, related in kws.iteritems():
+                k = Keyword(name=kw).commit_unique()
+                if k:
+                    for r in related:
+                        Keyword(parent_id=k.id, name=r).commit_unique()
     except Exception:
         logging.exception('Crawler: exception, skipped')
     else:
         print('Crawler: finished gracefully')
     finally:
-        Session().close()
+        DatabaseManager.disconnect()
 
 
 def main(args):

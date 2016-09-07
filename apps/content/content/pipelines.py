@@ -18,7 +18,7 @@ from scrapy.exceptions import DropItem
 from sqlalchemy.exc import IntegrityError
 
 from content import config
-from content.database import Session, Entry
+from content.database import DatabaseManager, Entry
 
 
 gclient = datastore.Client()
@@ -37,10 +37,10 @@ class SQLPipeline(object):
 
             item['link_hash'] = entry.link_hash
         except IntegrityError:
-            Session().rollback()
+            DatabaseManager.rollback()
             raise DropItem('Duplicate entry ignored')
         except Exception:
-            Session().rollback()
+            DatabaseManager.rollback()
             raise DropItem('Invalid database operation: %s' %
                            traceback.format_exc())
         return item

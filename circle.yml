@@ -18,7 +18,7 @@ dependencies:
 ## Customize test commands
 test:
   override:
-    - make lint
+    - source bin/env.sh && make lint
     - source bin/env.sh && make coverage && mv htmlcov/* $CIRCLE_ARTIFACTS/
 
 notify:

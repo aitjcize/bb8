@@ -19,7 +19,7 @@ from content.database import Entry
 CHINA_TIMES = 'http://www.chinatimes.com/search/keyword/'
 
 
-def extract_keywords_ct():
+def extract_keywords_ct(validate=True):
     """Extract the keywords from China Times
 
     Returns:
@@ -45,7 +45,7 @@ def extract_keywords_ct():
                 './/div[@class="k1 clear-fix"]/a/text()')[0]
             related = block.xpath('.//p/a/text()')
 
-            if validate_keyword(kw):
+            if not validate or validate_keyword(kw):
                 keywords[kw] = [r for r in related
                                 if validate_keyword(r)]
         except Exception:

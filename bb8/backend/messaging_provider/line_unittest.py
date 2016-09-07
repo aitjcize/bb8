@@ -19,21 +19,20 @@ from bb8.backend.messaging_provider import line
 
 class LineMessagingUnittest(unittest.TestCase):
     def setUp(self):
-        self.dbm = DatabaseManager()
-        self.dbm.connect()
+        DatabaseManager.connect()
         self.account = None
         self.bot = None
         self.setup_prerequisite()
 
     def tearDown(self):
-        self.dbm.disconnect()
+        DatabaseManager.disconnect()
 
     def setup_prerequisite(self):
-        self.dbm.reset()
+        DatabaseManager.reset()
 
         self.bot = Bot(name=u'test', description=u'test',
                        interaction_timeout=120, session_timeout=86400).add()
-        self.dbm.commit()
+        DatabaseManager.commit()
 
         config = {
             'channel_id': '1468633788',
@@ -44,7 +43,7 @@ class LineMessagingUnittest(unittest.TestCase):
                             type_enum=PlatformTypeEnum.Line,
                             provider_ident='u5526efbbc9c7ad1b3375c5102c276e68',
                             config=config).add()
-        self.dbm.commit()
+        DatabaseManager.commit()
 
         self.user = User(
             bot_id=self.bot.id,
@@ -52,7 +51,7 @@ class LineMessagingUnittest(unittest.TestCase):
             platform_user_ident='ua5afdc200e1fd44a748f6896376b9076',
             last_seen=datetime.datetime.now()).add()
 
-        self.dbm.commit()
+        DatabaseManager.commit()
 
     def test_send_message(self):
         """Test line message sending."""
