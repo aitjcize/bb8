@@ -47,11 +47,15 @@ def to_proto_keyword(obj):
 
 
 def normalize_source(query):
+    if isinstance(query, str):
+        query = unicode(query)
     mapping = {
-        'yahoo': 'yahoo_rss',
-        '雅虎': 'yahoo_rss',
-        'storm': 'storm',
-        '風傳媒': 'storm',
+        u'yahoo': u'yahoo_rss',
+        u'雅虎': u'yahoo_rss',
+        u'storm': u'storm',
+        u'風傳媒': u'storm',
+        u'newslens': u'thenewslens',
+        u'關鍵評論': u'thenewslens',
     }
     return mapping.get(query, None)
 
