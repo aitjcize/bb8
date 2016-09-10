@@ -38,8 +38,9 @@ class Config(object):
     HOSTNAME = 'bot.azhuang.me'
     PORT = int(os.getenv('HTTP_PORT', 7000))
 
-    # App API
+    # Ports
     APP_API_SERVICE_PORT = 62629
+    APP_GRPC_SERVICE_PORT = 9999
 
     # Webhooks
     BOT_WEBHOOOK_ROOT = '/bot'
@@ -58,11 +59,11 @@ class Config(object):
     # Misc
     YOUBIKE_BOT_GA_ID = 'UA-79887532-2'
 
-    # Third-Party apps address mapping
-    APPS_ADDR_MAP = {
-        'system':   ('localhost', 30000),
-        'youbike':  ('localhost', 30001),
-        'content':  ('localhost', 30002)
+    # Third-Party apps hostname map
+    APP_HOSTNAME_MAP = {
+        'system':   'localhost',
+        'youbike':  'localhost',
+        'content':  'localhost',
     }
 
 
@@ -92,9 +93,9 @@ class DeployConfig(DevelopmentConfig):
     HOSTNAME = 'bot.compose.ai'
     PORT = 5000
 
-    # Third-Party apps address mapping
-    APPS_ADDR_MAP = {
-        'system':   ('172.17.0.1', 30000),
-        'youbike':  ('172.17.0.1', 30001),
-        'content':  ('172.17.0.1', 30002)
+    # Third-Party apps hostname map
+    APP_HOSTNAME_MAP = {
+        'system':   'bb8.app.system',
+        'youbike':  'bb8.app.youbike',
+        'content':  'bb8.app.content',
     }

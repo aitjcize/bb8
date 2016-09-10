@@ -28,6 +28,7 @@ BB8_SRC_ROOT = os.path.normpath(os.path.join(
     os.path.abspath(os.path.dirname(os.path.realpath(__file__))),
     '..', '..'))
 BB8_DATA_ROOT = '/var/lib/bb8'
+BB8_NETWORK = 'bb8_network'
 BB8_CLIENT_PACKAGE_NAME = 'bb8-client-9999.tar.gz'
 
 
@@ -196,11 +197,6 @@ class App(object):
                 create_dir_if_not_exists(state_dir, sudo=True)
                 volumes.append('-v %s:%s' % (state_dir, path))
 
-        addr = config.APPS_ADDR_MAP.get(self._app_name, None)
-        if not addr:
-            print('Fatal: no port mapping for app `%s\'' % self._app_name)
-            sys.exit(1)
-
         run('cp %s %s' %
             (os.path.join(BB8_SRC_ROOT, 'dist', BB8_CLIENT_PACKAGE_NAME),
              self._app_dir))
@@ -215,9 +211,10 @@ class App(object):
         deploy = BB8.is_deploy()
 
         run('docker run --name %s ' % container_name +
+            '--net=%s ' % BB8_NETWORK +
+            '--net-alias=%s ' % self._image_name +
             '--cpu-shares %d ' % self.get_cpu_shares() +
             '-m %s ' % self.get_memory_limit() +
-            '-p %d:%d ' % (addr[1], self._info['service_port']) +
             '-e BB8_DEPLOY=%s ' % ('true' if deploy else 'false') +
             ' '.join(volumes) +
             ' -d %s' % self._image_name)
@@ -295,8 +292,12 @@ class BB8(object):
             app = App(app_dir)
             app.compile_and_install_service_proto()
 
+    def setup_network(self):
+        run('docker network create %s' % BB8_NETWORK, True)
+
     def start(self, force=False):
         self.prepare_resource()
+        self.setup_network()
 
         for app_dir in self._app_dirs:
             app = App(app_dir)
@@ -346,15 +347,19 @@ class BB8(object):
             run('docker rm -f %s' % instance, True)
 
         run('docker run --name %(name)s '
+            '--net=%(net)s '
+            '--net-alias=%(net_alias)s '
             '-p %(port)d:%(port)d '
             '-p %(app_api_service_port)d:%(app_api_service_port)d '
             '-v %(cloud_sql_dir)s:%(cloud_sql_dir)s '
             '-d %(image_name)s' % {
-                'port': config.PORT,
                 'app_api_service_port': config.APP_API_SERVICE_PORT,
-                'name': new_container_name,
                 'cloud_sql_dir': self.CLOUD_SQL_DIR,
-                'image_name': self.BB8_IMAGE_NAME
+                'image_name': self.BB8_IMAGE_NAME,
+                'name': new_container_name,
+                'net': BB8_NETWORK,
+                'net_alias': self.BB8_CONTAINER_NAME,
+                'port': config.PORT,
             })
 
         run('sudo mount --bind '

@@ -17,4 +17,4 @@ class DevelopmentConfig(Config):
 
 
 class DeployConfig(Config):
-    HOST = '172.17.0.1'
+    HOST = 'bb8.main'
