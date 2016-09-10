@@ -74,6 +74,15 @@ def docker_get_instance(name):
         name).strip()
 
 
+def database_env_switch():
+    if config.DEPLOY:
+        return ''
+    database = os.getenv('DATABASE', None)
+    if database is None:
+        print('error: dev database not specified')
+    return '-e DATABASE=%s ' % database
+
+
 class App(object):
     """App class representing an BB8 third-party app."""
 
@@ -208,14 +217,13 @@ class App(object):
         if instance:
             run('docker rm -f %s' % instance, True)
 
-        deploy = BB8.is_deploy()
-
         run('docker run --name %s ' % container_name +
             '--net=%s ' % BB8_NETWORK +
             '--net-alias=%s ' % self._image_name +
             '--cpu-shares %d ' % self.get_cpu_shares() +
             '-m %s ' % self.get_memory_limit() +
-            '-e BB8_DEPLOY=%s ' % ('true' if deploy else 'false') +
+            '-e BB8_DEPLOY=%s ' % ('true' if config.DEPLOY else 'false') +
+            database_env_switch() +
             ' '.join(volumes) +
             ' -d %s' % self._image_name)
 
@@ -232,10 +240,6 @@ class BB8(object):
 
     def __init__(self):
         self._app_dirs = self.get_app_dirs()
-
-    @classmethod
-    def is_deploy(cls):
-        return os.getenv('BB8_DEPLOY', None) == 'true'
 
     @classmethod
     def get_app_dirs(cls):
@@ -346,21 +350,14 @@ class BB8(object):
         if instance:
             run('docker rm -f %s' % instance, True)
 
-        run('docker run --name %(name)s '
-            '--net=%(net)s '
-            '--net-alias=%(net_alias)s '
-            '-p %(port)d:%(port)d '
-            '-p %(app_api_service_port)d:%(app_api_service_port)d '
-            '-v %(cloud_sql_dir)s:%(cloud_sql_dir)s '
-            '-d %(image_name)s' % {
-                'app_api_service_port': config.APP_API_SERVICE_PORT,
-                'cloud_sql_dir': self.CLOUD_SQL_DIR,
-                'image_name': self.BB8_IMAGE_NAME,
-                'name': new_container_name,
-                'net': BB8_NETWORK,
-                'net_alias': self.BB8_CONTAINER_NAME,
-                'port': config.PORT,
-            })
+        run('docker run --name %s ' % new_container_name +
+            '--net=%s ' % BB8_NETWORK +
+            '--net-alias=%s ' % self.BB8_CONTAINER_NAME +
+            '-p {0}:{0} '.format(config.PORT) +
+            '-p {0}:{0} '.format(config.APP_API_SERVICE_PORT) +
+            '-v {0}:{0} '.format(self.CLOUD_SQL_DIR) +
+            database_env_switch() +
+            '-d %s ' % self.BB8_IMAGE_NAME)
 
         run('sudo mount --bind '
             '$(docker inspect -f \'{{index (index .Mounts 1) "Source"}}\' %s) '
