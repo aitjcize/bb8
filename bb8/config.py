@@ -56,9 +56,6 @@ class Config(object):
     COMMIT_ON_APP_TEARDOWN = True
     STORE_CONVERSATION = False
 
-    # Misc
-    YOUBIKE_BOT_GA_ID = 'UA-79887532-2'
-
     # Third-Party apps hostname map
     APP_HOSTNAME_MAP = {
         'system':   'localhost',

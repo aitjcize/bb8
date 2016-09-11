@@ -136,6 +136,7 @@ class Bot(DeclarativeBase, ModelMixin, JSONSerializer):
     interaction_timeout = Column(Integer, nullable=False, default=120)
     admin_interaction_timeout = Column(Integer, nullable=False, default=180)
     session_timeout = Column(Integer, nullable=False, default=86400)
+    ga_id = Column(Unicode(32), nullable=True)
     root_node_id = Column(Integer, nullable=True)
     start_node_id = Column(Integer, nullable=True)
 

@@ -94,6 +94,7 @@ def parse_bot(filename, to_bot_id=None):
         bot.interaction_timeout = bot_desc['interaction_timeout']
         bot.admin_interaction_timeout = bot_desc['admin_interaction_timeout']
         bot.session_timeout = bot_desc['session_timeout']
+        bot.ga_id = bot_desc.get('ga_id', None)
         bot.flush()
     else:  # Create a new bot
         logger.info('Creating new bot from %s ...', filename)
@@ -102,7 +103,8 @@ def parse_bot(filename, to_bot_id=None):
             description=bot_desc['description'],
             interaction_timeout=bot_desc['interaction_timeout'],
             admin_interaction_timeout=bot_desc['admin_interaction_timeout'],
-            session_timeout=bot_desc['session_timeout']).add()
+            session_timeout=bot_desc['session_timeout'],
+            ga_id=bot_desc.get('ga_id', None)).add()
         bot.flush()
 
         for platform_desc in bot_json['platforms']:
