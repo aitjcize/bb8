@@ -58,10 +58,17 @@ def get_tracking():
     return g.tracking
 
 
+def enable_tracking():
+    return config.DEPLOY and hasattr(g, 'ga_id') and g.ga_id
+
+
 def track(trackinginfo):
     """Track a single event and put it in the global context."""
     if not isinstance(trackinginfo, TrackingInfo):
         raise RuntimeError('invalid tracking info')
+
+    if not enable_tracking():
+        return
 
     get_tracking().append(trackinginfo)
 
@@ -70,11 +77,10 @@ def send_ga_track_info():
     """Send tracking info to GA."""
     tracking = get_tracking()
 
-    # Only track when we are in production mode.
-    if not config.DEPLOY:
+    if not enable_tracking():
         return
 
-    base = u'v=1&tid=%s' % config.YOUBIKE_BOT_GA_ID
+    base = u'v=1&tid=%s' % g.ga_id
     params = u''
     for ti in tracking:
         if ti.ttype == TrackingInfo.Type.Event:

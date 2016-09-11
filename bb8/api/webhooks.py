@@ -8,7 +8,7 @@
 
 import datetime
 
-from flask import request
+from flask import request, g
 
 from bb8 import config, app, logger
 from bb8.tracking import track, TrackingInfo
@@ -61,6 +61,7 @@ def facebook_receive():
                                    'Platform with page_id = %s' % page_id)
 
             bot = platform.bot
+            g.ga_id = bot.ga_id
 
             for messaging in entry['messaging']:
                 msg = messaging.get('message', None)

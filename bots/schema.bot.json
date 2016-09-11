@@ -57,6 +57,9 @@
         "admin_interaction_timeout": {
           "type": "integer"
         },
+        "ga_id": {
+          "type": "string"
+        },
         "nodes": {
           "required": [
             "root",
