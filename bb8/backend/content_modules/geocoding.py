@@ -135,10 +135,15 @@ class GoogleMapsGeocodingAPI(object):
             filtered_result = sorted(filtered_result, key=r_square)
 
         final_result = []
+        addrs = set()
         for i in range(min(n, len(filtered_result))):
+            address = self.build_address(filtered_result[i])
+            if address in addrs:
+                continue
+            addrs.add(address)
             location = filtered_result[i]['geometry']['location']
             final_result.append({
-                'address': self.build_address(filtered_result[i]),
+                'address': address,
                 'location': (location['lat'], location['lng'])
             })
 
