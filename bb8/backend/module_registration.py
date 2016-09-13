@@ -10,6 +10,7 @@
 
 import importlib
 import os
+import re
 
 from jsonschema import Draft4Validator
 
@@ -28,7 +29,7 @@ def list_modules(module_dir):
             if (f.endswith('.py') and not
                     f.startswith('_') and not
                     f.endswith('unittest.py')):
-                f = f.rstrip('.py')
+                f = re.sub(r'\.py$', '', f)
                 if submodule_name:
                     modules.append('%s.%s' % (submodule_name, f))
                 else:
