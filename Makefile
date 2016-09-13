@@ -4,7 +4,8 @@ LINT_FILES = $(shell find bb8 bb8_client apps -name '*.py' -type f | egrep -v '(
 UNITTESTS = $(shell find bb8 bb8_client apps -name '*_unittest.py' | sort)
 
 LINT_OPTIONS = --rcfile=bin/pylintrc \
-	       --msg-template='{path}:{line}: {msg_id}: {msg}'
+	       --msg-template='{path}:{line}: {msg_id}: {msg}' \
+	       --generated-members='service_pb2.*'
 
 MYSQL_PORT ?= 3307
 DOCKER_IP ?= 127.0.0.1

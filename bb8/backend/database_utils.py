@@ -283,11 +283,16 @@ class ModelMixin(object):
         return self
 
 
-class JSONSerializer(object):
+class JSONSerializableMixin(object):
+    """Add Mixin that provide JSON serialization.
+
+    This mixin depends on ModelMixin to provide the columns() method.
+    """
     __json_public__ = None
     __json_hidden__ = None
 
-    def unix_timestamp(self, dt):
+    @classmethod
+    def unix_timestamp(cls, dt):
         """ Return the time in seconds since the epoch as an integer """
 
         _EPOCH = datetime(1970, 1, 1, tzinfo=pytz.utc)
@@ -298,14 +303,8 @@ class JSONSerializer(object):
         else:
             return int((dt - _EPOCH).total_seconds())
 
-    def get_field_names(self):
-        for p in self.__mapper__.iterate_properties:
-            yield p.key
-
     def to_json(self):
-        field_names = self.get_field_names()
-
-        public = self.__json_public__ or field_names
+        public = self.__json_public__ or self.columns()
         hidden = self.__json_hidden__ or []
 
         rv = dict()

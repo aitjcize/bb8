@@ -50,7 +50,9 @@ def crawl():
 
 def main(args):
     # cd to script dir
-    os.chdir(os.path.dirname(__file__))
+    script_dir = os.path.dirname(__file__)
+    if script_dir:
+        os.chdir(script_dir)
 
     Initialize()
 

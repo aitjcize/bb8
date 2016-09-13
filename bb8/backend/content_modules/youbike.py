@@ -119,7 +119,7 @@ class YoubikeAPI(object):
 
     def __init__(self):
         self._data = None
-        self._stations = []
+        self._stations = {}
         self._coordinates = {}
 
     def refresh_data(self):
