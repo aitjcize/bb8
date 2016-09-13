@@ -58,12 +58,15 @@ def extract_imgs(response, rules):
 
 
 class RSSSpider(XMLFeedSpider):
-    def parse_page(self, variables, response):
-        title = extract_xpath(response, self.extractor['title'])
-        author = extract_xpath(response, self.extractor['author'])
+    def get_extractor(self, name):
+        return self.extractor[name]  # pylint: disable=E1101
 
-        content = extract_content(response, self.extractor['content'])
-        imgs = extract_imgs(response, self.extractor['images'])
+    def parse_page(self, variables, response):
+        title = extract_xpath(response, self.get_extractor('title'))
+        author = extract_xpath(response, self.get_extractor('author'))
+
+        content = extract_content(response, self.get_extractor('content'))
+        imgs = extract_imgs(response, self.get_extractor('images'))
 
         item = EntryItem()
         item['author'] = unicode(author)
@@ -93,18 +96,21 @@ class RSSSpider(XMLFeedSpider):
 
 
 class WebsiteSpider(CrawlSpider):
-    def parse_item(self, response):
-        title = extract_xpath(response, self.extractor['title'])
-        author = extract_xpath(response, self.extractor['author'])
+    def get_extractor(self, name):
+        return self.extractor[name]  # pylint: disable=E1101
 
-        content = extract_content(response, self.extractor['content'])
-        imgs = extract_imgs(response, self.extractor['images'])
+    def parse_item(self, response):
+        title = extract_xpath(response, self.get_extractor('title'))
+        author = extract_xpath(response, self.get_extractor('author'))
+
+        content = extract_content(response, self.get_extractor('content'))
+        imgs = extract_imgs(response, self.get_extractor('images'))
 
         original_source = (
             response.xpath(
-                self.extractor['original_source']
+                self.get_extractor('original_source')
             ).extract()[0]
-            if self.extractor['original_source'] else '')
+            if self.get_extractor('original_source') else '')
 
         item = EntryItem()
         item['author'] = unicode(author)

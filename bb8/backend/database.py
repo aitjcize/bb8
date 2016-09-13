@@ -27,7 +27,7 @@ from bb8 import config
 # pylint: disable=W0611
 from bb8.backend.database_utils import (DeclarativeBase, DatabaseManager,
                                         DatabaseSession, ModelMixin,
-                                        JSONSerializer)
+                                        JSONSerializableMixin)
 from bb8.backend.metadata import SessionRecord
 from bb8.error import AppError
 from bb8.constant import HTTPStatus, CustomError
@@ -56,7 +56,7 @@ class AppContext(object):
         self.context.__exit__(exc_type, exc_value, tb)
 
 
-class Account(DeclarativeBase, ModelMixin, JSONSerializer):
+class Account(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     __tablename__ = 'account'
 
     __json_public__ = ['name', 'username', 'email']
@@ -125,7 +125,7 @@ class PlatformTypeEnum(enum.Enum):
     Line = 'Line'
 
 
-class Bot(DeclarativeBase, ModelMixin, JSONSerializer):
+class Bot(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     __tablename__ = 'bot'
 
     __json_public__ = ['id', 'name', 'description', 'root_node_id',
@@ -171,7 +171,7 @@ class GenderEnum(enum.Enum):
     Female = 'Female'
 
 
-class User(DeclarativeBase, ModelMixin, JSONSerializer):
+class User(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     __tablename__ = 'user'
 
     __json_public__ = ['first_name', 'last_name', 'locale', 'gender',
@@ -364,7 +364,7 @@ class FeedEnum(enum.Enum):
     XML = 'XML'
 
 
-class Feed(DeclarativeBase, ModelMixin, JSONSerializer):
+class Feed(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     __tablename__ = 'feed'
 
     __json_hidden__ = ['account_id']

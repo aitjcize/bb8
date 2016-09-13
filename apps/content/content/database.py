@@ -65,10 +65,6 @@ class Entry(DeclarativeBase, ModelMixin):
             cls.title.like(unicode('%' + term + '%'))
         ).limit(count).all()
 
-    @classmethod
-    def columns(cls):
-        return [m.key for m in cls.__table__.columns]
-
     def __repr__(self):
         return '<%s(\'%s\')>' % (type(self).__name__, self.link)
 
