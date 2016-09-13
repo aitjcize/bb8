@@ -33,8 +33,9 @@ from bb8.error import AppError
 from bb8.constant import HTTPStatus, CustomError
 
 
-# Set Database URI
+# Configure database
 DatabaseManager.set_database_uri(config.DATABASE)
+DatabaseManager.set_pool_size(config.N_THREADS)
 
 
 class AppContext(object):

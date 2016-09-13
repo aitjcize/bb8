@@ -3,14 +3,9 @@ syntax = "proto3";
 package bb8.core;
 
 service MessagingService {
-  rpc Ping (Empty) returns (Status) {}
-  rpc Send (SendRequest) returns (Status) {}
-  rpc Broadcast (BroadcastRequest) returns (Status) {}
-}
-
-message Status {
-  bool success = 1;
-  string msg = 2;
+  rpc Ping (Empty) returns (Empty) {}
+  rpc Send (SendRequest) returns (Empty) {}
+  rpc Broadcast (BroadcastRequest) returns (Empty) {}
 }
 
 message Empty {
