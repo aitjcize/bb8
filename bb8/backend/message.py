@@ -190,7 +190,7 @@ class Message(base_message.Message):
                 payload = json.dumps(payload)
 
             return cls(Message.ButtonType(data['type']),
-                       data['title'], data.get('url'), payload,
+                       data.get('title'), data.get('url'), payload,
                        data.get('acceptable_inputs'), variables)
 
         def register_mapping(self, key):

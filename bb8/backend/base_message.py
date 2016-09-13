@@ -98,6 +98,7 @@ class Message(object):
     class ButtonType(enum.Enum):
         WEB_URL = 'web_url'
         POSTBACK = 'postback'
+        ELEMENT_SHARE = 'element_share'
 
     class QuickReplyType(enum.Enum):
         TEXT = 'text'
@@ -143,7 +144,7 @@ class Message(object):
                 payload = json.dumps(payload)
 
             return cls(Message.ButtonType(data['type']),
-                       data['title'], data.get('url'), payload,
+                       data.get('title'), data.get('url'), payload,
                        data.get('acceptable_inputs'), variables)
 
         @classmethod
@@ -173,18 +174,29 @@ class Message(object):
                             'items': {'type': 'string'}
                         }
                     }
+                }, {
+                    'type': 'object',
+                    'required': ['type'],
+                    'properties': {
+                        'type': {'enum': ['element_share']},
+                    }
                 }]
             }
 
         def as_dict(self):
-            data = {
-                'type': self.type.value,
-                'title': self.title,
-            }
-            if self.type == Message.ButtonType.WEB_URL:
-                data['url'] = self.url
+            if self.type == Message.ButtonType.ELEMENT_SHARE:
+                data = {
+                    'type': self.type.value
+                }
             else:
-                data['payload'] = self.payload
+                data = {
+                    'type': self.type.value,
+                    'title': self.title,
+                }
+                if self.type == Message.ButtonType.WEB_URL:
+                    data['url'] = self.url
+                else:
+                    data['payload'] = self.payload
             return data
 
     class Bubble(object):

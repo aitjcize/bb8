@@ -74,6 +74,10 @@ class MessageUnittest(unittest.TestCase):
         jsonschema.validate(b.as_dict(), Message.Button.schema())
         self.assertEquals(b, b.FromDict(b.as_dict()))
 
+        b = Message.Button(Message.ButtonType.ELEMENT_SHARE)
+        jsonschema.validate(b.as_dict(), Message.Button.schema())
+        self.assertEquals(b, b.FromDict(b.as_dict()))
+
     def test_Bubble(self):
         b = Message.Bubble('title')
         jsonschema.validate(b.as_dict(), Message.Bubble.schema())
