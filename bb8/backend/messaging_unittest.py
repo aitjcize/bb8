@@ -38,7 +38,7 @@ class MessagingUnittest(unittest.TestCase, BaseMessagingMixin):
         # Test card message
         m = Message('Message test')
 
-        target = 'bb8.backend.messaging_provider.facebook.send_message'
+        target = 'bb8.backend.messaging.send_message_async'
         with mock.patch(target) as mock_send_message:
             messaging.broadcast_message(self.bot, [m, m])
             self.assertEquals(mock_send_message.call_count, 2)

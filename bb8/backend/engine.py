@@ -26,7 +26,7 @@ class Engine(object):
     def __init__(self):
         pass
 
-    def send_message(self, user, message, variables):
+    def send_ack_message(self, user, message, variables):
         """Send text message.
 
         If *messages* is a list of message, choice a random one from the
@@ -60,7 +60,7 @@ class Engine(object):
 
         # Parser module can optionally send a message directly back to user.
         if messages:
-            self.send_message(user, messages, variables)
+            self.send_ack_message(user, messages, variables)
 
         # Global parser nomatch
         if action_ident == self.BB8_GLOBAL_NOMATCH_IDENT:
@@ -77,7 +77,7 @@ class Engine(object):
         linkage = Linkage.get_by(start_node_id=node.id,
                                  action_ident=action_ident, single=True)
         if linkage and linkage.ack_message:
-            self.send_message(user, linkage.ack_message, variables)
+            self.send_ack_message(user, linkage.ack_message, variables)
 
         return matched, linkage, variables
 

@@ -13,6 +13,7 @@
 
 import json
 import re
+import sys
 
 import enum
 import jsonschema
@@ -576,3 +577,12 @@ class Message(object):
             raise RuntimeError('object is not a Message.QuickReply object')
 
         self.quick_replies.append(reply)
+
+
+# To allow pickling inner class, set module attribute alias
+setattr(sys.modules[__name__], 'NotificationType', Message.NotificationType)
+setattr(sys.modules[__name__], 'ButtonType', Message.ButtonType)
+setattr(sys.modules[__name__], 'QuickReplyType', Message.QuickReplyType)
+setattr(sys.modules[__name__], 'Button', Message.Button)
+setattr(sys.modules[__name__], 'Bubble', Message.Bubble)
+setattr(sys.modules[__name__], 'QuickReply', Message.QuickReply)

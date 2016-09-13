@@ -19,4 +19,5 @@ message SendRequest {
 message BroadcastRequest {
   uint32 bot_id = 1;
   bytes messages_object = 2;
+  bool static = 3;
 }

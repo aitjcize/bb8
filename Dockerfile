@@ -27,6 +27,8 @@ COPY conf/bb8.nginx.conf /etc/nginx/conf.d/bb8.nginx.conf
 ENV BB8_DEPLOY=true
 ENV PYTHONPATH=${BB8_ROOT}
 ENV DATABASE=mysql+pymysql://bb8deploy:bb8deploymysql@/bb8?unix_socket=/cloudsql/dotted-lexicon-133523:asia-east1:bb8&charset=utf8mb4
+# Force celery to run as root
+ENV C_FORCE_ROOT=true
 
 # CloudSQL
 RUN mkdir -p /cloudsql

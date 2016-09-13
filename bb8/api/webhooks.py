@@ -79,7 +79,8 @@ def facebook_receive():
                     engine.process_admin_reply(bot, user, user_input)
                 else:
                     user = User.get_by(bot_id=bot.id, platform_id=platform.id,
-                                       platform_user_ident=sender, single=True)
+                                       platform_user_ident=sender,
+                                       eager=['platform'], single=True)
                     if not user:
                         user = add_user(bot, platform, sender)
 

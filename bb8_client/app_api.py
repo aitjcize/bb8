@@ -42,7 +42,7 @@ class MessagingService(object):
                 messages_object=cPickle.dumps(serialized_message)),
             self._timeout)
 
-    def Broadcast(self, bot_id, msgs):
+    def Broadcast(self, bot_id, msgs, static=True):
         try:
             serialized_message = [m.as_dict() for m in msgs]
         except Exception as e:
@@ -51,5 +51,6 @@ class MessagingService(object):
         self._stub.Broadcast(
             app_service_pb2.BroadcastRequest(
                 bot_id=bot_id,
-                messages_object=cPickle.dumps(serialized_message)),
+                messages_object=cPickle.dumps(serialized_message),
+                static=static),
             self._timeout)
