@@ -6,7 +6,7 @@
     Copyright 2016 bb8 Authors
 """
 
-from bb8 import config
+from bb8 import config, logger
 from bb8.backend.database import (Conversation, User, PlatformTypeEnum,
                                   SenderEnum)
 from bb8.backend.module_api import Message
@@ -42,4 +42,8 @@ def get_user_profile(platform, user_ident):
 
 def broadcast_message(bot, messages):
     for user in User.get_by(bot_id=bot.id):
-        send_message(user, messages)
+        try:
+            logger.info('Sending message to %s ...' % user)
+            send_message(user, messages)
+        except Exception as e:
+            logger.exception(e)
