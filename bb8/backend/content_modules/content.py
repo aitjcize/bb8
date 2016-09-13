@@ -140,10 +140,13 @@ def add_quick_reply_keywords(message, show_related=False):
         reply_kws += [kw.name for kw in keywords]
 
     for kw in reply_kws:
-        message.add_quick_reply(Message.QuickReply(kw))
+        message.add_quick_reply(Message.QuickReply(
+            Message.QuickReplyType.TEXT, kw))
 
-    message.add_quick_reply(Message.QuickReply(u'熱門新聞'))
-    message.add_quick_reply(Message.QuickReply(u'搜尋'))
+    message.add_quick_reply(Message.QuickReply(
+        Message.QuickReplyType.TEXT, u'熱門新聞'))
+    message.add_quick_reply(Message.QuickReply(
+        Message.QuickReplyType.TEXT, u'搜尋'))
 
 
 def render_cards(news):

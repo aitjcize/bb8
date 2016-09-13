@@ -228,6 +228,9 @@
             "text": "你想要找哪裡的 Ubike 站呢？",
             "quick_replies": [
               {
+                "content_type": "location"
+              },
+              {
                 "content_type": "text",
                 "title": "{{q.query_address|lru(0)|fallback('台北車站')}}"
               },
@@ -522,6 +525,9 @@
             },
             "quick_replies": [
               {
+                "content_type": "location"
+              },
+              {
                 "content_type": "text",
                 "title": "再次查詢"
               },
@@ -605,6 +611,9 @@
               {
                 "content_type": "text",
                 "title": "建議"
+              },
+              {
+                "content_type": "location"
               },
               {
                 "content_type": "text",
