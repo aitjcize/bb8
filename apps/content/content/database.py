@@ -19,8 +19,9 @@ from bb8_client.database_utils import (DeclarativeBase, DatabaseManager,
                                        DatabaseSession, ModelMixin)
 
 
-# Set Database URI
+# Configure database
 DatabaseManager.set_database_uri(config.DATABASE)
+DatabaseManager.set_pool_size(config.N_THREADS)
 
 
 def Initialize():

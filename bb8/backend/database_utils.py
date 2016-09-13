@@ -33,10 +33,15 @@ class DatabaseManager(object):
     database_uri = None
     engine = None
     db = None
+    pool_size = 8
 
     @classmethod
     def set_database_uri(cls, database_uri):
         cls.database_uri = database_uri
+
+    @classmethod
+    def set_pool_size(cls, pool_size):
+        cls.pool_size = pool_size
 
     @classmethod
     def connect(cls, engine=None):
@@ -84,7 +89,7 @@ class DatabaseManager(object):
         if cls.database_uri is None:
             raise RuntimeError('DATABASE_URI not set')
         cls.engine = create_engine(cls.database_uri, echo=False,
-                                   encoding='utf-8', pool_size=8,
+                                   encoding='utf-8', pool_size=cls.pool_size,
                                    pool_recycle=3600 * 8)
 
     @classmethod
