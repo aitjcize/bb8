@@ -44,7 +44,10 @@ setup-redis:
 remove-redis:
 	@docker rm -f bb8_redis.$(USER)
 
-test: setup-database compile-resource
+start-celery:
+	@celery -A bb8.celery worker --loglevel=info --concurrency 4
+
+test: setup-database setup-redis compile-resource
 	@export DATABASE=$(DB_URI); \
 	 for test in $(UNITTESTS); do \
 	   if echo $$test | grep '^apps'; then \
@@ -57,7 +60,7 @@ test: setup-database compile-resource
 	   $$test || exit 1; \
 	 done
 
-coverage: setup-database compile-resource
+coverage: setup-database setup-redis compile-resource
 	@export DATABASE=$(DB_URI); \
 	 for test in $(UNITTESTS); do \
 	   if echo $$test | grep '^apps'; then \

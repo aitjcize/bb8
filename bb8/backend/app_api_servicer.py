@@ -14,9 +14,8 @@ import time
 import grpc
 
 from concurrent import futures
-from flask import g
 
-from bb8 import app, config
+from bb8 import config
 from bb8.backend.database import DatabaseSession, Bot, User
 from bb8.backend import messaging
 from bb8.backend.message import Message
@@ -35,27 +34,11 @@ class MessagingServicer(app_service_pb2.MessagingServiceServicer):
     def Ping(self, unused_request, unused_context):
         return app_service_pb2.Empty()
 
-    def _SendToUsers(self, users, messages_dict):
-        """Helper function for sending messages to users."""
-        with app.test_request_context():
-            user_count = User.count()
-            for user in users:
-                g.user = user
-                variables = {
-                    'statistic': {
-                        'user_count': user_count
-                    },
-                    'user': user.to_json()
-                }
-                msgs = [Message.FromDict(m, variables) for m in messages_dict]
-
-                messaging.send_message(user, msgs)
-
     def Send(self, request, context):
         with DatabaseSession():
             messages_dict = cPickle.loads(request.messages_object)
-            users = User.query().filter(User.id.in_(request.user_ids))
-            self._SendToUsers(users, messages_dict)
+            users = User.query().filter(User.id.in_(request.user_ids)).all()
+            messaging.send_message_from_dict_async(users, messages_dict)
 
         return app_service_pb2.Empty()
 
@@ -66,8 +49,12 @@ class MessagingServicer(app_service_pb2.MessagingServiceServicer):
                 raise RuntimeError('Bot<%d> does not exist' % request.bot_id)
 
             messages_dict = cPickle.loads(request.messages_object)
-            users = User.get_by(bot_id=request.bot_id)
-            self._SendToUsers(users, messages_dict)
+            if request.static:
+                msgs = [Message.FromDict(m, {}) for m in messages_dict]
+                messaging.broadcast_message_async(bot, msgs)
+            else:
+                users = User.get_by(bot_id=request.bot_id)
+                messaging.send_message_from_dict_async(users, messages_dict)
 
         return app_service_pb2.Empty()
 

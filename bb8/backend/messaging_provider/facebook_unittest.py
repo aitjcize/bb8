@@ -41,7 +41,7 @@ class FacebookMessagingUnittest(unittest.TestCase):
         }
         platform = Platform(bot_id=self.bot.id,
                             type_enum=PlatformTypeEnum.Facebook,
-                            provider_ident='facebook_page_id',
+                            provider_ident='1155924351125985',
                             config=config).add()
         DatabaseManager.commit()
 

@@ -9,6 +9,7 @@
 import os
 
 from flask import Flask, jsonify
+from celery import Celery
 
 from bb8 import configuration
 from bb8.logging_utils import Logger
@@ -25,6 +26,9 @@ else:
 
 app = Flask(__name__)
 app.config.from_object(config)
+
+celery = Celery()
+celery.config_from_object(config.CeleryConfig)
 
 logger = Logger(os.path.join(config.LOG_DIR, config.LOG_FILE))
 

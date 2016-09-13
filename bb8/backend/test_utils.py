@@ -9,6 +9,7 @@
 """
 
 import datetime
+import subprocess
 
 import pytz
 
@@ -32,6 +33,15 @@ def reset_and_setup_bots(bot_names):
     return bots
 
 
+def start_celery_worker():
+    return subprocess.Popen('celery -A bb8.celery worker --loglevel=info '
+                            '--concurrency 4', shell=True)
+
+
+def stop_celery_worker():
+    subprocess.call('pkill -9 -f celery', shell=True)
+
+
 class BaseMessagingMixin(object):
     """A mixin for setting up prerequisite for messaging related unittests."""
     def setup_prerequisite(self):
@@ -41,10 +51,17 @@ class BaseMessagingMixin(object):
                        interaction_timeout=120, session_timeout=86400).add()
         DatabaseManager.flush()
 
+        config = {
+            'access_token': 'EAAP0okfsZCVkBAI3BCU5s3u8O0iVFh6NAwFHa7X2bKZCGQ'
+                            'Lw6VYeTpeTsW5WODeDbekU3ZA0JyVCBSmXq8EqwL1GDuZBO'
+                            '7aAlcNEHQ3AZBIx0ZBfFLh95TlJWlLrYetzm9owKNR8Qju8'
+                            'HF6qra20ZC6HqNXwGpaP74knlNvQJqUmwZDZD'
+        }
+
         self.platform = Platform(bot_id=self.bot.id,
                                  type_enum=PlatformTypeEnum.Facebook,
-                                 provider_ident='facebook_page_id',
-                                 config={}).add()
+                                 provider_ident='1155924351125985',
+                                 config=config).add()
         DatabaseManager.flush()
 
         self.user_1 = User(bot_id=self.bot.id,

@@ -236,10 +236,20 @@ class App(object):
 class BB8(object):
     BB8_IMAGE_NAME = 'bb8'
     BB8_CONTAINER_NAME = 'bb8.main'
+    BB8_SERVICE_PREFIX = 'bb8.service'
     CLOUD_SQL_DIR = '/cloudsql'
 
     def __init__(self):
         self._app_dirs = self.get_app_dirs()
+
+    def start_services(self):
+        redis_service = '%s.redis' % self.BB8_SERVICE_PREFIX
+        instance = docker_get_instance(redis_service)
+        if not instance:
+            run('docker run ' +
+                '--net=%s ' % BB8_NETWORK +
+                '--net-alias=%s ' % redis_service +
+                '--name %s -d redis' % redis_service)
 
     @classmethod
     def get_app_dirs(cls):
@@ -302,6 +312,7 @@ class BB8(object):
     def start(self, force=False):
         self.prepare_resource()
         self.setup_network()
+        self.start_services()
 
         for app_dir in self._app_dirs:
             app = App(app_dir)
