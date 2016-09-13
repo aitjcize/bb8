@@ -99,6 +99,10 @@ class Message(object):
         WEB_URL = 'web_url'
         POSTBACK = 'postback'
 
+    class QuickReplyType(enum.Enum):
+        TEXT = 'text'
+        LOCATION = 'location'
+
     class Button(object):
         def __init__(self, b_type, title=None, url=None, payload=None,
                      acceptable_inputs=None, variables=None):
@@ -261,9 +265,18 @@ class Message(object):
             return data
 
     class QuickReply(object):
-        def __init__(self, title, payload=None, acceptable_inputs=None,
-                     variables=None):
+        def __init__(self, content_type, title=None, payload=None,
+                     acceptable_inputs=None, variables=None):
+            if content_type not in Message.QuickReplyType:
+                raise RuntimeError('Invalid QuickReplyType type')
+
+            if (content_type == Message.QuickReplyType.LOCATION and
+                    (title or payload)):
+                raise RuntimeError('extra attribute found for LOCATION '
+                                   'QuickReply')
+
             variables = variables or {}
+            self.content_type = content_type
             self.title = Render(title, variables)
             if payload:
                 if isinstance(payload, str) or isinstance(payload, unicode):
@@ -284,28 +297,22 @@ class Message(object):
                 self.payload == other.payload
             )
 
-        def as_dict(self):
-            return {
-                'content_type': 'text',
-                'title': self.title,
-                'payload': self.payload
-            }
-
         @classmethod
         def FromDict(cls, data, variables=None):
             """Construct QuickReply object given a dictionary."""
             jsonschema.validate(data, cls.schema())
 
-            return cls(data['title'], data.get('payload'),
+            return cls(Message.QuickReplyType(data['content_type']),
+                       data.get('title'), data.get('payload'),
                        data.get('acceptable_inputs'), variables)
 
         @classmethod
         def schema(cls):
             return {
                 'type': 'object',
-                'required': ['content_type', 'title'],
+                'required': ['content_type'],
                 'properties': {
-                    'content_type': {'enum': ['text']},
+                    'content_type': {'enum': ['text', 'location']},
                     'title': {'type': 'string'},
                     'payload': {'type': ['string', 'object']},
                     'acceptable_inputs': {
@@ -314,6 +321,18 @@ class Message(object):
                     }
                 }
             }
+
+        def as_dict(self):
+            if self.content_type == Message.QuickReplyType.TEXT:
+                return {
+                    'content_type': self.content_type.value,
+                    'title': self.title,
+                    'payload': self.payload
+                }
+            else:
+                return {
+                    'content_type': self.content_type.value
+                }
 
     def __init__(self, text=None, image_url=None, buttons_text=None,
                  notification_type=NotificationType.REGULAR, variables=None):
