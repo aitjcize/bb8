@@ -95,6 +95,7 @@ def send_ga_track_info():
         elif ti.ttype == TrackingInfo.Type.Pageview:
             params += base + u'&'.join([
                 u'',
+                u'cid=%s' % ti.cid,
                 u't=%s' % ti.ttype.value,
                 u'dp=%s' % ti.page]) + '\n'
 
