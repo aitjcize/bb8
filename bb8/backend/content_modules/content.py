@@ -172,6 +172,7 @@ def render_cards(news):
         b.add_button(Message.Button(
             Message.ButtonType.WEB_URL, u'去網站讀',
             url=n.link))
+        b.add_button(Message.Button(Message.ButtonType.ELEMENT_SHARE))
         m.add_bubble(b)
 
     add_quick_reply_keywords(m, True)
