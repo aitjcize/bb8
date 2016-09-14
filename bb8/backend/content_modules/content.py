@@ -66,8 +66,8 @@ class NewsInfo(object):
 
     def get_default_image(self, source):
         source_default_images = {
-            'storm': 'http://i.imgur.com/n3aWMSS.png',
-            'yahoo_rss': 'http://i.imgur.com/DSQpwUC.jpg',
+            'storm': 'http://i.imgur.com/j1Kqrj1.png',
+            'yahoo_rss': 'http://i.imgur.com/Q2Yfylc.jpg',
         }
         compose_default_image = 'http://i.imgur.com/xa9wSAU.png'
         return source_default_images.get(source, compose_default_image)
