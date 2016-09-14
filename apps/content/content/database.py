@@ -9,7 +9,7 @@
 import hashlib
 
 from sqlalchemy import (Column, DateTime, ForeignKey, Integer,
-                        Table, Unicode, String)
+                        Table, Unicode, String, desc)
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import UniqueConstraint
 
@@ -63,7 +63,7 @@ class Entry(DeclarativeBase, ModelMixin):
     def search(cls, term, count):
         return cls.query().filter(
             cls.title.like(unicode('%' + term + '%'))
-        ).limit(count).all()
+        ).order_by(desc('created_at')).limit(count).all()
 
     def __repr__(self):
         return '<%s(\'%s\')>' % (type(self).__name__, self.link)
