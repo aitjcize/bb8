@@ -8,6 +8,7 @@ billiard==3.3.0.23
 celery==3.1.23
 click==6.6
 colorama==0.3.7
+colorlog==2.7.0
 configparser==3.5.0
 coverage==4.2
 decorator==4.0.10
