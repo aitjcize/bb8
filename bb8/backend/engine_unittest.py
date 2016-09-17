@@ -10,11 +10,10 @@
 import unittest
 import datetime
 
-from bb8 import app
-from bb8.backend.database import DatabaseManager
-from bb8.backend.database import Node, Platform, User
+import mock
 
-from bb8.backend import messaging
+from bb8 import app
+from bb8.backend.database import DatabaseManager, Node, Platform, User
 from bb8.backend.engine import Engine
 from bb8.backend.metadata import UserInput, InputTransformation
 from bb8.backend.test_utils import reset_and_setup_bots
@@ -22,14 +21,16 @@ from bb8.backend.test_utils import reset_and_setup_bots
 
 class EngineUnittest(unittest.TestCase):
     def setUp(self):
-        self.dbm = DatabaseManager()
         self.bot = None
         self.user = None
+        self.send_message_mock = mock.patch(
+            'bb8.backend.messaging.send_message').start()
 
-        self.dbm.connect()
+        DatabaseManager.connect()
 
     def tearDown(self):
-        self.dbm.disconnect()
+        DatabaseManager.disconnect()
+        self.send_message_mock.stop()  # pylint: disable=E1101
 
     def setup_prerequisite(self, bot_file):
         InputTransformation.clear()
@@ -39,7 +40,7 @@ class EngineUnittest(unittest.TestCase):
                          platform_user_ident='blablabla',
                          last_seen=datetime.datetime.now()).add()
 
-        self.dbm.commit()
+        DatabaseManager.commit()
 
     def test_simple_graph(self):
         """Test a simple graph (test/simple.bot)
@@ -55,14 +56,6 @@ class EngineUnittest(unittest.TestCase):
 
         engine = Engine()
 
-        # Override module API method for testing
-        context = {'message_sent': False}
-
-        def send_message_mock(unused_user, unused_x):
-            context['message_sent'] = True
-
-        messaging.send_message = send_message_mock
-
         def get_node_id(name):
             return Node.get_by(name=unicode(name), single=True).id
 
@@ -74,11 +67,10 @@ class EngineUnittest(unittest.TestCase):
         self.assertEquals(self.user.session.message_sent, True)
 
         # Try global gotoA command
-        context['message_sent'] = False
         engine.step(self.bot, self.user, UserInput.Text('gotoA'))
         self.assertEquals(self.user.session.node_id, get_node_id('nodeA'))
         self.assertEquals(self.user.session.message_sent, True)
-        self.assertEquals(context['message_sent'], True)
+        self.assertEquals(self.send_message_mock.called, True)
 
         # Try error path: go back to current node
         engine.step(self.bot, self.user, UserInput.Text('error'))
@@ -121,13 +113,6 @@ class EngineUnittest(unittest.TestCase):
 
         engine = Engine()
 
-        context = {}
-
-        def send_message_mock(unused_user, messages):
-            context['message'] = messages
-
-        messaging.send_message = send_message_mock
-
         def get_node_id(name):
             return Node.get_by(name=unicode(name), single=True).id
 
@@ -150,8 +135,9 @@ class EngineUnittest(unittest.TestCase):
                     UserInput.FromFacebookMessage(postback))
         self.assertEquals(self.user.session.node_id, get_node_id('show'))
         self.assertEquals(self.user.session.message_sent, True)
-        self.assertEquals(context['message'][0].as_dict()['text'],
-                          'PAYLOAD_TEXT')
+
+        sent_msg = self.send_message_mock.call_args[0][1][0]
+        self.assertEquals(sent_msg.as_dict()['text'], 'PAYLOAD_TEXT')
 
         # Use global postback command to goto postback node
         engine.step(self.bot, self.user, UserInput.Text('postback'))
@@ -162,7 +148,8 @@ class EngineUnittest(unittest.TestCase):
         self.assertEquals(self.user.session.node_id, get_node_id('show'))
         self.assertEquals(self.user.session.message_sent, True)
 
-        self.assertEquals(context['message'][0].as_dict()['text'], 'TEXT')
+        sent_msg = self.send_message_mock.call_args[0][1][0]
+        self.assertEquals(sent_msg.as_dict()['text'], 'TEXT')
 
     def test_input_transformation(self):
         """Test input transformation.
@@ -173,13 +160,6 @@ class EngineUnittest(unittest.TestCase):
         self.setup_prerequisite('test/input_transformation.bot')
 
         engine = Engine()
-
-        context = {}
-
-        def send_message_mock(unused_user, messages):
-            context['message'] = messages
-
-        messaging.send_message = send_message_mock
 
         def get_node_id(name):
             return Node.get_by(name=unicode(name), single=True).id
@@ -195,7 +175,8 @@ class EngineUnittest(unittest.TestCase):
         engine.step(self.bot, self.user, UserInput.Text('option 1'))
         self.assertEquals(self.user.session.node_id, get_node_id('option1'))
         self.assertEquals(self.user.session.message_sent, True)
-        self.assertEquals(context['message'][0].as_dict()['text'], 'payload1')
+        sent_msg = self.send_message_mock.call_args[0][1][0]
+        self.assertEquals(sent_msg.as_dict()['text'], 'payload1')
 
         # Back to root
         engine.step(self.bot, self.user)
@@ -205,7 +186,8 @@ class EngineUnittest(unittest.TestCase):
         engine.step(self.bot, self.user, UserInput.Text('D'))
         self.assertEquals(self.user.session.node_id, get_node_id('option2'))
         self.assertEquals(self.user.session.message_sent, True)
-        self.assertEquals(context['message'][0].as_dict()['text'], 'payload2')
+        sent_msg = self.send_message_mock.call_args[0][1][0]
+        self.assertEquals(sent_msg.as_dict()['text'], 'payload2')
 
         # Back to root
         engine.step(self.bot, self.user)

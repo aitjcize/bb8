@@ -4,7 +4,8 @@ LINT_FILES = $(shell find bb8 bb8_client apps -name '*.py' -type f | egrep -v '(
 UNITTESTS = $(shell find bb8 bb8_client apps -name '*_unittest.py' | sort)
 
 LINT_OPTIONS = --rcfile=bin/pylintrc \
-	       --msg-template='{path}:{line}: {msg_id}: {msg}'
+	       --msg-template='{path}:{line}: {msg_id}: {msg}' \
+	       --generated-members='service_pb2.*'
 
 MYSQL_PORT ?= 3307
 DOCKER_IP ?= 127.0.0.1
@@ -25,8 +26,8 @@ setup-database:
 	       -e MYSQL_PASSWORD=bb8test \
 	       -e MYSQL_DATABASE=bb8 \
 	       -d mysql:latest; \
-			echo 'Waiting 20 sec for MySQL to initialize ...'; \
-			sleep 20; \
+	   echo 'Waiting 20 sec for MySQL to initialize ...'; \
+	   sleep 20; \
 	 fi;
 
 remove-database:
@@ -43,28 +44,31 @@ setup-redis:
 remove-redis:
 	@docker rm -f bb8_redis.$(USER)
 
-test: setup-database compile-resource
+start-celery:
+	@celery -A bb8.celery worker --loglevel=info --concurrency 4
+
+test: setup-database setup-redis compile-resource
 	@export DATABASE=$(DB_URI); \
 	 for test in $(UNITTESTS); do \
-           if echo $$test | grep '^apps'; then \
-             export PYTHONPATH=$(CURDIR)/$$(echo $$test | \
-				            sed 's+\(apps/[^/]*/\).*+\1+'); \
-           else \
-             export PYTHONPATH=$(CURDIR); \
-           fi; \
+	   if echo $$test | grep '^apps'; then \
+	     export PYTHONPATH=$(CURDIR):$(CURDIR)/$$(echo $$test | \
+	       sed 's+\(apps/[^/]*/\).*+\1+'); \
+	   else \
+	     export PYTHONPATH=$(CURDIR); \
+	   fi; \
 	   echo Running $$test ...; \
 	   $$test || exit 1; \
 	 done
 
-coverage: setup-database compile-resource
+coverage: setup-database setup-redis compile-resource
 	@export DATABASE=$(DB_URI); \
 	 for test in $(UNITTESTS); do \
-           if echo $$test | grep '^apps'; then \
-             export PYTHONPATH=$(CURDIR)/$$(echo $$test | \
-				            sed 's+\(apps/[^/]*/\).*+\1+'); \
-           else \
-             export PYTHONPATH=$(CURDIR); \
-           fi; \
+	   if echo $$test | grep '^apps'; then \
+	     export PYTHONPATH=$(CURDIR):$(CURDIR)/$$(echo $$test | \
+	       sed 's+\(apps/[^/]*/\).*+\1+'); \
+	   else \
+	     export PYTHONPATH=$(CURDIR); \
+	   fi; \
 	   COVER=$$(echo $$test | tr '/' '_'); \
 	   echo Running $$test ...; \
 	   COVERAGE_FILE=.coverage_$$COVER coverage run $$test || exit 1; \
@@ -72,7 +76,7 @@ coverage: setup-database compile-resource
 	@coverage combine .coverage_*
 	@coverage html --include=bb8/*
 
-lint:
+lint: compile-resource
 	@pep8 $(LINT_FILES)
 	@pylint $(LINT_OPTIONS) $(LINT_FILES)
 
@@ -92,5 +96,10 @@ cleanup-docker:
 clean:
 	find bb8 bb8_client apps -name '*_pb2.py' -exec rm -f {} \;
 
+test-deploy:
+	@BB8_DEPLOY=false \
+	 DATABASE=mysql+pymysql://bb8:bb8test@172.17.0.1:$$MYSQL_PORT/bb8?charset=utf8mb4 \
+	 bb8ctl start -f
+
 deploy:
-	@BB8_DEPLOY=true bb8ctl start
+	@BB8_DEPLOY=true HTTP_PORT=5000 bb8ctl start

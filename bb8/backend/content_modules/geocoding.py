@@ -135,10 +135,15 @@ class GoogleMapsGeocodingAPI(object):
             filtered_result = sorted(filtered_result, key=r_square)
 
         final_result = []
+        addrs = set()
         for i in range(min(n, len(filtered_result))):
+            address = self.build_address(filtered_result[i])
+            if address in addrs:
+                continue
+            addrs.add(address)
             location = filtered_result[i]['geometry']['location']
             final_result.append({
-                'address': self.build_address(filtered_result[i]),
+                'address': address,
                 'location': (location['lat'], location['lng'])
             })
 
@@ -188,13 +193,13 @@ def run(content_config, unused_env, variables):
     elif len(results) == 1:
         m = Message(u'你指的是「%s」嗎？' % results[0]['address'])
         m.add_quick_reply(
-            Message.QuickReply(u'是',
+            Message.QuickReply(Message.QuickReplyType.TEXT, u'是',
                                payload=LocationPayload(results[0]['location'],
                                                        in_currrent),
                                acceptable_inputs=[u'^對', '(?i)y',
                                                   '(?i)ok']))
         m.add_quick_reply(
-            Message.QuickReply(u'否',
+            Message.QuickReply(Message.QuickReplyType.TEXT, u'否',
                                payload=EventPayload('WRONG_ADDRESS', None,
                                                     in_currrent),
                                acceptable_inputs=[u'不', '(?i)n']))

@@ -15,11 +15,6 @@
           },
           {
             "type": "postback",
-            "title": "推薦給我",
-            "payload": {"message": {"text": "recommend"}}
-          },
-          {
-            "type": "postback",
             "title": "使用說明",
             "payload": {"message": {"text": "tutorial"}}
           },
@@ -43,6 +38,7 @@
     "interaction_timeout": 120,
     "session_timeout": 0,
     "admin_interaction_timeout": 10,
+    "ga_id": "UA-79887532-3",
     "nodes": {
       "start": {
         "name": "Greet",
@@ -112,13 +108,13 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(yahoo)", "((?i)(storm)|風傳媒)",
+                  "params": ["(?i)(yahoo)", "(?i)(storm|風傳媒)",
                              "(?i)(hacker news)", "(?i)(hacker)",
                              "(?i)(inside)", "(關鍵評論)",
                              "(?i)(news ?lens)"]
                 },
                 "action_ident": "news_source",
-                "end_node_id": "[[get_by_source]]",
+                "end_node_id": "[[list_by_source]]",
                 "ack_message": ""
               },
               {
@@ -126,8 +122,8 @@
                   "type": "regexp",
                   "params": [
                     "(?i)help", "(?i)tutorial", "幫助", "說明", "支持",
-                    "(?i)support", "你是誰", "(?i)hi", "(?i)hello", "(?i)yo",
-                    "(?i)ya", "(?i)ha"]
+                    "(?i)support", "你是誰", "(?i)hi", "(?i)hello", "(?i)yo$",
+                    "(?i)ya$", "(?i)ha$"]
                 },
                 "action_ident": "help",
                 "end_node_id": "[[help]]",
@@ -221,26 +217,14 @@
           }
         }
       },
-      "get_by_source": {
+      "list_by_source": {
         "name": "Get by source",
         "description": "Get content by source name",
         "expect_input": true,
         "content_module": {
           "id": "ai.compose.core.content",
           "config": {
-            "mode": "get_by_source",
-            "query_term": "{{matches#0}}"
-          }
-        }
-      },
-      "get_by_category": {
-        "name": "Get by category",
-        "description": "Get by category name",
-        "expect_input": true,
-        "content_module": {
-          "id": "ai.compose.core.content",
-          "config": {
-            "mode": "get_by_category",
+            "mode": "list_by_source",
             "query_term": "{{matches#0}}"
           }
         }

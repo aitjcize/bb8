@@ -9,22 +9,26 @@
 import os
 
 from flask import Flask, jsonify
+from celery import Celery
 
-from bb8 import config as Config
+from bb8 import configuration
 from bb8.logging_utils import Logger
 from bb8.error import AppError
 
 config = None
 
 if os.getenv('CIRCLE_CI', '') == 'true':
-    config = Config.TestingConfig()  # pylint: disable=R0204
+    config = configuration.TestingConfig()  # pylint: disable=R0204
 elif os.getenv('BB8_DEPLOY', '') == 'true':
-    config = Config.DeployConfig()  # pylint: disable=R0204
+    config = configuration.DeployConfig()  # pylint: disable=R0204
 else:
-    config = Config.DevelopmentConfig()  # pylint: disable=R0204
+    config = configuration.DevelopmentConfig()  # pylint: disable=R0204
 
 app = Flask(__name__)
 app.config.from_object(config)
+
+celery = Celery()
+celery.config_from_object(config.CeleryConfig)
 
 logger = Logger(os.path.join(config.LOG_DIR, config.LOG_FILE))
 

@@ -16,7 +16,7 @@ import sys
 
 import jsonschema
 
-from bb8 import logger
+from bb8 import config, logger
 from bb8.backend.messaging import get_messaging_provider
 from bb8.backend.database import (Bot, ContentModule, Node, Platform,
                                   PlatformTypeEnum)
@@ -82,7 +82,8 @@ def parse_bot(filename, to_bot_id=None):
                              platform_desc['type_enum'])
                 raise
 
-            if not platform_desc['deployed']:
+            if (not platform_desc['deployed'] or
+                    (config.DEPLOY and platform_desc['deployed'])):
                 provider.apply_config(platform_desc['config'])
 
         bot = Bot.get_by(id=to_bot_id, single=True)
@@ -93,6 +94,7 @@ def parse_bot(filename, to_bot_id=None):
         bot.interaction_timeout = bot_desc['interaction_timeout']
         bot.admin_interaction_timeout = bot_desc['admin_interaction_timeout']
         bot.session_timeout = bot_desc['session_timeout']
+        bot.ga_id = bot_desc.get('ga_id', None)
         bot.flush()
     else:  # Create a new bot
         logger.info('Creating new bot from %s ...', filename)
@@ -101,7 +103,8 @@ def parse_bot(filename, to_bot_id=None):
             description=bot_desc['description'],
             interaction_timeout=bot_desc['interaction_timeout'],
             admin_interaction_timeout=bot_desc['admin_interaction_timeout'],
-            session_timeout=bot_desc['session_timeout']).add()
+            session_timeout=bot_desc['session_timeout'],
+            ga_id=bot_desc.get('ga_id', None)).add()
         bot.flush()
 
         for platform_desc in bot_json['platforms']:
@@ -120,7 +123,8 @@ def parse_bot(filename, to_bot_id=None):
                      provider_ident=platform_desc['provider_ident'],
                      config=platform_desc['config']).add()
 
-            if not platform_desc['deployed']:
+            if (not platform_desc['deployed'] or
+                    (config.DEPLOY and platform_desc['deployed'])):
                 provider.apply_config(platform_desc['config'])
 
     nodes = bot_desc['nodes']

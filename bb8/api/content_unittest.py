@@ -21,15 +21,14 @@ class ContentAPIUnittest(unittest.TestCase):
     def setUp(self):
         app.config['TESTING'] = True
 
-        self.dbm = DatabaseManager()
-        self.dbm.connect()
-        self.dbm.reset()
+        DatabaseManager.connect()
+        DatabaseManager.reset()
 
         self.app = app.test_client()
         self.setup_prerequisite()
 
     def tearDown(self):
-        self.dbm.disconnect()
+        DatabaseManager.disconnect()
 
     def setup_prerequisite(self):
         acc = Account(name=u'test',
@@ -43,7 +42,7 @@ class ContentAPIUnittest(unittest.TestCase):
                         title=u'example%d.com' % i,
                         image_url='example%d.com/logo' % i).add()
             acc.feeds.append(feed)
-        self.dbm.commit()
+        DatabaseManager.commit()
 
     def test_pagnination(self):
         rv = self.app.post('/login', data=dict(

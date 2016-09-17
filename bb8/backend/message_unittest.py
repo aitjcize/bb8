@@ -24,25 +24,24 @@ from bb8.backend.message import Message
 
 class MessageUnittest(unittest.TestCase):
     def setUp(self):
-        self.dbm = DatabaseManager()
-        self.dbm.connect()
+        DatabaseManager.connect()
         self.setup_prerequisite()
 
     def tearDown(self):
-        self.dbm.disconnect()
+        DatabaseManager.disconnect()
 
     def setup_prerequisite(self):
-        self.dbm.reset()
+        DatabaseManager.reset()
 
         self.bot = Bot(name=u'test', description=u'test',
                        interaction_timeout=120, session_timeout=86400).add()
-        self.dbm.commit()
+        DatabaseManager.commit()
 
         self.platform = Platform(bot_id=self.bot.id,
                                  type_enum=PlatformTypeEnum.Facebook,
                                  provider_ident='facebook_page_id',
                                  config={}).add()
-        self.dbm.commit()
+        DatabaseManager.commit()
 
         self.user_1 = User(bot_id=self.bot.id,
                            platform_id=self.platform.id,
@@ -54,7 +53,7 @@ class MessageUnittest(unittest.TestCase):
                            platform_user_ident='1318395614844436',
                            last_seen=datetime.datetime(2016, 6, 2, 12, 44, 56,
                                                        tzinfo=pytz.utc)).add()
-        self.dbm.commit()
+        DatabaseManager.commit()
 
     def test_Button(self):
         with self.assertRaises(RuntimeError):
@@ -72,6 +71,10 @@ class MessageUnittest(unittest.TestCase):
 
         b = Message.Button(Message.ButtonType.POSTBACK, 'postback',
                            payload='postback')
+        jsonschema.validate(b.as_dict(), Message.Button.schema())
+        self.assertEquals(b, b.FromDict(b.as_dict()))
+
+        b = Message.Button(Message.ButtonType.ELEMENT_SHARE)
         jsonschema.validate(b.as_dict(), Message.Button.schema())
         self.assertEquals(b, b.FromDict(b.as_dict()))
 
@@ -93,17 +96,22 @@ class MessageUnittest(unittest.TestCase):
         self.assertEquals(b, b.FromDict(b.as_dict()))
 
     def test_QuickReply(self):
-        q1 = Message.QuickReply('quick_reply_1',
+        q1 = Message.QuickReply(Message.QuickReplyType.TEXT, 'quick_reply_1',
                                 acceptable_inputs=['1', '2'])
         jsonschema.validate(q1.as_dict(), Message.QuickReply.schema())
         self.assertEquals(q1, q1.FromDict(q1.as_dict()))
 
-        q2 = Message.QuickReply('quick_reply_2',
+        q2 = Message.QuickReply(Message.QuickReplyType.LOCATION)
+        jsonschema.validate(q2.as_dict(), Message.QuickReply.schema())
+        self.assertEquals(q2, q2.FromDict(q2.as_dict()))
+
+        q3 = Message.QuickReply(Message.QuickReplyType.TEXT, 'quick_reply_2',
                                 acceptable_inputs=['3', '4'])
 
         m = Message('test')
         m.add_quick_reply(q1)
         m.add_quick_reply(q2)
+        m.add_quick_reply(q3)
 
         jsonschema.validate(m.as_dict(), Message.schema())
         self.assertEquals(m, m.FromDict(m.as_dict()))

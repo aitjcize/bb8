@@ -17,7 +17,7 @@ import tempfile
 import urllib
 
 import enum
-from grpc.beta import implementations
+import grpc
 
 from bb8 import logger
 from bb8.backend.module_api import (Config, Message, GetUserTime,
@@ -119,7 +119,7 @@ class YoubikeAPI(object):
 
     def __init__(self):
         self._data = None
-        self._stations = []
+        self._stations = {}
         self._coordinates = {}
 
     def refresh_data(self):
@@ -203,8 +203,8 @@ class YoubikeInfo(object):
         self._api = None
         try:
             pb2_module, addr = GetgRPCService('youbike')
-            channel = implementations.insecure_channel(*addr)
-            self._stub = pb2_module.beta_create_YoubikeInfo_stub(channel)
+            channel = grpc.insecure_channel('%s:%d' % addr)
+            self._stub = pb2_module.YoubikeInfoStub(channel)
             self._pb2_module = pb2_module
         except Exception as e:
             logger.exception(e)

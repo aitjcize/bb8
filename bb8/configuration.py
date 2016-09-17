@@ -18,7 +18,10 @@ class Config(object):
 
     BB8_ROOT = '/tmp/bb8'
     LOCK_DIR = BB8_ROOT + '/lock'
-    RECORDS_PER_PAGE = 50
+
+    # Number of threads that serve the requests. This should be the same
+    # as processes * threads in uwsgi.ini
+    N_THREADS = 32
 
     # Secrets
     # FIXME: Replace these secrets in production
@@ -33,34 +36,39 @@ class Config(object):
 
     # Server
     HOSTNAME = 'bot.azhuang.me'
-    PORT = int(os.getenv('HTTP_PORT', 7000))
+    HTTP_PORT = int(os.getenv('HTTP_PORT', 7000))
 
-    # App API
+    # Ports
     APP_API_SERVICE_PORT = 62629
+    APP_GRPC_SERVICE_PORT = 9999
 
     # Webhooks
     BOT_WEBHOOOK_ROOT = '/bot'
 
-    # Facebook
-    FACEBOOK_WEBHOOK_PATH = BOT_WEBHOOOK_ROOT + "/facebook"
-    FACEBOOK_WEBHOOK_VALIDATION_TOKEN = "meow_meow_meow"
-
-    # Line
-    LINE_WEBHOOK_PATH = BOT_WEBHOOOK_ROOT + "/line"
-
-    # Option
+    # Options
     COMMIT_ON_APP_TEARDOWN = True
     STORE_CONVERSATION = False
 
-    # Misc
-    YOUBIKE_BOT_GA_ID = 'UA-79887532-2'
-
-    # Third-Party apps address mapping
-    APPS_ADDR_MAP = {
-        'system':   ('localhost', 30000),
-        'youbike':  ('localhost', 30001),
-        'content':  ('localhost', 30002)
+    # Third-Party apps hostname map
+    APP_HOSTNAME_MAP = {
+        'system':   'localhost',
+        'youbike':  'localhost',
+        'content':  'localhost',
     }
+
+    # Messaging provider config
+    # Facebook
+    FACEBOOK_WEBHOOK_PATH = BOT_WEBHOOOK_ROOT + '/facebook'
+    FACEBOOK_WEBHOOK_VALIDATION_TOKEN = 'meow_meow_meow'
+
+    # Line
+    LINE_WEBHOOK_PATH = BOT_WEBHOOOK_ROOT + '/line'
+
+    class CeleryConfig(object):
+        BROKER_URL = 'redis://localhost:%s/0' % os.getenv('REDIS_PORT', 6379)
+        CELERY_IMPORTS = ('bb8.backend.messaging',)
+        CELERY_SEND_EVENTS = False
+        CELERY_ACCEPT_CONTENT = ['pickle']
 
 
 class DevelopmentConfig(Config):
@@ -87,11 +95,13 @@ class DeployConfig(DevelopmentConfig):
 
     # Server
     HOSTNAME = 'bot.compose.ai'
-    PORT = 5000
 
-    # Third-Party apps address mapping
-    APPS_ADDR_MAP = {
-        'system':   ('172.17.0.1', 30000),
-        'youbike':  ('172.17.0.1', 30001),
-        'content':  ('172.17.0.1', 30002)
+    # Third-Party apps hostname map
+    APP_HOSTNAME_MAP = {
+        'system':   'bb8.app.system',
+        'youbike':  'bb8.app.youbike',
+        'content':  'bb8.app.content',
     }
+
+    class CeleryConfig(DevelopmentConfig.CeleryConfig):
+        BROKER_URL = 'redis://bb8.service.redis:6379/0'

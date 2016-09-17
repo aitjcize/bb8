@@ -14,11 +14,13 @@ from __future__ import print_function
 import argparse
 import glob
 import json
+import logging
 import os
 import re
 import subprocess
 import sys
 
+import colorlog
 import jsonschema
 
 from bb8 import config
@@ -28,7 +30,19 @@ BB8_SRC_ROOT = os.path.normpath(os.path.join(
     os.path.abspath(os.path.dirname(os.path.realpath(__file__))),
     '..', '..'))
 BB8_DATA_ROOT = '/var/lib/bb8'
+BB8_NETWORK = 'bb8_network'
 BB8_CLIENT_PACKAGE_NAME = 'bb8-client-9999.tar.gz'
+
+
+logger = logging.getLogger('bb8ctl')
+
+
+def setup_logger():
+    handler = colorlog.StreamHandler()
+    handler.setFormatter(colorlog.ColoredFormatter(
+        '%(log_color)s%(levelname)s:%(name)s:%(message)s'))
+    logger.addHandler(handler)
+    logger.setLevel(logging.DEBUG)
 
 
 def get_manifest_schema():
@@ -73,6 +87,16 @@ def docker_get_instance(name):
         name).strip()
 
 
+def database_env_switch():
+    if config.DEPLOY:
+        return ''
+    database = os.getenv('DATABASE', None)
+    if database is None:
+        logger.error('dev database not specified')
+    database = database.replace('127.0.0.1', '172.17.0.1')
+    return ' -e DATABASE=%s ' % database
+
+
 class App(object):
     """App class representing an BB8 third-party app."""
 
@@ -96,9 +120,9 @@ class App(object):
         self._image_name = '%s.%s' % (self.BB8_APP_PREFIX,
                                       self._app_name)
 
-    def start(self, force=False):
+    def start(self, force=False, bind=False):
         print('=' * 20, 'Starting %s' % self._app_name, '=' * 20)
-        self.start_container(force)
+        self.start_container(force, bind)
 
     def get_cpu_shares(self):
         cpu = self._info['resource']['cpu']
@@ -129,7 +153,7 @@ class App(object):
     def compile_and_install_service_proto(self):
         """Compile and install service gRPC module."""
         # Compile protobuf python module
-        run('docker run -it --rm -v %s:/defs namely/protoc-python' %
+        run('docker run -it --rm -v %s:/defs aitjcize/protoc-python' %
             (self._app_dir))
         # Copy to app dir
         run('cp %(path)s/pb-python/service_pb2.py %(path)s' %
@@ -152,7 +176,7 @@ class App(object):
         if instance:
             run('docker rm -f %s' % instance, True)
 
-    def start_container(self, force=False):
+    def start_container(self, force=False, bind=False):
         # Compile service proto before calculating app version hash, so the
         # hash includes the compiled serivce_pb2.py
         self.compile_and_install_service_proto()
@@ -165,13 +189,13 @@ class App(object):
         if m:
             running_version_hash = m.group(1)
             if running_version_hash == app_version_hash:
-                print('%s: no change since last deploy.' % self._app_name)
+                logger.warn('%s: no change since last deploy.', self._app_name)
 
                 if force:
-                    print('%s: force deploy requested, continuing deployment '
-                          '...' % self._app_name)
+                    logger.warn('%s: force deploy requested, continuing '
+                                'deployment ...', self._app_name)
                 else:
-                    print('%s: skip deployment.' % self._app_name)
+                    logger.warn('%s: skip deployment.', self._app_name)
                     return
 
         app_state_dir = os.path.join(BB8_DATA_ROOT, 'apps', self._app_name)
@@ -183,8 +207,8 @@ class App(object):
                 # BB8 system app.
                 if ((target.startswith('/') or target.startswith('.')) and
                         self._app_name not in self.VOLUME_PRIVILEGE_WHITELIST):
-                    print('%s: invalid volume `%s\' detected, abort.' %
-                          (self._app_name, target))
+                    logger.info('%s: invalid volume `%s\' detected, abort.',
+                                self._app_name, target)
                     return
 
                 volumes.append('-v %s:%s' %
@@ -195,11 +219,6 @@ class App(object):
                 state_dir = os.path.join(app_state_dir, name)
                 create_dir_if_not_exists(state_dir, sudo=True)
                 volumes.append('-v %s:%s' % (state_dir, path))
-
-        addr = config.APPS_ADDR_MAP.get(self._app_name, None)
-        if not addr:
-            print('Fatal: no port mapping for app `%s\'' % self._app_name)
-            sys.exit(1)
 
         run('cp %s %s' %
             (os.path.join(BB8_SRC_ROOT, 'dist', BB8_CLIENT_PACKAGE_NAME),
@@ -212,13 +231,15 @@ class App(object):
         if instance:
             run('docker rm -f %s' % instance, True)
 
-        deploy = BB8.is_deploy()
-
-        run('docker run --name %s ' % container_name +
-            '--cpu-shares %d ' % self.get_cpu_shares() +
-            '-m %s ' % self.get_memory_limit() +
-            '-p %d:%d ' % (addr[1], self._info['service_port']) +
-            '-e BB8_DEPLOY=%s ' % ('true' if deploy else 'false') +
+        run('docker run'
+            ' --name={0}'.format(container_name) +
+            ' --net={0}'.format(BB8_NETWORK) +
+            ' --net-alias={0}'.format(self._image_name) +
+            ' --cpu-shares={0}'.format(self.get_cpu_shares()) +
+            ' -m {0}'.format(self.get_memory_limit()) +
+            ' -e BB8_DEPLOY={0}'.format(str(config.DEPLOY).lower()) +
+            (' -p 9999:9999' if bind else ' ') +
+            database_env_switch() +
             ' '.join(volumes) +
             ' -d %s' % self._image_name)
 
@@ -231,14 +252,21 @@ class App(object):
 class BB8(object):
     BB8_IMAGE_NAME = 'bb8'
     BB8_CONTAINER_NAME = 'bb8.main'
+    BB8_SERVICE_PREFIX = 'bb8.service'
+    BB8_INDOCKER_PORT = 5000
     CLOUD_SQL_DIR = '/cloudsql'
 
     def __init__(self):
         self._app_dirs = self.get_app_dirs()
 
-    @classmethod
-    def is_deploy(cls):
-        return os.getenv('BB8_DEPLOY', None) == 'true'
+    def start_services(self):
+        redis_service = '%s.redis' % self.BB8_SERVICE_PREFIX
+        instance = docker_get_instance(redis_service)
+        if not instance:
+            run('docker run ' +
+                '--net=%s ' % BB8_NETWORK +
+                '--net-alias=%s ' % redis_service +
+                '--name %s -d redis' % redis_service)
 
     @classmethod
     def get_app_dirs(cls):
@@ -249,9 +277,9 @@ class BB8(object):
 
     def copy_extra_source(self):
         """Copy extra source required by client module."""
-
-        for filename in ['base_message.py', 'query_filters.py']:
-            run('cp %s %s' %
+        LIST = ['base_message.py', 'database_utils.py', 'query_filters.py']
+        for filename in LIST:
+            run('ln -f %s %s' %
                 (os.path.join(BB8_SRC_ROOT, 'bb8', 'backend', filename),
                  os.path.join(BB8_SRC_ROOT, 'bb8_client')))
 
@@ -260,7 +288,8 @@ class BB8(object):
         proto_dir = os.path.join(BB8_SRC_ROOT, 'bb8', 'proto')
 
         # Compile protobuf python module
-        run('docker run -it --rm -v %s:/defs namely/protoc-python' % proto_dir)
+        run('docker run -it --rm -v %s:/defs aitjcize/protoc-python' %
+            proto_dir)
 
         # Copy to bb8.pb_modules
         for proto in glob.glob('%s/*.proto' % proto_dir):
@@ -294,8 +323,13 @@ class BB8(object):
             app = App(app_dir)
             app.compile_and_install_service_proto()
 
+    def setup_network(self):
+        run('docker network create %s' % BB8_NETWORK, True)
+
     def start(self, force=False):
         self.prepare_resource()
+        self.setup_network()
+        self.start_services()
 
         for app_dir in self._app_dirs:
             app = App(app_dir)
@@ -329,13 +363,13 @@ class BB8(object):
         if m:
             running_version_hash = m.group(1)
             if running_version_hash == version_hash:
-                print('BB8: no change since last deploy.')
+                logger.warn('BB8: no change since last deploy.')
 
                 if force:
-                    print('BB8: force deploy requested, continuing deployment '
-                          '...')
+                    logger.warn('BB8: force deploy requested, '
+                                'continuing deployment ...')
                 else:
-                    print('BB8: skip deployment.')
+                    logger.warn('BB8: skip deployment.')
                     sys.exit(1)
 
         run('sudo umount %s/log >/dev/null 2>&1' % BB8_DATA_ROOT, True)
@@ -344,17 +378,16 @@ class BB8(object):
         if instance:
             run('docker rm -f %s' % instance, True)
 
-        run('docker run --name %(name)s '
-            '-p %(port)d:%(port)d '
-            '-p %(app_api_service_port)d:%(app_api_service_port)d '
-            '-v %(cloud_sql_dir)s:%(cloud_sql_dir)s '
-            '-d %(image_name)s' % {
-                'port': config.PORT,
-                'app_api_service_port': config.APP_API_SERVICE_PORT,
-                'name': new_container_name,
-                'cloud_sql_dir': self.CLOUD_SQL_DIR,
-                'image_name': self.BB8_IMAGE_NAME
-            })
+        run('docker run'
+            ' --name={0} '.format(new_container_name) +
+            ' --net={0}'.format(BB8_NETWORK) +
+            ' --net-alias={0}'.format(self.BB8_CONTAINER_NAME) +
+            ' -p {0}:{1}'.format(config.HTTP_PORT, self.BB8_INDOCKER_PORT) +
+            ' -p {0}:{0}'.format(config.APP_API_SERVICE_PORT) +
+            ' -v {0}:{0}'.format(self.CLOUD_SQL_DIR) +
+            ' -e HTTP_PORT={0}'.format(config.HTTP_PORT) +
+            database_env_switch() +
+            ' -d {0}'.format(self.BB8_IMAGE_NAME))
 
         run('sudo mount --bind '
             '$(docker inspect -f \'{{index (index .Mounts 1) "Source"}}\' %s) '
@@ -385,6 +418,9 @@ def main():
                               'changed')
     start_parser.add_argument('-a', '--app', dest='app', default=None,
                               help='operate on specific app')
+    start_parser.add_argument('-b', '--bind', dest='bind',
+                              action='store_true', default=False,
+                              help='Bind app service port to localhost')
 
     # stop sub-command
     stop_parser = subparsers.add_parser('stop', help='stop bb8')
@@ -414,14 +450,16 @@ def main():
     if hasattr(args, 'app') and args.app:
         app_dir = os.path.join(BB8_SRC_ROOT, 'apps', args.app)
         if not os.path.exists(app_dir):
-            print('No app named `%s\', abort.' % args.app)
+            logger.error('No app named `%s\', abort.', args.app)
             sys.exit(1)
         app = App(app_dir)
 
     if args.which == 'start':
         if app:
-            app.start(args.force)
+            app.start(args.force, args.bind)
         else:
+            if args.bind:
+                logger.warn('bind option only works with single app, ignored')
             bb8.start(args.force)
     elif args.which == 'stop':
         if app:
@@ -442,7 +480,8 @@ def main():
 
 
 if __name__ == '__main__':
+    setup_logger()
     try:
         main()
     except Exception as e:
-        print('error: %s' % e)
+        logger.exception('error: %s', e)

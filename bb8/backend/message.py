@@ -11,6 +11,7 @@
 
 import json
 import re
+import sys
 
 import jsonschema
 
@@ -190,7 +191,7 @@ class Message(base_message.Message):
                 payload = json.dumps(payload)
 
             return cls(Message.ButtonType(data['type']),
-                       data['title'], data.get('url'), payload,
+                       data.get('title'), data.get('url'), payload,
                        data.get('acceptable_inputs'), variables)
 
         def register_mapping(self, key):
@@ -297,3 +298,10 @@ class Message(base_message.Message):
     def add_quick_reply(self, reply):
         super(Message, self).add_quick_reply(reply)
         reply.register_mapping()
+
+
+# To allow pickling inner class, set module attribute alias
+# pylint: disable=W0212
+setattr(sys.modules[__name__], '_Button', Message._Button)
+setattr(sys.modules[__name__], '_Bubble', Message._Bubble)
+setattr(sys.modules[__name__], '_QuickReply', Message._QuickReply)

@@ -20,7 +20,7 @@ from bb8.backend.message import Message, Render, Resolve, IsVariable
 
 
 CONFIG = {
-    'HTTP_ROOT': 'https://%s:%d/' % (config.HOSTNAME, config.PORT)
+    'HTTP_ROOT': 'https://%s:%d/' % (config.HOSTNAME, config.HTTP_PORT)
 }
 
 
@@ -106,8 +106,8 @@ def GetUserTime():
 
 
 def GetgRPCService(name):
-    addr = config.APPS_ADDR_MAP.get(name, None)
-    if addr is None:
+    hostname = config.APP_HOSTNAME_MAP.get(name, None)
+    if hostname is None:
         raise RuntimeError('unknown service `%s\'' % name)
 
     try:
@@ -116,4 +116,4 @@ def GetgRPCService(name):
     except Exception:
         raise RuntimeError('no gRPC module available for `%s\'' % name)
 
-    return module, addr
+    return module, (hostname, config.APP_GRPC_SERVICE_PORT)

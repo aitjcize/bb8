@@ -33,18 +33,17 @@ from bb8.backend.test_utils import reset_and_setup_bots
 
 class UserUnittest(unittest.TestCase):
     def setUp(self):
-        self.dbm = DatabaseManager()
-        self.dbm.connect()
+        DatabaseManager.connect()
 
     def tearDown(self):
-        self.dbm.disconnect()
+        DatabaseManager.disconnect()
 
     def test_session_mutable_tracking(self):
         bot = reset_and_setup_bots(['test/simple.bot'])[0]
         user = User(bot_id=bot.id, platform_id=bot.platforms[0].id,
                     platform_user_ident='',
                     last_seen=datetime.datetime.now(), session=1).add()
-        self.dbm.commit()
+        DatabaseManager.commit()
 
         self.assertNotEquals(User.get_by(id=user.id, single=True), None)
 
@@ -58,21 +57,20 @@ class UserUnittest(unittest.TestCase):
 
 class SchemaUnittest(unittest.TestCase):
     def setUp(self):
-        self.dbm = DatabaseManager()
-        self.dbm.connect()
+        DatabaseManager.connect()
 
     def tearDown(self):
-        self.dbm.disconnect()
+        DatabaseManager.disconnect()
 
     def test_schema(self):
         """Test database schema and make sure all the tables can be created
         without problems."""
-        self.dbm.reset()
-        self.dbm.commit()
+        DatabaseManager.reset()
+        DatabaseManager.commit()
 
     def test_schema_sanity(self):
         """Populate data into all tables and make sure there are no error."""
-        self.dbm.reset()
+        DatabaseManager.reset()
 
         account = Account(name=u'Test Account', username='test',
                           email='test@test.com', passwd='test_hashed').add()
@@ -95,7 +93,7 @@ class SchemaUnittest(unittest.TestCase):
 
         account.oauth_infos.append(oauth1)
         account.oauth_infos.append(oauth2)
-        self.dbm.commit()
+        DatabaseManager.commit()
 
         account_ = Account.get_by(id=account.id, single=True)
         self.assertNotEquals(account_, None)
@@ -110,7 +108,7 @@ class SchemaUnittest(unittest.TestCase):
         # Test for bot
         account.bots.append(bot)
 
-        self.dbm.commit()
+        DatabaseManager.commit()
 
         self.assertNotEquals(Account.get_by(id=account.id, single=True), None)
         self.assertNotEquals(Bot.get_by(id=bot.id, single=True), None)
@@ -126,7 +124,7 @@ class SchemaUnittest(unittest.TestCase):
         platform = Platform(bot_id=bot.id, type_enum=PlatformTypeEnum.Facebook,
                             provider_ident='facebook_page_id',
                             config={}).add()
-        self.dbm.commit()
+        DatabaseManager.commit()
 
         self.assertNotEquals(Platform.get_by(id=platform.id, single=True),
                              None)
@@ -147,7 +145,7 @@ class SchemaUnittest(unittest.TestCase):
 
         bot.orphan_nodes.append(node3)
 
-        self.dbm.commit()
+        DatabaseManager.commit()
 
         self.assertNotEquals(Node.get_by(id=node1.id, single=True), None)
         self.assertNotEquals(Node.get_by(id=node2.id, single=True), None)
@@ -163,7 +161,7 @@ class SchemaUnittest(unittest.TestCase):
                      end_node_id=node1.id, action_ident='action1',
                      ack_message=u'').add()
 
-        self.dbm.commit()
+        DatabaseManager.commit()
 
         self.assertNotEquals(Linkage.get_by(id=l1.id, single=True), None)
         self.assertNotEquals(Linkage.get_by(id=l1.id, single=True), None)
@@ -174,24 +172,24 @@ class SchemaUnittest(unittest.TestCase):
         self.assertEquals(len(node2.linkages), 1)
         self.assertEquals(node2.linkages[0].id, l2.id)
 
-        self.dbm.commit()
+        DatabaseManager.commit()
 
         user = User(bot_id=bot.id, platform_id=platform.id,
                     platform_user_ident='',
                     last_seen=datetime.datetime.now()).add()
-        self.dbm.commit()
+        DatabaseManager.commit()
 
         self.assertNotEquals(User.get_by(id=user.id, single=True), None)
 
         event = Event(bot_id=bot.id, user_id=user.id, event_name='event',
                       event_value={}).add()
-        self.dbm.commit()
+        DatabaseManager.commit()
 
         self.assertNotEquals(Event.get_by(id=event.id, single=True), None)
 
         collected_datum = ColletedDatum(user_id=user.id,
                                         key='key', value={}).add()
-        self.dbm.commit()
+        DatabaseManager.commit()
 
         self.assertNotEquals(ColletedDatum.get_by(id=collected_datum.id,
                                                   single=True), None)
@@ -200,7 +198,7 @@ class SchemaUnittest(unittest.TestCase):
 
         conversation = Conversation(bot_id=bot.id, user_id=user.id,
                                     sender_enum=SenderEnum.Bot, msg={}).add()
-        self.dbm.commit()
+        DatabaseManager.commit()
         self.assertNotEquals(Conversation.get_by(id=conversation.id,
                                                  single=True), None)
 
@@ -208,7 +206,7 @@ class SchemaUnittest(unittest.TestCase):
         bc = Broadcast(message={},
                        scheduled_time=datetime.datetime.utcnow()).add()
 
-        self.dbm.commit()
+        DatabaseManager.commit()
         self.assertNotEquals(Broadcast.get_by(id=bc.id, single=True), None)
 
         # PublicFeed, Feed
@@ -225,7 +223,7 @@ class SchemaUnittest(unittest.TestCase):
         account.feeds.append(feed2)
         account.feeds.append(feed3)
 
-        self.dbm.commit()
+        DatabaseManager.commit()
         self.assertNotEquals(Feed.get_by(id=feed1.id, single=True), None)
 
         feeds = Feed.search_title('ba')
@@ -235,7 +233,7 @@ class SchemaUnittest(unittest.TestCase):
                            title=u'example.com',
                            image_url='example.com/logo').add()
 
-        self.dbm.commit()
+        DatabaseManager.commit()
         self.assertNotEquals(PublicFeed.get_by(id=pfeed.id, single=True), None)
 
     def test_timestamp_update(self):
@@ -258,7 +256,7 @@ class SchemaUnittest(unittest.TestCase):
 
     def test_Bot_API(self):
         """Test Bot model APIs."""
-        self.dbm.reset()
+        DatabaseManager.reset()
 
         bots = reset_and_setup_bots(['test/simple.bot', 'test/postback.bot'])
         bot1 = bots[0]
@@ -294,15 +292,15 @@ class SchemaUnittest(unittest.TestCase):
             bot1.delete()
 
         user.delete()
-        self.dbm.commit()
+        DatabaseManager.commit()
 
         bot1_id = bot1.id
         bot1.delete()
-        self.dbm.commit()
+        DatabaseManager.commit()
         self.assertEquals(Bot.get_by(id=bot1_id, single=True), None)
 
     def test_json_serializer(self):
-        self.dbm.reset()
+        DatabaseManager.reset()
         account = Account(name=u'tester', username='test1',
                           email='test@test.com')
 
@@ -318,14 +316,14 @@ class SchemaUnittest(unittest.TestCase):
         self.assertEquals(d['email'], 'test@test.com')
 
     def test_auth(self):
-        self.dbm.reset()
+        DatabaseManager.reset()
         account = Account(name=u'Test Account 3', username='test3',
                           email='test3@test.com').add()
 
         some_passwd = 'abcdefg'
         account.set_passwd(some_passwd)
 
-        self.dbm.commit()
+        DatabaseManager.commit()
         account_ = Account.get_by(id=account.id, single=True)
         self.assertNotEquals(account_.passwd, some_passwd)
         self.assertEquals(account_.verify_passwd(some_passwd), True)
