@@ -97,6 +97,7 @@ def EventPayload(key, value, send_to_current_node=True):
 
 
 def GetUserId():
+    """Get User ID."""
     return g.user.id
 
 
@@ -106,6 +107,7 @@ def GetUserTime():
 
 
 def GetgRPCService(name):
+    """Get third-party app gRPC service."""
     hostname = config.APP_HOSTNAME_MAP.get(name, None)
     if hostname is None:
         raise RuntimeError('unknown service `%s\'' % name)

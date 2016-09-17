@@ -282,6 +282,10 @@ class ModelMixin(object):
         DatabaseManager.db().merge(self)
         return self
 
+    def has_session(self):
+        """Return the session associated with the object."""
+        return object_session(self) is not None
+
 
 class JSONSerializableMixin(object):
     """Add Mixin that provide JSON serialization.
