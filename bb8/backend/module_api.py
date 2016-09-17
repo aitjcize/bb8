@@ -20,7 +20,7 @@ from bb8.backend.message import Message, Render, Resolve, IsVariable
 
 
 CONFIG = {
-    'HTTP_ROOT': 'https://%s:%d/' % (config.HOSTNAME, config.PORT)
+    'HTTP_ROOT': 'https://%s:%d/' % (config.HOSTNAME, config.HTTP_PORT)
 }
 
 

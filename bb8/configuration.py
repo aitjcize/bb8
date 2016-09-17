@@ -36,7 +36,7 @@ class Config(object):
 
     # Server
     HOSTNAME = 'bot.azhuang.me'
-    PORT = int(os.getenv('HTTP_PORT', 7000))
+    HTTP_PORT = int(os.getenv('HTTP_PORT', 7000))
 
     # Ports
     APP_API_SERVICE_PORT = 62629
@@ -95,7 +95,6 @@ class DeployConfig(DevelopmentConfig):
 
     # Server
     HOSTNAME = 'bot.compose.ai'
-    PORT = 5000
 
     # Third-Party apps hostname map
     APP_HOSTNAME_MAP = {

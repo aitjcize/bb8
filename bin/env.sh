@@ -16,6 +16,10 @@ export REDIS_PORT=6379
 
 # Per-User port config for users testing on same machine
 case $USER in
+  deploy)
+    export BB8_DEPLOY=true
+    export HTTP_PORT=5000
+    ;;
   aitjcize)
     export MYSQL_PORT=3307
     export REDIS_PORT=6380

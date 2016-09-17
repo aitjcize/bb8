@@ -98,8 +98,8 @@ clean:
 
 test-deploy:
 	@BB8_DEPLOY=false \
-	 DATABASE=mysql+pymysql://bb8:bb8test@172.17.0.1:3307/bb8?charset=utf8mb4 \
-	 HTTP_PORT=5000 bb8ctl start -f
+	 DATABASE=mysql+pymysql://bb8:bb8test@172.17.0.1:$$MYSQL_PORT/bb8?charset=utf8mb4 \
+	 bb8ctl start -f
 
 deploy:
-	@BB8_DEPLOY=true bb8ctl start
+	@BB8_DEPLOY=true HTTP_PORT=5000 bb8ctl start

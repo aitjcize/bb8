@@ -11,9 +11,7 @@ import os
 
 
 class Config(object):
-    DATABASE = os.getenv('DATABASE',
-                         'mysql+pymysql://bb8:bb8test'
-                         '@172.17.0.1:3307/bb8?charset=utf8mb4')
+    DATABASE = os.getenv('DATABASE', '')
     N_THREADS = 8
     ENABLE_CRAWLER = True
 
