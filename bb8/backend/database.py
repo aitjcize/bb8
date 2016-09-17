@@ -21,6 +21,7 @@ from sqlalchemy import (Boolean, Column, DateTime, Enum, ForeignKey, Integer,
                         PickleType, Table, Text, String, Unicode, UnicodeText)
 from sqlalchemy.orm import relationship, deferred
 from sqlalchemy.schema import UniqueConstraint
+from sqlalchemy.ext.mutable import MutableDict
 
 from bb8 import config
 
@@ -193,6 +194,10 @@ class User(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     timezone = Column(Integer, nullable=True)
 
     session = Column(SessionRecord.as_mutable(PickleType), nullable=True)
+    memory = Column(MutableDict.as_mutable(PickleType), nullable=False,
+                    default={})
+    settings = Column(MutableDict.as_mutable(PickleType), nullable=False,
+                      default={})
 
     platform = relationship('Platform')
     colleted_data = relationship('ColletedDatum')
