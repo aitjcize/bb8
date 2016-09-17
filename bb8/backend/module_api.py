@@ -119,3 +119,33 @@ def GetgRPCService(name):
         raise RuntimeError('no gRPC module available for `%s\'' % name)
 
     return module, (hostname, config.APP_GRPC_SERVICE_PORT)
+
+
+class Memory(object):
+    """API wrapper for User.memory dictionary."""
+    @classmethod
+    def Get(cls, key):
+        return g.user.memory.get(key, None)
+
+    @classmethod
+    def Set(cls, key, value):
+        g.user.memory[key] = value
+
+    @classmethod
+    def Clear(cls):
+        return g.user.memory.clear()
+
+
+class Settings(object):
+    """API wrapper for User.settings dictionary."""
+    @classmethod
+    def Get(cls, key):
+        return g.user.settings.get(key, None)
+
+    @classmethod
+    def Set(cls, key, value):
+        g.user.settings[key] = value
+
+    @classmethod
+    def Clear(cls):
+        return g.user.settings.clear()
