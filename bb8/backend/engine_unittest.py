@@ -198,6 +198,49 @@ class EngineUnittest(unittest.TestCase):
         self.assertEquals(self.user.session.node_id, get_node_id('option1'))
         self.assertEquals(self.user.session.message_sent, True)
 
+    def test_memory_settings(self):
+        self.setup_prerequisite('test/memory_settings.bot')
+
+        engine = Engine()
+
+        def get_node_id(name):
+            return Node.get_by(name=unicode(name), single=True).id
+
+        engine.step(self.bot, self.user)  # start display
+        self.assertEquals(self.user.session.node_id, get_node_id('root'))
+
+        # We should now be in root node
+        engine.step(self.bot, self.user)  # root display
+        self.assertEquals(self.user.session.message_sent, True)
+
+        engine.step(self.bot, self.user, UserInput.Text('memory_set'))
+        engine.step(self.bot, self.user)
+        # We should be now in memory_get
+        sent_msg = self.send_message_mock.call_args[0][1][0]
+        self.assertEquals(sent_msg.as_dict()['text'], 'abc')
+
+        # Goto memory_clear
+        engine.step(self.bot, self.user)
+        self.assertEquals(self.user.session.node_id,
+                          get_node_id('memory_clear'))
+        self.assertEquals(len(self.user.memory), 0)
+
+        # Now in root
+        engine.step(self.bot, self.user)
+        self.assertEquals(self.user.session.node_id, get_node_id('root'))
+
+        engine.step(self.bot, self.user, UserInput.Text('settings_set'))
+        engine.step(self.bot, self.user)
+        # We should be now in settings_get
+        sent_msg = self.send_message_mock.call_args[0][1][0]
+        self.assertEquals(sent_msg.as_dict()['text'], 'def')
+
+        # Goto settings_clear
+        engine.step(self.bot, self.user)
+        self.assertEquals(self.user.session.node_id,
+                          get_node_id('settings_clear'))
+        self.assertEquals(len(self.user.settings), 0)
+
 
 if __name__ == '__main__':
     with app.test_request_context():
