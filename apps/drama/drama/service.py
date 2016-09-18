@@ -17,7 +17,7 @@ from concurrent import futures
 from sqlalchemy import desc
 
 import service_pb2  # pylint: disable=E0401
-from drama.database import (DatabaseSession, Drama,
+from drama.database import (DatabaseManager, DatabaseSession, Drama,
                             DramaCountryEnum, User)
 
 from drama import config
@@ -52,7 +52,7 @@ class DramaInfo(object):
             user = User.get_or_create(id=user_id)
             drama = Drama.get_by(id=drama_id, single=True)
             user.subscribed_dramas.append(drama)
-            User.commit()
+            DatabaseManager.commit()
 
     @classmethod
     def Search(cls, unused_user_id, term, count=10):
