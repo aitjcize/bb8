@@ -54,7 +54,7 @@ class Config(object):
         'system':   'localhost',
         'youbike':  'localhost',
         'content':  'localhost',
-        'drama':    '172.18.0.2',
+        'drama':    'localhost',
     }
 
     # Messaging provider config

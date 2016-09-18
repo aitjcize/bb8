@@ -4,6 +4,9 @@
   "version": "0.1",
   "resource": {
     "cpu": "medium",
-    "memory": 256
+    "memory": 256,
+    "volumes": [
+      ["/cloudsql", "/cloudsql"]
+    ]
   }
 }

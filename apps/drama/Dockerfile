@@ -23,7 +23,6 @@ RUN mkdir -p /cloudsql
 
 # Environment variables
 ENV PYTHONPATH=/opt/app
-ENV GOOGLE_APPLICATION_CREDENTIALS=/opt/app/compose-ai.json
 
 EXPOSE 9999
 CMD ["/usr/bin/supervisord"]
