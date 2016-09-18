@@ -182,6 +182,20 @@ class ModelMixin(object):
         return query_object.all()
 
     @classmethod
+    def get_or_create(cls, **kwargs):
+        """Create if not exist, otherwise returns the instance"""
+        instance = cls.get_by(single=True, **kwargs)
+        if not instance:
+            try:
+                instance = cls(**kwargs).add()
+                cls.flush()
+                return instance
+            except IntegrityError:
+                DatabaseManager.rollback()
+                return cls.get_by(single=True, **kwargs)
+        return instance
+
+    @classmethod
     def get_by(cls, eager=None, order_by=None, offset=0, limit=0,
                single=False, lock=False, query=False, **kwargs):
         """Get item by kwargs."""

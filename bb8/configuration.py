@@ -54,6 +54,7 @@ class Config(object):
         'system':   'localhost',
         'youbike':  'localhost',
         'content':  'localhost',
+        'drama':    '172.18.0.2',
     }
 
     # Messaging provider config
@@ -101,6 +102,7 @@ class DeployConfig(DevelopmentConfig):
         'system':   'bb8.app.system',
         'youbike':  'bb8.app.youbike',
         'content':  'bb8.app.content',
+        'drama':    'bb8.app.drama',
     }
 
     class CeleryConfig(DevelopmentConfig.CeleryConfig):
