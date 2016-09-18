@@ -103,7 +103,7 @@ class App(object):
     BB8_APP_PREFIX = 'bb8.app'
     SCHEMA = get_manifest_schema()
 
-    VOLUME_PRIVILEGE_WHITELIST = ['system', 'content']
+    VOLUME_PRIVILEGE_WHITELIST = ['system', 'content', 'drama']
 
     def __init__(self, app_dir):
         self._app_dir = app_dir
@@ -207,8 +207,8 @@ class App(object):
                 # BB8 system app.
                 if ((target.startswith('/') or target.startswith('.')) and
                         self._app_name not in self.VOLUME_PRIVILEGE_WHITELIST):
-                    logger.info('%s: invalid volume `%s\' detected, abort.',
-                                self._app_name, target)
+                    logger.error('%s: invalid volume `%s\' detected, abort.',
+                                 self._app_name, target)
                     return
 
                 volumes.append('-v %s:%s' %
