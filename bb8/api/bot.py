@@ -12,7 +12,7 @@ from bb8 import app, AppError
 from bb8.constant import HTTPStatus, CustomError
 from bb8.api.forms import CreateBotForm
 from bb8.api.middlewares import login_required
-from bb8.backend.database import Bot
+from bb8.backend.database import Bot, DatabaseManager
 
 
 @app.route('/bots', methods=['POST'])
@@ -22,7 +22,7 @@ def create_bot():
     if form.validate_on_submit():
         bot = Bot(**form.data)
         g.account.bots.append(bot)
-        Bot.commit()
+        DatabaseManager.commit()
         return jsonify(bot.to_json())
     raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
                    CustomError.ERR_FORM_VALIDATION,

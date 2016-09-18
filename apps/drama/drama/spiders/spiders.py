@@ -70,7 +70,7 @@ class DramaSpider(CrawlSpider):
         meta = self.parse_drama_meta(response)
         try:
             drama = Drama(link=unicode(base), **meta).add()
-            Drama.commit()
+            DatabaseManager.commit()
         except (IntegrityError, InvalidRequestError):
             DatabaseManager.rollback()
             drama = Drama.get_by(name=meta['name'], single=True)

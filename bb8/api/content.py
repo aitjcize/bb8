@@ -13,7 +13,7 @@ from bb8.constant import HTTPStatus, CustomError
 from bb8.api.middlewares import login_required
 from bb8.api.forms import CreateFeedForm
 from bb8.api.util import validate_uint
-from bb8.backend.database import Feed
+from bb8.backend.database import DatabaseManager, Feed
 
 
 @app.route('/public_feeds', methods=['GET'])
@@ -34,7 +34,7 @@ def create_feed():
     if form.validate_on_submit():
         feed = Feed(**form.data).add()
         g.account.feeds.append(feed)
-        Feed.commit()
+        DatabaseManager.commit()
         return jsonify(feed=feed.to_json())
     raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
                    CustomError.ERR_FORM_VALIDATION,

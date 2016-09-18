@@ -34,7 +34,7 @@ class SQLPipeline(object):
         with DatabaseSession():
             try:
                 entry = Entry(**item_dict).add()
-                entry.commit()
+                DatabaseManager.commit()
 
                 item['link_hash'] = entry.link_hash
             except IntegrityError:
