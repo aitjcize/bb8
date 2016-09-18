@@ -18,7 +18,7 @@ from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 
 from drama import keywords
-from drama.database import Initialize, Drama
+from drama.database import DatabaseManager, Initialize, Drama
 from drama.spiders import DramaSpider
 from drama.spiders.config import spider_configs
 
@@ -38,7 +38,7 @@ def crawl():
                 drama = Drama.get_by(link=link, single=True)
                 if drama:
                     drama.order = order
-        Drama.commit()
+        DatabaseManager.commit()
 
     except Exception:
         logging.exception('Crawler: exception, skipped')

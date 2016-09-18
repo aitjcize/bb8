@@ -241,7 +241,6 @@ class Node(DeclarativeBase, ModelMixin):
                     end_node_id=end_node_id,
                     action_ident=link.action_ident,
                     ack_message=link.ack_message).add()
-        self.commit()
 
 
 class Platform(DeclarativeBase, ModelMixin):

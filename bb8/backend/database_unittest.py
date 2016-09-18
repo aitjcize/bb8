@@ -49,7 +49,7 @@ class UserUnittest(unittest.TestCase):
 
         s = User.get_by(id=user.id, single=True)
         s.session.message_sent = True
-        s.commit()
+        DatabaseManager.commit()
 
         s = User.get_by(id=user.id, single=True)
         self.assertEquals(s.session.message_sent, True)
@@ -241,7 +241,7 @@ class SchemaUnittest(unittest.TestCase):
         commit."""
         account = Account(username=u'user', email='test@test.com',
                           passwd='test_hashed').add()
-        account.commit()
+        DatabaseManager.commit()
 
         account.refresh()
         self.assertEquals(account.created_at, account.updated_at)
@@ -249,7 +249,7 @@ class SchemaUnittest(unittest.TestCase):
 
         time.sleep(1)
         account.username = 'user2'
-        account.commit()
+        DatabaseManager.commit()
 
         account.refresh()
         self.assertNotEquals(last_updated, account.updated_at)
@@ -278,6 +278,7 @@ class SchemaUnittest(unittest.TestCase):
 
         # Test bot reconstruction
         parse_bot(get_bot_filename('test/simple.bot'), bot1.id)
+        DatabaseManager.commit()
 
         self.assertNotEquals(bot1.nodes, [])
         self.assertNotEquals(bot1.linkages, [])
