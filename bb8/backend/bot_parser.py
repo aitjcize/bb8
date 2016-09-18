@@ -18,8 +18,8 @@ import jsonschema
 
 from bb8 import config, logger
 from bb8.backend.messaging import get_messaging_provider
-from bb8.backend.database import (Bot, ContentModule, Node, Platform,
-                                  PlatformTypeEnum)
+from bb8.backend.database import (DatabaseManager, Bot, ContentModule, Node,
+                                  Platform, PlatformTypeEnum)
 
 
 def get_bots_dir():
@@ -95,7 +95,7 @@ def parse_bot(filename, to_bot_id=None):
         bot.admin_interaction_timeout = bot_desc['admin_interaction_timeout']
         bot.session_timeout = bot_desc['session_timeout']
         bot.ga_id = bot_desc.get('ga_id', None)
-        bot.flush()
+        DatabaseManager.flush()
     else:  # Create a new bot
         logger.info('Creating new bot from %s ...', filename)
         bot = Bot(
@@ -105,7 +105,7 @@ def parse_bot(filename, to_bot_id=None):
             admin_interaction_timeout=bot_desc['admin_interaction_timeout'],
             session_timeout=bot_desc['session_timeout'],
             ga_id=bot_desc.get('ga_id', None)).add()
-        bot.flush()
+        DatabaseManager.flush()
 
         for platform_desc in bot_json['platforms']:
             ptype = PlatformTypeEnum(platform_desc['type_enum'])
@@ -151,7 +151,7 @@ def parse_bot(filename, to_bot_id=None):
         if 'parser_module' in node:
             n.parser_module_id = node['parser_module']['id']
 
-        n.flush()
+        DatabaseManager.flush()
         name_id_map[name] = n.id
 
     # Set bot start, root node
@@ -185,7 +185,7 @@ def parse_bot(filename, to_bot_id=None):
 
             n.build_linkages(pm.get_linkages(n.parser_config))
 
-    bot.flush()
+    DatabaseManager.flush()
     return bot
 
 

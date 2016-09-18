@@ -12,7 +12,8 @@ from flask import request, g
 
 from bb8 import config, app, logger
 from bb8.tracking import track, TrackingInfo
-from bb8.backend.database import User, Platform, PlatformTypeEnum
+from bb8.backend.database import (DatabaseManager, User, Platform,
+                                  PlatformTypeEnum)
 from bb8.backend.engine import Engine
 from bb8.backend.messaging import get_user_profile
 from bb8.backend.metadata import UserInput
@@ -25,7 +26,7 @@ def add_user(bot, platform, sender):
                 platform_user_ident=sender,
                 last_seen=datetime.datetime.now(),
                 **profile_info).add()
-    user.commit()
+    DatabaseManager.commit()
 
     track(TrackingInfo.Event(sender, '%s.User' % platform.type_enum.value,
                              'Add', profile_info['first_name']))

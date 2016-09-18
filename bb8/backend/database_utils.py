@@ -160,14 +160,6 @@ class ModelMixin(object):
         return [m.key for m in cls.__table__.columns]
 
     @classmethod
-    def commit(cls):
-        DatabaseManager.commit()
-
-    @classmethod
-    def flush(cls):
-        DatabaseManager.flush()
-
-    @classmethod
     def query(cls, *args):
         """Short hand for query."""
         if args:
