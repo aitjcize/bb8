@@ -252,4 +252,4 @@ class Engine(object):
             if bot.admin_interaction_timeout > 0:
                 user.last_admin_seen = datetime.datetime.now()
         finally:
-            user.commit()
+            DatabaseManager.commit()

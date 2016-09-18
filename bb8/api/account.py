@@ -12,7 +12,7 @@ from bb8 import app, AppError
 from bb8.constant import HTTPStatus, CustomError, Key
 from bb8.api.forms import RegistrationForm, SocialRegistrationForm, LoginForm
 from bb8.api.middlewares import login_required
-from bb8.backend.database import Account
+from bb8.backend.database import Account, DatabaseManager
 
 
 @app.route('/email_register', methods=['POST'])
@@ -28,7 +28,7 @@ def email_register():
             account = Account(**user_info) \
                         .set_passwd(form.data['passwd']) \
                         .add()
-            Account.commit()
+            DatabaseManager.commit()
         else:
             raise AppError(
                 HTTPStatus.STATUS_CLIENT_ERROR,
