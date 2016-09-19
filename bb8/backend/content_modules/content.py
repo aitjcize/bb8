@@ -21,7 +21,7 @@ DEFAULT_N_ITEMS = 7
 
 def get_module_info():
     return {
-        'id': 'ai.compose.core.content',
+        'id': 'ai.compose.content.core.content',
         'name': 'Content',
         'description': '',
         'supported_platform': SupportedPlatform.All,

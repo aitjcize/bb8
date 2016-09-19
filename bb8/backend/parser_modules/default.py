@@ -15,7 +15,7 @@ from bb8.backend.module_api import LinkageItem, SupportedPlatform
 
 def get_module_info():
     return {
-        'id': 'ai.compose.core.default',
+        'id': 'ai.compose.parser.core.default',
         'name': 'Default',
         'description': 'A rule-based parser that accepts keyword, '
                        'location, sticker, etc',

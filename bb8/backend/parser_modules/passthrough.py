@@ -13,7 +13,7 @@ from bb8.backend.module_api import LinkageItem, SupportedPlatform
 
 def get_module_info():
     return {
-        'id': 'ai.compose.core.passthrough',
+        'id': 'ai.compose.parser.core.passthrough',
         'name': 'Passthrough',
         'description': 'Passthrough to the next node without any response.',
         'supported_platform': SupportedPlatform.All,

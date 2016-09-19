@@ -21,13 +21,13 @@
         "description": "start",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.core.text_message",
+          "id": "ai.compose.content.core.text_message",
           "config": {
             "text": "In start"
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.passthrough",
+          "id": "ai.compose.parser.core.passthrough",
           "config": {
             "end_node_id": "[[root]]",
             "ack_message": "Goto root"
@@ -39,13 +39,13 @@
         "description": "root",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.core.text_message",
+          "id": "ai.compose.content.core.text_message",
           "config": {
             "text": "In root"
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.default",
+          "id": "ai.compose.parser.core.default",
           "config": {
             "links": [
               {
@@ -81,7 +81,7 @@
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.default",
+          "id": "ai.compose.parser.core.default",
           "config": {
             "links": [
               {
@@ -113,7 +113,7 @@
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.passthrough",
+          "id": "ai.compose.parser.core.passthrough",
           "config": {
             "end_node_id": "[[root]]",
             "ack_message": "Goto root"

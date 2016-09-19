@@ -44,7 +44,7 @@
         "description": "Greet user",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.core.generic_message",
+          "id": "ai.compose.content.core.generic_message",
           "config": {
             "messages": [
               {
@@ -54,7 +54,7 @@
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.passthrough",
+          "id": "ai.compose.parser.core.passthrough",
           "config": {
             "end_node_id": "[[root]]",
             "ack_message": ""
@@ -66,7 +66,7 @@
         "description": "Subscribe drama",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.third_party.drama",
+          "id": "ai.compose.content.third_party.drama",
           "config": {
             "mode": "subscribe"
           }
@@ -77,7 +77,7 @@
         "description": "Trending Korea Drama",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.third_party.drama",
+          "id": "ai.compose.content.third_party.drama",
           "config": {
             "mode": "trending_kr",
             "count": 10
@@ -89,7 +89,7 @@
         "description": "Trending Japan Drama",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.third_party.drama",
+          "id": "ai.compose.content.third_party.drama",
           "config": {
             "mode": "trending_jp",
             "count": 10
@@ -101,7 +101,7 @@
         "description": "Trending Taiwan Drama",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.third_party.drama",
+          "id": "ai.compose.content.third_party.drama",
           "config": {
             "mode": "trending_tw",
             "count": 10
@@ -113,7 +113,7 @@
         "description": "Trending China Drama",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.third_party.drama",
+          "id": "ai.compose.content.third_party.drama",
           "config": {
             "mode": "trending_cn",
             "count": 10
@@ -125,13 +125,13 @@
         "description": "Root node, show usage",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.third_party.drama",
+          "id": "ai.compose.content.third_party.drama",
           "config": {
             "mode": "default"
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.default",
+          "id": "ai.compose.parser.core.default",
           "config": {
             "links": [
               {
@@ -227,7 +227,7 @@
         "description": "Thank user",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.core.text_message",
+          "id": "ai.compose.content.core.text_message",
           "config": {
             "text": [
               "感謝你的支持, 請幫我們的粉絲頁按讚喔! https://goo.gl/OPcdus",
@@ -241,7 +241,7 @@
         "description": "",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.core.generic_message",
+          "id": "ai.compose.content.core.generic_message",
           "config": {
             "messages": [
                 {
@@ -251,7 +251,7 @@
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.passthrough",
+          "id": "ai.compose.parser.core.passthrough",
           "config": {
             "end_node_id": "[[root]]",
             "ack_message": ""

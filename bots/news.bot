@@ -45,7 +45,7 @@
         "description": "Greet user",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.core.generic_message",
+          "id": "ai.compose.content.core.generic_message",
           "config": {
             "messages": [
               {
@@ -55,7 +55,7 @@
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.passthrough",
+          "id": "ai.compose.parser.core.passthrough",
           "config": {
             "end_node_id": "[[root]]",
             "ack_message": ""
@@ -67,13 +67,13 @@
         "description": "Root node, show usage",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.core.content",
+          "id": "ai.compose.content.core.content",
           "config": {
             "mode": "prompt"
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.default",
+          "id": "ai.compose.parser.core.default",
           "config": {
             "links": [
               {
@@ -222,7 +222,7 @@
         "description": "Get content by source name",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.core.content",
+          "id": "ai.compose.content.core.content",
           "config": {
             "mode": "list_by_source",
             "query_term": "{{matches#0}}"
@@ -234,7 +234,7 @@
         "description": "Search node, search news",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.core.content",
+          "id": "ai.compose.content.core.content",
           "config": {
             "mode": "search",
             "query_term": "{{matches#0,text}}"
@@ -246,7 +246,7 @@
         "description": "Provide some trending news",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.core.content",
+          "id": "ai.compose.content.core.content",
           "config": {
             "mode": "trending",
             "count": 5
@@ -258,7 +258,7 @@
         "description": "Get news detail content",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.core.content",
+          "id": "ai.compose.content.core.content",
           "config": {
             "mode": "get_content",
             "limit": 250,
@@ -271,7 +271,7 @@
         "description": "Provide some recommended news",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.core.content",
+          "id": "ai.compose.content.core.content",
           "config": {
             "mode": "recommend",
             "count": 5
@@ -283,13 +283,13 @@
         "description": "search with out term, prompt for term",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.core.text_message",
+          "id": "ai.compose.content.core.text_message",
           "config": {
             "text": "你想要找什麼樣的主題呢？"
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.default",
+          "id": "ai.compose.parser.core.default",
           "config": {
             "links": [
               {
@@ -311,7 +311,7 @@
         "description": "Thank user",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.core.text_message",
+          "id": "ai.compose.content.core.text_message",
           "config": {
             "text": [
               "感謝你的支持, 請幫我們的粉絲頁按讚喔! https://goo.gl/OPcdus",
@@ -325,13 +325,13 @@
         "description": "Feedback without content, guide user to input feedback",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.core.text_message",
+          "id": "ai.compose.content.core.text_message",
           "config": {
             "text": "你覺得我們可以怎麼樣改善呢？"
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.default",
+          "id": "ai.compose.parser.core.default",
           "config": {
             "links": [
               {
@@ -353,7 +353,7 @@
         "description": "",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.core.generic_message",
+          "id": "ai.compose.content.core.generic_message",
           "config": {
             "messages": [
                 {
@@ -363,7 +363,7 @@
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.passthrough",
+          "id": "ai.compose.parser.core.passthrough",
           "config": {
             "end_node_id": "[[root]]",
             "ack_message": ""
