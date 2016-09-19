@@ -11,7 +11,7 @@ from bb8.backend.module_api import Message, SupportedPlatform
 
 def get_module_info():
     return {
-        'id': 'ai.compose.core.generic_message',
+        'id': 'ai.compose.content.core.generic_message',
         'name': 'Generic message',
         'description': 'Show generic message',
         'supported_platform': SupportedPlatform.All,

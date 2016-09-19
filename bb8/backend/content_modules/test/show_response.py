@@ -11,7 +11,7 @@ from bb8.backend.module_api import Message, Resolve, SupportedPlatform
 
 def get_module_info():
     return {
-        'id': 'ai.compose.test.show_response',
+        'id': 'ai.compose.content.test.show_response',
         'name': 'show response',
         'description': 'show response',
         'supported_platform': SupportedPlatform.All,

@@ -11,7 +11,7 @@ from bb8.backend.module_api import SupportedPlatform
 
 def get_module_info():
     return {
-        'id': 'ai.compose.core.noop',
+        'id': 'ai.compose.content.core.noop',
         'name': 'No operation',
         'description': 'Do nothing',
         'supported_platform': SupportedPlatform.All,

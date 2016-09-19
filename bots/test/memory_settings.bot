@@ -21,13 +21,13 @@
         "description": "start",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.core.text_message",
+          "id": "ai.compose.content.core.text_message",
           "config": {
             "text": "In start"
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.passthrough",
+          "id": "ai.compose.parser.core.passthrough",
           "config": {
             "end_node_id": "[[root]]",
             "ack_message": "Goto root"
@@ -39,13 +39,13 @@
         "description": "root",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.core.text_message",
+          "id": "ai.compose.content.core.text_message",
           "config": {
             "text": "In root"
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.default",
+          "id": "ai.compose.parser.core.default",
           "config": {
             "links": [
               {
@@ -75,7 +75,7 @@
         "description": "memory_set",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.test.memory_settings",
+          "id": "ai.compose.content.test.memory_settings",
           "config": {
             "target": "memory",
             "mode": "set",
@@ -83,7 +83,7 @@
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.passthrough",
+          "id": "ai.compose.parser.core.passthrough",
           "config": {
             "end_node_id": "[[memory_get]]",
             "ack_message": "Goto get"
@@ -95,14 +95,14 @@
         "description": "memory_get",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.test.memory_settings",
+          "id": "ai.compose.content.test.memory_settings",
           "config": {
             "target": "memory",
             "mode": "get"
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.passthrough",
+          "id": "ai.compose.parser.core.passthrough",
           "config": {
             "end_node_id": "[[memory_clear]]",
             "ack_message": "Goto memory_clear"
@@ -114,14 +114,14 @@
         "description": "memory_clear",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.test.memory_settings",
+          "id": "ai.compose.content.test.memory_settings",
           "config": {
             "target": "memory",
             "mode": "clear"
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.passthrough",
+          "id": "ai.compose.parser.core.passthrough",
           "config": {
             "end_node_id": "[[root]]",
             "ack_message": "Goto root"
@@ -133,7 +133,7 @@
         "description": "settings_set",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.test.memory_settings",
+          "id": "ai.compose.content.test.memory_settings",
           "config": {
             "target": "settings",
             "mode": "set",
@@ -141,7 +141,7 @@
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.passthrough",
+          "id": "ai.compose.parser.core.passthrough",
           "config": {
             "end_node_id": "[[settings_get]]",
             "ack_message": "Goto get"
@@ -153,14 +153,14 @@
         "description": "settings_get",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.test.memory_settings",
+          "id": "ai.compose.content.test.memory_settings",
           "config": {
             "target": "settings",
             "mode": "get"
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.passthrough",
+          "id": "ai.compose.parser.core.passthrough",
           "config": {
             "end_node_id": "[[settings_clear]]",
             "ack_message": "Goto settings_clear"
@@ -172,14 +172,14 @@
         "description": "settings_clear",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.test.memory_settings",
+          "id": "ai.compose.content.test.memory_settings",
           "config": {
             "target": "settings",
             "mode": "clear"
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.passthrough",
+          "id": "ai.compose.parser.core.passthrough",
           "config": {
             "end_node_id": "[[root]]",
             "ack_message": "Goto root"

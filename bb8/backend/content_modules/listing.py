@@ -19,7 +19,7 @@ DEFAULT_TIMEOUT_SECS = 5
 
 def get_module_info():
     return {
-        'id': 'ai.compose.core.listing',
+        'id': 'ai.compose.content.core.listing',
         'name': 'Listing',
         'description': 'List website elements as cards',
         'supported_platform': SupportedPlatform.All,

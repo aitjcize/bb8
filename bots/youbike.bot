@@ -55,7 +55,7 @@
         "description": "Great user",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.core.generic_message",
+          "id": "ai.compose.content.core.generic_message",
           "config": {
             "messages": [
               {
@@ -78,7 +78,7 @@
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.default",
+          "id": "ai.compose.parser.core.default",
           "config": {
             "links": [
               {
@@ -108,7 +108,7 @@
         "description": "Give context about the demo",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.core.generic_message",
+          "id": "ai.compose.content.core.generic_message",
           "config": {
             "messages": {
               "Facebook": [
@@ -147,7 +147,7 @@
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.passthrough",
+          "id": "ai.compose.parser.core.passthrough",
           "config": {
             "end_node_id": "[[youbike_demo_desc2]]",
             "ack_message": ""
@@ -159,13 +159,13 @@
         "description": "Give context about the demo cont",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.core.text_message",
+          "id": "ai.compose.content.core.text_message",
           "config": {
             "text": "比如說，下列就是在 台北101 附近的 Ubike 站："
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.passthrough",
+          "id": "ai.compose.parser.core.passthrough",
           "config": {
             "end_node_id": "[[youbike_demo]]",
             "ack_message": ""
@@ -177,7 +177,7 @@
         "description": "Demo youbike search result",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.third_party.youbike",
+          "id": "ai.compose.content.third_party.youbike",
           "config": {
             "api_key": "AIzaSyAJjjE4BnIS-JAlfC1V77QGvb5kCauUVnc",
             "send_payload_to_current_node": false,
@@ -193,7 +193,7 @@
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.passthrough",
+          "id": "ai.compose.parser.core.passthrough",
           "config": {
             "end_node_id": "[[youbike_demo_postdesc]]",
             "ack_message": ""
@@ -205,13 +205,13 @@
         "description": "More desc after demo",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.core.text_message",
+          "id": "ai.compose.content.core.text_message",
           "config": {
             "text": "注意到上方的卡片是可以左右滑動的。第一張卡片列出所有 Ubike 的位置。接下來的每張卡片依序是由近到遠的 Ubike 站, 每張卡片下方會列出額外的資訊，例如車及空位數量。"
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.passthrough",
+          "id": "ai.compose.parser.core.passthrough",
           "config": {
             "end_node_id": "[[root]]",
             "ack_message": ""
@@ -223,7 +223,7 @@
         "description": "Root node, show usage",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.core.text_message",
+          "id": "ai.compose.content.core.text_message",
           "config": {
             "text": "你想要找哪裡的 Ubike 站呢？",
             "quick_replies": [
@@ -254,7 +254,7 @@
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.default",
+          "id": "ai.compose.parser.core.default",
           "config": {
             "links": [
               {
@@ -461,7 +461,7 @@
         "description": "Show youbike search result",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.third_party.youbike",
+          "id": "ai.compose.content.third_party.youbike",
           "config": {
             "api_key": "AIzaSyAJjjE4BnIS-JAlfC1V77QGvb5kCauUVnc",
             "send_payload_to_current_node": false,
@@ -472,7 +472,7 @@
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.passthrough",
+          "id": "ai.compose.parser.core.passthrough",
           "config": {
             "end_node_id": "[[hint_action]]",
             "ack_message": ""
@@ -484,7 +484,7 @@
         "description": "Intro",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.core.text_message",
+          "id": "ai.compose.content.core.text_message",
           "config": {
             "text": "Hi! 我們是 http://compose.ai"
           }
@@ -495,7 +495,7 @@
         "description": "Prompt user for correct address",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.core.geocoding",
+          "id": "ai.compose.content.core.geocoding",
           "config": {
             "send_payload_to_current_node": false,
             "api_key": "AIzaSyAJjjE4BnIS-JAlfC1V77QGvb5kCauUVnc",
@@ -524,7 +524,7 @@
         "description": "Hint user",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.core.text_message",
+          "id": "ai.compose.content.core.text_message",
           "config": {
             "text": {
               "Facebook": "你可以繼續送出位置查詢，或按「再次查詢」",
@@ -563,7 +563,7 @@
         "description": "Hint user about how to send location",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.core.generic_message",
+          "id": "ai.compose.content.core.generic_message",
           "config": {
             "messages": {
               "Facebook": [
@@ -596,7 +596,7 @@
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.passthrough",
+          "id": "ai.compose.parser.core.passthrough",
           "config": {
             "end_node_id": "[[root]]",
             "ack_message": ""
@@ -608,7 +608,7 @@
         "description": "Thank user",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.core.text_message",
+          "id": "ai.compose.content.core.text_message",
           "config": {
             "text": [
               "感謝你的支持, 請幫我們的粉絲頁按讚喔! https://goo.gl/wja6Rz",
@@ -643,13 +643,13 @@
         "description": "Feedback without content, guide user to input feedback",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.core.text_message",
+          "id": "ai.compose.content.core.text_message",
           "config": {
             "text": "你覺得我們可以怎麼樣改善呢？"
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.default",
+          "id": "ai.compose.parser.core.default",
           "config": {
             "links": [
               {
