@@ -20,7 +20,7 @@ DEFAULT_N_ITEMS = 7
 
 def get_module_info():
     return {
-        'id': 'ai.compose.third_party.drama',
+        'id': 'ai.compose.content.third_party.drama',
         'name': 'drama',
         'description': 'Drama service',
         'supported_platform': SupportedPlatform.All,

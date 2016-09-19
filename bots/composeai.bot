@@ -35,7 +35,7 @@
         "description": "Great user",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.core.generic_message",
+          "id": "ai.compose.content.core.generic_message",
           "config": {
             "messages": [
               {
@@ -90,12 +90,12 @@
         "description": "Root node",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.core.noop",
+          "id": "ai.compose.content.core.noop",
           "config": {
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.default",
+          "id": "ai.compose.parser.core.default",
           "config": {
             "links": [
               {

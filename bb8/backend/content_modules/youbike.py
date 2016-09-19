@@ -31,7 +31,7 @@ GOOGLE_STATIC_MAP_API_KEY = 'AIzaSyAJjjE4BnIS-JAlfC1V77QGvb5kCauUVnc'
 
 def get_module_info():
     return {
-        'id': 'ai.compose.third_party.youbike',
+        'id': 'ai.compose.content.third_party.youbike',
         'name': 'Youbike',
         'description': 'Youbike info search according to location.',
         'supported_platform': SupportedPlatform.All,

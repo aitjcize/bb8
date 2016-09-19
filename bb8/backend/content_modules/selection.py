@@ -11,7 +11,7 @@ from bb8.backend.module_api import Message, SupportedPlatform, TextPayload
 
 def get_module_info():
     return {
-        'id': 'ai.compose.core.selection',
+        'id': 'ai.compose.content.core.selection',
         'name': 'Selection',
         'description': 'Show a selection message',
         'supported_platform': SupportedPlatform.All,

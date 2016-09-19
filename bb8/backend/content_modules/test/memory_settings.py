@@ -11,7 +11,7 @@ from bb8.backend.module_api import Message, Memory, Settings, SupportedPlatform
 
 def get_module_info():
     return {
-        'id': 'ai.compose.test.memory_settings',
+        'id': 'ai.compose.content.test.memory_settings',
         'name': 'Memory & Settings',
         'description': 'Test user memory and settings',
         'supported_platform': SupportedPlatform.All,

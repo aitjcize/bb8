@@ -18,7 +18,7 @@ from bb8.backend.module_api import (Message, TextPayload, Resolve,
 
 def get_module_info():
     return {
-        'id': 'ai.compose.third_party.imgur',
+        'id': 'ai.compose.content.third_party.imgur',
         'name': 'Imgur',
         'description': 'Imgur image search and listing.',
         'supported_platform': SupportedPlatform.All,
