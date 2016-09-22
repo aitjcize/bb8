@@ -198,7 +198,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)thanks?", "謝", "感恩"]
+                  "params": ["(?i)thanks?", "謝謝", "感恩"]
                 },
                 "action_ident": "got_like_sticker",
                 "end_node_id": "[[thanks]]",
