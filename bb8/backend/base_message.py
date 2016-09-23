@@ -411,7 +411,6 @@ class Message(object):
         if quick_replies:
             m.quick_replies = [cls.QuickReply.FromDict(x, variables)
                                for x in quick_replies]
-
         return m
 
     @classmethod
@@ -430,7 +429,7 @@ class Message(object):
                 }
             }, {
                 'required': ['attachment'],
-                'additionalProperties': False,
+                'additionalProperties': True,
                 'type': 'object',
                 'properties': {
                     'attachment': {
@@ -454,7 +453,7 @@ class Message(object):
                                 'payload': {'oneOf': [{
                                     'type': 'object',
                                     'required': ['template_type', 'elements'],
-                                    'additionalProperties': False,
+                                    'additionalProperties': True,
                                     'properties': {
                                         'template_type': {
                                             'enum': ['generic']

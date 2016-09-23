@@ -26,7 +26,7 @@ CONFIG = {
 
 
 class LinkageItem(object):
-    def __init__(self, action_ident, end_node_id, ack_message):
+    def __init__(self, action_ident, end_node_id, ack_message=""):
         """Constructor.
 
         If end_node_id is None, then it means we want to go back to the self
