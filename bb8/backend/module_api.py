@@ -18,11 +18,16 @@ from bb8.backend.database import PlatformTypeEnum, SupportedPlatform
 # pylint: disable=W0611
 from bb8.backend.message import Message, Render, Resolve, IsVariable
 from bb8.backend.metadata import ParseResult
+from bb8.backend.messaging import broadcast_message_async
 
 
 CONFIG = {
     'HTTP_ROOT': 'https://%s:%d/' % (config.HOSTNAME, config.HTTP_PORT)
 }
+
+
+# Expose broadcast_message_async as module API
+BroadcastMessage = broadcast_message_async
 
 
 class LinkageItem(object):
@@ -125,8 +130,8 @@ def GetgRPCService(name):
 class Memory(object):
     """API wrapper for User.memory dictionary."""
     @classmethod
-    def Get(cls, key):
-        return g.user.memory.get(key, None)
+    def Get(cls, key, default=None):
+        return g.user.memory.get(key, default)
 
     @classmethod
     def Set(cls, key, value):
@@ -140,8 +145,8 @@ class Memory(object):
 class Settings(object):
     """API wrapper for User.settings dictionary."""
     @classmethod
-    def Get(cls, key):
-        return g.user.settings.get(key, None)
+    def Get(cls, key, default=None):
+        return g.user.settings.get(key, default)
 
     @classmethod
     def Set(cls, key, value):
