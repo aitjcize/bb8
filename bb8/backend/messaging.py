@@ -11,7 +11,7 @@ from flask import g
 from bb8 import app, config, logger, celery
 from bb8.backend.database import (Conversation, DatabaseSession, User,
                                   PlatformTypeEnum, SenderEnum)
-from bb8.backend.module_api import Message
+from bb8.backend.message import Message
 from bb8.backend.messaging_provider import facebook, line
 
 
