@@ -114,6 +114,7 @@ class UserInput(object):
         self.location = None
         self.jump_node_id = None
         self.event = None
+        self.raw_message = None
 
     @classmethod
     def Text(cls, text):
@@ -166,11 +167,11 @@ class UserInput(object):
     def FromFacebookMessage(cls, messaging):
         u = UserInput()
         message = messaging.get('message')
-
         if message:
             u.text = message.get('text')
             u.parse_facebook_sticker(message)
             u.parse_facebook_attachments(message.get('attachments'))
+            u.parse_to_raw_message(message)
             return u
 
         postback = messaging.get('postback')
@@ -204,6 +205,17 @@ class UserInput(object):
         for att in attachments:
             if att['type'] == 'location':
                 self.location = att.get('payload')
+
+    def parse_to_raw_message(self, message):
+        for uneeded_key in ['mid', 'seq']:
+            del message[uneeded_key]
+
+        attachments = message.get('attachments')
+        if attachments:
+            message['attachment'] = attachments[0]
+            del message['attachments']
+
+        self.raw_message = message
 
     @classmethod
     def FromLineMessage(cls, content):
