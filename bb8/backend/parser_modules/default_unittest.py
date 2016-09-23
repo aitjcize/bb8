@@ -60,40 +60,35 @@ class DefaultUnittest(unittest.TestCase):
         }
         jsonschema.validate(config, default.schema())
 
-        action, msg, var, unused_data = default.run(
-            config, UserInput.Text('action1-0'), False)
-        self.assertEquals(action, 'action1')
-        self.assertEquals(msg, None)
-        self.assertEquals(var['text'], 'action1-0')
-        self.assertEquals(var['matches'], ('0',))
+        result = default.run(config, UserInput.Text('action1-0'), False)
+        self.assertEquals(result.action_ident, 'action1')
+        self.assertEquals(result.ack_message, None)
+        self.assertEquals(result.variables['text'], 'action1-0')
+        self.assertEquals(result.variables['matches'], ('0',))
 
-        action, msg, var, unused_data = default.run(
-            config, UserInput.Text('action2-1'), False)
-        self.assertEquals(action, 'action1')
-        self.assertEquals(msg, None)
-        self.assertEquals(var['text'], 'action2-1')
-        self.assertEquals(var['matches'], ())
+        result = default.run(config, UserInput.Text('action2-1'), False)
+        self.assertEquals(result.action_ident, 'action1')
+        self.assertEquals(result.ack_message, None)
+        self.assertEquals(result.variables['text'], 'action2-1')
+        self.assertEquals(result.variables['matches'], ())
 
-        action, msg, var, unused_data = default.run(
-            config, UserInput.Text(u'中文'), False)
-        self.assertEquals(action, 'action2')
-        self.assertEquals(msg, None)
-        self.assertEquals(var['text'], u'中文')
-        self.assertEquals(var['matches'], (u'文',))
+        result = default.run(config, UserInput.Text(u'中文'), False)
+        self.assertEquals(result.action_ident, 'action2')
+        self.assertEquals(result.ack_message, None)
+        self.assertEquals(result.variables['text'], u'中文')
+        self.assertEquals(result.variables['matches'], (u'文',))
 
-        action, msg, var, unused_data = default.run(
-            config, UserInput.Text(u'action3'), False)
-        self.assertEquals(action, None)
-        self.assertEquals(msg, 'reply by parser')
-        self.assertEquals(var['text'], u'action3')
+        result = default.run(config, UserInput.Text(u'action3'), False)
+        self.assertEquals(result.action_ident, None)
+        self.assertEquals(result.ack_message, 'reply by parser')
+        self.assertEquals(result.variables['text'], u'action3')
 
-        action, msg, unused_var, unused_data = default.run(
-            config, UserInput.Location((25, 121)), False)
-        self.assertEquals(action, 'action4')
+        result = default.run(config, UserInput.Location((25, 121)), False)
+        self.assertEquals(result.action_ident, 'action4')
 
-        action, msg, unused_var, unused_data = default.run(
+        result = default.run(
             config, UserInput.Event('TEST_EVENT', 'event value'), False)
-        self.assertEquals(action, 'event')
+        self.assertEquals(result.action_ident, 'event')
 
 
 if __name__ == '__main__':
