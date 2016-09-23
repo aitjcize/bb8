@@ -17,7 +17,7 @@ from bb8.tracking import track, TrackingInfo
 from bb8.backend.database import (DatabaseManager, Conversation, ColletedDatum,
                                   Linkage, Node, SupportedPlatform, SenderEnum,
                                   User)
-from bb8.backend.metadata import InputTransformation
+from bb8.backend.metadata import ParseResult, InputTransformation
 
 
 class Engine(object):
@@ -52,34 +52,35 @@ class Engine(object):
         attempting to find a linkage.
         """
         pm = node.parser_module.get_module()
-        action_ident, messages, variables, data = pm.run(
-            node.parser_config, user_input, as_root)
+        result = pm.run(node.parser_config, user_input, as_root)
+        assert isinstance(result, ParseResult)
 
+        variables = result.variables
         variables.update(init_variables)
-        matched = action_ident is not None or messages is not None
 
         # Parser module can optionally send a message directly back to user.
-        if messages:
-            self.send_ack_message(user, messages, variables)
+        if result.ack_message:
+            self.send_ack_message(user, result.ack_message, variables)
 
         # Global parser nomatch
-        if action_ident == self.BB8_GLOBAL_NOMATCH_IDENT:
-            return False, None, {}
+        if not result.matched:
+            return result, None, init_variables
 
         # Collect data
-        self.insert_data(user, data)
+        if result.collected_datum:
+            self.insert_data(user, result.collected_datum)
 
         # Track error
-        if action_ident == '$error':
+        if result.action_ident == '$error':
             track(TrackingInfo.Event(user.platform_user_ident,
                                      'Parser', 'Error', user_input.text))
 
         linkage = Linkage.get_by(start_node_id=node.id,
-                                 action_ident=action_ident, single=True)
+                                 action_ident=result.action_ident, single=True)
         if linkage and linkage.ack_message:
             self.send_ack_message(user, linkage.ack_message, variables)
 
-        return matched, linkage, variables
+        return result, linkage, variables
 
     def step(self, bot, user, user_input=None, input_vars=None):
         """Main function for executing a node."""
@@ -189,11 +190,11 @@ class Engine(object):
                 # Don't check for global command if we are jumping to a node
                 # due to postback being pressed.
                 if user_input and not jumped:
-                    matched, link, variables = self.run_parser_module(
+                    result, link, variables = self.run_parser_module(
                         bot.root_node, user, user_input, global_variables,
                         True)
 
-                    if matched:  # There is a global command match
+                    if result.matched:  # There is a global command match
                         if link:
                             user.goto(link.end_node_id)
                         else:
@@ -216,7 +217,7 @@ class Engine(object):
                     user_input.disable_jump()
                     return self.step(bot, user, user_input)
 
-                matched, link, variables = self.run_parser_module(
+                result, link, variables = self.run_parser_module(
                     node, user, user_input, global_variables, False)
 
                 # link may be None, either there is a bug or parser module
@@ -228,7 +229,8 @@ class Engine(object):
                     # error and we want to retry. don't send message in this
                     # case.
                     if (link.end_node_id == node.id and
-                            node.id != bot.root_node_id):
+                            node.id != bot.root_node_id and
+                            result.skip_content_module):
                         user.session.message_sent = True
                         return
                 else:
