@@ -86,26 +86,22 @@
         }
       },
       "root": {
-        "name": "Root",
-        "description": "Root node",
+        "name": "BotOp",
+        "description": "Main bot operation node",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.noop",
+          "id": "ai.compose.content.core.composeai",
           "config": {
+            "bot_admins": {
+              "1274840572534793": [2, 3, 6],
+              "1111176378929436": [2, 3, 6]
+            }
           }
         },
         "parser_module": {
-          "id": "ai.compose.parser.core.default",
+          "id": "ai.compose.parser.core.composeai",
           "config": {
-            "links": [
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": [".*"]
-                },
-                "ack_message": []
-              }
-            ]
+            "done": "[[root]]"
           }
         }
       }
