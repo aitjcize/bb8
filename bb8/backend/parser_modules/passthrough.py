@@ -8,7 +8,7 @@
     Copyright 2016 bb8 Authors
 """
 
-from bb8.backend.module_api import LinkageItem, SupportedPlatform
+from bb8.backend.module_api import ParseResult, LinkageItem, SupportedPlatform
 
 
 def get_module_info():
@@ -36,7 +36,7 @@ def schema():
 
 
 def run(unused_parser_config, unused_user_input, unused_as_root):
-    return ('next', None, {}, {})
+    return ParseResult('next')
 
 
 def get_linkages(parser_config):

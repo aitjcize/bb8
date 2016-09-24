@@ -71,6 +71,35 @@ class SessionRecord(Mutable):
             self._input_transformation = []
 
 
+class ParseResult(object):
+    """A result object parser modules needs to return.
+    """
+    def __init__(self, action_ident=None, ack_message=None, variables=None,
+                 collected_datum=None, skip_content_module=True):
+        """Constructor.
+
+        Args:
+            action_ident: action identifier.
+            ack_message: ack message that we want to reply immediately.
+            variables: parsed action variable.
+            collected_datum: data that the parser wants to collect.
+            skip_content_module: skip running content module if the current
+                node is executed immediately.
+        """
+        self.action_ident = action_ident
+        self.ack_message = ack_message
+        self.variables = variables or {}
+        self.collected_datum = collected_datum or {}
+        self.skip_content_module = skip_content_module
+
+    def collect(self, key, value):
+        self.collected_datum[key] = value
+
+    @property
+    def matched(self):
+        return self.action_ident is not None or self.ack_message is not None
+
+
 class PostbackEvent(object):
     """Event class representing a postback event."""
     def __init__(self, event):
@@ -85,6 +114,7 @@ class UserInput(object):
         self.location = None
         self.jump_node_id = None
         self.event = None
+        self.raw_message = None
 
     @classmethod
     def Text(cls, text):
@@ -137,11 +167,11 @@ class UserInput(object):
     def FromFacebookMessage(cls, messaging):
         u = UserInput()
         message = messaging.get('message')
-
         if message:
             u.text = message.get('text')
             u.parse_facebook_sticker(message)
             u.parse_facebook_attachments(message.get('attachments'))
+            u.parse_to_raw_message(message)
             return u
 
         postback = messaging.get('postback')
@@ -175,6 +205,17 @@ class UserInput(object):
         for att in attachments:
             if att['type'] == 'location':
                 self.location = att.get('payload')
+
+    def parse_to_raw_message(self, message):
+        for uneeded_key in ['mid', 'seq']:
+            del message[uneeded_key]
+
+        attachments = message.get('attachments')
+        if attachments:
+            message['attachment'] = attachments[0]
+            del message['attachments']
+
+        self.raw_message = message
 
     @classmethod
     def FromLineMessage(cls, content):
