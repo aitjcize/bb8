@@ -10,7 +10,7 @@
 
 import re
 
-from bb8.backend.module_api import LinkageItem, SupportedPlatform
+from bb8.backend.module_api import LinkageItem, SupportedPlatform, ParseResult
 
 
 def get_module_info():
@@ -73,11 +73,6 @@ def schema():
                                         'items': {'type': 'string'}
                                     }
                                 }
-                            }, {
-                                'properties': {
-                                    'type': {'enum': ['force']},
-                                    'params': {'type': 'null'}
-                                },
                             }]
                         },
                         'action_ident': {'type': 'string'},
@@ -158,9 +153,10 @@ def run(parser_config, user_input, as_root):
         def ret(link, variables, collect):
             action_ident = link.get('action_ident', None)
             if action_ident:
-                return action_ident, None, variables, collect
+                return ParseResult(action_ident, None, variables, collect)
             else:
-                return None, link['ack_message'], variables, collect
+                return ParseResult(None, link['ack_message'], variables,
+                                   collect)
 
         if r_type == 'regexp' and user_input.text:
             for param in link['rule']['params']:
@@ -187,7 +183,7 @@ def run(parser_config, user_input, as_root):
                     return ret(link, {'sticker': user_input.sticker}, {})
 
     if as_root:
-        return ('$bb8.global.nomatch', None, {}, {})
+        return ParseResult()
 
     collect = {}
     on_error = parser_config.get('on_error')
@@ -196,7 +192,7 @@ def run(parser_config, user_input, as_root):
         if m:
             collect = parse_collect(on_error['collect_as'], m)
 
-    return ('$error', None, {'text': user_input.text}, collect)
+    return ParseResult('$error', None, {'text': user_input.text}, collect)
 
 
 def get_linkages(parser_config):
