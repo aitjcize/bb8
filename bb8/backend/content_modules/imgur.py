@@ -12,8 +12,8 @@ import imgurpython
 
 from imgurpython.imgur.models.gallery_image import GalleryImage
 
-from bb8.backend.module_api import (Message, TextPayload, Resolve,
-                                    SupportedPlatform)
+from bb8.backend.module_api import (Message, Resolve,
+                                    SupportedPlatform, TextPayload)
 
 
 def get_module_info():

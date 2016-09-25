@@ -10,8 +10,8 @@ import json
 import urllib
 import urllib2
 
-from bb8.backend.module_api import (Message, TextPayload, Resolve,
-                                    SupportedPlatform)
+from bb8.backend.module_api import (Message, Resolve,
+                                    SupportedPlatform, TextPayload)
 
 
 DEFAULT_TIMEOUT_SECS = 5

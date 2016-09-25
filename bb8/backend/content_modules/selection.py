@@ -6,7 +6,8 @@
     Copyright 2016 bb8 Authors
 """
 
-from bb8.backend.module_api import Message, SupportedPlatform, TextPayload
+from bb8.backend.module_api import (Message, SupportedPlatform,
+                                    TextPayload)
 
 
 def get_module_info():

@@ -10,8 +10,10 @@
 
 import grpc
 
-from bb8.backend.module_api import (Message, GetgRPCService, GetUserId,
-                                    EventPayload, SupportedPlatform)
+from bb8.backend.module_api import (Message, EventPayload,
+                                    GetgRPCService, GetUserId,
+                                    SupportedPlatform)
+
 
 GRPC_TIMEOUT = 5
 MAX_KEYWORDS = 7
