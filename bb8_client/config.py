@@ -8,8 +8,12 @@
 
 
 class Config(object):
-    HOST = 'localhost'
+    HOST = 'bb8.main'
     PORT = 62629
+
+
+class TestingConfig(Config):
+    HOST = 'localhost'
 
 
 class DevelopmentConfig(Config):
@@ -17,4 +21,4 @@ class DevelopmentConfig(Config):
 
 
 class DeployConfig(Config):
-    HOST = 'bb8.main'
+    pass
