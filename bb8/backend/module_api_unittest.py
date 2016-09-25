@@ -12,8 +12,8 @@ import unittest
 from flask import g
 
 from bb8 import app
-from bb8.backend.module_api import (Config, TextPayload, LocationPayload,
-                                    Render, IsVariable, Resolve)
+from bb8.backend.module_api import (Config, IsVariable, Render, Resolve,
+                                    TextPayload, LocationPayload)
 
 
 class MockNode(object):

@@ -21,8 +21,8 @@ import grpc
 
 from bb8 import logger
 from bb8.backend.module_api import (Config, Message, GetUserTime,
-                                    GetgRPCService, LocationPayload, Resolve,
-                                    SupportedPlatform)
+                                    GetgRPCService, LocationPayload,
+                                    Resolve, SupportedPlatform)
 
 
 GRPC_TIMEOUT = 5
