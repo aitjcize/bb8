@@ -42,6 +42,7 @@ def schema():
                     'trending_tw',
                     'trending_cn',
                     'subscribe',
+                    'get_history',
                 ]
             },
         }
@@ -79,12 +80,18 @@ class DramaInfo(object):
                 user_id=user_id, term=term
             ), GRPC_TIMEOUT).dramas
 
+    def get_history(self, drama_id, from_episode):
+        return self._stub.GetHistory(
+            self._pb2_module.HistoryRequest(
+                drama_id=drama_id, from_episode=from_episode
+            ), GRPC_TIMEOUT).episodes
+
 
 drama_info = DramaInfo()
 
 
-def render_cards(dramas):
-    """Render cards given a list of new dramas"""
+def render_dramas(dramas):
+    """Render cards given a list of dramas"""
     if not len(dramas):
         return [Message(u'找不到你要的劇喔！')]
 
@@ -104,6 +111,36 @@ def render_cards(dramas):
     return [m]
 
 
+def render_episodes(episodes):
+    """Render cards given a list of episodes"""
+    if not len(episodes):
+        return [Message(u'沒有更多的集數可以看囉 :(')]
+
+    m = Message()
+    for ep in episodes:
+        image_url = (ep.image_url if ep.image_url else
+                     drama_info.get_default_image())
+        b = Message.Bubble(ep.drama_name + u'第 %d 集' % ep.serial_number,
+                           image_url=image_url,
+                           subtitle=ep.description)
+
+        b.add_button(Message.Button(
+            Message.ButtonType.WEB_URL,
+            u'帶我去看',
+            url=ep.link))
+
+        b.add_button(Message.Button(
+            Message.ButtonType.POSTBACK,
+            u'我想看前幾集',
+            payload=EventPayload(
+                'GET_HISTORY', {
+                    'drama_id': ep.drama_id,
+                    'from_episode': ep.serial_number,
+                })))
+        m.add_bubble(b)
+    return [m]
+
+
 def run(content_config, unused_env, variables):
     user_id = GetUserId()
 
@@ -113,5 +150,13 @@ def run(content_config, unused_env, variables):
         return [Message(u'謝謝您的追蹤，'
                         u'我們會在有更新的時候通知您')]
 
+    if content_config['mode'] == 'get_history':
+        event = variables['event']
+        drama_id = event.value['drama_id']
+        from_episode = event.value['from_episode']
+        episodes = drama_info.get_history(drama_id=drama_id,
+                                          from_episode=from_episode)
+        return render_episodes(episodes)
+
     country = content_config['mode'].replace('trending_', '')
-    return render_cards(drama_info.get_trending(user_id, country=country))
+    return render_dramas(drama_info.get_trending(user_id, country=country))
