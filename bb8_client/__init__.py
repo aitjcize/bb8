@@ -8,11 +8,11 @@
 
 import os
 
-from config import TestingConfig, DevelopmentConfig, DeployConfig
+from config import DevelopmentConfig, DeployConfig, TestingConfig
 
 config = None
 
-if os.getenv('CIRCLE_CI', '') == 'true':
+if os.getenv('BB8_TEST', '') == 'true':
     config = TestingConfig()  # pylint: disable=R0204
 elif os.getenv('BB8_DEPLOY', '') == 'true':
     config = DeployConfig()  # pylint: disable=R0204
