@@ -16,8 +16,7 @@ from scrapy.exceptions import DropItem
 from scrapy.spiders import CrawlSpider
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
 
-from bb8_client.app_api import MessagingService
-from bb8_client.base_message import Message, EventPayload
+from bb8_client.app_api import EventPayload, Message, MessagingService
 
 from drama.database import Drama, Episode, DramaCountryEnum, DatabaseManager
 

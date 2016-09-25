@@ -13,6 +13,7 @@ from datetime import datetime, timedelta
 from flask import g
 
 from bb8 import config
+from bb8.backend import base_message
 # pylint: disable=W0611
 from bb8.backend.database import PlatformTypeEnum, SupportedPlatform
 # pylint: disable=W0611
@@ -55,51 +56,36 @@ def TextPayload(text, send_to_current_node=True):
         send_to_current_node: whether or not to jump to current node before
             parsing the payload.
     """
-    return {
-        'node_id': g.node.id if send_to_current_node else None,
-        'message': {'text': text}
-    }
+    ret = base_message.TextPayload(text)
+    ret['node_id'] = g.node.id if send_to_current_node else None
+    return ret
 
 
 def LocationPayload(coordinate, send_to_current_node=True):
     """Create a location payload representation given coordinate.
 
     Args:
-        text: text to send
+        coordinate: the tuple containing long and lat
         send_to_current_node: whether or not to jump to current node before
             parsing the payload.
     """
-    return {
-        'node_id': g.node.id if send_to_current_node else None,
-        'message': {
-            'attachments': [{
-                'type': 'location',
-                'payload': {
-                    'coordinates': {
-                        'lat': coordinate[0],
-                        'long': coordinate[1]
-                    }
-                }
-            }]
-        }
-    }
+    ret = base_message.LocationPayload(coordinate)
+    ret['node_id'] = g.node.id if send_to_current_node else None
+    return ret
 
 
 def EventPayload(key, value, send_to_current_node=True):
     """Create a event payload representing module events
 
     Args:
-        text: text to send
+        key: the event name
+        value: the event value
         send_to_current_node: whether or not to jump to current node before
             parsing the payload.
     """
-    return {
-        'node_id': g.node.id if send_to_current_node else None,
-        'event': {
-            'key': key,
-            'value': value
-        }
-    }
+    ret = base_message.EventPayload(key, value)
+    ret['node_id'] = g.node.id if send_to_current_node else None
+    return ret
 
 
 def GetUserId():

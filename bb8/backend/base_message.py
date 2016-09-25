@@ -84,6 +84,53 @@ def Render(template, variables):
     return HAS_VARIABLE_RE.sub(replace, to_unicode(template))
 
 
+def TextPayload(text):
+    """Create a text payload representation given text.
+
+    Args:
+        text: text to send
+    """
+    return {
+        'message': {'text': text}
+    }
+
+
+def LocationPayload(coordinate):
+    """Create a location payload representation given coordinate.
+
+    Args:
+        coordinate: a coordinate representing the location
+    """
+    return {
+        'message': {
+            'attachments': [{
+                'type': 'location',
+                'payload': {
+                    'coordinates': {
+                        'lat': coordinate[0],
+                        'long': coordinate[1]
+                    }
+                }
+            }]
+        }
+    }
+
+
+def EventPayload(key, value):
+    """Create a event payload representing module events
+
+    Args:
+        key: the event name
+        value: the event value
+    """
+    return {
+        'event': {
+            'key': key,
+            'value': value
+        }
+    }
+
+
 class Message(object):
     """The Message class is a representation of messages.
 
