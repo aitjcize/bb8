@@ -180,7 +180,7 @@ class ModelMixin(object):
         if not instance:
             try:
                 instance = cls(**kwargs).add()
-                cls.flush()
+                DatabaseManager.flush()
                 return instance
             except IntegrityError:
                 DatabaseManager.rollback()
