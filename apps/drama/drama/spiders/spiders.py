@@ -17,6 +17,7 @@ from scrapy.spiders import CrawlSpider
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
 
 from bb8_client.app_api import MessagingService
+from bb8_client.base_message import Message, EventPayload
 
 from drama.database import Drama, Episode, DramaCountryEnum, DatabaseManager
 
@@ -101,14 +102,47 @@ class DramaSpider(CrawlSpider):
                 return
 
         drama = variables['drama']
+
+        msg = Message()
+        bubble_count = 0
+
         for serial_number in serial_numbers:
             try:
                 ep = Episode(link=unicode(link),
                              serial_number=serial_number).add()
                 drama.episodes.append(ep)
                 DatabaseManager.commit()
+
+                b = Message.Bubble((drama.name +
+                                    u'第 %d 集' % ep.serial_number),
+                                   image_url=drama.image,
+                                   subtitle=drama.description,
+                                   item_url=link)
+
+                b.add_button(Message.Button(Message.ButtonType.WEB_URL,
+                                            u'帶我去看',
+                                            url=link))
+                b.add_button(
+                    Message.Button(Message.ButtonType.POSTBACK,
+                                   u'我想看前幾集',
+                                   payload=EventPayload(
+                                       'GET_HISTORY', {
+                                           'drama_id': drama.id,
+                                           'from_episode': serial_number,
+                                       })))
+                msg.add_bubble(b)
+                bubble_count += 1
+
             except (InvalidRequestError, IntegrityError):
                 DatabaseManager.rollback()
+
+        # TODO(kevin): figure out a way to group
+        # the notification of the same drama
+        if bubble_count > 0:
+            message_service.Send(
+                [u.id for u in drama.users],
+                [Message(u'您訂閱的戲劇%s'
+                         u'有新的一集囉！快來看！' % drama.name), msg])
 
         try:
             DatabaseManager.commit()

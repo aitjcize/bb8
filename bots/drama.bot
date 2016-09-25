@@ -120,6 +120,18 @@
           }
         }
       },
+      "get_history": {
+        "name": "get_history",
+        "description": "Get History of the Drama",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.content.third_party.drama",
+          "config": {
+            "mode": "get_history",
+            "count": 10
+          }
+        }
+      },
       "root": {
         "name": "Root",
         "description": "Root node, show usage",
@@ -154,6 +166,15 @@
               },
               {
                 "rule": {
+                  "type": "event",
+                  "params": ["GET_HISTORY"]
+                },
+                "action_ident": "get_history",
+                "end_node_id": "[[get_history]]",
+                "ack_message": "稍等一下，我現在幫你找找看有沒有比較早的集數"
+              },
+              {
+                "rule": {
                   "type": "regexp",
                   "params": ["(?i)thanks?", "謝", "感恩"]
                 },
@@ -164,38 +185,38 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["trending_kr"]
+                  "params": ["trending_kr", "韓", "(?i)kr", "(?i)korea"]
                 },
                 "action_ident": "trending_kr",
                 "end_node_id": "[[trending_kr]]",
-                "ack_message": ""
+                "ack_message": "您好，以下為您送上現在最熱門的韓劇"
               },
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["trending_jp"]
+                  "params": ["trending_jp", "日", "(?i)jp", "(?i)japan"]
                 },
                 "action_ident": "trending_jp",
                 "end_node_id": "[[trending_jp]]",
-                "ack_message": ""
+                "ack_message": "您好，以下為您送上現在最熱門的日劇"
               },
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["trending_tw"]
+                  "params": ["trending_tw", "臺", "台", "(?i)tw", "(?i)taiwan"]
                 },
                 "action_ident": "trending_tw",
                 "end_node_id": "[[trending_tw]]",
-                "ack_message": ""
+                "ack_message": "您好，以下為您送上現在最熱門的台劇"
               },
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["trending_cn"]
+                  "params": ["trending_cn", "陸劇", "中國", "(?i)china", "(?i)ch"]
                 },
                 "action_ident": "trending_cn",
                 "end_node_id": "[[trending_cn]]",
-                "ack_message": ""
+                "ack_message": "您好，以下為您送上現在最熱門的陸劇"
               },
               {
                 "rule": {

@@ -18,7 +18,7 @@ from sqlalchemy import desc
 
 import service_pb2  # pylint: disable=E0401
 from drama.database import (DatabaseManager, DatabaseSession, Drama,
-                            DramaCountryEnum, User)
+                            Episode, DramaCountryEnum, User)
 
 from drama import config
 
@@ -41,6 +41,8 @@ def to_proto_episode(episode):
         link=episode.link,
         drama_id=episode.drama.id,
         drama_name=episode.drama.name,
+        image_url=episode.drama.image,
+        description=episode.drama.description,
         serial_number=episode.serial_number,
     )
 
@@ -70,6 +72,16 @@ class DramaInfo(object):
                 limit=count)
             return [to_proto_drama(drama) for drama in dramas]
 
+    @classmethod
+    def GetHistory(cls, drama_id, from_episode, count=5):
+        with DatabaseSession():
+            episodes = (
+                Episode.query().filter(
+                    Episode.drama_id == drama_id,
+                    Episode.serial_number < from_episode,
+                ).order_by(desc('serial_number')).limit(count))
+            return [to_proto_episode(episode) for episode in episodes]
+
 
 class DramaInfoServicer(service_pb2.DramaInfoServicer):
     def __init__(self):
@@ -88,6 +100,11 @@ class DramaInfoServicer(service_pb2.DramaInfoServicer):
     def Subscribe(self, request, unused_context):
         DramaInfo.Subscribe(request.user_id, request.drama_id)
         return service_pb2.Empty()
+
+    def GetHistory(self, request, unused_context):
+        return service_pb2.Episodes(
+            episodes=DramaInfo.GetHistory(
+                request.drama_id, request.from_episode))
 
 
 def start_grpc_server(port):

@@ -6,6 +6,7 @@ service DramaInfo {
   rpc Subscribe (SubscribeRequest) returns (Empty) {}
   rpc Search (SearchRequest) returns (Dramas) {}
   rpc Trending (TrendingRequest) returns (Dramas) {}
+  rpc GetHistory (HistoryRequest) returns (Episodes) {}
 }
 
 message Empty {}
@@ -23,7 +24,9 @@ message Episode {
   string link = 1;
   uint32 drama_id = 2;
   string drama_name = 3;
-  uint32 serial_number = 4;
+  string image_url = 4;
+  string description = 5;
+  uint32 serial_number = 6;
 }
 
 message Dramas {
@@ -48,4 +51,9 @@ message TrendingRequest {
   uint32 user_id = 1;
   string country = 2;
   uint32 count = 3;
+}
+
+message HistoryRequest {
+  uint32 drama_id = 1;
+  uint32 from_episode = 2;
 }
