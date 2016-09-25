@@ -10,6 +10,13 @@ fi
 export PATH=$PWD/bin:$PWD/$SCRIPT_DIR:$PATH
 export PYTHONPATH=$PWD/$GITROOT
 
+# Set python path
+for p in apps/*/; do
+    if [ -d $p ]; then
+        export PYTHONPATH=$PYTHONPATH:`pwd`/$p
+    fi
+done
+
 # Default configuration for CI
 export MYSQL_PORT=3307
 export REDIS_PORT=6379
