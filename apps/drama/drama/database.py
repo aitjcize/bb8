@@ -26,7 +26,7 @@ DatabaseManager.set_pool_size(config.N_THREADS)
 def Initialize():
     """Initialize the database and create all tables if there don't exist."""
     with DatabaseSession():
-        for table in ['episode', 'drama', 'user']:
+        for table in ['episode', 'drama', 'drama_user']:
             if table not in DatabaseManager.engine.table_names():
                 DatabaseManager.reset()
                 return
