@@ -168,6 +168,46 @@ def Render(template, variables):
     return HAS_VARIABLE_RE.sub(replace, base_message.to_unicode(template))
 
 
+def TextPayload(text, send_to_current_node=True):
+    """Create a text payload representation given text.
+
+    Args:
+        text: text to send
+        send_to_current_node: whether or not to jump to current node before
+            parsing the payload.
+    """
+    ret = base_message.TextPayload(text)
+    ret['node_id'] = g.node.id if send_to_current_node else None
+    return ret
+
+
+def LocationPayload(coordinate, send_to_current_node=True):
+    """Create a location payload representation given coordinate.
+
+    Args:
+        coordinate: the tuple containing long and lat
+        send_to_current_node: whether or not to jump to current node before
+            parsing the payload.
+    """
+    ret = base_message.LocationPayload(coordinate)
+    ret['node_id'] = g.node.id if send_to_current_node else None
+    return ret
+
+
+def EventPayload(key, value, send_to_current_node=True):
+    """Create a event payload representing module events
+
+    Args:
+        key: the event name
+        value: the event value
+        send_to_current_node: whether or not to jump to current node before
+            parsing the payload.
+    """
+    ret = base_message.EventPayload(key, value)
+    ret['node_id'] = g.node.id if send_to_current_node else None
+    return ret
+
+
 # Monkey Patch!
 # Patch base_message's render message so it supports query expression
 base_message.Render = Render
