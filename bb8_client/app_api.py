@@ -14,7 +14,8 @@ from bb8_client import config
 from bb8_client import app_service_pb2  # pylint: disable=E0611
 
 # pylint: disable=E0611,E0401,W0611
-from bb8_client.base_message import EventPayload, Message, Render
+from bb8_client.base_message import (Message, Render, TextPayload,
+                                     LocationPayload, EventPayload)
 
 
 _DEFAULT_TIMEOUT_SECS = 10
