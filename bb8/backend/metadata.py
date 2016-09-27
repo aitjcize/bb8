@@ -168,6 +168,10 @@ class UserInput(object):
         u = UserInput()
         message = messaging.get('message')
         if message:
+            quick_reply = message.get('quick_reply')
+            if quick_reply:
+                return cls.FromPayload(quick_reply['payload'])
+
             u.text = message.get('text')
             u.parse_facebook_sticker(message)
             u.parse_facebook_attachments(message.get('attachments'))
