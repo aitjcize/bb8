@@ -239,7 +239,8 @@ class EngineUnittest(unittest.TestCase):
         engine.step(self.bot, self.user)
         self.assertEquals(self.user.session.node_id,
                           get_node_id('settings_clear'))
-        self.assertEquals(len(self.user.settings), 0)
+        self.assertEquals(len(self.user.settings), 1)
+        self.assertNotEqual(self.user.settings.get('subscribe', None), None)
 
 
 if __name__ == '__main__':
