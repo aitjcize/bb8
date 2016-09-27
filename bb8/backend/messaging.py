@@ -68,6 +68,9 @@ def _send_message_from_dict(users, messages_dict):
         with DatabaseSession():
             user_count = User.count()
             for user in users:
+                if not user.settings.get('subscribe', True):
+                    continue
+
                 user.refresh()
                 g.user = user
                 variables = {
@@ -94,9 +97,11 @@ def _broadcast_message(bot, messages):
     """
     with DatabaseSession():
         for user in User.get_by(bot_id=bot.id):
+            if not user.settings.get('subscribe', True):
+                continue
             try:
                 logger.info('Sending message to %s ...' % user)
-                send_message_async(user, messages)
+                send_message.apply_async((user, messages))
             except Exception as e:
                 logger.exception(e)
 
