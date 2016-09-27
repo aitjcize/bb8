@@ -87,6 +87,11 @@ def docker_get_instance(name):
         name).strip()
 
 
+def hostname_env_switch():
+    hostname = os.getenv('BB8_HOSTNAME', None)
+    return ' -e BB8_HOSTNAME={0} '.format(hostname) if hostname else ''
+
+
 def database_env_switch():
     if config.DEPLOY:
         return ''

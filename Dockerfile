@@ -41,3 +41,7 @@ CMD ["/usr/bin/supervisord"]
 # Copy sources
 RUN mkdir -p ${BB8_ROOT}
 COPY . ${BB8_ROOT}
+
+# Install credential
+COPY credential/compose-ai.json /opt/bb8
+ENV GOOGLE_APPLICATION_CREDENTIALS=/opt/bb8/compose-ai.json
