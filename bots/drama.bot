@@ -61,7 +61,7 @@
           }
         }
       },
-      "subscribe": {
+      "subscribe_drama": {
         "name": "Subscribe",
         "description": "Subscribe drama",
         "expect_input": false,
@@ -161,7 +161,7 @@
                   "params": ["SUBSCRIBE"]
                 },
                 "action_ident": "subscribe_drama",
-                "end_node_id": "[[subscribe]]",
+                "end_node_id": "[[subscribe_drama]]",
                 "ack_message": ""
               },
               {
@@ -231,6 +231,24 @@
                 "ack_message": ""
               },
               {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?<!取消)訂閱", "(?<!un)subscribe"]
+                },
+                "action_ident": "subscribe",
+                "end_node_id": "[[subscribe]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["取消訂閱", "停止訂閱", "unsubscribe"]
+                },
+                "action_ident": "unsubscribe",
+                "end_node_id": "[[unsubscribe]]",
+                "ack_message": ""
+              },
+              {
                 "action_ident": "$error",
                 "end_node_id": "[[root]]",
                 "ack_message": ""
@@ -240,6 +258,48 @@
               "pattern": ".*",
               "collect_as": "query_term"
             }
+          }
+        }
+      },
+      "subscribe": {
+        "name": "subscribe",
+        "description": "Subscribe to notification",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.content.core.settings",
+          "config": {
+            "settings": {
+              "subscribe": true
+            },
+            "message": "好的，之後會在有新劇的時候通知您"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.passthrough",
+          "config": {
+            "end_node_id": "[[root]]",
+            "ack_message": ""
+          }
+        }
+      },
+      "unsubscribe": {
+        "name": "unsubscribe",
+        "description": "Unsubscribe to notification",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.content.core.settings",
+          "config": {
+            "settings": {
+              "subscribe": false
+            },
+            "message": "你已取消訂閱！"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.passthrough",
+          "config": {
+            "end_node_id": "[[root]]",
+            "ack_message": ""
           }
         }
       },
