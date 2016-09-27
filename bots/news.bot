@@ -57,6 +57,39 @@
         "parser_module": {
           "id": "ai.compose.parser.core.passthrough",
           "config": {
+            "end_node_id": "[[subscription]]",
+            "ack_message": ""
+          }
+        }
+      },
+      "subscription": {
+        "name": "Subscribe",
+        "description": "Prompt user for subscription preference",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.core.generic_message",
+          "config": {
+            "messages": [
+              {
+                "text": "你想要訂閱不定期的新聞通知嗎？(每日最多一則)",
+                "quick_replies": [
+                  {
+                    "content_type": "text",
+                    "title": "好",
+                    "payload": {"message": {"text": "訂閱"}}
+                  },
+                  {
+                    "content_type": "text",
+                    "title": "不用了"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.passthrough",
+          "config": {
             "end_node_id": "[[root]]",
             "ack_message": ""
           }
@@ -176,6 +209,24 @@
                 },
                 "action_ident": "got_like_sticker",
                 "end_node_id": "[[thanks]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?<!取消)訂閱", "(?<!un)subscribe"]
+                },
+                "action_ident": "subscribe",
+                "end_node_id": "[[subscribe]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["取消訂閱", "停止訂閱", "unsubscribe"]
+                },
+                "action_ident": "unsubscribe",
+                "end_node_id": "[[unsubscribe]]",
                 "ack_message": ""
               },
               {
@@ -345,6 +396,48 @@
                 "ack_message": "謝謝你的建議，我們會根據你的建議改善的！"
               }
             ]
+          }
+        }
+      },
+      "subscribe": {
+        "name": "subscribe",
+        "description": "Subscribe to notification",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.content.core.settings",
+          "config": {
+            "settings": {
+              "subscribe": true
+            },
+            "message": "好的，之後會不定時通知您新聞哦！"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.passthrough",
+          "config": {
+            "end_node_id": "[[root]]",
+            "ack_message": ""
+          }
+        }
+      },
+      "unsubscribe": {
+        "name": "unsubscribe",
+        "description": "Unsubscribe to notification",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.content.core.settings",
+          "config": {
+            "settings": {
+              "subscribe": false
+            },
+            "message": "你已取消訂閱！"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.passthrough",
+          "config": {
+            "end_node_id": "[[root]]",
+            "ack_message": ""
           }
         }
       },

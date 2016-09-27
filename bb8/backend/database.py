@@ -197,7 +197,7 @@ class User(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     memory = Column(MutableDict.as_mutable(PickleType), nullable=False,
                     default={})
     settings = Column(MutableDict.as_mutable(PickleType), nullable=False,
-                      default={})
+                      default={'subscribe': False})
 
     platform = relationship('Platform')
     colleted_data = relationship('ColletedDatum')
