@@ -90,6 +90,8 @@ class Memory(object):
 
 class Settings(object):
     """API wrapper for User.settings dictionary."""
+    __protected_fields__ = ['subscribe']
+
     @classmethod
     def Get(cls, key, default=None):
         return g.user.settings.get(key, default)
@@ -100,4 +102,6 @@ class Settings(object):
 
     @classmethod
     def Clear(cls):
-        return g.user.settings.clear()
+        """Clear all non-protected fields."""
+        g.user.settings = dict((f, g.user.settings[f])
+                               for f in cls.__protected_fields__)

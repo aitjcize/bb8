@@ -48,7 +48,7 @@ start-celery:
 	@celery -A bb8.celery worker --loglevel=info --concurrency 4
 
 test: setup-database setup-redis compile-resource
-	@export BB8_TEST=true; @export DATABASE=$(DB_URI); \
+	@export BB8_TEST=true; export DATABASE=$(DB_URI); \
 	 for test in $(UNITTESTS); do \
 	   if echo $$test | grep '^apps'; then \
 	     export PYTHONPATH=$(CURDIR):$(CURDIR)/$$(echo $$test | \
@@ -61,7 +61,7 @@ test: setup-database setup-redis compile-resource
 	 done
 
 coverage: setup-database setup-redis compile-resource
-	@export BB8_TEST=true; @export DATABASE=$(DB_URI); \
+	@export BB8_TEST=true; export DATABASE=$(DB_URI); \
 	 for test in $(UNITTESTS); do \
 	   if echo $$test | grep '^apps'; then \
 	     export PYTHONPATH=$(CURDIR):$(CURDIR)/$$(echo $$test | \
