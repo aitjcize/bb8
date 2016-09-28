@@ -7,8 +7,6 @@
     Copyright 2016 bb8 Authors
 """
 
-from __future__ import print_function
-
 import argparse
 import logging
 import time
@@ -23,15 +21,19 @@ from drama.spiders import DramaSpider
 from drama.spiders.config import spider_configs
 
 
+logger = logging.getLogger('drama.crawler')
+logger.setLevel(logging.DEBUG)
+
+
 def crawl():
     try:
-        print('Crawler: started')
+        logger.info('Crawler: started')
         process = CrawlerProcess(get_project_settings())
         process.crawl(DramaSpider, **spider_configs['dramaq'])
         process.start()
         process.stop()
 
-        print('Crawler: extracting popular dramas')
+        logger.info('Crawler: extracting popular dramas')
         populars = keywords.extract_popular_dramas()
         for links in populars.values():
             for order, link in enumerate(links):
@@ -43,7 +45,7 @@ def crawl():
     except Exception:
         logging.exception('Crawler: exception, skipped')
     else:
-        print('Crawler: finished gracefully')
+        logger.info('Crawler: finished gracefully')
 
 
 def main(args):
