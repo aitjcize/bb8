@@ -120,10 +120,6 @@ class App(object):
         self._image_name = '%s.%s' % (self.BB8_APP_PREFIX,
                                       self._app_name)
 
-    def start(self, force=False, bind=False):
-        print('=' * 20, 'Starting %s' % self._app_name, '=' * 20)
-        self.start_container(force, bind)
-
     def get_cpu_shares(self):
         cpu = self._info['resource']['cpu']
         if cpu == 'low':
@@ -171,10 +167,22 @@ class App(object):
         # Remove pb-python dir
         run('sudo rm -rf %s/pb-python' % self._app_dir)
 
+    def start(self, force=False, bind=False):
+        print('=' * 20, 'Starting %s' % self._app_name, '=' * 20)
+        self.start_container(force, bind)
+
     def stop(self):
         instance = docker_get_instance(self._image_name)
         if instance:
             run('docker rm -f %s' % instance, True)
+
+    def shell(self):
+        instance = docker_get_instance(self._image_name)
+        if not instance:
+            logger.error('App `%s\' not running', self._image_name)
+            return
+        s = subprocess.Popen('docker exec -it %s bash' % instance, shell=True)
+        s.wait()
 
     def start_container(self, force=False, bind=False):
         # Compile service proto before calculating app version hash, so the
@@ -338,11 +346,6 @@ class BB8(object):
         print('=' * 20, 'Starting BB8 main container', '=' * 20)
         self.start_container(force)
 
-    def get_git_version_hash(self):
-        commit_hash = get_output('cd %s; git rev-parse HEAD' %
-                                 BB8_SRC_ROOT)
-        return commit_hash[:6]
-
     def stop(self):
         instance = docker_get_instance(self.BB8_CONTAINER_NAME)
         if instance:
@@ -351,6 +354,20 @@ class BB8(object):
         for app_dir in self._app_dirs:
             app = App(app_dir)
             app.stop()
+
+    def shell(self):
+        instance = docker_get_instance(self.BB8_CONTAINER_NAME)
+        if not instance:
+            logger.error('Main container `%s\' not running',
+                         self.BB8_CONTAINER_NAME)
+            return
+        s = subprocess.Popen('docker exec -it %s bash' % instance, shell=True)
+        s.wait()
+
+    def get_git_version_hash(self):
+        commit_hash = get_output('cd %s; git rev-parse HEAD' %
+                                 BB8_SRC_ROOT)
+        return commit_hash[:6]
 
     def start_container(self, force=False):
         create_dir_if_not_exists(os.path.join(BB8_DATA_ROOT, 'log'), sudo=True)
@@ -434,11 +451,18 @@ def main():
     logs_parser.add_argument('-a', '--app', dest='app', default=None,
                              help='operate on specific app')
 
+    # shell sub-command
+    shell_parser = subparsers.add_parser('shell',
+                                         help='get a shell into container')
+    shell_parser.set_defaults(which='shell')
+    shell_parser.add_argument('-a', '--app', dest='app', default=None,
+                              help='operate on specific app')
+
     # status sub-command
     status_parser = subparsers.add_parser('status', help='show bb8 status')
     status_parser.set_defaults(which='status')
 
-    # status sub-command
+    # compile-resource sub-command
     compile_resource_parser = subparsers.add_parser(
         'compile-resource', help='compile bb8 resource')
     compile_resource_parser.set_defaults(which='compile-resource')
@@ -471,6 +495,11 @@ def main():
             app.logs()
         else:
             bb8.logs()
+    elif args.which == 'shell':
+        if app:
+            app.shell()
+        else:
+            bb8.shell()
     elif args.which == 'status':
         bb8.status()
     elif args.which == 'compile-resource':
