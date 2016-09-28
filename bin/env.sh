@@ -1,14 +1,13 @@
 #!/bin/bash
 
-SCRIPT_DIR=$(dirname "$0")
-GITROOT=$(dirname $SCRIPT_DIR)
+GITROOT=$(git rev-parse --show-toplevel)
 
 if [ -e $GITROOT/.env ]; then
   source $GITROOT/.env/bin/activate
 fi
 
-export PATH=$PWD/bin:$PWD/$SCRIPT_DIR:$PATH
-export PYTHONPATH=$PWD/$GITROOT
+export PATH=$GITROOT/bin:$PATH
+export PYTHONPATH=$GITROOT
 
 # Set python path
 for p in apps/*/; do
