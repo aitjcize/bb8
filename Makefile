@@ -59,6 +59,7 @@ test: setup-database setup-redis compile-resource
 	   echo Running $$test ...; \
 	   $$test || exit 1; \
 	 done
+	@manage reset
 
 coverage: setup-database setup-redis compile-resource
 	@export BB8_TEST=true; export DATABASE=$(DB_URI); \
@@ -73,6 +74,7 @@ coverage: setup-database setup-redis compile-resource
 	   echo Running $$test ...; \
 	   COVERAGE_FILE=.coverage_$$COVER coverage run $$test || exit 1; \
 	 done
+	@COVERAGE_FILE=.coverage_manage_reset coverage run bin/manage reset
 	@coverage combine .coverage_*
 	@coverage html --include=bb8/*
 
