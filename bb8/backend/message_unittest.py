@@ -7,22 +7,26 @@
     Copyright 2016 bb8 Authors
 """
 
-import datetime
 import time
 import unittest
 
 import jsonschema
-import pytz
 
 from flask import g
 
 from bb8 import app
-from bb8.backend.database import (Bot, ColletedDatum, DatabaseManager,
-                                  Platform, PlatformTypeEnum, User)
-from bb8.backend.message import Message
+from bb8.backend.database import ColletedDatum, DatabaseManager
+from bb8.backend.message import (Message, TextPayload, LocationPayload,
+                                 IsVariable, Resolve, Render)
+from bb8.backend.test_utils import BaseMessagingMixin
 
 
-class MessageUnittest(unittest.TestCase):
+class MockNode(object):
+    def __init__(self, _id):
+        self.id = _id  # pylint: disable=W0622
+
+
+class MessageUnittest(unittest.TestCase, BaseMessagingMixin):
     def setUp(self):
         DatabaseManager.connect()
         self.setup_prerequisite()
@@ -30,30 +34,58 @@ class MessageUnittest(unittest.TestCase):
     def tearDown(self):
         DatabaseManager.disconnect()
 
-    def setup_prerequisite(self):
-        DatabaseManager.reset()
+    def test_TextPayload(self):
+        g.node = MockNode(1)
+        self.assertEquals(TextPayload('test'),
+                          {'message': {'text': 'test'}, 'node_id': 1})
 
-        self.bot = Bot(name=u'test', description=u'test',
-                       interaction_timeout=120, session_timeout=86400).add()
-        DatabaseManager.commit()
+    def test_LocationPayload(self):
+        g.node = MockNode(1)
+        ans = {
+            'message': {
+                'attachments': [{
+                    'type': 'location',
+                    'payload': {
+                        'coordinates': {
+                            'lat': 1,
+                            'long': 1
+                        }
+                    }
+                }]
+            },
+            'node_id': 1
+        }
+        self.assertEquals(LocationPayload((1, 1)), ans)
 
-        self.platform = Platform(bot_id=self.bot.id,
-                                 type_enum=PlatformTypeEnum.Facebook,
-                                 provider_ident='facebook_page_id',
-                                 config={}).add()
-        DatabaseManager.commit()
+    def test_Render(self):
+        # Basic rendering
+        variables = {'target': 'Isaac', 'name': 'bb8', 'age': 100}
+        text = Render('Hi {{target|upper}}, I am {{name}}. '
+                      'I am {{age|inc|str}} years old.', variables)
+        self.assertEquals(text, 'Hi ISAAC, I am bb8. I am 101 years old.')
 
-        self.user_1 = User(bot_id=self.bot.id,
-                           platform_id=self.platform.id,
-                           platform_user_ident='1153206858057166',
-                           last_seen=datetime.datetime(2016, 6, 2, 12, 44, 56,
-                                                       tzinfo=pytz.utc)).add()
-        self.user_2 = User(bot_id=self.bot.id,
-                           platform_id=self.platform.id,
-                           platform_user_ident='1318395614844436',
-                           last_seen=datetime.datetime(2016, 6, 2, 12, 44, 56,
-                                                       tzinfo=pytz.utc)).add()
-        DatabaseManager.commit()
+        # "One-of" var rendering
+        variables = {'target': {'name': 'Isaac'}}
+        text = Render('Hi {{name,target.name|upper}}', variables)
+        self.assertEquals(text, 'Hi ISAAC')
+
+        variables = {'name': 'Isaac'}
+        text = Render('Hi {{name,target.name|upper}}', variables)
+        self.assertEquals(text, 'Hi ISAAC')
+
+    def test_IsVariable(self):
+        self.assertEquals(IsVariable("xx{{aaa}}"), False)
+        self.assertEquals(IsVariable("{{aaa}}yy"), False)
+        self.assertEquals(IsVariable("{{aaa}}"), True)
+
+    def test_Resolve(self):
+        variables = {'a': 'A'}
+        self.assertEquals(Resolve('xx{{a}}', variables), 'xx{{a}}')
+        self.assertEquals(Resolve('{{a}}', variables), 'A')
+
+        variables = {'b': 'B'}
+        self.assertEquals(Resolve('{{a,b}}', variables), 'B')
+        self.assertEquals(Resolve('{{a,b}}', {}), '{{a,b}}')
 
     def test_Button(self):
         with self.assertRaises(RuntimeError):
