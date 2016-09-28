@@ -217,20 +217,28 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?<!取消)訂閱", "(?<!un)subscribe"]
+                  "params": ["(?<!取消)訂閱", "(?<!un)subscribe"],
+                  "settings_set": {
+                    "key": "subscribe",
+                    "value": true
+                  }
                 },
                 "action_ident": "subscribe",
-                "end_node_id": "[[subscribe]]",
-                "ack_message": ""
+                "end_node_id": "[[root]]",
+                "ack_message": "好的，之後會不定時通知您新聞哦！"
               },
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["取消訂閱", "停止訂閱", "unsubscribe"]
+                  "params": ["取消訂閱", "停止訂閱", "unsubscribe"],
+                  "settings_set": {
+                    "key": "subscribe",
+                    "value": false
+                  }
                 },
                 "action_ident": "unsubscribe",
-                "end_node_id": "[[unsubscribe]]",
-                "ack_message": ""
+                "end_node_id": "[[root]]",
+                "ack_message": "你已取消訂閱！"
               },
               {
                 "rule": {
@@ -246,7 +254,7 @@
                   "type": "regexp",
                   "params": ["^建議 ?(.*)$", "^feedback (.*)$"],
                   "collect_as": {
-                    "key": "query_term",
+                    "key": "feedback",
                     "value": "{{matches#1}}"
                   }
                 },
@@ -402,48 +410,6 @@
                 "ack_message": "謝謝你的建議，我們會根據你的建議改善的！"
               }
             ]
-          }
-        }
-      },
-      "subscribe": {
-        "name": "subscribe",
-        "description": "Subscribe to notification",
-        "expect_input": false,
-        "content_module": {
-          "id": "ai.compose.content.core.settings",
-          "config": {
-            "settings": {
-              "subscribe": true
-            },
-            "message": "好的，之後會不定時通知您新聞哦！"
-          }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.passthrough",
-          "config": {
-            "end_node_id": "[[root]]",
-            "ack_message": ""
-          }
-        }
-      },
-      "unsubscribe": {
-        "name": "unsubscribe",
-        "description": "Unsubscribe to notification",
-        "expect_input": false,
-        "content_module": {
-          "id": "ai.compose.content.core.settings",
-          "config": {
-            "settings": {
-              "subscribe": false
-            },
-            "message": "你已取消訂閱！"
-          }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.passthrough",
-          "config": {
-            "end_node_id": "[[root]]",
-            "ack_message": ""
           }
         }
       },
