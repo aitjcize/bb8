@@ -16,7 +16,7 @@ class Config(object):
     TESTING = False
     DEPLOY = False
 
-    BB8_ROOT = '/tmp/bb8'
+    BB8_ROOT = '/tmp/bb8.%s' % os.getenv('USER', 'nobody')
     LOCK_DIR = BB8_ROOT + '/lock'
 
     # Number of threads that serve the requests. This should be the same
