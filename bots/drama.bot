@@ -256,7 +256,7 @@
             ],
             "on_error": {
               "pattern": ".*",
-              "collect_as": "query_term"
+              "collect_as": {"key": "query_term"}
             }
           }
         }

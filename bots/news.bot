@@ -132,7 +132,10 @@
                 "rule": {
                   "type": "regexp",
                   "params": ["搜尋 ?(.*)$", "^找 (.*)$", "search ?(.*)$"],
-                  "collect_as": "query_term#1"
+                  "collect_as": {
+                    "key": "query_term",
+                    "value": "{{matches#1}}"
+                  }
                 },
                 "action_ident": "search",
                 "end_node_id": "[[search_news]]",
@@ -242,7 +245,10 @@
                 "rule": {
                   "type": "regexp",
                   "params": ["^建議 ?(.*)$", "^feedback (.*)$"],
-                  "collect_as": "feedback#1"
+                  "collect_as": {
+                    "key": "query_term",
+                    "value": "{{matches#1}}"
+                  }
                 },
                 "ack_message": "謝謝你的建議，我們會根據你的建議改善的！"
               },
@@ -263,7 +269,7 @@
             ],
             "on_error": {
               "pattern": ".*",
-              "collect_as": "query_term"
+              "collect_as": {"key": "query_term"}
             }
           }
         }
@@ -276,7 +282,7 @@
           "id": "ai.compose.content.core.content",
           "config": {
             "mode": "list_by_source",
-            "query_term": "{{matches#0}}"
+            "query_term": "{{matches#1}}"
           }
         }
       },
@@ -288,7 +294,7 @@
           "id": "ai.compose.content.core.content",
           "config": {
             "mode": "search",
-            "query_term": "{{matches#0,text}}"
+            "query_term": "{{matches#1,text}}"
           }
         }
       },
@@ -347,7 +353,7 @@
                 "rule": {
                   "type": "regexp",
                   "params": ["(.*)"],
-                  "collect_as": "search_term"
+                  "collect_as": {"key": "search_term"}
                 },
                 "action_ident": "do_search",
                 "end_node_id": "[[search_news]]",
@@ -389,7 +395,7 @@
                 "rule": {
                   "type": "regexp",
                   "params": [".*"],
-                  "collect_as": "feedback"
+                  "collect_as": {"key": "feedback"}
                 },
                 "action_ident": "got_feedback",
                 "end_node_id": "[[root]]",
