@@ -7,7 +7,7 @@
 """
 
 from bb8.backend.module_api import Message, SupportedPlatform
-from bb8_client.base_message import TextPayload
+from bb8.backend.message import TextPayload
 
 
 def get_module_info():
