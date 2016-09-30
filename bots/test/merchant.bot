@@ -84,7 +84,7 @@
           "id": "ai.compose.content.core.listing",
           "config": {
             "query_url": "http://ecshweb.pchome.com.tw/search/v3.3/all/results?q=%s&page=1&sort=rnk/dc",
-            "term": "{{matches#0}}",
+            "term": "{{matches#1}}",
             "max_count": 7,
             "list": "prods",
             "attributes": {
@@ -111,7 +111,7 @@
           "id": "ai.compose.content.core.listing",
           "config": {
             "query_url": "https://www.searchanise.com/getresults?api_key=2V1U0v5q0Z&q=%s&sortBy=relevance&sortOrder=desc&startIndex=0&maxResults=8&items=true&pages=true&categories=true&suggestions=true&query_correction=false&suggestionsMaxResults=3&pagesMaxResults=5&categoriesMaxResults=5&facets=true&facetsShowUnavailableOptions=true&output=jsonp",
-            "term": "{{matches#0}}",
+            "term": "{{matches#1}}",
             "max_count": 7,
             "list": "items",
             "attributes": {
