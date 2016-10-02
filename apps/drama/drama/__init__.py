@@ -11,7 +11,9 @@ import os
 
 
 class Config(object):
+    HOSTNAME = os.getenv('BB8_HOSTNAME', 'bot.azhuang.me')
     DATABASE = os.getenv('DATABASE', '')
+    HTTP_PORT = int(os.getenv('HTTP_PORT', 7000))
     N_THREADS = 8
 
 

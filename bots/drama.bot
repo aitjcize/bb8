@@ -139,7 +139,7 @@
         "content_module": {
           "id": "ai.compose.content.third_party.drama",
           "config": {
-            "mode": "default"
+            "mode": "prompt"
           }
         },
         "parser_module": {

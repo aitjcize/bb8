@@ -35,7 +35,7 @@ class Config(object):
     API_SERVICER_LOG_FILE = 'api_servicer.log'
 
     # Server
-    HOSTNAME = 'bot.azhuang.me'
+    HOSTNAME = os.getenv('BB8_HOSTNAME', 'bot.azhuang.me')
     HTTP_PORT = int(os.getenv('HTTP_PORT', 7000))
 
     # Ports
