@@ -25,12 +25,12 @@ from bb8.constant import HTTPStatus, CustomError
 from bb8.error import AppError
 
 
-gs_client = storage.Client(project=config.GCP_PROJECT)
 ALLOWED_HOSTS = ['dramaq.biz', 'www.dramaq.biz', 'showq.biz', 'www.showq.biz']
 
 
 @app.route('/util/cache_image', methods=['GET'])
 def cache_image():
+    gs_client = storage.Client(project=config.GCP_PROJECT)
     bucket = gs_client.get_bucket('cached-pictures')
     url = request.args['url']
     host = urlparse.urlparse(url).netloc

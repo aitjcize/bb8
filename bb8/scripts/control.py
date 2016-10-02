@@ -253,6 +253,7 @@ class App(object):
             ' -e BB8_DEPLOY={0}'.format(str(config.DEPLOY).lower()) +
             (' -p 9999:9999' if bind else ' ') +
             database_env_switch() +
+            hostname_env_switch() +
             ' '.join(volumes) +
             ' -d %s' % self._image_name)
 
@@ -409,6 +410,7 @@ class BB8(object):
             ' -v {0}:{0}'.format(self.CLOUD_SQL_DIR) +
             ' -e HTTP_PORT={0}'.format(config.HTTP_PORT) +
             database_env_switch() +
+            hostname_env_switch() +
             ' -d {0}'.format(self.BB8_IMAGE_NAME))
 
         run('sudo mount --bind '
