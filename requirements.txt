@@ -71,7 +71,7 @@ pbr==1.10.0
 pep8==1.7.0
 pexpect==4.2.1
 pickleshare==0.7.4
-Pillow==3.3.1
+Pillow==3.4.0
 ply==3.9
 prompt-toolkit==1.0.7
 protobuf==3.1.0.post1
@@ -86,7 +86,7 @@ PyMySQL==0.7.9
 pysqlite==2.8.3
 python-editor==1.0.1
 python-memcached==1.58
-pytz==2016.6.1
+pytz==2016.7
 PyYAML==3.12
 readline==6.2.4.1
 redis==2.10.5
@@ -96,7 +96,7 @@ simplegeneric==0.8.1
 six==1.10.0
 SQLAlchemy==1.1.0b3
 traitlets==4.3.1
-uWSGI==2.0.13.1
+uWSGI==2.0.14
 vine==1.1.2
 wcwidth==0.1.7
 Werkzeug==0.11.11
