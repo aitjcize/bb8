@@ -29,8 +29,6 @@ from content.database import DatabaseSession, Entry, Keyword
 
 _SECS_IN_A_DAY = 86400
 
-gclient = datastore.Client()
-
 
 def to_proto_entry(obj):
     return service_pb2.Entry(
@@ -91,6 +89,7 @@ class ContentInfo(object):
     @lru_cache(maxsize=512)
     def GetEntry(cls, entry_link):
         link_hash = hashlib.sha1(entry_link).hexdigest()
+        gclient = datastore.Client()
         entry_key = gclient.key(config.ENTRY_ENTITY, link_hash)
         return gclient.get(entry_key)
 
