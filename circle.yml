@@ -20,7 +20,3 @@ test:
   override:
     - source bin/env.sh && make lint
     - source bin/env.sh && make coverage && mv htmlcov/* $CIRCLE_ARTIFACTS/
-
-notify:
-  webhooks:
-    - url: https://compose.phacility.com/harbormaster/hook/circleci/
