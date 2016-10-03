@@ -13,11 +13,17 @@ import grpc
 from bb8.backend.module_api import (Message, EventPayload,
                                     GetgRPCService, GetUserId,
                                     SupportedPlatform)
+from bb8 import config
 
 
 GRPC_TIMEOUT = 5
 MAX_KEYWORDS = 7
 DEFAULT_N_ITEMS = 7
+
+
+def cache_image(link):
+    return 'https://{0}:{1}/util/cache_image?url={2}'.format(
+        config.HOSTNAME, config.HTTP_PORT, link)
 
 
 def get_module_info():
@@ -38,7 +44,7 @@ def schema():
         'properties': {
             'mode': {
                 'enum': [
-                    'default',
+                    'prompt',
                     'trending_kr',
                     'trending_jp',
                     'trending_tw',
@@ -99,8 +105,8 @@ def render_dramas(dramas):
 
     m = Message()
     for d in dramas:
-        image_url = (d.image_url if d.image_url != '' else
-                     drama_info.get_default_image())
+        image_url = cache_image(d.image_url if d.image_url != ''
+                                else drama_info.get_default_image())
         b = Message.Bubble(d.name,
                            image_url=image_url,
                            subtitle=d.description)
@@ -120,8 +126,8 @@ def render_episodes(episodes):
 
     m = Message()
     for ep in episodes:
-        image_url = (ep.image_url if ep.image_url else
-                     drama_info.get_default_image())
+        image_url = cache_image(ep.image_url if ep.image_url else
+                                drama_info.get_default_image())
         b = Message.Bubble(ep.drama_name + u'第 %d 集' % ep.serial_number,
                            image_url=image_url,
                            subtitle=ep.description)
@@ -159,6 +165,18 @@ def run(content_config, unused_env, variables):
         episodes = drama_info.get_history(drama_id=drama_id,
                                           from_episode=from_episode)
         return render_episodes(episodes)
+
+    if content_config['mode'] == 'prompt':
+        m = Message(u'你比較喜歡以下的什麼劇呢？')
+        m.add_quick_reply(Message.QuickReply(
+            Message.QuickReplyType.TEXT, u'熱門韓劇'))
+        m.add_quick_reply(Message.QuickReply(
+            Message.QuickReplyType.TEXT, u'熱門日劇'))
+        m.add_quick_reply(Message.QuickReply(
+            Message.QuickReplyType.TEXT, u'熱門台劇'))
+        m.add_quick_reply(Message.QuickReply(
+            Message.QuickReplyType.TEXT, u'熱門陸劇'))
+        return [m]
 
     country = content_config['mode'].replace('trending_', '')
     return render_dramas(drama_info.get_trending(user_id, country=country))
