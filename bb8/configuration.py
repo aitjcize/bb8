@@ -35,7 +35,7 @@ class Config(object):
     API_SERVICER_LOG_FILE = 'api_servicer.log'
 
     # Server
-    HOSTNAME = 'bot.azhuang.me'
+    HOSTNAME = os.getenv('BB8_HOSTNAME', 'bot.azhuang.me')
     HTTP_PORT = int(os.getenv('HTTP_PORT', 7000))
 
     # Ports
@@ -64,6 +64,8 @@ class Config(object):
 
     # Line
     LINE_WEBHOOK_PATH = BOT_WEBHOOOK_ROOT + '/line'
+
+    GCP_PROJECT = 'dotted-lexicon-133523'
 
     class CeleryConfig(object):
         BROKER_URL = 'redis://localhost:%s/0' % os.getenv('REDIS_PORT', 6379)
@@ -95,7 +97,7 @@ class DeployConfig(DevelopmentConfig):
     LOG_DIR = BB8_ROOT + '/app_log'
 
     # Server
-    HOSTNAME = 'bot.compose.ai'
+    HOSTNAME = os.getenv('BB8_HOSTNAME', 'bot.compose.ai')
 
     # Third-Party apps hostname map
     APP_HOSTNAME_MAP = {
