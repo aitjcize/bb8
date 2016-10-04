@@ -32,6 +32,7 @@ BB8_SRC_ROOT = os.path.normpath(os.path.join(
 BB8_DATA_ROOT = '/var/lib/bb8'
 BB8_NETWORK = 'bb8_network'
 BB8_CLIENT_PACKAGE_NAME = 'bb8-client-9999.tar.gz'
+BB8_CREDENTIALS_DIR = '/etc/bb8/'
 
 
 logger = logging.getLogger('bb8ctl')
@@ -296,6 +297,30 @@ class BB8(object):
                 for app_dir in os.listdir(apps_dir)
                 if os.path.isdir(os.path.join(apps_dir, app_dir))]
 
+    def copy_credentials(self):
+        """Copy required credentials."""
+        # We shouldn't need credential when testing
+        if config.TESTING:
+            return
+
+        # Copy SSL-certificate
+        run('cp -r %s %s' % (os.path.join(BB8_CREDENTIALS_DIR, 'certs'),
+                             BB8_SRC_ROOT))
+
+        # Copy Google-Cloud credential
+        target = os.path.join(BB8_SRC_ROOT, 'credential')
+        if not os.path.exists(target):
+            os.makedirs(target)
+        run('cp -r %s %s' %
+            (os.path.join(BB8_CREDENTIALS_DIR, 'compose-ai.json'), target))
+
+        for app in ['content']:
+            target = os.path.join(BB8_SRC_ROOT, 'apps', app, 'credential')
+            if not os.path.exists(target):
+                os.makedirs(target)
+            run('cp -r %s %s' %
+                (os.path.join(BB8_CREDENTIALS_DIR, 'compose-ai.json'), target))
+
     def copy_extra_source(self):
         """Copy extra source required by client module."""
         LIST = ['base_message.py', 'database_utils.py', 'query_filters.py']
@@ -333,6 +358,7 @@ class BB8(object):
         run('rm -rf %s' % os.path.join(BB8_SRC_ROOT, 'bb8_client.egg-info'))
 
     def prepare_resource(self):
+        self.copy_credentials()
         self.copy_extra_source()
         self.build_client_package()
         self.compile_and_install_proto()
