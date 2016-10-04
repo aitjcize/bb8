@@ -11,6 +11,11 @@
 import os
 
 
+def scoped_name(name):
+    """Return the scoped name for a given bb8 object name."""
+    return '%s.%s' % (os.getenv('USER', 'nobody'), name)
+
+
 class Config(object):
     DEBUG = True
     TESTING = False
@@ -50,12 +55,20 @@ class Config(object):
     STORE_CONVERSATION = False
 
     # Third-Party apps hostname map
-    APP_HOSTNAME_MAP = {
-        'system':   'localhost',
-        'youbike':  'localhost',
-        'content':  'localhost',
-        'drama':    'localhost',
-    }
+    if os.getenv('BB8_IN_DOCKER', False) == 'true':
+        APP_HOSTNAME_MAP = {
+            'system':   scoped_name('bb8.app.system'),
+            'youbike':  scoped_name('bb8.app.youbike'),
+            'content':  scoped_name('bb8.app.content'),
+            'drama':    scoped_name('bb8.app.drama'),
+        }
+    else:
+        APP_HOSTNAME_MAP = {
+            'system':   'localhost',
+            'youbike':  'localhost',
+            'content':  'localhost',
+            'drama':    'localhost',
+        }
 
     # Messaging provider config
     # Facebook
