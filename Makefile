@@ -83,7 +83,7 @@ lint: compile-resource
 	@pylint $(LINT_OPTIONS) $(LINT_FILES)
 
 compile-resource:
-	@bb8ctl compile-resource
+	@export BB8_TEST=true; bb8ctl compile-resource
 
 validate-bots:
 	make -C bots
