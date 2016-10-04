@@ -6,6 +6,8 @@
     Copyright 2016 bb8 Authors
 """
 
+import os
+
 
 class Config(object):
     HOST = 'bb8.main'
@@ -17,7 +19,7 @@ class TestingConfig(Config):
 
 
 class DevelopmentConfig(Config):
-    pass
+    HOST = '%s.bb8.main' % os.getenv('BB8_SCOPE', 'nobody')
 
 
 class DeployConfig(Config):

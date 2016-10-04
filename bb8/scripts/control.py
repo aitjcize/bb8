@@ -50,7 +50,7 @@ def scoped_name(name):
     """Return name if we are in deploy mode, else the scoped name for a given
     bb8 object name."""
     return (name if config.DEPLOY else
-            '%s.%s' % (os.getenv('USER', 'nobody'), name))
+            '%s.%s' % (os.getenv('BB8_SCOPE', 'nobody'), name))
 
 
 def get_manifest_schema():
@@ -258,6 +258,7 @@ class App(object):
             ' --net-alias={0}'.format(self._image_name) +
             ' --cpu-shares={0}'.format(self.get_cpu_shares()) +
             ' -m {0}'.format(self.get_memory_limit()) +
+            ' -e BB8_SCOPE={0}'.format(os.getenv('BB8_SCOPE', 'nobody')) +
             ' -e BB8_DEPLOY={0}'.format(str(config.DEPLOY).lower()) +
             (' -p 9999:9999' if bind else ' ') +
             database_env_switch() +
@@ -439,8 +440,8 @@ class BB8(object):
             ' --net={0}'.format(BB8_NETWORK) +
             ' --net-alias={0}'.format(self.BB8_CONTAINER_NAME) +
             ' -p {0}:{1}'.format(config.HTTP_PORT, self.BB8_INDOCKER_PORT) +
-            ' -p {0}:{0}'.format(config.APP_API_SERVICE_PORT) +
             ' -v {0}:{0}'.format(self.CLOUD_SQL_DIR) +
+            ' -e BB8_SCOPE={0}'.format(os.getenv('BB8_SCOPE', 'nobody')) +
             ' -e BB8_IN_DOCKER=true ' +
             ' -e BB8_DEPLOY={0}'.format(str(config.DEPLOY).lower()) +
             ' -e HTTP_PORT={0}'.format(config.HTTP_PORT) +
