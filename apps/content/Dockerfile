@@ -2,9 +2,22 @@ FROM ubuntu:xenial
 MAINTAINER Kevin Li <kevin@compose.ai>
 
 RUN apt-get update && apt-get upgrade -y && \
-        apt-get install -y vim git python python2.7 \
-        python-pip libssl-dev libxml2-dev libxslt-dev \
-        lib32z1-dev libffi-dev libssl-dev supervisor
+        apt-get install -y --no-install-recommends apt-utils && \
+        apt-get install -y \
+                git \
+                lib32z1-dev \
+                libffi-dev \
+                libssl-dev \
+                libssl-dev \
+                libxml2-dev \
+                libxslt-dev \
+                python \
+                python2.7 \
+                python-pip \
+                python-pkg-resources \
+                supervisor \
+                vim \
+        && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt /tmp/requirements.txt
 
