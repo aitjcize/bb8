@@ -45,6 +45,13 @@ def setup_logger():
     logger.setLevel(logging.DEBUG)
 
 
+def scoped_name(name):
+    """Return name if we are in deploy mode, else the scoped name for a given
+    bb8 object name."""
+    return (name if config.DEPLOY else
+            '%s.%s' % (os.getenv('USER', 'nobody'), name))
+
+
 def get_manifest_schema():
     """Return the schema of app manifest."""
     with open(os.path.join(BB8_SRC_ROOT, 'apps', 'schema.app.json')) as f:
@@ -105,7 +112,7 @@ def database_env_switch():
 class App(object):
     """App class representing an BB8 third-party app."""
 
-    BB8_APP_PREFIX = 'bb8.app'
+    BB8_APP_PREFIX = scoped_name('bb8.app')
     SCHEMA = get_manifest_schema()
 
     VOLUME_PRIVILEGE_WHITELIST = ['system', 'content', 'drama']
@@ -265,8 +272,8 @@ class App(object):
 
 class BB8(object):
     BB8_IMAGE_NAME = 'bb8'
-    BB8_CONTAINER_NAME = 'bb8.main'
-    BB8_SERVICE_PREFIX = 'bb8.service'
+    BB8_CONTAINER_NAME = scoped_name('bb8.main')
+    BB8_SERVICE_PREFIX = scoped_name('bb8.service')
     BB8_INDOCKER_PORT = 5000
     CLOUD_SQL_DIR = '/cloudsql'
 
@@ -408,6 +415,8 @@ class BB8(object):
             ' -p {0}:{1}'.format(config.HTTP_PORT, self.BB8_INDOCKER_PORT) +
             ' -p {0}:{0}'.format(config.APP_API_SERVICE_PORT) +
             ' -v {0}:{0}'.format(self.CLOUD_SQL_DIR) +
+            ' -e BB8_IN_DOCKER=true ' +
+            ' -e BB8_DEPLOY={0}'.format(str(config.DEPLOY).lower()) +
             ' -e HTTP_PORT={0}'.format(config.HTTP_PORT) +
             database_env_switch() +
             hostname_env_switch() +
@@ -426,7 +435,7 @@ class BB8(object):
     def status(self):
         run('docker ps -a --format '
             '"table {{.Image}}\t{{.Names}}\t{{.Ports}}\t{{.Status}}" | '
-            'egrep "(IMAGE|bb8\\.)"')
+            'egrep "(IMAGE|%s\\.)"' % scoped_name('bb8'))
 
 
 def main():
