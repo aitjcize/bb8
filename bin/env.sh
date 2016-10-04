@@ -21,6 +21,7 @@ export MYSQL_PORT=3307
 export REDIS_PORT=6379
 export HTTP_PORT=7000
 export BB8_HOSTNAME=dev.compose.ai
+export BB8_SCOPE=$USER
 
 # Per-User port config for users testing on same machine
 case $USER in

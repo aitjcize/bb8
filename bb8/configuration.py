@@ -13,7 +13,7 @@ import os
 
 def scoped_name(name):
     """Return the scoped name for a given bb8 object name."""
-    return '%s.%s' % (os.getenv('USER', 'nobody'), name)
+    return '%s.%s' % (os.getenv('BB8_SCOPE', 'nobody'), name)
 
 
 class Config(object):
@@ -21,7 +21,7 @@ class Config(object):
     TESTING = False
     DEPLOY = False
 
-    BB8_ROOT = '/tmp/bb8.%s' % os.getenv('USER', 'nobody')
+    BB8_ROOT = '/tmp/bb8.%s' % os.getenv('BB8_SCOPE', 'nobody')
     LOCK_DIR = BB8_ROOT + '/lock'
 
     # Number of threads that serve the requests. This should be the same
