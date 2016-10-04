@@ -32,6 +32,7 @@ BB8_SRC_ROOT = os.path.normpath(os.path.join(
 BB8_DATA_ROOT = '/var/lib/bb8'
 BB8_NETWORK = 'bb8_network'
 BB8_CLIENT_PACKAGE_NAME = 'bb8-client-9999.tar.gz'
+BB8_CREDENTIALS_DIR = '/etc/bb8/'
 
 
 logger = logging.getLogger('bb8ctl')
@@ -43,6 +44,13 @@ def setup_logger():
         '%(log_color)s%(levelname)s:%(name)s:%(message)s'))
     logger.addHandler(handler)
     logger.setLevel(logging.DEBUG)
+
+
+def scoped_name(name):
+    """Return name if we are in deploy mode, else the scoped name for a given
+    bb8 object name."""
+    return (name if config.DEPLOY else
+            '%s.%s' % (os.getenv('USER', 'nobody'), name))
 
 
 def get_manifest_schema():
@@ -105,7 +113,7 @@ def database_env_switch():
 class App(object):
     """App class representing an BB8 third-party app."""
 
-    BB8_APP_PREFIX = 'bb8.app'
+    BB8_APP_PREFIX = scoped_name('bb8.app')
     SCHEMA = get_manifest_schema()
 
     VOLUME_PRIVILEGE_WHITELIST = ['system', 'content', 'drama']
@@ -265,8 +273,8 @@ class App(object):
 
 class BB8(object):
     BB8_IMAGE_NAME = 'bb8'
-    BB8_CONTAINER_NAME = 'bb8.main'
-    BB8_SERVICE_PREFIX = 'bb8.service'
+    BB8_CONTAINER_NAME = scoped_name('bb8.main')
+    BB8_SERVICE_PREFIX = scoped_name('bb8.service')
     BB8_INDOCKER_PORT = 5000
     CLOUD_SQL_DIR = '/cloudsql'
 
@@ -288,6 +296,30 @@ class BB8(object):
         return [os.path.join(apps_dir, app_dir)
                 for app_dir in os.listdir(apps_dir)
                 if os.path.isdir(os.path.join(apps_dir, app_dir))]
+
+    def copy_credentials(self):
+        """Copy required credentials."""
+        # We shouldn't need credential when testing
+        if config.TESTING:
+            return
+
+        # Copy SSL-certificate
+        run('cp -r %s %s' % (os.path.join(BB8_CREDENTIALS_DIR, 'certs'),
+                             BB8_SRC_ROOT))
+
+        # Copy Google-Cloud credential
+        target = os.path.join(BB8_SRC_ROOT, 'credential')
+        if not os.path.exists(target):
+            os.makedirs(target)
+        run('cp -r %s %s' %
+            (os.path.join(BB8_CREDENTIALS_DIR, 'compose-ai.json'), target))
+
+        for app in ['content']:
+            target = os.path.join(BB8_SRC_ROOT, 'apps', app, 'credential')
+            if not os.path.exists(target):
+                os.makedirs(target)
+            run('cp -r %s %s' %
+                (os.path.join(BB8_CREDENTIALS_DIR, 'compose-ai.json'), target))
 
     def copy_extra_source(self):
         """Copy extra source required by client module."""
@@ -326,6 +358,7 @@ class BB8(object):
         run('rm -rf %s' % os.path.join(BB8_SRC_ROOT, 'bb8_client.egg-info'))
 
     def prepare_resource(self):
+        self.copy_credentials()
         self.copy_extra_source()
         self.build_client_package()
         self.compile_and_install_proto()
@@ -408,6 +441,8 @@ class BB8(object):
             ' -p {0}:{1}'.format(config.HTTP_PORT, self.BB8_INDOCKER_PORT) +
             ' -p {0}:{0}'.format(config.APP_API_SERVICE_PORT) +
             ' -v {0}:{0}'.format(self.CLOUD_SQL_DIR) +
+            ' -e BB8_IN_DOCKER=true ' +
+            ' -e BB8_DEPLOY={0}'.format(str(config.DEPLOY).lower()) +
             ' -e HTTP_PORT={0}'.format(config.HTTP_PORT) +
             database_env_switch() +
             hostname_env_switch() +
@@ -426,7 +461,7 @@ class BB8(object):
     def status(self):
         run('docker ps -a --format '
             '"table {{.Image}}\t{{.Names}}\t{{.Ports}}\t{{.Status}}" | '
-            'egrep "(IMAGE|bb8\\.)"')
+            'egrep "(IMAGE|%s\\.)"' % scoped_name('bb8'))
 
 
 def main():

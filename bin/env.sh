@@ -19,6 +19,8 @@ done
 # Default configuration for CI
 export MYSQL_PORT=3307
 export REDIS_PORT=6379
+export HTTP_PORT=7000
+export BB8_HOSTNAME=dev.compose.ai
 
 # Per-User port config for users testing on same machine
 case $USER in
@@ -28,22 +30,14 @@ case $USER in
     export BB8_HOSTNAME=bot.compose.ai
     ;;
   aitjcize)
-    export MYSQL_PORT=3307
-    export REDIS_PORT=6380
-    export HTTP_PORT=7000
-    export BB8_HOSTNAME=bot.azhuang.me
-    ;;
-  kevin)
     export MYSQL_PORT=3308
-    export REDIS_PORT=6381
+    export REDIS_PORT=6380
     export HTTP_PORT=7001
-    export BB8_HOSTNAME=kevin.compose.ai
     ;;
   ychiaoli18)
-    export MYSQL_PORT=3307
-    export REDIS_PORT=6380
-    export HTTP_PORT=7000
-    export BB8_HOSTNAME=kevin.compose.ai
+    export MYSQL_PORT=3309
+    export REDIS_PORT=6381
+    export HTTP_PORT=7002
     ;;
 esac
 
