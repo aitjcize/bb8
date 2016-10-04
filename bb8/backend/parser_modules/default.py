@@ -240,9 +240,9 @@ def run(parser_config, user_input, as_root):
         matches = [m.group(0)] + list(m.groups())
         if m:
             collect_as = on_error['collect_as']
+            value = collect_as.get('value', '{{text}}')
             collect[collect_as['key']] = Render(
-                collect_as['value'],
-                {'text': user_input.text, 'matches': matches})
+                value, {'text': user_input.text, 'matches': matches})
 
     return ParseResult('$error', None, {'text': user_input.text}, collect)
 
