@@ -358,14 +358,15 @@ class BB8(object):
         run('cd %s; python setup.py sdist' % BB8_SRC_ROOT)
         run('rm -rf %s' % os.path.join(BB8_SRC_ROOT, 'bb8_client.egg-info'))
 
-    def prepare_resource(self):
-        self.copy_credentials()
+    def prepare_resource(self, copy_credential=True):
+        if copy_credential:
+            self.copy_credentials()
         self.copy_extra_source()
         self.build_client_package()
         self.compile_and_install_proto()
 
-    def compile_resource(self):
-        self.prepare_resource()
+    def compile_resource(self, copy_credential=True):
+        self.prepare_resource(copy_credential)
 
         for app_dir in self._app_dirs:
             app = App(app_dir)
@@ -508,6 +509,11 @@ def main():
     # compile-resource sub-command
     compile_resource_parser = subparsers.add_parser(
         'compile-resource', help='compile bb8 resource')
+    compile_resource_parser.add_argument('--no-copy-credential',
+                                         dest='no_copy_credential',
+                                         action='store_true',
+                                         default=False,
+                                         help='Skip copy credential step')
     compile_resource_parser.set_defaults(which='compile-resource')
 
     args = root_parser.parse_args()
@@ -546,7 +552,7 @@ def main():
     elif args.which == 'status':
         bb8.status()
     elif args.which == 'compile-resource':
-        bb8.compile_resource()
+        bb8.compile_resource(not args.no_copy_credential)
     else:
         raise RuntimeError('invalid sub-command')
 
