@@ -47,7 +47,7 @@ remove-redis:
 start-celery:
 	@celery -A bb8.celery worker --loglevel=info --concurrency 4
 
-test: setup-database setup-redis compile-resource
+test: setup-database setup-redis compile-resource-no-cred
 	@export BB8_TEST=true; export DATABASE=$(DB_URI); \
 	 for test in $(UNITTESTS); do \
 	   if echo $$test | grep '^apps'; then \
@@ -61,7 +61,7 @@ test: setup-database setup-redis compile-resource
 	 done
 	@manage reset
 
-coverage: setup-database setup-redis compile-resource
+coverage: setup-database setup-redis compile-resource-no-cred
 	@export BB8_TEST=true; export DATABASE=$(DB_URI); \
 	 for test in $(UNITTESTS); do \
 	   if echo $$test | grep '^apps'; then \
@@ -78,12 +78,17 @@ coverage: setup-database setup-redis compile-resource
 	@coverage combine .coverage_*
 	@coverage html --include=bb8/*
 
-lint: compile-resource
+lint: compile-resource-no-cred
 	@pep8 $(LINT_FILES)
 	@pylint $(LINT_OPTIONS) $(LINT_FILES)
 
 compile-resource:
-	@export BB8_TEST=true; bb8ctl compile-resource
+	@bb8ctl compile-resource
+
+# Compile resource without copying credentials. This is used in CI
+# environment, which is not run on compose.ai dev server.
+compile-resource-no-cred:
+	@bb8ctl compile-resource --no-copy-credential
 
 validate-bots:
 	make -C bots
