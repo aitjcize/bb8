@@ -6,6 +6,7 @@ htmlcov
 .coverage
 states
 *_pb2.py
-./credential
 apps/content/credential
 dist
+credential
+certs
