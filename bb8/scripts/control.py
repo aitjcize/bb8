@@ -189,12 +189,13 @@ class App(object):
         if instance:
             run('docker rm -f %s' % instance, True)
 
-    def shell(self):
+    def shell(self, command=None):
         instance = docker_get_instance(self._image_name)
         if not instance:
             logger.error('App `%s\' not running', self._image_name)
             return
-        s = subprocess.Popen('docker exec -it %s bash' % instance, shell=True)
+        s = subprocess.Popen('docker exec -it %s %s' %
+                             (instance, command or 'bash'), shell=True)
         s.wait()
 
     def start_container(self, force=False, bind=False):
@@ -396,13 +397,14 @@ class BB8(object):
             app = App(app_dir)
             app.stop()
 
-    def shell(self):
+    def shell(self, command=None):
         instance = docker_get_instance(self.BB8_CONTAINER_NAME)
         if not instance:
             logger.error('Main container `%s\' not running',
                          self.BB8_CONTAINER_NAME)
             return
-        s = subprocess.Popen('docker exec -it %s bash' % instance, shell=True)
+        s = subprocess.Popen('docker exec -it %s %s' %
+                             (instance, command or 'bash'), shell=True)
         s.wait()
 
     def get_git_version_hash(self):
@@ -430,7 +432,6 @@ class BB8(object):
                     logger.warn('BB8: skip deployment.')
                     sys.exit(1)
 
-        run('sudo umount %s/log >/dev/null 2>&1' % BB8_DATA_ROOT, True)
         run('docker build -t %s %s' % (self.BB8_IMAGE_NAME, BB8_SRC_ROOT))
 
         if instance:
@@ -450,11 +451,6 @@ class BB8(object):
             hostname_env_switch() +
             ' -d {0}'.format(self.BB8_IMAGE_NAME))
 
-        run('sudo mount --bind '
-            '$(docker inspect -f \'{{index (index .Mounts 1) "Source"}}\' %s) '
-            '%s' %
-            (new_container_name, os.path.join(BB8_DATA_ROOT, 'log')), True)
-
     def logs(self):
         instance = docker_get_instance(self.BB8_CONTAINER_NAME)
         if instance:
@@ -470,6 +466,9 @@ def main():
     root_parser = argparse.ArgumentParser(description='BB8 control script')
     subparsers = root_parser.add_subparsers(help='sub-command')
 
+    root_parser.add_argument('-a', '--app', dest='app', default=None,
+                             help='operate on specific app')
+
     # start sub-command
     start_parser = subparsers.add_parser('start', help='start bb8')
     start_parser.set_defaults(which='start')
@@ -477,8 +476,6 @@ def main():
                               action='store_true', default=False,
                               help='Deploy even if version hash has not '
                               'changed')
-    start_parser.add_argument('-a', '--app', dest='app', default=None,
-                              help='operate on specific app')
     start_parser.add_argument('-b', '--bind', dest='bind',
                               action='store_true', default=False,
                               help='Bind app service port to localhost')
@@ -486,21 +483,15 @@ def main():
     # stop sub-command
     stop_parser = subparsers.add_parser('stop', help='stop bb8')
     stop_parser.set_defaults(which='stop')
-    stop_parser.add_argument('-a', '--app', dest='app', default=None,
-                             help='operate on specific app')
 
     # logs sub-command
     logs_parser = subparsers.add_parser('logs', help='show bb8 logs')
     logs_parser.set_defaults(which='logs')
-    logs_parser.add_argument('-a', '--app', dest='app', default=None,
-                             help='operate on specific app')
 
     # shell sub-command
     shell_parser = subparsers.add_parser('shell',
                                          help='get a shell into container')
     shell_parser.set_defaults(which='shell')
-    shell_parser.add_argument('-a', '--app', dest='app', default=None,
-                              help='operate on specific app')
 
     # status sub-command
     status_parser = subparsers.add_parser('status', help='show bb8 status')
@@ -516,7 +507,14 @@ def main():
                                          help='Skip copy credential step')
     compile_resource_parser.set_defaults(which='compile-resource')
 
-    args = root_parser.parse_args()
+    # We want to pass the rest of arguments after shell command directly to the
+    # function without parsing it.
+    try:
+        index = sys.argv.index('shell')
+    except ValueError:
+        args = root_parser.parse_args()
+    else:
+        args = root_parser.parse_args(sys.argv[1:index + 1])
 
     bb8 = BB8()
     app = None
@@ -545,10 +543,11 @@ def main():
         else:
             bb8.logs()
     elif args.which == 'shell':
+        command = ' '.join(sys.argv[sys.argv.index('shell') + 1:])
         if app:
-            app.shell()
+            app.shell(command)
         else:
-            bb8.shell()
+            bb8.shell(command)
     elif args.which == 'status':
         bb8.status()
     elif args.which == 'compile-resource':
