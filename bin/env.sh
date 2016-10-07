@@ -52,4 +52,8 @@ case $USER in
     ;;
 esac
 
-export DATABASE="mysql+pymysql://bb8:bb8test@127.0.0.1:$MYSQL_PORT/bb8?charset=utf8mb4"
+
+DOCKER_HOST_IP=`ifconfig docker0 | grep 'inet addr:' | cut -d: -f2 | cut -f1 -d ' '`
+
+export DATABASE="mysql+pymysql://bb8:bb8test@$DOCKER_HOST_IP:$MYSQL_PORT/bb8?charset=utf8mb4"
+export REDIS_URI="redis://$DOCKER_HOST_IP:$REDIS_PORT/0"

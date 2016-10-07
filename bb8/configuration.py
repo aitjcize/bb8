@@ -81,7 +81,7 @@ class Config(object):
     GCP_PROJECT = 'dotted-lexicon-133523'
 
     class CeleryConfig(object):
-        BROKER_URL = 'redis://localhost:%s/0' % os.getenv('REDIS_PORT', 6379)
+        BROKER_URL = os.getenv('REDIS_URI', 'redis://localhost:6379/0')
         CELERY_IMPORTS = ('bb8.backend.messaging',)
         CELERY_SEND_EVENTS = False
         CELERY_ACCEPT_CONTENT = ['pickle']
