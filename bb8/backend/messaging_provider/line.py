@@ -8,19 +8,20 @@
 
 import requests
 
+from flask import g
 
-LINE_MESSAGING_API_URL = 'https://trialbot-api.line.me/v1/events'
+
+LINE_MESSAGE_REPLY_API_URL = 'https://api.line.me/v2/bot/message/reply'
 
 
 def get_config_schema():
     """Return platform config schema."""
     return {
         'type': 'object',
-        'required': ['channel_id', 'channel_secret', 'mid'],
+        'required': ['access_token', 'channel_secret'],
         'properties': {
-            'channel_id': {'type': 'string'},
+            'access_token': {'type': 'string'},
             'channel_secret': {'type': 'string'},
-            'mid': {'type': 'string'}
         }
     }
 
@@ -42,28 +43,27 @@ def get_user_profile(unused_platform, unused_user_ident):
     return ret
 
 
-def send_message(user, messages):
+def send_message(unused_user, messages):
     """Send message to the platform."""
-    platform = user.platform
+    g.line_messages += messages
+
+
+def flush_message(platform):
+    """Flush the message and send it to user."""
     headers = {
-        'X-Line-ChannelID': platform.config['channel_id'],
-        'X-Line-ChannelSecret': platform.config['channel_secret'],
-        'X-Line-Trusted-User-With-ACL': platform.config['mid']
+        'Authorization': 'Bearer %s' % platform.config['access_token']
     }
 
-    for message in messages:
-        response = requests.request(
-            'POST',
-            LINE_MESSAGING_API_URL,
-            headers=headers,
-            json={
-                'to': [user.platform_user_ident],
-                'toChannel': 1383378250,  # Fixed value
-                'eventType': '140177271400161403',  # Fixed value
-                'content': message.as_line_message()
-            }
-        )
+    response = requests.request(
+        'POST',
+        LINE_MESSAGE_REPLY_API_URL,
+        headers=headers,
+        json={
+            'replyToken': g.line_reply_token,
+            'messages': [m.as_line_message() for m in g.line_messages]
+        }
+    )
 
-        if response.status_code != 200:
-            raise RuntimeError('HTTP %d: %s' % (response.status_code,
-                                                response.text))
+    if response.status_code != 200:
+        text = response.text.replace(u'\xa0', '\n')
+        raise RuntimeError('HTTP %d: %s' % (response.status_code, text))

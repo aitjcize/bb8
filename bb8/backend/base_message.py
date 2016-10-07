@@ -138,6 +138,8 @@ class Message(object):
     representation.
     """
 
+    MAX_TEXT_LEN = 320
+
     class NotificationType(enum.Enum):
         REGULAR = 'REGULAR'
         SILENT_PUSH = 'SLIENT_PUSH'
@@ -248,6 +250,9 @@ class Message(object):
             return data
 
     class Bubble(object):
+        MAX_TITLE_LEN = 80
+        MAX_BUTTONS = 3
+
         def __init__(self, title, item_url=None, image_url=None, subtitle=None,
                      buttons=None, variables=None):
             variables = variables or {}
@@ -256,6 +261,12 @@ class Message(object):
             self.image_url = Render(image_url, variables)
             self.subtitle = Render(subtitle, variables)
             self.buttons = buttons or []
+
+            # Truncat to limits
+            if self.title:
+                self.title = self.title[:self.MAX_TITLE_LEN]
+            if self.subtitle:
+                self.subtitle = self.subtitle[:self.MAX_TITLE_LEN]
 
         def __str__(self):
             return json.dumps(self.as_dict())
@@ -305,6 +316,9 @@ class Message(object):
         def add_button(self, button):
             if not isinstance(button, Message.Button):
                 raise RuntimeError('object is not a Message.Button object')
+
+            if len(self.buttons) == self.MAX_BUTTONS:
+                raise RuntimeError('max number of Message.Button reached')
 
             self.buttons.append(button)
 
@@ -416,6 +430,12 @@ class Message(object):
         self.bubbles = []
         self.buttons = []
         self.quick_replies = []
+
+        # Truncat to limits
+        if self.text:
+            self.text = self.text[:self.MAX_TEXT_LEN]
+        if self.buttons_text:
+            self.buttons = self.buttons[:self.MAX_TEXT_LEN]
 
     def __str__(self):
         return json.dumps(self.as_dict())

@@ -30,16 +30,6 @@
           }
         ]
       }
-    },
-    {
-      "type_enum": "Line",
-      "deployed": true,
-      "provider_ident": "u5526efbbc9c7ad1b3375c5102c276e68",
-      "config": {
-        "channel_id": "1468633788",
-        "channel_secret": "70a5bfd80b2cf26e387b83aa836fc884",
-        "mid": "u5526efbbc9c7ad1b3375c5102c276e68"
-      }
     }
   ],
   "bot": {

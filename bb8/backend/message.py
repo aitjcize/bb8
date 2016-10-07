@@ -269,63 +269,96 @@ class Message(base_message.Message):
 
     def as_line_message(self):
         """Return message as Line message dictionary."""
-        msgs = []
+        MAX_BUTTONS = 3
+        MAX_BUBBLES = 5
+        MAX_TEXT_LEN = 160
+        MAX_TITLE_LEN = 40
 
         if self.text:
-            msgs.append({'contentType': 1, 'toType': 1, 'text': self.text})
+            return {'type': 'text', 'text': self.text[:MAX_TEXT_LEN]}
         elif self.image_url:
-            msgs.append({
-                'contentType': 2,
-                'toType': 1,
+            return {
+                'type': 'image',
                 'originalContentUrl':
                     image_convert_url(self.image_url, (1024, 1024)),
                 'previewImageUrl':
                     image_convert_url(self.image_url, (240, 240))
-            })
+            }
         elif self.buttons:
-            msg_text = self.buttons_text + '\n'
-            for i, but in enumerate(self.buttons):
+            buttons = []
+            for but in self.buttons[:MAX_BUBBLES]:
                 if but.type == Message.ButtonType.WEB_URL:
-                    msg_text += u'%d. %s <%s>\n' % (i + 1, but.title,
-                                                    but.url)
-                else:
-                    msg_text += u'%d. %s\n' % (i + 1, but.title)
+                    buttons.append({
+                        'type': 'uri',
+                        'label': but.title[:MAX_TITLE_LEN],
+                        'uri': but.url
+                    })
+                elif but.type == Message.ButtonType.POSTBACK:
+                    buttons.append({
+                        'type': 'postback',
+                        'label': but.title[:MAX_TITLE_LEN],
+                        'data': but.payload
+                    })
 
-            msgs.append({
-                'contentType': 1,
-                'toType': 1,
-                'text': msg_text
-            })
+            return {
+                'type': 'template',
+                'altText': 'buttons',
+                'template': {
+                    'type': 'buttons',
+                    'text': self.buttons_text,
+                    'actions': buttons
+                }
+            }
         elif self.bubbles:
-            for card_i, bubble in enumerate(self.bubbles):
-                msg_text = bubble.title + '\n'
-                if bubble.subtitle:
-                    msg_text += bubble.subtitle + '\n'
+            columns = []
+            max_buttons = max([len(b.buttons[:MAX_BUTTONS])
+                               for b in self.bubbles])
 
-                for i, but in enumerate(bubble.buttons):
+            for bubble in self.bubbles[:MAX_BUBBLES]:
+                buttons = []
+                for but in bubble.buttons[:MAX_BUTTONS]:
                     if but.type == Message.ButtonType.WEB_URL:
-                        msg_text += u'%d-%d. %s <%s>\n' % (card_i + 1, i + 1,
-                                                           but.title, but.url)
-                    else:
-                        msg_text += u'%d-%d. %s\n' % (card_i + 1, i + 1,
-                                                      but.title)
+                        buttons.append({
+                            'type': 'uri',
+                            'label': but.title[:MAX_TITLE_LEN],
+                            'uri': but.url
+                        })
+                    elif but.type == Message.ButtonType.POSTBACK:
+                        buttons.append({
+                            'type': 'postback',
+                            'label': but.title[:MAX_TITLE_LEN],
+                            'data': but.payload
+                        })
 
-                msgs.append({
-                    'contentType': 1,
-                    'toType': 1,
-                    'text': msg_text
-                })
+                for unused_i in range(max_buttons - len(buttons)):
+                    buttons.append({
+                        'type': 'postback',
+                        'label': ' ',
+                        'data': ' '
+                    })
 
-                msgs.append({
-                    'contentType': 2,
-                    'toType': 1,
-                    'originalContentUrl':
-                        image_convert_url(bubble.image_url, (1024, 1024)),
-                    'previewImageUrl':
-                        image_convert_url(bubble.image_url, (240, 240))
-                })
+                col = {
+                    'title': bubble.title[:MAX_TITLE_LEN],
+                    'text': bubble.subtitle if bubble.subtitle else ' ',
+                    'actions': buttons
+                }
 
-        return {'messages': msgs}
+                if bubble.image_url:
+                    col['thumbnailImageUrl'] = image_convert_url(
+                        bubble.image_url, (1024, 1024))
+
+                columns.append(col)
+
+            return {
+                'type': 'template',
+                'altText': 'carousel',
+                'template': {
+                    'type': 'carousel',
+                    'columns': columns
+                }
+            }
+
+        return {}
 
     def add_button(self, button):
         super(Message, self).add_button(button)

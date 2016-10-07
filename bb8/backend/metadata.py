@@ -222,23 +222,27 @@ class UserInput(object):
         self.raw_message = message
 
     @classmethod
-    def FromLineMessage(cls, content):
-        u = UserInput()
-        if content['contentType'] == 1:  # Text Message
-            u.text = content['text']
-        elif content['contentType'] == 7:  # Location Message
-            loc = content['location']
-            u.location = {
-                'title': loc['title'],
-                'coordinates': {
-                    'lat': loc['latitude'],
-                    'long': loc['longitude']
+    def FromLineMessage(cls, entry):
+        message = entry.get('message')
+        if message:
+            u = UserInput()
+            if message['type'] == 'text':
+                u.text = message['text']
+            elif message['type'] == 'location':
+                u.location = {
+                    'title': message['title'],
+                    'coordinates': {
+                        'lat': message['latitude'],
+                        'long': message['longitude']
+                    }
                 }
-            }
-        else:
-            return None
+            else:
+                return None
+            return u
 
-        return u
+        postback = entry.get('postback')
+        if postback:
+            return cls.FromPayload(postback['data'])
 
     def jump(self):
         return self.jump_node_id is not None
