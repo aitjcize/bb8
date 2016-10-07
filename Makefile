@@ -7,12 +7,6 @@ LINT_OPTIONS = --rcfile=bin/pylintrc \
 	       --msg-template='{path}:{line}: {msg_id}: {msg}' \
 	       --generated-members='service_pb2.*'
 
-MYSQL_PORT ?= 3307
-DOCKER_IP ?= 127.0.0.1
-
-DB_URI = "mysql+pymysql://bb8:bb8test@$(DOCKER_IP):$(MYSQL_PORT)/bb8?" \
-	 "charset=utf8mb4"
-
 CLOUD_SQL_DIR = "/cloudsql"
 
 all: test lint validate-bots
@@ -48,7 +42,7 @@ start-celery:
 	@celery -A bb8.celery worker --loglevel=info --concurrency 4
 
 test: setup-database setup-redis compile-resource-no-cred
-	@export BB8_TEST=true; export DATABASE=$(DB_URI); \
+	@export BB8_TEST=true; \
 	 for test in $(UNITTESTS); do \
 	   if echo $$test | grep '^apps'; then \
 	     export PYTHONPATH=$(CURDIR):$(CURDIR)/$$(echo $$test | \
@@ -62,7 +56,7 @@ test: setup-database setup-redis compile-resource-no-cred
 	@manage reset
 
 coverage: setup-database setup-redis compile-resource-no-cred
-	@export BB8_TEST=true; export DATABASE=$(DB_URI); \
+	@export BB8_TEST=true; \
 	 for test in $(UNITTESTS); do \
 	   if echo $$test | grep '^apps'; then \
 	     export PYTHONPATH=$(CURDIR):$(CURDIR)/$$(echo $$test | \

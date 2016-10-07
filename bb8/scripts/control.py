@@ -105,9 +105,17 @@ def database_env_switch():
         return ''
     database = os.getenv('DATABASE', None)
     if database is None:
-        logger.error('dev database not specified')
-    database = database.replace('127.0.0.1', '172.17.0.1')
+        raise RuntimeError('dev database not specified')
     return ' -e DATABASE=%s ' % database
+
+
+def redis_env_switch():
+    if config.DEPLOY:
+        return ''
+    redis = os.getenv('REDIS_URI', None)
+    if redis is None:
+        raise RuntimeError('dev redis not specified')
+    return ' -e REDIS_URI=%s ' % redis
 
 
 class App(object):
@@ -195,7 +203,10 @@ class App(object):
             logger.error('App `%s\' not running', self._image_name)
             return
         s = subprocess.Popen('docker exec -it %s %s' %
-                             (instance, command or 'bash'), shell=True)
+                             (instance,
+                              'bash' + (" -c '%s'" % command
+                                        if command else '')),
+                             shell=True)
         s.wait()
 
     def start_container(self, force=False, bind=False):
@@ -404,7 +415,10 @@ class BB8(object):
                          self.BB8_CONTAINER_NAME)
             return
         s = subprocess.Popen('docker exec -it %s %s' %
-                             (instance, command or 'bash'), shell=True)
+                             (instance,
+                              'bash' + (" -c '%s'" % command
+                                        if command else '')),
+                             shell=True)
         s.wait()
 
     def get_git_version_hash(self):
@@ -448,6 +462,7 @@ class BB8(object):
             ' -e BB8_DEPLOY={0}'.format(str(config.DEPLOY).lower()) +
             ' -e HTTP_PORT={0}'.format(config.HTTP_PORT) +
             database_env_switch() +
+            redis_env_switch() +
             hostname_env_switch() +
             ' -d {0}'.format(self.BB8_IMAGE_NAME))
 
