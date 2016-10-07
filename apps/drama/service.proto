@@ -56,4 +56,5 @@ message TrendingRequest {
 message HistoryRequest {
   uint32 drama_id = 1;
   uint32 from_episode = 2;
+  bool backward = 3;
 }
