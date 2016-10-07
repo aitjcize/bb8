@@ -45,6 +45,11 @@ case $USER in
     export REDIS_PORT=6382
     export HTTP_PORT=7003
     ;;
+  hans)
+    export MYSQL_PORT=3311
+    export REDIS_PORT=6383
+    export HTTP_PORT=7004
+    ;;
 esac
 
 export DATABASE="mysql+pymysql://bb8:bb8test@127.0.0.1:$MYSQL_PORT/bb8?charset=utf8mb4"
