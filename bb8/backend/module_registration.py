@@ -47,6 +47,10 @@ def register_content_modules():
             logger.info('Registering content module `%s\' ...', name)
             m = importlib.import_module('%s.%s' %
                                         (ContentModule.CONTENT_MODULES, name))
+            if not hasattr(m, 'get_module_info'):
+                logger.warn('Skip module %s due to lack of get_module_info()' %
+                            name)
+                continue
             info = m.get_module_info()
             assert info['module_name'] == name
 
