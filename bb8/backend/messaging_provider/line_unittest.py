@@ -13,8 +13,6 @@ import datetime
 from bb8 import app
 from bb8.backend.database import DatabaseManager
 from bb8.backend.database import Bot, Platform, PlatformTypeEnum, User
-from bb8.backend.messaging import Message
-from bb8.backend.messaging_provider import line
 
 
 class LineMessagingUnittest(unittest.TestCase):
@@ -54,7 +52,13 @@ class LineMessagingUnittest(unittest.TestCase):
         DatabaseManager.commit()
 
     def test_send_message(self):
-        """Test line message sending."""
+        """Test line message sending.
+
+        Disable theses tests for now, as we don't support LINE message pushing
+        yet.
+
+        from bb8.backend.messaging import Message
+        from bb8.backend.messaging_provider import line
 
         # Test simple text message
         m = Message('test')
@@ -92,6 +96,8 @@ class LineMessagingUnittest(unittest.TestCase):
         m.add_bubble(bubble)
 
         line.send_message(self.user, [m])
+        """
+        pass
 
 
 if __name__ == '__main__':

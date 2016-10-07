@@ -267,8 +267,7 @@ def run(content_config, env, variables):
     size = (500, 260)
 
     if env['platform_type'] == SupportedPlatform.Line:
-        k = 2
-        size = (1000, 1000)
+        k = 4
 
     stations = youbike.find_knn(k, c, content_config['distance_threshold'])
     if not stations:

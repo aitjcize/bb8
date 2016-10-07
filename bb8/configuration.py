@@ -76,7 +76,7 @@ class Config(object):
     FACEBOOK_WEBHOOK_VALIDATION_TOKEN = 'meow_meow_meow'
 
     # Line
-    LINE_WEBHOOK_PATH = BOT_WEBHOOOK_ROOT + '/line'
+    LINE_WEBHOOK_PATH = BOT_WEBHOOOK_ROOT + '/line/<provider_ident>'
 
     GCP_PROJECT = 'dotted-lexicon-133523'
 
