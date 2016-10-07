@@ -88,10 +88,12 @@ class DramaInfo(object):
                 user_id=user_id, term=term
             ), GRPC_TIMEOUT).dramas
 
-    def get_history(self, drama_id, from_episode):
+    def get_history(self, drama_id, from_episode, backward):
         return self._stub.GetHistory(
             self._pb2_module.HistoryRequest(
-                drama_id=drama_id, from_episode=from_episode
+                drama_id=drama_id,
+                from_episode=from_episode,
+                backward=backward
             ), GRPC_TIMEOUT).episodes
 
 
@@ -112,9 +114,18 @@ def render_dramas(dramas):
                            subtitle=d.description)
         b.add_button(Message.Button(
             Message.ButtonType.POSTBACK,
-            u'追蹤我！', payload=EventPayload('SUBSCRIBE', {
+            u'追蹤我', payload=EventPayload('SUBSCRIBE', {
                 'drama_id': d.id,
             }, False)))
+        b.add_button(Message.Button(
+            Message.ButtonType.POSTBACK,
+            u'我想看前幾集',
+            payload=EventPayload(
+                'GET_HISTORY', {
+                    'drama_id': d.id,
+                    'from_episode': 1,
+                    'backward': False,
+                })))
         m.add_bubble(b)
     return [m]
 
@@ -136,7 +147,11 @@ def render_episodes(episodes):
             Message.ButtonType.WEB_URL,
             u'帶我去看',
             url=ep.link))
-
+        b.add_button(Message.Button(
+            Message.ButtonType.POSTBACK,
+            u'追蹤我', payload=EventPayload('SUBSCRIBE', {
+                'drama_id': ep.drama_id,
+            }, False)))
         b.add_button(Message.Button(
             Message.ButtonType.POSTBACK,
             u'我想看前幾集',
@@ -144,6 +159,7 @@ def render_episodes(episodes):
                 'GET_HISTORY', {
                     'drama_id': ep.drama_id,
                     'from_episode': ep.serial_number,
+                    'backward': True,
                 })))
         m.add_bubble(b)
     return [m]
@@ -154,16 +170,27 @@ def run(content_config, unused_env, variables):
 
     if content_config['mode'] == 'subscribe':
         event = variables['event']
-        drama_info.subscribe(user_id, event.value['drama_id'])
-        return [Message(u'謝謝您的追蹤，'
-                        u'我們會在有更新的時候通知您')]
+        drama_id = event.value['drama_id']
+        drama_info.subscribe(user_id, drama_id)
+
+        episodes = drama_info.get_history(drama_id=drama_id,
+                                          from_episode=1,
+                                          backward=False)
+        return ([Message(u'謝謝您的追蹤，'
+                         u'我們會在有更新的時候通知您！'),
+                 Message(u'在等待的同時，'
+                         u'您可以先看看之前的集數喲！')] +
+                render_episodes(episodes))
 
     if content_config['mode'] == 'get_history':
         event = variables['event']
         drama_id = event.value['drama_id']
         from_episode = event.value['from_episode']
+        backward = event.value['backward']
         episodes = drama_info.get_history(drama_id=drama_id,
-                                          from_episode=from_episode)
+                                          from_episode=from_episode,
+                                          backward=backward)
+
         return render_episodes(episodes)
 
     if content_config['mode'] == 'prompt':
