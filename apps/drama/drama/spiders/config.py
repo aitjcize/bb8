@@ -13,7 +13,7 @@ from scrapy.linkextractors import LinkExtractor
 spider_configs = {
     'dramaq': {
         'name': 'dramaq',
-        'allowed_domains': ['www.dramaq.biz'],
+        'allowed_domains': ['www.dramaq.biz', 'www.showq.biz'],
         'start_urls': (
             'http://www.dramaq.biz/',
             'http://www.dramaq.biz/tw/',
@@ -24,6 +24,10 @@ spider_configs = {
             Rule(LinkExtractor(
                 deny=(r'.*\.php$'),
                 restrict_xpaths='//ul[@class="category-module"]',
+            ), callback='parse_drama'),
+            Rule(LinkExtractor(
+                deny=(r'.*\.php$'),
+                restrict_xpaths='//td//a',
             ), callback='parse_drama'),
         ),
 
