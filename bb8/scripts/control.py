@@ -203,7 +203,10 @@ class App(object):
             logger.error('App `%s\' not running', self._image_name)
             return
         s = subprocess.Popen('docker exec -it %s %s' %
-                             (instance, command or 'bash'), shell=True)
+                             (instance,
+                              'bash' + (" -c '%s'" % command
+                                        if command else '')),
+                             shell=True)
         s.wait()
 
     def start_container(self, force=False, bind=False):
@@ -412,7 +415,10 @@ class BB8(object):
                          self.BB8_CONTAINER_NAME)
             return
         s = subprocess.Popen('docker exec -it %s %s' %
-                             (instance, command or 'bash'), shell=True)
+                             (instance,
+                              'bash' + (" -c '%s'" % command
+                                        if command else '')),
+                             shell=True)
         s.wait()
 
     def get_git_version_hash(self):
