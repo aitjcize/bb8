@@ -94,6 +94,9 @@ def parse_bot(filename, to_bot_id=None):
                          type_enum=platform_desc['type_enum'],
                          provider_ident=platform_desc['provider_ident'],
                          config=platform_desc['config']).add()
+            else:
+                platform.type_enum = platform_desc['type_enum']
+                platform.config = platform_desc['config']
 
             if (not platform_desc['deployed'] or
                     (config.DEPLOY and platform_desc['deployed'])):
