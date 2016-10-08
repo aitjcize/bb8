@@ -60,7 +60,12 @@ class DramaInfo(object):
     def Search(cls, unused_user_id, term, count=10):
         with DatabaseSession():
             dramas = Drama.query().filter(
-                Drama.name.like(unicode('%' + term + '%'))).limit(count)
+                Drama.name.like(unicode('%' + term + '%'))
+            ).order_by(
+                # pylint: disable=C0121
+                Drama.order == None,  # noqa
+                'order', desc('updated_at'),
+            ).limit(count)
             return [to_proto_drama(drama) for drama in dramas]
 
     @classmethod
