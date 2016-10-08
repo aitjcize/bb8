@@ -30,6 +30,15 @@
           }
         ]
       }
+    },
+    {
+      "type_enum": "Line",
+      "deployed": true,
+      "provider_ident": "youbike.composeai",
+      "config": {
+        "access_token": "ageBtlRARPVjJShBar2a+dpnG7DKQyb/leRmRxT9PHNUVjYhoDDlCD7cJ/+ywjt0igu5N9HvoRkjO4mRF+S39/p5TRuMfkylMjBoKj3pLskAwWbGR26W1TEp7o+zPaVa2ghz3yxYfGZfMctsuQFojQdB04t89/1O/w1cDnyilFU=",
+        "channel_secret": "70a5bfd80b2cf26e387b83aa836fc884"
+      }
     }
   ],
   "bot": {

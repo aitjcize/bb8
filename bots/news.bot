@@ -30,6 +30,15 @@
           }
         ]
       }
+    },
+    {
+      "type_enum": "Line",
+      "deployed": true,
+      "provider_ident": "news.composeai",
+      "config": {
+        "access_token": "FQxvp9j+KqPaCt9Gtr3jhC1XoYFjB/plnymZUjn7f5ZcQtROjgl7hUid94Jip0LyS2KGChvfO/4mGrPpQ+Urh0Cl/S+1F8hA9Y7iaZMH2QcR19BKd2EcM9VS4QdLokA2e6Rz6OQBxah4XXEJNf9SigdB04t89/1O/w1cDnyilFU=",
+        "channel_secret": "cdc88eb98b7eb10b4a48fa5c90ca32f3"
+      }
     }
   ],
   "bot": {
