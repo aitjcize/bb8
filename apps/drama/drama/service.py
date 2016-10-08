@@ -64,12 +64,15 @@ class DramaInfo(object):
             return [to_proto_drama(drama) for drama in dramas]
 
     @classmethod
-    def Trending(cls, unused_user_id, country, count=5):
+    def Trending(cls, unused_user_id, country, count=10):
         with DatabaseSession():
-            dramas = Drama.get_by(
-                country=DramaCountryEnum(country),
-                order_by=[desc('order'), desc('created_at')],
-                limit=count)
+            dramas = Drama.query().filter(
+                Drama.country == DramaCountryEnum(country)
+            ).order_by(
+                # pylint: disable=C0121
+                Drama.order == None,  # noqa
+                'order', desc('updated_at'),
+            ).limit(count)
             return [to_proto_drama(drama) for drama in dramas]
 
     @classmethod
