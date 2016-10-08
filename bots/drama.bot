@@ -61,6 +61,46 @@
           }
         }
       },
+      "prompt_search_term": {
+        "name": "PromptSearchTerm",
+        "description": "search without term, prompt for term",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.core.text_message",
+          "config": {
+            "text": "你想要找什麼樣的主題呢？"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(.*)"],
+                  "collect_as": {"key": "search_term"}
+                },
+                "action_ident": "do_search",
+                "end_node_id": "[[search_dramas]]",
+                "ack_message": ""
+              }
+            ]
+          }
+        }
+      },
+      "search_dramas": {
+        "name": "Search",
+        "description": "Search dramas",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.third_party.drama",
+          "config": {
+            "mode": "search",
+            "query_term": "{{matches#1,text}}"
+          }
+        }
+      },
       "subscribe_drama": {
         "name": "Subscribe",
         "description": "Subscribe drama",
@@ -146,6 +186,28 @@
           "id": "ai.compose.parser.core.default",
           "config": {
             "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["^搜尋$", "^找$", "^search$"]
+                },
+                "action_ident": "search_no_argument",
+                "end_node_id": "[[prompt_search_term]]",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["搜尋 ?(.*)$", "^找 (.*)$", "search ?(.*)$"],
+                  "collect_as": {
+                    "key": "query_term",
+                    "value": "{{matches#1}}"
+                  }
+                },
+                "action_ident": "search",
+                "end_node_id": "[[search_dramas]]",
+                "ack_message": ""
+              },
               {
                 "rule": {
                   "type": "sticker",
@@ -254,7 +316,7 @@
               },
               {
                 "action_ident": "$error",
-                "end_node_id": "[[root]]",
+                "end_node_id": "[[search_dramas]]",
                 "ack_message": ""
               }
             ],
@@ -288,7 +350,7 @@
           "config": {
             "messages": [
                 {
-                  "text": "你好，我是 Compose.AI 的追劇機器人，我的目標是幫愛看劇的你不漏看任何一集"
+                  "text": "你好，我是 Compose.ai 的追劇機器人，我的目標是幫愛看劇的你不漏看任何一集"
                 }
             ]
           }
