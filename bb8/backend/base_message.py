@@ -508,7 +508,7 @@ class Message(object):
                                 'payload': {
                                     'type': 'object',
                                     'required': ['url'],
-                                    'additionalProperties': False,
+                                    'additionalProperties': True,
                                     'properties': {
                                         'url': {'type': 'string'}
                                     }
