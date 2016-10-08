@@ -10,8 +10,8 @@
 
 import re
 
-from bb8.backend.module_api import (LinkageItem, SupportedPlatform,
-                                    ParseResult, Render, Memory, Settings)
+from bb8.backend.module_api import (SupportedPlatform, ParseResult, Render,
+                                    Memory, Settings)
 
 
 def get_module_info():
@@ -92,30 +92,31 @@ def schema():
                                 }
                             }]
                         },
-                        'action_ident': {'type': 'string'},
-                        'end_node_id': {'type': ['null', 'integer']},
-                        'ack_message': {
-                            'oneOf': [{
-                                'type': 'string'
-                            }, {
-                                'type': 'array',
-                                'items': {'type': 'string'}
-                            }]
-                        }
+                        'end_node_id': {'type': ['null', 'string']},
+                        'ack_message': {'$ref': '#/definitions/ack_message'}
                     }
                 }
             },
             'on_error': {
                 'type': 'object',
-                'required': ['pattern', 'collect_as'],
+                'required': ['end_node_id'],
                 'additionalProperties': False,
                 'properties': {
-                    'pattern': {'type': 'string'},
+                    'end_node_id': {'type': ['null', 'string']},
+                    'ack_message': {'$ref': '#/definitions/ack_message'},
                     'collect_as': {'$ref': '#/definitions/collect_as'}
                 }
             }
         },
         'definitions': {
+            'ack_message': {
+                'oneOf': [{
+                    'type': 'string'
+                }, {
+                    'type': 'array',
+                    'items': {'type': 'string'}
+                }]
+            },
             'collect_as': {
                 'type': 'object',
                 'required': ['key'],
@@ -153,7 +154,6 @@ def run(parser_config, user_input, as_root):
                  "value": "{{matches#1}}  # if omit, this will be {{text}}
                },
            },
-           "action_ident": "action1",
            "end_node_id": 0,
            "ack_message": "action1 activated"
        }, {
@@ -161,7 +161,6 @@ def run(parser_config, user_input, as_root):
                "type": "location",
                "params": null
            },
-           "action_ident": "action2",
            "end_node_id": 1,
            "ack_message": "action2 activated"
        }]
@@ -176,12 +175,9 @@ def run(parser_config, user_input, as_root):
         r_type = link['rule']['type']
 
         def ret(link, variables, collect):
-            action_ident = link.get('action_ident', None)
-            if action_ident:
-                return ParseResult(action_ident, None, variables, collect)
-            else:
-                return ParseResult(None, link['ack_message'], variables,
-                                   collect)
+            end_node_id = link.get('end_node_id', None)
+            ack_msg = link.get('ack_message', None)
+            return ParseResult(end_node_id, ack_msg, variables, collect)
 
         collect_as = link['rule'].get('collect_as')
         memory_set = link['rule'].get('memory_set')
@@ -236,28 +232,23 @@ def run(parser_config, user_input, as_root):
 
     on_error = parser_config.get('on_error')
     if on_error:
-        m = re.search(on_error['pattern'], user_input.text)
-        matches = [m.group(0)] + list(m.groups())
-        if m:
-            collect_as = on_error['collect_as']
+        collect_as = on_error.get('collect_as')
+        if collect_as:
             value = collect_as.get('value', '{{text}}')
-            collect[collect_as['key']] = Render(
-                value, {'text': user_input.text, 'matches': matches})
+            collect[collect_as['key']] = Render(value,
+                                                {'text': user_input.text})
 
-    return ParseResult('$error', None, {'text': user_input.text}, collect)
+        return ParseResult(on_error['end_node_id'],
+                           on_error.get('ack_message'),
+                           {'text': user_input.text}, collect)
+
+    return ParseResult('$error', 'Invalid input, please re-enter',
+                       {'text': user_input.text}, collect)
 
 
 def get_linkages(parser_config):
     links = []
-
     for link in parser_config['links']:
         if 'end_node_id' in link:
-            links.append(LinkageItem(link['action_ident'],
-                                     link['end_node_id'],
-                                     link['ack_message']))
-
-    ais = [l.get('action_ident', None) for l in parser_config['links']]
-    if '$error' not in ais:
-        links.append(LinkageItem('$error', None,
-                                 'Invalid response, please re-enter.'))
+            links.append(link['end_node_id'])
     return links

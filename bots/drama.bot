@@ -39,7 +39,7 @@
     "session_timeout": 0,
     "admin_interaction_timeout": 10,
     "nodes": {
-      "start": {
+      "Start": {
         "name": "Greet",
         "description": "Greet user",
         "expect_input": false,
@@ -56,12 +56,12 @@
         "parser_module": {
           "id": "ai.compose.parser.core.passthrough",
           "config": {
-            "end_node_id": "[[root]]",
+            "end_node_id": "Root",
             "ack_message": ""
           }
         }
       },
-      "prompt_search_term": {
+      "PromptSearchTerm": {
         "name": "PromptSearchTerm",
         "description": "search without term, prompt for term",
         "expect_input": true,
@@ -81,15 +81,14 @@
                   "params": ["(.*)"],
                   "collect_as": {"key": "search_term"}
                 },
-                "action_ident": "do_search",
-                "end_node_id": "[[search_dramas]]",
+                "end_node_id": "SearchDramas",
                 "ack_message": ""
               }
             ]
           }
         }
       },
-      "search_dramas": {
+      "SearchDramas": {
         "name": "Search",
         "description": "Search dramas",
         "expect_input": true,
@@ -101,8 +100,8 @@
           }
         }
       },
-      "subscribe_drama": {
-        "name": "Subscribe",
+      "SubscribeDrama": {
+        "name": "SubscribeDrama",
         "description": "Subscribe drama",
         "expect_input": false,
         "content_module": {
@@ -112,8 +111,8 @@
           }
         }
       },
-      "trending_kr": {
-        "name": "trending_kr",
+      "TrendingKR": {
+        "name": "TrendingKR",
         "description": "Trending Korea Drama",
         "expect_input": false,
         "content_module": {
@@ -124,8 +123,8 @@
           }
         }
       },
-      "trending_jp": {
-        "name": "trending_jp",
+      "TrendingJP": {
+        "name": "TrendingJP",
         "description": "Trending Japan Drama",
         "expect_input": false,
         "content_module": {
@@ -136,8 +135,8 @@
           }
         }
       },
-      "trending_tw": {
-        "name": "trending_tw",
+      "TrendingTW": {
+        "name": "TrendingTW",
         "description": "Trending Taiwan Drama",
         "expect_input": false,
         "content_module": {
@@ -148,8 +147,8 @@
           }
         }
       },
-      "trending_cn": {
-        "name": "trending_cn",
+      "TrendingCN": {
+        "name": "TrendingCN",
         "description": "Trending China Drama",
         "expect_input": false,
         "content_module": {
@@ -160,8 +159,8 @@
           }
         }
       },
-      "get_history": {
-        "name": "get_history",
+      "GetHistory": {
+        "name": "GetHistory",
         "description": "Get History of the Drama",
         "expect_input": false,
         "content_module": {
@@ -172,7 +171,7 @@
           }
         }
       },
-      "root": {
+      "Root": {
         "name": "Root",
         "description": "Root node, show usage",
         "expect_input": true,
@@ -191,8 +190,7 @@
                   "type": "regexp",
                   "params": ["^搜尋$", "^找$", "^search$"]
                 },
-                "action_ident": "search_no_argument",
-                "end_node_id": "[[prompt_search_term]]",
+                "end_node_id": "PromptSearchTerm",
                 "ack_message": ""
               },
               {
@@ -204,8 +202,7 @@
                     "value": "{{matches#1}}"
                   }
                 },
-                "action_ident": "search",
-                "end_node_id": "[[search_dramas]]",
+                "end_node_id": "SearchDramas",
                 "ack_message": ""
               },
               {
@@ -213,8 +210,7 @@
                   "type": "sticker",
                   "params": ["369239263222822", "369239343222814", "369239383222810"]
                 },
-                "action_ident": "got_like_sticker",
-                "end_node_id": "[[thanks]]",
+                "end_node_id": "Thanks",
                 "ack_message": ""
               },
               {
@@ -222,8 +218,7 @@
                   "type": "event",
                   "params": ["SUBSCRIBE"]
                 },
-                "action_ident": "subscribe_drama",
-                "end_node_id": "[[subscribe_drama]]",
+                "end_node_id": "SubscribeDrama",
                 "ack_message": ""
               },
               {
@@ -231,8 +226,7 @@
                   "type": "event",
                   "params": ["GET_HISTORY"]
                 },
-                "action_ident": "get_history",
-                "end_node_id": "[[get_history]]",
+                "end_node_id": "GetHistory",
                 "ack_message": "稍等一下，我現在幫你找找看有沒有比較早的集數"
               },
               {
@@ -240,8 +234,7 @@
                   "type": "regexp",
                   "params": ["(?i)thanks?", "謝", "感恩"]
                 },
-                "action_ident": "got_like_sticker",
-                "end_node_id": "[[thanks]]",
+                "end_node_id": "Thanks",
                 "ack_message": ""
               },
               {
@@ -249,8 +242,7 @@
                   "type": "regexp",
                   "params": ["trending_kr", "韓", "(?i)kr", "(?i)korea"]
                 },
-                "action_ident": "trending_kr",
-                "end_node_id": "[[trending_kr]]",
+                "end_node_id": "TrendingKR",
                 "ack_message": "您好，以下為您送上現在最熱門的韓劇"
               },
               {
@@ -258,8 +250,7 @@
                   "type": "regexp",
                   "params": ["trending_jp", "日", "(?i)jp", "(?i)japan"]
                 },
-                "action_ident": "trending_jp",
-                "end_node_id": "[[trending_jp]]",
+                "end_node_id": "TrendingJP",
                 "ack_message": "您好，以下為您送上現在最熱門的日劇"
               },
               {
@@ -267,8 +258,7 @@
                   "type": "regexp",
                   "params": ["trending_tw", "臺", "台", "(?i)tw", "(?i)taiwan"]
                 },
-                "action_ident": "trending_tw",
-                "end_node_id": "[[trending_tw]]",
+                "end_node_id": "TrendingTW",
                 "ack_message": "您好，以下為您送上現在最熱門的台劇"
               },
               {
@@ -276,8 +266,7 @@
                   "type": "regexp",
                   "params": ["trending_cn", "陸劇", "中國", "(?i)china", "(?i)ch"]
                 },
-                "action_ident": "trending_cn",
-                "end_node_id": "[[trending_cn]]",
+                "end_node_id": "TrendingCN",
                 "ack_message": "您好，以下為您送上現在最熱門的陸劇"
               },
               {
@@ -288,8 +277,7 @@
                     "(?i)support", "你是誰", "(?i)hi", "(?i)hello", "(?i)yo$",
                     "(?i)ya$", "(?i)ha$"]
                 },
-                "action_ident": "help",
-                "end_node_id": "[[help]]",
+                "end_node_id": "Help",
                 "ack_message": ""
               },
               {
@@ -313,21 +301,16 @@
                   }
                 },
                 "ack_message": "你已取消訂閱！"
-              },
-              {
-                "action_ident": "$error",
-                "end_node_id": "[[search_dramas]]",
-                "ack_message": ""
               }
             ],
             "on_error": {
-              "pattern": ".*",
-              "collect_as": {"key": "query_term"}
+              "collect_as": {"key": "query_term"},
+              "end_node_id": "SearchDramas"
             }
           }
         }
       },
-      "thanks": {
+      "Thanks": {
         "name": "Thanks",
         "description": "Thank user",
         "expect_input": false,
@@ -341,8 +324,8 @@
           }
         }
       },
-      "help": {
-        "name": "help",
+      "Help": {
+        "name": "Help",
         "description": "",
         "expect_input": false,
         "content_module": {
@@ -358,7 +341,7 @@
         "parser_module": {
           "id": "ai.compose.parser.core.passthrough",
           "config": {
-            "end_node_id": "[[root]]",
+            "end_node_id": "Root",
             "ack_message": ""
           }
         }

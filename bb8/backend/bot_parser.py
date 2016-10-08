@@ -11,7 +11,6 @@
 import glob
 import json
 import os
-import re
 import sys
 
 import jsonschema
@@ -150,10 +149,10 @@ def parse_bot(filename, to_bot_id=None):
                 provider.apply_config(platform_desc['config'])
 
     nodes = bot_desc['nodes']
-    name_id_map = {}
+    id_map = {}  # Mapping of stable_id to id
 
     # Build node
-    for name, node in nodes.iteritems():
+    for stable_id, node in nodes.iteritems():
         try:
             cm = ContentModule.get_by(id=node['content_module']['id'],
                                       single=True)
@@ -161,10 +160,11 @@ def parse_bot(filename, to_bot_id=None):
                                 cm.get_module().schema())
         except jsonschema.exceptions.ValidationError:
             logger.error('Node `%s\' content module config validation '
-                         'failed', node['name'])
+                         'failed', stable_id)
             raise
 
-        n = Node(bot_id=bot.id, name=unicode(node['name']),
+        n = Node(stable_id=stable_id, bot_id=bot.id,
+                 name=unicode(node['name']),
                  description=unicode(node['description']),
                  expect_input=node['expect_input'],
                  content_module_id=node['content_module']['id'],
@@ -174,38 +174,27 @@ def parse_bot(filename, to_bot_id=None):
             n.parser_module_id = node['parser_module']['id']
 
         DatabaseManager.flush()
-        name_id_map[name] = n.id
+        id_map[stable_id] = n.id
 
-    # Set bot start, root node
-    bot.start_node_id = name_id_map['start']
-    bot.root_node_id = name_id_map['root']
-
-    # Build linkage
-    node_re = re.compile(r'"\[\[(.*?)\]\]"')
-
-    def replace_node_id(m):
-        name = m.group(1)
-        if name in name_id_map:
-            return str(name_id_map[name])
-        return m.group(0)
-
-    bot_json_text = node_re.sub(replace_node_id, bot_json_text)
-    bot_json = json.loads(bot_json_text, encoding='utf8')
-
-    for name, node in nodes.iteritems():
-        n = Node.get_by(id=name_id_map[name], single=True)
+    # Validate that parser module linkages are present in this bot file.
+    for stable_id, node in nodes.iteritems():
+        n = Node.get_by(id=id_map[stable_id], single=True)
         if n.parser_module is not None:
             nodes = bot_json['bot']['nodes']
-            n.parser_config = nodes[name]['parser_module']['config']
+            n.parser_config = node['parser_module']['config']
             pm = n.parser_module.get_module()
             try:
                 jsonschema.validate(n.parser_config, pm.schema())
             except jsonschema.exceptions.ValidationError:
                 logger.error('Node `%s\' parser module config validation '
-                             'failed', node['name'])
+                             'failed', stable_id)
                 raise
 
-            n.build_linkages(pm.get_linkages(n.parser_config))
+            for end_node_id in pm.get_linkages(n.parser_config):
+                if end_node_id is not None:
+                    if end_node_id not in id_map.keys():
+                        raise RuntimeError('end_node_id `%s\' is invalid' %
+                                           end_node_id)
 
     DatabaseManager.flush()
     return bot

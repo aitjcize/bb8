@@ -188,10 +188,14 @@ class ModelMixin(object):
         return instance
 
     @classmethod
-    def get_by(cls, eager=None, order_by=None, offset=0, limit=0,
-               single=False, lock=False, query=False, **kwargs):
+    def get_by(cls, query=None, eager=None, order_by=None, offset=0, limit=0,
+               single=False, lock=False, return_query=False, **kwargs):
         """Get item by kwargs."""
-        query_object = cls.query()
+        if query:
+            query_object = cls.query(query)
+        else:
+            query_object = cls.query()
+
         if eager:
             joinloads = [joinedload(x) for x in eager]
             query_object = query_object.options(*joinloads)
@@ -210,7 +214,7 @@ class ModelMixin(object):
         if lock:
             query_object = query_object.with_lockmode('update')
 
-        if query:
+        if return_query:
             return query_object
 
         if single:

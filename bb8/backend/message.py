@@ -177,7 +177,7 @@ def TextPayload(text, send_to_current_node=True):
             parsing the payload.
     """
     ret = base_message.TextPayload(text)
-    ret['node_id'] = g.node.id if send_to_current_node else None
+    ret['node_id'] = g.node.stable_id if send_to_current_node else None
     return ret
 
 
@@ -190,7 +190,7 @@ def LocationPayload(coordinate, send_to_current_node=True):
             parsing the payload.
     """
     ret = base_message.LocationPayload(coordinate)
-    ret['node_id'] = g.node.id if send_to_current_node else None
+    ret['node_id'] = g.node.stable_id if send_to_current_node else None
     return ret
 
 
@@ -204,7 +204,7 @@ def EventPayload(key, value, send_to_current_node=True):
             parsing the payload.
     """
     ret = base_message.EventPayload(key, value)
-    ret['node_id'] = g.node.id if send_to_current_node else None
+    ret['node_id'] = g.node.stable_id if send_to_current_node else None
     return ret
 
 
@@ -227,7 +227,7 @@ class Message(base_message.Message):
 
             payload = data.get('payload')
             if payload and isinstance(payload, dict):
-                payload['node_id'] = g.node.id
+                payload['node_id'] = g.node.stable_id
                 payload = json.dumps(payload)
 
             return cls(Message.ButtonType(data['type']),

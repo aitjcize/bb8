@@ -62,7 +62,8 @@ def register_content_modules():
 
             cm = ContentModule.get_by(id=info['id'], single=True)
             if cm:
-                ContentModule.get_by(id=info['id'], query=True).update(info)
+                ContentModule.get_by(id=info['id'],
+                                     return_query=True).update(info)
             else:
                 ContentModule(**info).add()
 
@@ -88,7 +89,8 @@ def register_parser_modules():
 
             pm = ParserModule.get_by(id=info['id'], single=True)
             if pm:
-                ParserModule.get_by(id=info['id'], query=True).update(info)
+                ParserModule.get_by(id=info['id'],
+                                    return_query=True).update(info)
             else:
                 ParserModule(**info).add()
 

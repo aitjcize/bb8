@@ -10,38 +10,38 @@
     }
   ],
   "bot": {
-    "name": "postback",
-    "description": "test postback",
+    "name": "Postback",
+    "description": "test Postback",
     "interaction_timeout": 120,
     "admin_interaction_timeout": -1,
     "session_timeout": 864000,
     "nodes": {
-      "start": {
-        "name": "start",
-        "description": "start",
+      "Start": {
+        "name": "Start",
+        "description": "Start",
         "expect_input": false,
         "content_module": {
           "id": "ai.compose.content.core.text_message",
           "config": {
-            "text": "In start"
+            "text": "In Start"
           }
         },
         "parser_module": {
           "id": "ai.compose.parser.core.passthrough",
           "config": {
-            "end_node_id": "[[root]]",
-            "ack_message": "Goto root"
+            "end_node_id": "Root",
+            "ack_message": "Goto Root"
           }
         }
       },
-      "root": {
-        "name": "root",
-        "description": "root",
+      "Root": {
+        "name": "Root",
+        "description": "Root",
         "expect_input": true,
         "content_module": {
           "id": "ai.compose.content.core.text_message",
           "config": {
-            "text": "In root"
+            "text": "In Root"
           }
         },
         "parser_module": {
@@ -53,22 +53,21 @@
                     "type": "regexp",
                     "params": ["postback"]
                 },
-                "action_ident": "postback",
-                "end_node_id": "[[postback]]",
-                "ack_message": "Goto postback"
+                "end_node_id": "Postback",
+                "ack_message": "Goto Postback"
               }
             ]
           }
         }
       },
-      "postback": {
-        "name": "postback",
-        "description": "show and parse postback",
+      "Postback": {
+        "name": "Postback",
+        "description": "Show and parse Postback",
         "expect_input": true,
         "content_module": {
           "id": "ai.compose.content.test.postback",
           "config": {
-            "text": "In postback"
+            "text": "In Postback"
           }
         },
         "parser_module": {
@@ -80,22 +79,20 @@
                     "type": "regexp",
                     "params": [".*"]
                 },
-                "action_ident": "got_text",
-                "end_node_id": "[[show]]",
-                "ack_message": "Goto show"
+                "end_node_id": "Show",
+                "ack_message": "Goto Show"
               },
               {
-                "action_ident": "$error",
-                "end_node_id": "[[root]]",
-                "ack_message": "Goto root"
+                "end_node_id": "Root",
+                "ack_message": "Goto Root"
               }
             ]
           }
         }
       },
-      "show": {
-        "name": "show",
-        "description": "show response",
+      "Show": {
+        "name": "Show",
+        "description": "Show response",
         "expect_input": true,
         "content_module": {
           "id": "ai.compose.content.test.show_response",
@@ -106,8 +103,8 @@
         "parser_module": {
           "id": "ai.compose.parser.core.passthrough",
           "config": {
-            "end_node_id": "[[root]]",
-            "ack_message": "Goto root"
+            "end_node_id": "Root",
+            "ack_message": "Goto Root"
           }
         }
       }

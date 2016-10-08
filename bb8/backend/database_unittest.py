@@ -22,11 +22,10 @@ from bb8.error import AppError
 from bb8.backend.bot_parser import get_bot_filename, parse_bot
 from bb8.backend.database import DatabaseManager
 from bb8.backend.database import (Account, Bot, ColletedDatum, Conversation,
-                                  ContentModule, Event, Linkage, Node,
-                                  ParserModule, Platform, PlatformTypeEnum,
-                                  SenderEnum, User, Broadcast,
-                                  FeedEnum, Feed, PublicFeed, OAuthInfo,
-                                  OAuthProviderEnum)
+                                  ContentModule, Event, Node, ParserModule,
+                                  Platform, PlatformTypeEnum, SenderEnum, User,
+                                  Broadcast, FeedEnum, Feed, PublicFeed,
+                                  OAuthInfo, OAuthProviderEnum)
 
 from bb8.backend.test_utils import reset_and_setup_bots
 
@@ -131,17 +130,20 @@ class SchemaUnittest(unittest.TestCase):
         self.assertEquals(len(bot.platforms), 1)
         self.assertEquals(bot.platforms[0].id, platform.id)
 
-        node1 = Node(name=u'1', bot_id=bot.id, expect_input=True,
-                     content_module_id=content.id, content_config={},
-                     parser_module_id=parser.id, parser_config={}).add()
+        node1 = Node(stable_id='node1', name=u'1', bot_id=bot.id,
+                     expect_input=True, content_module_id=content.id,
+                     content_config={}, parser_module_id=parser.id,
+                     parser_config={}).add()
 
-        node2 = Node(name=u'2', bot_id=bot.id, expect_input=True,
-                     content_module_id=content.id, content_config={},
-                     parser_module_id=parser.id, parser_config={}).add()
+        node2 = Node(stable_id='node2', name=u'2', bot_id=bot.id,
+                     expect_input=True, content_module_id=content.id,
+                     content_config={}, parser_module_id=parser.id,
+                     parser_config={}).add()
 
-        node3 = Node(name=u'3', bot_id=bot.id, expect_input=True,
-                     content_module_id=content.id, content_config={},
-                     parser_module_id=parser.id, parser_config={}).add()
+        node3 = Node(stable_id='node3', name=u'3', bot_id=bot.id,
+                     expect_input=True, content_module_id=content.id,
+                     content_config={}, parser_module_id=parser.id,
+                     parser_config={}).add()
 
         bot.orphan_nodes.append(node3)
 
@@ -153,26 +155,6 @@ class SchemaUnittest(unittest.TestCase):
 
         # Test bot_node association table
         self.assertEquals(bot.orphan_nodes[0].id, node3.id)
-
-        l1 = Linkage(bot_id=bot.id, start_node_id=node1.id,
-                     end_node_id=node2.id, action_ident='action0',
-                     ack_message=u'').add()
-        l2 = Linkage(bot_id=bot.id, start_node_id=node2.id,
-                     end_node_id=node1.id, action_ident='action1',
-                     ack_message=u'').add()
-
-        DatabaseManager.commit()
-
-        self.assertNotEquals(Linkage.get_by(id=l1.id, single=True), None)
-        self.assertNotEquals(Linkage.get_by(id=l1.id, single=True), None)
-
-        self.assertEquals(len(node1.linkages), 1)
-        self.assertEquals(node1.linkages[0].id, l1.id)
-
-        self.assertEquals(len(node2.linkages), 1)
-        self.assertEquals(node2.linkages[0].id, l2.id)
-
-        DatabaseManager.commit()
 
         user = User(bot_id=bot.id, platform_id=platform.id,
                     platform_user_ident='',
@@ -263,26 +245,22 @@ class SchemaUnittest(unittest.TestCase):
         bot2 = bots[1]
 
         bot2_node_len = len(bot2.nodes)
-        bot2_linkage_len = len(bot2.linkages)
 
         bot1.delete_all_node_and_links()
         DatabaseManager.commit()
 
         # All nodes and links related to this bot should be gone.
         self.assertEquals(bot1.nodes, [])
-        self.assertEquals(bot1.linkages, [])
 
         # Make sure delete_all_node_and_links does not accidentally delete node
         # of other bot
         self.assertEquals(len(bot2.nodes), bot2_node_len)
-        self.assertEquals(len(bot2.linkages), bot2_linkage_len)
 
         # Test bot reconstruction
         parse_bot(get_bot_filename('test/simple.bot'), bot1.id)
         DatabaseManager.commit()
 
         self.assertNotEquals(bot1.nodes, [])
-        self.assertNotEquals(bot1.linkages, [])
 
         user = User(bot_id=bot1.id,
                     platform_id=bot1.platforms[0].id,

@@ -14,15 +14,13 @@ from flask import g
 from bb8 import config, logger
 from bb8.backend import messaging
 from bb8.tracking import track, TrackingInfo
-from bb8.backend.database import (DatabaseManager, Conversation, ColletedDatum,
-                                  Linkage, Node, SupportedPlatform, SenderEnum,
-                                  User)
+from bb8.backend.database import (Bot, DatabaseManager, Conversation,
+                                  ColletedDatum, Node, SupportedPlatform,
+                                  SenderEnum, User)
 from bb8.backend.metadata import ParseResult, InputTransformation
 
 
 class Engine(object):
-    BB8_GLOBAL_NOMATCH_IDENT = '$bb8.global.nomatch'
-
     def __init__(self):
         pass
 
@@ -45,12 +43,7 @@ class Engine(object):
 
     def run_parser_module(self, node, user, user_input, init_variables,
                           as_root=False):
-        """Execute a parser module of a node, then return linkage.
-
-        If action_ident is BB8_GLOBAL_NOMATCH_IDENT (should only happen in case
-        of running root parser modele (global command). Return without
-        attempting to find a linkage.
-        """
+        """Execute a parser module of a node, then return end_node_id."""
         pm = node.parser_module.get_module()
         result = pm.run(node.parser_config, user_input, as_root)
         assert isinstance(result, ParseResult)
@@ -64,23 +57,19 @@ class Engine(object):
 
         # Global parser nomatch
         if not result.matched:
-            return result, None, init_variables
+            return result, init_variables
 
         # Collect data
         if result.collected_datum:
             self.insert_data(user, result.collected_datum)
 
         # Track error
-        if result.action_ident == '$error':
+        if result.end_node_id == '$error':
             track(TrackingInfo.Event(user.platform_user_ident,
                                      'Parser', 'Error', user_input.text))
+            result.end_node_id = None
 
-        linkage = Linkage.get_by(start_node_id=node.id,
-                                 action_ident=result.action_ident, single=True)
-        if linkage and linkage.ack_message:
-            self.send_ack_message(user, linkage.ack_message, variables)
-
-        return result, linkage, variables
+        return result, variables
 
     def step(self, bot, user, user_input=None, input_vars=None):
         """Main function for executing a node."""
@@ -103,7 +92,7 @@ class Engine(object):
                 user_input = user_input.RunInputTransformation()
 
             if user.session is None:
-                user.goto(bot.start_node_id)
+                user.goto(Bot.START_STABLE_ID)
 
             # If there was admin interaction, and admin_interaction_timeout
             # haven't reached yet, do not run engine.
@@ -117,15 +106,15 @@ class Engine(object):
                     ((now - user.last_seen).total_seconds() >
                      bot.session_timeout)):
                 user.last_seen = datetime.datetime.now()
-                user.goto(bot.root_node_id)
+                user.goto(Bot.ROOT_STABLE_ID)
 
             if user_input and user_input.jump():
                 jumped = True
-                node = Node.get_by(id=user_input.jump_node_id, bot_id=bot.id,
-                                   single=True)
+                node = Node.get_by(stable_id=user_input.jump_node_id,
+                                   bot_id=bot.id, single=True)
                 # Check if the node belongs to current bot
                 if node is None:
-                    logger.critical('Invalid jump node_id %d' %
+                    logger.critical('Invalid jump node_id %s' %
                                     user_input.jump_node_id)
                 # If payload button is pressed, we need to jump to the
                 # corresponding node if payload's node_id != current_node_id
@@ -140,7 +129,7 @@ class Engine(object):
 
             if node is None:
                 logger.critical('Invalid node_id %d' % user.session.node_id)
-                user.goto(bot.root_node_id)
+                user.goto(Bot.ROOT_STABLE_ID)
                 user.session.message_sent = True
                 return self.step(bot, user, user_input)
 
@@ -176,11 +165,10 @@ class Engine(object):
                 user.session.input_transformation = InputTransformation.get()
 
                 if not node.expect_input:
-                    # There are no parser module or no outgoing links. This
-                    # means we are at end of subgraph.
-                    n_linkages = Linkage.count_by(start_node_id=node.id)
-                    if n_linkages == 0 or node.parser_module is None:
-                        user.goto(bot.root_node_id)
+                    # There are no parser module, which means we are at end of
+                    # subgraph.
+                    if node.parser_module is None:
+                        user.goto(Bot.ROOT_STABLE_ID)
                         user.session.message_sent = True
                         return
                     # Has parser module, parser module should be a passthrough
@@ -190,46 +178,47 @@ class Engine(object):
                 # Don't check for global command if we are jumping to a node
                 # due to postback being pressed.
                 if user_input and not jumped:
-                    result, link, variables = self.run_parser_module(
+                    result, variables = self.run_parser_module(
                         bot.root_node, user, user_input, global_variables,
                         True)
 
                     if result.matched:  # There is a global command match
-                        if link:
-                            user.goto(link.end_node_id)
+                        if result.end_node_id:
+                            user.goto(result.end_node_id)
                         else:
-                            # There is no link, replay current node.
+                            # There is no end_node_id, replay current node.
                             user.session.message_sent = False
                         return self.step(bot, user, user_input, variables)
                 else:
                     # We are already at root node and there is no user input.
                     # Display root node again.
-                    if not user_input and node.id == bot.root_node_id:
+                    if (not user_input and
+                            node.stable_id == Bot.ROOT_STABLE_ID):
                         user.session.message_sent = False
                         return self.step(bot, user, user_input)
 
                 # No parser module associate with this node, go back to root
                 # node.
                 if node.parser_module is None:
-                    user.goto(bot.root_node_id)
+                    user.goto(Bot.ROOT_STABLE_ID)
                     user.session.message_sent = True
                     # Run at root instead, so disable jump
                     user_input.disable_jump()
                     return self.step(bot, user, user_input)
 
-                result, link, variables = self.run_parser_module(
+                result, variables = self.run_parser_module(
                     node, user, user_input, global_variables, False)
 
-                # link may be None, either there is a bug or parser module
-                # decide not to move at all.
-                if link:
-                    user.goto(link.end_node_id)
+                # end_node_id may be None, either there is a bug or parser
+                # module decide not to move at all.
+                if result.end_node_id:
+                    user.goto(result.end_node_id)
 
                     # if we are going back the same node, assume there is an
                     # error and we want to retry. don't send message in this
                     # case.
-                    if (link.end_node_id == node.id and
-                            node.id != bot.root_node_id and
+                    if (result.end_node_id == node.stable_id and
+                            node.stable_id != Bot.ROOT_STABLE_ID and
                             result.skip_content_module):
                         user.session.message_sent = True
                         return

@@ -16,7 +16,7 @@
     "admin_interaction_timeout": -1,
     "session_timeout": 864000,
     "nodes": {
-      "start": {
+      "Start": {
         "name": "start",
         "description": "start",
         "expect_input": false,
@@ -29,12 +29,12 @@
         "parser_module": {
           "id": "ai.compose.parser.core.passthrough",
           "config": {
-            "end_node_id": "[[root]]",
+            "end_node_id": "Root",
             "ack_message": "Goto root"
           }
         }
       },
-      "root": {
+      "Root": {
         "name": "root",
         "description": "root",
         "expect_input": true,
@@ -53,8 +53,7 @@
                     "type": "regexp",
                     "params": ["help"]
                 },
-                "action_ident": "help",
-                "end_node_id": "[[root]]",
+                "end_node_id": "Root",
                 "ack_message": "Goto help"
               },
               {
@@ -62,8 +61,7 @@
                     "type": "regexp",
                     "params": ["gotoA"]
                 },
-                "action_ident": "gotoA",
-                "end_node_id": "[[nodeA]]",
+                "end_node_id": "NodeA",
                 "ack_message": "Goto A"
               },
               {
@@ -71,17 +69,16 @@
                     "type": "regexp",
                     "params": ["gotoD"]
                 },
-                "action_ident": "gotoD",
-                "end_node_id": "[[nodeD]]",
+                "end_node_id": "NodeD",
                 "ack_message": "Goto D"
               }
             ]
           }
         }
       },
-      "nodeA": {
-        "name": "nodeA",
-        "description": "nodeA",
+      "NodeA": {
+        "name": "NodeA",
+        "description": "NodeA",
         "expect_input": true,
         "content_module": {
           "id": "ai.compose.content.core.text_message",
@@ -98,7 +95,6 @@
                     "type": "regexp",
                     "params": ["error"]
                 },
-                "action_ident": "error",
                 "end_node_id": null,
                 "ack_message": "Goto A"
               },
@@ -107,8 +103,7 @@
                     "type": "regexp",
                     "params": ["gotoB"]
                 },
-                "action_ident": "gotoB",
-                "end_node_id": "[[nodeB]]",
+                "end_node_id": "NodeB",
                 "ack_message": "Goto B"
               },
               {
@@ -116,17 +111,16 @@
                     "type": "regexp",
                     "params": ["gotoC"]
                 },
-                "action_ident": "gotoC",
-                "end_node_id": "[[nodeC]]",
+                "end_node_id": "NodeC",
                 "ack_message": "Goto C"
               }
             ]
           }
         }
       },
-      "nodeB": {
-        "name": "nodeB",
-        "description": "nodeB",
+      "NodeB": {
+        "name": "NodeB",
+        "description": "NodeB",
         "expect_input": true,
         "content_module": {
           "id": "ai.compose.content.core.text_message",
@@ -143,17 +137,16 @@
                     "type": "regexp",
                     "params": ["gotoC"]
                 },
-                "action_ident": "gotoC",
-                "end_node_id": "[[nodeC]]",
+                "end_node_id": "NodeC",
                 "ack_message": "Goto C"
               }
             ]
           }
         }
       },
-      "nodeC": {
-        "name": "nodeC",
-        "description": "nodeC",
+      "NodeC": {
+        "name": "NodeC",
+        "description": "NodeC",
         "expect_input": true,
         "content_module": {
           "id": "ai.compose.content.core.text_message",
@@ -170,17 +163,16 @@
                     "type": "regexp",
                     "params": ["default"]
                 },
-                "action_ident": "default",
-                "end_node_id": "[[nodeA]]",
+                "end_node_id": "NodeA",
                 "ack_message": "Goto A"
               }
             ]
           }
         }
       },
-      "nodeD": {
-        "name": "nodeD",
-        "description": "nodeD",
+      "NodeD": {
+        "name": "NodeD",
+        "description": "NodeD",
         "expect_input": true,
         "content_module": {
           "id": "ai.compose.content.core.text_message",
@@ -197,17 +189,16 @@
                     "type": "regexp",
                     "params": ["gotoE"]
                 },
-                "action_ident": "gotoE",
-                "end_node_id": "[[nodeE]]",
+                "end_node_id": "NodeE",
                 "ack_message": "Goto E"
               }
             ]
           }
         }
       },
-      "nodeE": {
-        "name": "nodeE",
-        "description": "nodeE",
+      "NodeE": {
+        "name": "NodeE",
+        "description": "NodeE",
         "expect_input": false,
         "content_module": {
           "id": "ai.compose.content.core.text_message",
