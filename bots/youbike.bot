@@ -34,11 +34,10 @@
     {
       "type_enum": "Line",
       "deployed": true,
-      "provider_ident": "u5526efbbc9c7ad1b3375c5102c276e68",
+      "provider_ident": "youbike.composeai",
       "config": {
-        "channel_id": "1468633788",
-        "channel_secret": "70a5bfd80b2cf26e387b83aa836fc884",
-        "mid": "u5526efbbc9c7ad1b3375c5102c276e68"
+        "access_token": "ageBtlRARPVjJShBar2a+dpnG7DKQyb/leRmRxT9PHNUVjYhoDDlCD7cJ/+ywjt0igu5N9HvoRkjO4mRF+S39/p5TRuMfkylMjBoKj3pLskAwWbGR26W1TEp7o+zPaVa2ghz3yxYfGZfMctsuQFojQdB04t89/1O/w1cDnyilFU=",
+        "channel_secret": "70a5bfd80b2cf26e387b83aa836fc884"
       }
     }
   ],
@@ -529,10 +528,7 @@
         "content_module": {
           "id": "ai.compose.content.core.text_message",
           "config": {
-            "text": {
-              "Facebook": "你可以繼續送出位置查詢，或按「再次查詢」",
-              "Line": "你可以繼續送出位置查詢，或輸入「1-2」再次查詢"
-            },
+            "text": "你可以繼續送出位置查詢，或按「再次查詢」",
             "quick_replies": [
               {
                 "content_type": "location"
