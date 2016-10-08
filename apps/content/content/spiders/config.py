@@ -66,8 +66,8 @@ spider_configs = {
                  '//img[re:test(@src, "^http")]', '@src', '@alt'),
                 ('//div[contains(@class, "article-wrapper")]'
                  '/article//img[re:test(@src, "^http")]', '@src', '@alt'),
-		('//div[contains(@class, "image")]'
-		'//img[re:test(@src, "^http")]', '@src', '@alt')
+                ('//div[contains(@class, "image")]'
+                 '//img[re:test(@src, "^http")]', '@src', '@alt')
             ],
             'author': '',
             'publish_time': '',
