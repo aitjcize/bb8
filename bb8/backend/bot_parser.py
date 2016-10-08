@@ -71,6 +71,9 @@ def parse_bot(filename, to_bot_id=None):
         # Update existing bot.
         logger.info('Updating existing bot(id=%d) with %s ...',
                     to_bot_id, filename)
+
+        bot = Bot.get_by(id=to_bot_id, single=True)
+
         for platform_desc in bot_json['platforms']:
             ptype = PlatformTypeEnum(platform_desc['type_enum'])
             provider = get_messaging_provider(ptype)
@@ -82,13 +85,29 @@ def parse_bot(filename, to_bot_id=None):
                              platform_desc['type_enum'])
                 raise
 
+            # Make sure the platofrm exists
+            platform = Platform.get_by(
+                provider_ident=platform_desc['provider_ident'], single=True)
+
+            if platform is None:
+                Platform(bot_id=bot.id,
+                         type_enum=platform_desc['type_enum'],
+                         provider_ident=platform_desc['provider_ident'],
+                         config=platform_desc['config']).add()
+
             if (not platform_desc['deployed'] or
                     (config.DEPLOY and platform_desc['deployed'])):
                 provider.apply_config(platform_desc['config'])
 
-        bot = Bot.get_by(id=to_bot_id, single=True)
-        bot.delete_all_node_and_links()  # Delete all previous node and links
+        # Delete platforms that no longer exists
+        all_platform_idents = [platform_desc['provider_ident']
+                               for platform_desc in bot_json['platforms']]
 
+        for platform in Platform.get_by(bot_id=bot.id):
+            if platform.provider_ident not in all_platform_idents:
+                platform.delete()
+
+        bot.delete_all_node_and_links()  # Delete all previous node and links
         bot.name = bot_desc['name']
         bot.description = bot_desc['description']
         bot.interaction_timeout = bot_desc['interaction_timeout']

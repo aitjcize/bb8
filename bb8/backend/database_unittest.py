@@ -266,6 +266,7 @@ class SchemaUnittest(unittest.TestCase):
         bot2_linkage_len = len(bot2.linkages)
 
         bot1.delete_all_node_and_links()
+        DatabaseManager.commit()
 
         # All nodes and links related to this bot should be gone.
         self.assertEquals(bot1.nodes, [])
