@@ -129,8 +129,7 @@ class PlatformTypeEnum(enum.Enum):
 class Bot(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     __tablename__ = 'bot'
 
-    __json_public__ = ['id', 'name', 'description', 'root_node_id',
-                       'start_node_id', 'platforms']
+    __json_public__ = ['id', 'name', 'description', 'platforms']
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(Unicode(256), nullable=False)
@@ -139,18 +138,18 @@ class Bot(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     admin_interaction_timeout = Column(Integer, nullable=False, default=180)
     session_timeout = Column(Integer, nullable=False, default=86400)
     ga_id = Column(Unicode(32), nullable=True)
-    root_node_id = Column(Integer, nullable=True)
-    start_node_id = Column(Integer, nullable=True)
 
     nodes = relationship('Node')
-    linkages = relationship('Linkage')
     platforms = relationship('Platform')
 
     orphan_nodes = relationship('Node', secondary='bot_node')
 
+    ROOT_STABLE_ID = 'Root'
+    START_STABLE_ID = 'Start'
+
     @property
     def root_node(self):
-        return Node.get_by(id=self.root_node_id, single=True)
+        return Node.get_by(stable_id=Bot.ROOT_STABLE_ID, single=True)
 
     def delete(self):
         self.delete_all_node_and_links()
@@ -159,7 +158,6 @@ class Bot(DeclarativeBase, ModelMixin, JSONSerializableMixin):
 
     def delete_all_node_and_links(self):
         """Delete all associated node and links of this bot."""
-        Linkage.delete_by(bot_id=self.id)
         Node.delete_by(bot_id=self.id)
 
     def delete_all_platforms(self):
@@ -207,18 +205,26 @@ class User(DeclarativeBase, ModelMixin, JSONSerializableMixin):
         ColletedDatum.delete_by(user_id=self.id)
         super(User, self).delete()
 
-    def goto(self, node_id):
+    def goto(self, stable_id):
         """Goto a node."""
+        result = Node.get_by(query=Node.id, stable_id=str(stable_id),
+                              bot_id=self.bot_id, single=True)
+        # Goto Root if stable_id does not indicate a valid node
+        if result is None:
+            return self.goto(Bot.ROOT_STABLE_ID)
+
         sess = self.session
-        self.session = SessionRecord(node_id)
+        self.session = SessionRecord(result[0])
         if sess:
             self.session.input_transformation = sess.input_transformation
 
 
 class Node(DeclarativeBase, ModelMixin):
     __tablename__ = 'node'
+    __table_args__ = (UniqueConstraint('bot_id', 'stable_id'),)
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    stable_id = Column(String(128), nullable=False)
     bot_id = Column(ForeignKey('bot.id'), nullable=False)
     name = Column(Unicode(128), nullable=False)
     description = Column(UnicodeText, nullable=True)
@@ -232,20 +238,9 @@ class Node(DeclarativeBase, ModelMixin):
     content_module = relationship('ContentModule')
     parser_module = relationship('ParserModule')
 
-    def build_linkages(self, links):
-        """Build linkage according to links.
-
-        Args:
-            links: is a list of bb8.backend.module_api.LinkageItem
-        """
-
-        for link in links:
-            end_node_id = link.end_node_id if link.end_node_id else self.id
-            Linkage(bot_id=self.bot_id,
-                    start_node_id=self.id,
-                    end_node_id=end_node_id,
-                    action_ident=link.action_ident,
-                    ack_message=link.ack_message).add()
+    @classmethod
+    def get_pk_id(cls, stable_id):
+        return Node.get_by(query=cls.id, stable_id=stable_id, single=True)[0]
 
 
 class Platform(DeclarativeBase, ModelMixin):
@@ -264,21 +259,6 @@ class Platform(DeclarativeBase, ModelMixin):
         for user in User.get_by(platform_id=self.id):
             user.delete()
         super(Platform, self).delete()
-
-
-class Linkage(DeclarativeBase, ModelMixin):
-    __tablename__ = 'linkage'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    bot_id = Column(ForeignKey('bot.id'), nullable=False)
-    start_node_id = Column(ForeignKey('node.id'), nullable=False)
-    end_node_id = Column(ForeignKey('node.id'), nullable=False)
-    action_ident = Column(String(128), nullable=False)
-    ack_message = Column(PickleType, nullable=False)
-
-    start_node = relationship('Node', foreign_keys=[start_node_id],
-                              backref='linkages')
-    end_node = relationship('Node', foreign_keys=[end_node_id])
 
 
 class SupportedPlatform(enum.Enum):

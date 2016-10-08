@@ -30,7 +30,7 @@
     "session_timeout": 0,
     "ga_id": "UA-79887532-4",
     "nodes": {
-      "start": {
+      "Start": {
         "name": "Greet",
         "description": "Great user",
         "expect_input": false,
@@ -85,7 +85,7 @@
           }
         }
       },
-      "root": {
+      "Root": {
         "name": "BotOp",
         "description": "Main bot operation node",
         "expect_input": true,
@@ -101,7 +101,7 @@
         "parser_module": {
           "id": "ai.compose.parser.core.composeai",
           "config": {
-            "done": "[[root]]"
+            "done": "Root"
           }
         }
       }

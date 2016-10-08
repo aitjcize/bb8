@@ -24,6 +24,7 @@ from bb8.backend.test_utils import BaseMessagingMixin
 class MockNode(object):
     def __init__(self, _id):
         self.id = _id  # pylint: disable=W0622
+        self.stable_id = str(_id)
 
 
 class MessageUnittest(unittest.TestCase, BaseMessagingMixin):
@@ -37,7 +38,7 @@ class MessageUnittest(unittest.TestCase, BaseMessagingMixin):
     def test_TextPayload(self):
         g.node = MockNode(1)
         self.assertEquals(TextPayload('test'),
-                          {'message': {'text': 'test'}, 'node_id': 1})
+                          {'message': {'text': 'test'}, 'node_id': '1'})
 
     def test_LocationPayload(self):
         g.node = MockNode(1)
@@ -53,7 +54,7 @@ class MessageUnittest(unittest.TestCase, BaseMessagingMixin):
                     }
                 }]
             },
-            'node_id': 1
+            'node_id': '1'
         }
         self.assertEquals(LocationPayload((1, 1)), ans)
 

@@ -10,38 +10,38 @@
     }
   ],
   "bot": {
-    "name": "postback",
+    "name": "MemoryAndSettings",
     "description": "test memory and settings",
     "interaction_timeout": 120,
     "admin_interaction_timeout": -1,
     "session_timeout": 864000,
     "nodes": {
-      "start": {
-        "name": "start",
-        "description": "start",
+      "Start": {
+        "name": "Start",
+        "description": "Start",
         "expect_input": false,
         "content_module": {
           "id": "ai.compose.content.core.text_message",
           "config": {
-            "text": "In start"
+            "text": "In Start"
           }
         },
         "parser_module": {
           "id": "ai.compose.parser.core.passthrough",
           "config": {
-            "end_node_id": "[[root]]",
-            "ack_message": "Goto root"
+            "end_node_id": "Root",
+            "ack_message": "Goto Root"
           }
         }
       },
-      "root": {
-        "name": "root",
-        "description": "root",
+      "Root": {
+        "name": "Root",
+        "description": "Root",
         "expect_input": true,
         "content_module": {
           "id": "ai.compose.content.core.text_message",
           "config": {
-            "text": "In root"
+            "text": "In Root"
           }
         },
         "parser_module": {
@@ -53,26 +53,24 @@
                     "type": "regexp",
                     "params": ["memory_set"]
                 },
-                "action_ident": "memory_set",
-                "end_node_id": "[[memory_set]]",
-                "ack_message": "Goto memory_set"
+                "end_node_id": "MemorySet",
+                "ack_message": "Goto MemorySet"
               },
               {
                 "rule": {
                     "type": "regexp",
                     "params": ["settings_set"]
                 },
-                "action_ident": "settings_set",
-                "end_node_id": "[[settings_set]]",
-                "ack_message": "Goto settings_set"
+                "end_node_id": "SettingsSet",
+                "ack_message": "Goto SettingsSet"
               }
             ]
           }
         }
       },
-      "memory_set": {
-        "name": "memory_set",
-        "description": "memory_set",
+      "MemorySet": {
+        "name": "MemorySet",
+        "description": "MemorySet",
         "expect_input": true,
         "content_module": {
           "id": "ai.compose.content.test.memory_settings",
@@ -85,14 +83,14 @@
         "parser_module": {
           "id": "ai.compose.parser.core.passthrough",
           "config": {
-            "end_node_id": "[[memory_get]]",
+            "end_node_id": "MemoryGet",
             "ack_message": "Goto get"
           }
         }
       },
-      "memory_get": {
-        "name": "memory_get",
-        "description": "memory_get",
+      "MemoryGet": {
+        "name": "MemoryGet",
+        "description": "MemoryGet",
         "expect_input": true,
         "content_module": {
           "id": "ai.compose.content.test.memory_settings",
@@ -104,14 +102,14 @@
         "parser_module": {
           "id": "ai.compose.parser.core.passthrough",
           "config": {
-            "end_node_id": "[[memory_clear]]",
-            "ack_message": "Goto memory_clear"
+            "end_node_id": "MemoryClear",
+            "ack_message": "Goto MemoryClear"
           }
         }
       },
-      "memory_clear": {
-        "name": "memory_clear",
-        "description": "memory_clear",
+      "MemoryClear": {
+        "name": "MemoryClear",
+        "description": "MemoryClear",
         "expect_input": true,
         "content_module": {
           "id": "ai.compose.content.test.memory_settings",
@@ -123,14 +121,14 @@
         "parser_module": {
           "id": "ai.compose.parser.core.passthrough",
           "config": {
-            "end_node_id": "[[root]]",
-            "ack_message": "Goto root"
+            "end_node_id": "Root",
+            "ack_message": "Goto Root"
           }
         }
       },
-      "settings_set": {
-        "name": "settings_set",
-        "description": "settings_set",
+      "SettingsSet": {
+        "name": "SettingsSet",
+        "description": "SettingsSet",
         "expect_input": true,
         "content_module": {
           "id": "ai.compose.content.test.memory_settings",
@@ -143,14 +141,14 @@
         "parser_module": {
           "id": "ai.compose.parser.core.passthrough",
           "config": {
-            "end_node_id": "[[settings_get]]",
+            "end_node_id": "SettingsGet",
             "ack_message": "Goto get"
           }
         }
       },
-      "settings_get": {
-        "name": "settings_get",
-        "description": "settings_get",
+      "SettingsGet": {
+        "name": "SettingsGet",
+        "description": "SettingsGet",
         "expect_input": true,
         "content_module": {
           "id": "ai.compose.content.test.memory_settings",
@@ -162,14 +160,14 @@
         "parser_module": {
           "id": "ai.compose.parser.core.passthrough",
           "config": {
-            "end_node_id": "[[settings_clear]]",
-            "ack_message": "Goto settings_clear"
+            "end_node_id": "SettingsClear",
+            "ack_message": "Goto SettingsClear"
           }
         }
       },
-      "settings_clear": {
-        "name": "settings_clear",
-        "description": "settings_clear",
+      "SettingsClear": {
+        "name": "SettingsClear",
+        "description": "SettingsClear",
         "expect_input": true,
         "content_module": {
           "id": "ai.compose.content.test.memory_settings",
@@ -181,8 +179,8 @@
         "parser_module": {
           "id": "ai.compose.parser.core.passthrough",
           "config": {
-            "end_node_id": "[[root]]",
-            "ack_message": "Goto root"
+            "end_node_id": "Root",
+            "ack_message": "Goto Root"
           }
         }
       }
