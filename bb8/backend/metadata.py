@@ -74,19 +74,19 @@ class SessionRecord(Mutable):
 class ParseResult(object):
     """A result object parser modules needs to return.
     """
-    def __init__(self, action_ident=None, ack_message=None, variables=None,
+    def __init__(self, end_node_id=None, ack_message=None, variables=None,
                  collected_datum=None, skip_content_module=True):
         """Constructor.
 
         Args:
-            action_ident: action identifier.
+            end_node_id: end_node stable_id.
             ack_message: ack message that we want to reply immediately.
             variables: parsed action variable.
             collected_datum: data that the parser wants to collect.
             skip_content_module: skip running content module if the current
                 node is executed immediately.
         """
-        self.action_ident = action_ident
+        self.end_node_id = end_node_id
         self.ack_message = ack_message
         self.variables = variables or {}
         self.collected_datum = collected_datum or {}
@@ -97,7 +97,7 @@ class ParseResult(object):
 
     @property
     def matched(self):
-        return self.action_ident is not None or self.ack_message is not None
+        return self.end_node_id is not None or self.ack_message is not None
 
 
 class PostbackEvent(object):
@@ -158,9 +158,7 @@ class UserInput(object):
         if event:
             u.event = PostbackEvent(event)
 
-        node_id = payload.get('node_id', None)
-        if node_id:
-            u.jump_node_id = int(node_id)
+        u.jump_node_id = payload.get('node_id', None)
         return u
 
     @classmethod

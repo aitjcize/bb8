@@ -10,7 +10,7 @@
 
 from bb8.backend.database import Bot
 
-from bb8.backend.module_api import (BroadcastMessage, ParseResult, LinkageItem,
+from bb8.backend.module_api import (BroadcastMessage, ParseResult,
                                     SupportedPlatform, Message, Memory)
 
 
@@ -30,7 +30,7 @@ def schema():
     return {}
 
 
-def run(unused_parser_config, user_input, unused_as_root):
+def run(parser_config, user_input, unused_as_root):
     """
     {
       "links": [
@@ -57,7 +57,8 @@ def run(unused_parser_config, user_input, unused_as_root):
         if event.key == 'CONTROL_FLOW':
             if event.value == 'reset':
                 Memory.Clear()
-                return ParseResult('done', ack_message=u'放棄操作')
+                return ParseResult(parser_config['done'],
+                                   ack_message=u'放棄操作')
         elif event.key == 'SELECT_BOT':
             Memory.Set('bot', event.value)
         elif event.key == 'SELECT_OP':
@@ -78,7 +79,8 @@ def run(unused_parser_config, user_input, unused_as_root):
                         for raw_msg in Memory.Get('broadcast_message')]
                 BroadcastMessage(bot, msgs)
                 Memory.Clear()
-                return ParseResult('done', ack_message=u'您的訊息已送出!')
+                return ParseResult(parser_config['done'],
+                                   ack_message=u'您的訊息已送出!')
             else:
                 Memory.Set('broadcast_message', None)
 
@@ -88,11 +90,8 @@ def run(unused_parser_config, user_input, unused_as_root):
         broadcast_message.append(user_input.raw_message)
         Memory.Set('broadcast_message', broadcast_message)
 
-    return ParseResult('continue', skip_content_module=False)
+    return ParseResult(skip_content_module=False)
 
 
 def get_linkages(parser_config):
-    links = []
-    links.append(LinkageItem('continue', None))
-    links.append(LinkageItem('done', parser_config['done']))
-    return links
+    return [parser_config['done']]

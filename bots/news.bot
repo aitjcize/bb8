@@ -49,7 +49,7 @@
     "admin_interaction_timeout": 10,
     "ga_id": "UA-79887532-3",
     "nodes": {
-      "start": {
+      "Start": {
         "name": "Greet",
         "description": "Greet user",
         "expect_input": false,
@@ -66,12 +66,12 @@
         "parser_module": {
           "id": "ai.compose.parser.core.passthrough",
           "config": {
-            "end_node_id": "[[subscription]]",
+            "end_node_id": "Subscription",
             "ack_message": ""
           }
         }
       },
-      "subscription": {
+      "Subscription": {
         "name": "Subscribe",
         "description": "Prompt user for subscription preference",
         "expect_input": true,
@@ -99,12 +99,12 @@
         "parser_module": {
           "id": "ai.compose.parser.core.passthrough",
           "config": {
-            "end_node_id": "[[root]]",
+            "end_node_id": "Root",
             "ack_message": ""
           }
         }
       },
-      "root": {
+      "Root": {
         "name": "Root",
         "description": "Root node, show usage",
         "expect_input": true,
@@ -124,8 +124,7 @@
                   "params": ["有趣", "新聞", "新知", "(?i)trending",
                              "(?i)trend", "(?i)interesting"]
                 },
-                "action_ident": "trending_news",
-                "end_node_id": "[[trending_news]]",
+                "end_node_id": "TrendingNews",
                 "ack_message": "以下是我為您找出今天最該閱讀的新聞："
               },
               {
@@ -133,8 +132,7 @@
                   "type": "regexp",
                   "params": ["^搜尋$", "^找$", "^search$"]
                 },
-                "action_ident": "search_no_argument",
-                "end_node_id": "[[prompt_search_term]]",
+                "end_node_id": "PromptSearchTerm",
                 "ack_message": ""
               },
               {
@@ -146,8 +144,7 @@
                     "value": "{{matches#1}}"
                   }
                 },
-                "action_ident": "search",
-                "end_node_id": "[[search_news]]",
+                "end_node_id": "SearchNews",
                 "ack_message": ""
               },
               {
@@ -158,8 +155,7 @@
                              "(?i)(inside)", "(關鍵評論)",
                              "(?i)(news ?lens)"]
                 },
-                "action_ident": "news_source",
-                "end_node_id": "[[list_by_source]]",
+                "end_node_id": "ListBySource",
                 "ack_message": ""
               },
               {
@@ -170,8 +166,7 @@
                     "(?i)support", "你是誰", "(?i)hi", "(?i)hello", "(?i)yo$",
                     "(?i)ya$", "(?i)ha$"]
                 },
-                "action_ident": "help",
-                "end_node_id": "[[help]]",
+                "end_node_id": "Help",
                 "ack_message": ""
               },
               {
@@ -183,8 +178,7 @@
                     "美文", "歷史", "體育", "國際", "旅遊", "育兒", "故事",
                     "遊戲", "美食"]
                 },
-                "action_ident": "news_category",
-                "end_node_id": "[[search_news]]",
+                "end_node_id": "SearchNews",
                 "ack_message": ""
               },
               {
@@ -192,8 +186,7 @@
                   "type": "regexp",
                   "params": ["(?i)recommend", "推薦"]
                 },
-                "action_ident": "recommend",
-                "end_node_id": "[[recommend]]",
+                "end_node_id": "Recommend",
                 "ack_message": "以下是我們認為您最可能喜歡的新聞："
               },
               {
@@ -201,8 +194,7 @@
                   "type": "event",
                   "params": ["TRENDING"]
                 },
-                "action_ident": "trending_news",
-                "end_node_id": "[[trending_news]]",
+                "end_node_id": "TrendingNews",
                 "ack_message": ""
               },
               {
@@ -210,8 +202,7 @@
                   "type": "event",
                   "params": ["GET_CONTENT"]
                 },
-                "action_ident": "get_content",
-                "end_node_id": "[[get_content]]",
+                "end_node_id": "GetContent",
                 "ack_message": ""
               },
               {
@@ -219,8 +210,7 @@
                   "type": "sticker",
                   "params": ["369239263222822", "369239343222814", "369239383222810"]
                 },
-                "action_ident": "got_like_sticker",
-                "end_node_id": "[[thanks]]",
+                "end_node_id": "Thanks",
                 "ack_message": ""
               },
               {
@@ -232,8 +222,7 @@
                     "value": true
                   }
                 },
-                "action_ident": "subscribe",
-                "end_node_id": "[[root]]",
+                "end_node_id": "Root",
                 "ack_message": "好的，之後會不定時通知您新聞哦！"
               },
               {
@@ -245,8 +234,7 @@
                     "value": false
                   }
                 },
-                "action_ident": "unsubscribe",
-                "end_node_id": "[[root]]",
+                "end_node_id": "Root",
                 "ack_message": "你已取消訂閱！"
               },
               {
@@ -254,8 +242,7 @@
                   "type": "regexp",
                   "params": ["^建議$", "^feedback$", "意見", "留言"]
                 },
-                "action_ident": "feedback_no_content",
-                "end_node_id": "[[feedback_no_content]]",
+                "end_node_id": "Reedback",
                 "ack_message": ""
               },
               {
@@ -274,24 +261,22 @@
                   "type": "regexp",
                   "params": ["(?i)thanks?", "謝謝", "感恩"]
                 },
-                "action_ident": "got_like_sticker",
-                "end_node_id": "[[thanks]]",
+                "end_node_id": "Thanks",
                 "ack_message": ""
               },
               {
-                "action_ident": "$error",
-                "end_node_id": "[[search_news]]",
+                "end_node_id": "SearchNews",
                 "ack_message": ""
               }
             ],
             "on_error": {
-              "pattern": ".*",
-              "collect_as": {"key": "query_term"}
+              "collect_as": {"key": "query_term"},
+              "end_node_id": "SearchNews"
             }
           }
         }
       },
-      "list_by_source": {
+      "ListBySource": {
         "name": "Get by source",
         "description": "Get content by source name",
         "expect_input": true,
@@ -303,7 +288,7 @@
           }
         }
       },
-      "search_news": {
+      "SearchNews": {
         "name": "Search",
         "description": "Search node, search news",
         "expect_input": true,
@@ -315,7 +300,7 @@
           }
         }
       },
-      "trending_news": {
+      "TrendingNews": {
         "name": "Trending",
         "description": "Provide some trending news",
         "expect_input": false,
@@ -327,7 +312,7 @@
           }
         }
       },
-      "get_content": {
+      "GetContent": {
         "name": "Get Content",
         "description": "Get news detail content",
         "expect_input": false,
@@ -340,7 +325,7 @@
           }
         }
       },
-      "recommend": {
+      "Recommend": {
         "name": "Recommend some news",
         "description": "Provide some recommended news",
         "expect_input": false,
@@ -352,7 +337,7 @@
           }
         }
       },
-      "prompt_search_term": {
+      "PromptSearchTerm": {
         "name": "PromptSearchTerm",
         "description": "search with out term, prompt for term",
         "expect_input": true,
@@ -372,15 +357,14 @@
                   "params": ["(.*)"],
                   "collect_as": {"key": "search_term"}
                 },
-                "action_ident": "do_search",
-                "end_node_id": "[[search_news]]",
+                "end_node_id": "SearchNews",
                 "ack_message": ""
               }
             ]
           }
         }
       },
-      "thanks": {
+      "Thanks": {
         "name": "Thanks",
         "description": "Thank user",
         "expect_input": false,
@@ -394,7 +378,7 @@
           }
         }
       },
-      "feedback_no_content": {
+      "Reedback": {
         "name": "Feedback",
         "description": "Feedback without content, guide user to input feedback",
         "expect_input": true,
@@ -414,16 +398,15 @@
                   "params": [".*"],
                   "collect_as": {"key": "feedback"}
                 },
-                "action_ident": "got_feedback",
-                "end_node_id": "[[root]]",
+                "end_node_id": "Root",
                 "ack_message": "謝謝你的建議，我們會根據你的建議改善的！"
               }
             ]
           }
         }
       },
-      "help": {
-        "name": "help",
+      "Help": {
+        "name": "Help",
         "description": "",
         "expect_input": false,
         "content_module": {
@@ -439,7 +422,7 @@
         "parser_module": {
           "id": "ai.compose.parser.core.passthrough",
           "config": {
-            "end_node_id": "[[root]]",
+            "end_node_id": "Root",
             "ack_message": ""
           }
         }
