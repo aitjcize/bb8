@@ -12,7 +12,7 @@ import grpc
 
 from bb8.backend.module_api import (Message, EventPayload,
                                     GetgRPCService, GetUserId,
-                                    SupportedPlatform)
+                                    SupportedPlatform, Resolve)
 from bb8 import config
 
 
@@ -50,6 +50,7 @@ def schema():
                     'trending_tw',
                     'trending_cn',
                     'subscribe',
+                    'search',
                     'get_history',
                 ]
             },
@@ -82,10 +83,10 @@ class DramaInfo(object):
             self._pb2_module.SubscribeRequest(
                 user_id=user_id, drama_id=drama_id), GRPC_TIMEOUT)
 
-    def search(self, user_id, term):
+    def search(self, user_id, term, count):
         return self._stub.Search(
             self._pb2_module.SearchRequest(
-                user_id=user_id, term=term
+                user_id=user_id, term=term, count=count
             ), GRPC_TIMEOUT).dramas
 
     def get_history(self, drama_id, from_episode, backward):
@@ -167,6 +168,18 @@ def render_episodes(episodes):
 
 def run(content_config, unused_env, variables):
     user_id = GetUserId()
+    n_items = content_config.get('n_items', DEFAULT_N_ITEMS)
+
+    def append_categories_to_quick_reply(m):
+        m.add_quick_reply(Message.QuickReply(
+            Message.QuickReplyType.TEXT, u'熱門韓劇'))
+        m.add_quick_reply(Message.QuickReply(
+            Message.QuickReplyType.TEXT, u'熱門日劇'))
+        m.add_quick_reply(Message.QuickReply(
+            Message.QuickReplyType.TEXT, u'熱門台劇'))
+        m.add_quick_reply(Message.QuickReply(
+            Message.QuickReplyType.TEXT, u'熱門陸劇'))
+        return [m]
 
     if content_config['mode'] == 'subscribe':
         event = variables['event']
@@ -195,15 +208,17 @@ def run(content_config, unused_env, variables):
 
     if content_config['mode'] == 'prompt':
         m = Message(u'你比較喜歡以下的什麼劇呢？')
-        m.add_quick_reply(Message.QuickReply(
-            Message.QuickReplyType.TEXT, u'熱門韓劇'))
-        m.add_quick_reply(Message.QuickReply(
-            Message.QuickReplyType.TEXT, u'熱門日劇'))
-        m.add_quick_reply(Message.QuickReply(
-            Message.QuickReplyType.TEXT, u'熱門台劇'))
-        m.add_quick_reply(Message.QuickReply(
-            Message.QuickReplyType.TEXT, u'熱門陸劇'))
+        append_categories_to_quick_reply(m)
         return [m]
 
     country = content_config['mode'].replace('trending_', '')
+    if content_config['mode'] == 'search':
+        query_term = Resolve(content_config['query_term'], variables)
+        dramas = drama_info.search(user_id, query_term, n_items)
+        if dramas:
+            return render_dramas(dramas)
+        m = Message(u'找不到耶！你可以換個關鍵字或試試熱門的類別：')
+        append_categories_to_quick_reply(m)
+        return [m]
+
     return render_dramas(drama_info.get_trending(user_id, country=country))
