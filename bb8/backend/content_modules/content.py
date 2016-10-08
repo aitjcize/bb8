@@ -167,7 +167,6 @@ def render_cards(news):
             u'在這讀', payload=EventPayload('GET_CONTENT', {
                 'entry_link': n.link,
                 'char_offset': 0,
-                'link': n.link,
                 'pic_index': 1,
             }, False)))
         b.add_button(Message.Button(
@@ -180,11 +179,11 @@ def render_cards(news):
     return [m]
 
 
-def run_get_content(variables):
+def run_get_content(variables, limit):
     try:
         event = variables['event']
         content, char_offset, total_length = news_info.get_content(
-            event.value['entry_link'], event.value['char_offset'])
+            event.value['entry_link'], event.value['char_offset'], limit)
         src, alt, pic_index = news_info.get_picture(
             event.value['entry_link'],
             event.value['pic_index'])
@@ -210,12 +209,11 @@ def run_get_content(variables):
             payload=EventPayload('GET_CONTENT', {
                 'entry_link': event.value['entry_link'],
                 'char_offset': char_offset,
-                'link': event.value['link'],
                 'pic_index': pic_index,
             }, False)))
         m.add_button(Message.Button(
             Message.ButtonType.WEB_URL, u'去網站讀',
-            url=event.value['link']))
+            url=event.value['entry_link']))
         msgs.append(m)
     elif has_content:
         msgs.append(Message(content))
@@ -234,12 +232,11 @@ def run_get_content(variables):
                     payload=EventPayload('GET_CONTENT', {
                         'entry_link': event.value['entry_link'],
                         'char_offset': char_offset,
-                        'link': event.value['link'],
                         'pic_index': pic_index,
                     }, False)))
                 b.add_button(Message.Button(
                     Message.ButtonType.WEB_URL, u'去網站讀',
-                    url=event.value['link']))
+                    url=event.value['entry_link']))
             alt_msg.add_bubble(b)
             msgs = [src_msg, alt_msg] + msgs
         else:
@@ -254,12 +251,16 @@ def run_get_content(variables):
     return msgs
 
 
-def run(content_config, unused_env, variables):
+def run(content_config, env, variables):
     user_id = GetUserId()
     n_items = content_config.get('n_items', DEFAULT_N_ITEMS)
 
+    limit = 200
+    if env['platform_type'] == SupportedPlatform.Line:
+        limit = 160
+
     if content_config['mode'] == 'get_content':
-        return run_get_content(variables)
+        return run_get_content(variables, limit)
 
     if content_config['mode'] == 'list_by_source':
         source_name = Resolve(content_config['query_term'], variables)

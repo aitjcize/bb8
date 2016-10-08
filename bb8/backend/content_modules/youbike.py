@@ -243,7 +243,7 @@ class YoubikeInfo(object):
         return 10
 
 
-def run(content_config, env, variables):
+def run(content_config, unused_env, variables):
     """
     content_config schema:
     {
@@ -265,10 +265,6 @@ def run(content_config, env, variables):
 
     k = content_config.get('max_count', 5)
     size = (500, 260)
-
-    if env['platform_type'] == SupportedPlatform.Line:
-        k = 2
-        size = (1000, 1000)
 
     stations = youbike.find_knn(k, c, content_config['distance_threshold'])
     if not stations:

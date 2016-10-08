@@ -202,6 +202,11 @@ class User(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     platform = relationship('Platform')
     colleted_data = relationship('ColletedDatum')
 
+    def delete(self):
+        Conversation.delete_by(user_id=self.id)
+        ColletedDatum.delete_by(user_id=self.id)
+        super(User, self).delete()
+
     def goto(self, node_id):
         """Goto a node."""
         sess = self.session
@@ -254,6 +259,11 @@ class Platform(DeclarativeBase, ModelMixin):
     config = Column(PickleType, nullable=False)
 
     bot = relationship('Bot')
+
+    def delete(self):
+        for user in User.get_by(platform_id=self.id):
+            user.delete()
+        super(Platform, self).delete()
 
 
 class Linkage(DeclarativeBase, ModelMixin):
