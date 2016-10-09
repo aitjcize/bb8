@@ -34,21 +34,25 @@ case $USER in
     export MYSQL_PORT=3308
     export REDIS_PORT=6380
     export HTTP_PORT=7001
+    export APP_RPC_PORT=9999
     ;;
   ychiaoli18)
     export MYSQL_PORT=3309
     export REDIS_PORT=6381
     export HTTP_PORT=7002
+    export APP_RPC_PORT=10000
     ;;
   yjlou)
     export MYSQL_PORT=3310
     export REDIS_PORT=6382
     export HTTP_PORT=7003
+    export APP_RPC_PORT=10001
     ;;
   hans)
     export MYSQL_PORT=3311
     export REDIS_PORT=6383
     export HTTP_PORT=7004
+    export APP_RPC_PORT=10002
     ;;
 esac
 

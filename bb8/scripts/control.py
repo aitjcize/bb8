@@ -272,7 +272,8 @@ class App(object):
             ' -m {0}'.format(self.get_memory_limit()) +
             ' -e BB8_SCOPE={0}'.format(os.getenv('BB8_SCOPE', 'nobody')) +
             ' -e BB8_DEPLOY={0}'.format(str(config.DEPLOY).lower()) +
-            (' -p 9999:9999' if bind else ' ') +
+            (' -p {0}:9999'.format(os.getenv('APP_RPC_PORT', 9999))
+             if bind else ' ') +
             database_env_switch() +
             hostname_env_switch() +
             ' '.join(volumes) +

@@ -45,7 +45,7 @@ class Config(object):
 
     # Ports
     APP_API_SERVICE_PORT = 62629
-    APP_GRPC_SERVICE_PORT = 9999
+    APP_GRPC_SERVICE_PORT = int(os.getenv('APP_RPC_PORT', 9999))
 
     # Webhooks
     BOT_WEBHOOOK_ROOT = '/bot'
