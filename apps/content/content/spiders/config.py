@@ -36,7 +36,7 @@ spider_configs = {
                  '//img', '@src', '@alt'),
                 ('//div[contains(@class, "image")]'
                  '//img[re:test(@src, "^http")]', '@src', '@alt'),
-                ('//div[@class="yom-mod yom-art-content"]'
+                ('//div[@class="yom-mod yom-art-content "]'
                  '//img[contains(@class, "editorial")]', '@src', '@alt')
             ],
             'author': '',
@@ -72,8 +72,6 @@ spider_configs = {
                  '//img[re:test(@src, "^http")]', '@src', '@alt'),
                 ('//div[contains(@class, "article-wrapper")]'
                  '/article//img[re:test(@src, "^http")]', '@src', '@alt'),
-                ('//div[contains(@class, "image")]'
-                 '//img[re:test(@src, "^http")]', '@src', '@alt')
             ],
             'author': '',
             'publish_time': '',
