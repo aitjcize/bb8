@@ -87,7 +87,11 @@
                 "end_node_id": "Root",
                 "ack_message": "Ok! 如果你還需要解說的話，可以再輸入「使用說明」"
               }
-            ]
+            ],
+            "on_error": {
+              "end_node_id": null,
+              "ack_message": "我不了解你的指令，可以再輸入一次，或輸入「使用說明」喔。"
+            }
           }
         }
       },
@@ -234,7 +238,11 @@
                 "end_node_id": null,
                 "ack_message": "我看不懂，你可以打「說明」看怎麼用。"
               }
-            ]
+            ],
+            "on_error": {
+              "end_node_id": null,
+              "ack_message": "我不了解你的指令，可以再輸入一次，或輸入「使用說明」喔。"
+            }
           }
         }
       },
@@ -429,7 +437,11 @@
                 "end_node_id": "GetTransaction",
                 "ack_message": "收到你輸入的條件：{{matches#0}}"
               }
-            ]
+            ],
+            "on_error": {
+              "end_node_id": null,
+              "ack_message": "我不了解你的指令，可以再輸入一次，或輸入「使用說明」喔。"
+            }
           }
         }
       },
