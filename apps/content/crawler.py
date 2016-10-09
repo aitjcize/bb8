@@ -7,8 +7,6 @@
     Copyright 2016 bb8 Authors
 """
 
-from __future__ import print_function
-
 import argparse
 import logging
 import multiprocessing
@@ -24,9 +22,13 @@ from content.spiders.config import spider_configs
 from content.spiders import RSSSpider, WebsiteSpider
 
 
+logger = logging.getLogger('content.crawler')
+logger.setLevel(logging.DEBUG)
+
+
 def crawl():
     try:
-        print('Crawler: started')
+        logger.info('Crawler: started')
         process = CrawlerProcess(get_project_settings())
         process.crawl(WebsiteSpider, **spider_configs['storm'])
         process.crawl(WebsiteSpider, **spider_configs['thenewslens'])
@@ -34,7 +36,7 @@ def crawl():
         process.start()
         process.stop()
 
-        print('Crawler: extracting keywords')
+        logger.info('Crawler: extracting keywords')
         with DatabaseSession():
             kws = keywords.extract_keywords_ct()
             for kw, related in kws.iteritems():
@@ -43,9 +45,9 @@ def crawl():
                     for r in related:
                         Keyword(parent_id=k.id, name=r).commit_unique()
     except Exception:
-        logging.exception('Crawler: exception, skipped')
+        logger.exception('Crawler: exception, skipped')
     else:
-        print('Crawler: finished gracefully')
+        logger.info('Crawler: finished gracefully')
 
 
 def main(args):

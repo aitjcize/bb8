@@ -2,7 +2,15 @@ FROM ubuntu:xenial
 MAINTAINER Wei-Ning Huang <aitjcize@compose.ai>
 
 RUN apt-get update && apt-get upgrade -y && \
-        apt-get install -y vim git python python2.7 python-pip
+        apt-get install -y --no-install-recommends apt-utils && \
+        apt-get install -y \
+                git \
+                python \
+                python2.7 \
+                python-pip \
+                python-pkg-resources \
+                vim \
+        && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt /tmp/requirements.txt
 

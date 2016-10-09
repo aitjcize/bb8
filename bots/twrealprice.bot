@@ -1,0 +1,479 @@
+{
+  "platforms": [
+    {
+      "type_enum": "Facebook",
+      "deployed": true,
+      "provider_ident": "233392910121400",
+      "config": {
+        "access_token": "EAAZAi0GnycPEBAPr6JdpMxkXSI4j4qvB4MgqxIRvQtOrgvABu0KoBT6yqamUOu0HCDermodSOVzPIDwwT9lMxre5E7YlsioijMufY5OO2Tgk1XwIWukhOzaKauBTK6bpbpOXUk8GRqdmWVEbScAzZA1hcbq2mTzUwLeFd3xgZDZD",
+        "get_start_button": {"message": {"text": "Hi"}},
+        "persistent_menu": [
+          {
+            "type": "postback",
+            "title": "使用說明",
+            "payload": {"message": {"text": "tutorial"}}
+          },
+          {
+            "type": "postback",
+            "title": "留言",
+            "payload": {"message": {"text": "feedback"}}
+          },
+          {
+            "type": "web_url",
+            "title": "粉絲頁",
+            "url": "https://www.facebook.com/twrealprice/"
+          },
+          {
+            "type": "web_url",
+            "title": "Compose.ai 官方網站",
+            "url": "http://compose.ai"
+          }
+        ]
+      }
+    }
+  ],
+  "bot": {
+    "name": "TwRealPrice",
+    "description": "Provide the information for Taiwan estate",
+    "interaction_timeout": 120,
+    "admin_interaction_timeout": 10,
+    "session_timeout": 0,
+    "ga_id": "UA-35340070-1",
+    "nodes": {
+      "Start": {
+        "name": "Greet",
+        "description": "Great user",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.core.generic_message",
+          "config": {
+            "messages": [
+              {
+                "text": "嗨 {{user.first_name}}，歡迎使用 實價登錄 小幫手，很高興為你服務。這個小幫手是由 compose.ai 公司提供技術支援與維運支援。"
+              },
+              {
+                "text": "這是你第一次使用，請問你想看使用說明嗎？",
+                "quick_replies": [
+                  {
+                    "content_type": "text",
+                    "title": "好"
+                  },
+                  {
+                    "content_type": "text",
+                    "title": "不用了"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["^好", "^想", "^是", "(?i)ok", "(?i)y", "1"]
+                },
+                "end_node_id": "DemoDesc",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["不", "(?i)no", ".*", "2"]
+                },
+                "end_node_id": "Root",
+                "ack_message": "Ok! 如果你還需要解說的話，可以再輸入「使用說明」"
+              }
+            ]
+          }
+        }
+      },
+      "DemoDesc": {
+        "name": "Demo-Desc",
+        "description": "Give context about the demo",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.core.generic_message",
+          "config": {
+            "messages": {
+              "Facebook": [
+                {
+                  "text": "請使用訊息的定位功能將位置發送給我，我會替你找出鄰近的成交價。你也可以透過輸入地名或地址的方式查詢。如果想留言給我們，可以輸入「建議」。"
+                },
+                {
+                  "attachment": {
+                    "type": "image",
+                    "payload": {
+                      "url": "http://i.imgur.com/yz5fNt8.png"
+                    }
+                  }
+                }
+              ],
+              "Line": [
+                {
+                  "text": "請使用訊息的定位功能將位置發送給我，我會替你找出鄰近的成交價。你也可以透過輸入地名或地址的方式查詢。如果想留言給我們，可以輸入「建議」。"
+                },
+                {
+                  "attachment": {
+                    "type": "image",
+                    "payload": {
+                      "url": "http://i.imgur.com/FiLEltL.png"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.passthrough",
+          "config": {
+            "end_node_id": "Root",
+            "ack_message": ""
+          }
+        }
+      },
+      "Root": {
+        "name": "Root",
+        "description": "Root node, show usage",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.core.generic_message",
+          "config": {
+            "messages": [
+              {
+                "text": "你想要找哪裡的成交行情呢？",
+                "quick_replies": [
+                  {
+                    "content_type": "location"
+                  },
+                  {
+                    "content_type": "text",
+                    "title": "{{q.query_address|lru(0)|fallback('台北永康街')}}"
+                  },
+                  {
+                    "content_type": "text",
+                    "title": "{{q.query_address|lru(1)|fallback('台中公益路')}}"
+                  },
+                  {
+                    "content_type": "text",
+                    "title": "{{q.query_address|lru(2)|fallback('左營高鐵站')}}"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["路", "街", "市", "橋", "區", "館", "大道", "捷運", "醫院", "高鐵", "夜市", "台?中(一|女)中", "車站", "縣", "區", "鄉", "鎮", "村", "里"],
+                  "collect_as": {"key": "query_address"}
+                },
+                "end_node_id": "Geocoding",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "location",
+                  "collect_as": {"key": "location"},
+                  "memory_set": {
+                    "key": "location"
+                  }
+                },
+                "end_node_id": "GetTransaction",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(使用)?說明", "tutorial", "^\\?", "(?i)help", "幫助", "怎麼用?", "^？", "不會用", "求救"]
+                },
+                "end_node_id": "DemoDesc",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["建議", "feedback", "意見", "留言", "私訊"]
+                },
+                "end_node_id": "Feedback",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "sticker",
+                  "params": ["369239263222822", "369239343222814", "369239383222810"]
+                },
+                "end_node_id": "Thanks",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)thanks?", "謝", "感恩"]
+                },
+                "end_node_id": "Thanks",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "event",
+                  "params": ["WRONG_ADDRESS"]
+                },
+                "ack_message": "請重新輸入地址"
+              },
+              {
+                "end_node_id": null,
+                "ack_message": "我看不懂，你可以打「說明」看怎麼用。"
+              }
+            ]
+          }
+        }
+      },
+      "Geocoding": {
+        "name": "Geocoding",
+        "description": "Prompt user for correct address",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.content.core.geocoding",
+          "config": {
+            "send_payload_to_current_node": false,
+            "api_key": "AIzaSyCpP0pV9_YtQuV-Gzf6aL9nRt1Es5UlBv4",
+            "query_term": "{{text}}",
+            "language": "zh_TW",
+            "region": "tw",
+            "bounds": [
+              [
+                {"lat": 20.0, "long": 118.0},
+                {"lat": 26.0, "long": 123.0}
+              ]
+            ]
+          }
+        }
+      },
+      "GetTransaction": {
+        "name": "Get transaction data",
+        "description": "Show nearby transaction data",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.content.third_party.twrealprice",
+          "config": {
+            "api_key": "AIzaSyCpP0pV9_YtQuV-Gzf6aL9nRt1Es5UlBv4",
+            "max_count": 7,
+            "location": "{{location}}",
+            "distance_threshold": 0.050
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.passthrough",
+          "config": {
+            "end_node_id": "HintFilter",
+            "ack_message": ""
+          }
+        }
+      },
+      "HintFilter": {
+        "name": "Hint",
+        "description": "Hint user",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.core.text_message",
+          "config": {
+            "text": {
+              "Facebook": "你可以繼續送出位置查詢，或輸入篩選條件",
+              "Line": "你可以繼續送出位置查詢，或輸入篩選條件"
+            },
+            "quick_replies": [
+              {
+                "content_type": "text",
+                "title": "更多物件"
+              },
+              {
+                "content_type": "text",
+                "title": "{{q.filter|lru(0)|fallback('透天')}}"
+              },
+              {
+                "content_type": "text",
+                "title": "大樓"
+              },
+              {
+                "content_type": "text",
+                "title": "8年房"
+              },
+              {
+                "content_type": "text",
+                "title": "55.66坪"
+              },
+              {
+                "content_type": "text",
+                "title": "十一樓"
+              },
+              {
+                "content_type": "text",
+                "title": "重設條件"
+              },
+              {
+                "content_type": "text",
+                "title": "{{q.query_address|lru(0)|fallback('桃園中正路')}}"
+              },
+              {
+                "content_type": "location"
+              }
+            ]
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["路", "街", "市", "橋", "區", "館", "大道", "捷運", "醫院", "高鐵", "夜市", "台?中(一|女)中", "車站", "縣", "區", "鄉", "鎮", "村", "里"],
+                  "collect_as": {"key": "query_address"}
+                },
+                "end_node_id": "Geocoding",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "event",
+                  "params": ["WRONG_ADDRESS"]
+                },
+                "ack_message": "請重新輸入地址"
+              },
+              {
+                "rule": {
+                  "type": "location",
+                  "collect_as": {"key": "location"},
+                  "memory_set": {
+                    "key": "location"
+                  }
+                },
+                "end_node_id": "GetTransaction",
+                "ack_message": "請稍等，處理中。。。"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["更多", "more"],
+                  "memory_set": {
+                    "key": "more_data",
+                    "value": "1"
+                  }
+                },
+                "end_node_id": "GetTransaction",
+                "ack_message": "好的，為您送上更多物件"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["重設", "reset"],
+                  "memory_set": {
+                    "key": "filter",
+                    "value": ""
+                  }
+                },
+                "end_node_id": "GetTransaction",
+                "ack_message": "好的，為您重設條件"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(使用)?說明", "tutorial", "^\\?", "(?i)help", "幫助", "怎麼用?", "^？", "不會用", "求救"]
+                },
+                "end_node_id": "DemoDesc",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["建議", "feedback", "意見", "留言", "私訊"]
+                },
+                "end_node_id": "Feedback",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "sticker",
+                  "params": ["369239263222822", "369239343222814", "369239383222810"]
+                },
+                "end_node_id": "Thanks",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)thanks?", "謝", "感恩"]
+                },
+                "end_node_id": "Thanks",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [".*"],
+                  "collect_as": {"key": "filter"},
+                  "memory_set": {
+                    "key": "filter"
+                  }
+                },
+                "end_node_id": "GetTransaction",
+                "ack_message": "收到你輸入的條件：{{matches#0}}"
+              }
+            ]
+          }
+        }
+      },
+      "Thanks": {
+        "name": "Thanks",
+        "description": "Thank user",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.content.core.text_message",
+          "config": {
+            "text": [
+              "感謝你的支持, 如果覺得實用，可以幫我們宣傳喔！",
+              "你也可以輸入「建議」來告訢我們可以改善的地方。"
+            ]
+          }
+        }
+      },
+      "Feedback": {
+        "name": "Feedback",
+        "description": "Feedback without content, guide user to input feedback",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.core.text_message",
+          "config": {
+            "text": "你覺得我們可以怎麼樣改善呢？"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [".*"],
+                  "collect_as": {"key": "feedback"}
+                },
+                "end_node_id": "Root",
+                "ack_message": "謝謝你的建議，我們會根據你的建議改善的！"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

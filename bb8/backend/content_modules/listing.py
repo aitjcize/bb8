@@ -10,8 +10,8 @@ import json
 import urllib
 import urllib2
 
-from bb8.backend.module_api import (Message, TextPayload, Resolve,
-                                    SupportedPlatform)
+from bb8.backend.module_api import (Message, Resolve,
+                                    SupportedPlatform, TextPayload)
 
 
 DEFAULT_TIMEOUT_SECS = 5
@@ -19,7 +19,7 @@ DEFAULT_TIMEOUT_SECS = 5
 
 def get_module_info():
     return {
-        'id': 'ai.compose.core.listing',
+        'id': 'ai.compose.content.core.listing',
         'name': 'Listing',
         'description': 'List website elements as cards',
         'supported_platform': SupportedPlatform.All,
@@ -68,7 +68,7 @@ def run(content_config, unused_env, variables):
     {
         "query_url": "http://ecshweb.pchome.com.tw/search/v3.3/all/results?"
                      "q=%s&page=1&sort=rnk/dc",
-        "term": "{{matches#0}}",
+        "term": "{{matches#1}}",
         "max_count": 7,
         "list": "prods",
         "attributes": {

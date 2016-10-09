@@ -1,0 +1,189 @@
+{
+  "platforms": [
+    {
+      "type_enum": "Facebook",
+      "deployed": false,
+      "provider_ident": "facebook_page_id_postback",
+      "config": {
+        "access_token": "access_token"
+      }
+    }
+  ],
+  "bot": {
+    "name": "MemoryAndSettings",
+    "description": "test memory and settings",
+    "interaction_timeout": 120,
+    "admin_interaction_timeout": -1,
+    "session_timeout": 864000,
+    "nodes": {
+      "Start": {
+        "name": "Start",
+        "description": "Start",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.content.core.text_message",
+          "config": {
+            "text": "In Start"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.passthrough",
+          "config": {
+            "end_node_id": "Root",
+            "ack_message": "Goto Root"
+          }
+        }
+      },
+      "Root": {
+        "name": "Root",
+        "description": "Root",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.core.text_message",
+          "config": {
+            "text": "In Root"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["memory_set"]
+                },
+                "end_node_id": "MemorySet",
+                "ack_message": "Goto MemorySet"
+              },
+              {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["settings_set"]
+                },
+                "end_node_id": "SettingsSet",
+                "ack_message": "Goto SettingsSet"
+              }
+            ]
+          }
+        }
+      },
+      "MemorySet": {
+        "name": "MemorySet",
+        "description": "MemorySet",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.test.memory_settings",
+          "config": {
+            "target": "memory",
+            "mode": "set",
+            "data": "abc"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.passthrough",
+          "config": {
+            "end_node_id": "MemoryGet",
+            "ack_message": "Goto get"
+          }
+        }
+      },
+      "MemoryGet": {
+        "name": "MemoryGet",
+        "description": "MemoryGet",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.test.memory_settings",
+          "config": {
+            "target": "memory",
+            "mode": "get"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.passthrough",
+          "config": {
+            "end_node_id": "MemoryClear",
+            "ack_message": "Goto MemoryClear"
+          }
+        }
+      },
+      "MemoryClear": {
+        "name": "MemoryClear",
+        "description": "MemoryClear",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.test.memory_settings",
+          "config": {
+            "target": "memory",
+            "mode": "clear"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.passthrough",
+          "config": {
+            "end_node_id": "Root",
+            "ack_message": "Goto Root"
+          }
+        }
+      },
+      "SettingsSet": {
+        "name": "SettingsSet",
+        "description": "SettingsSet",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.test.memory_settings",
+          "config": {
+            "target": "settings",
+            "mode": "set",
+            "data": "def"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.passthrough",
+          "config": {
+            "end_node_id": "SettingsGet",
+            "ack_message": "Goto get"
+          }
+        }
+      },
+      "SettingsGet": {
+        "name": "SettingsGet",
+        "description": "SettingsGet",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.test.memory_settings",
+          "config": {
+            "target": "settings",
+            "mode": "get"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.passthrough",
+          "config": {
+            "end_node_id": "SettingsClear",
+            "ack_message": "Goto SettingsClear"
+          }
+        }
+      },
+      "SettingsClear": {
+        "name": "SettingsClear",
+        "description": "SettingsClear",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.test.memory_settings",
+          "config": {
+            "target": "settings",
+            "mode": "clear"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.passthrough",
+          "config": {
+            "end_node_id": "Root",
+            "ack_message": "Goto Root"
+          }
+        }
+      }
+    }
+  }
+}

@@ -13,8 +13,9 @@
 import re
 import requests
 
-from bb8.backend.module_api import (LocationPayload, Message, Resolve,
-                                    EventPayload, SupportedPlatform)
+from bb8.backend.module_api import (EventPayload, Message,
+                                    Resolve, SupportedPlatform,
+                                    LocationPayload)
 
 
 STOP_WORDS = u'(我|在|要|去|的|到)'
@@ -22,7 +23,7 @@ STOP_WORDS = u'(我|在|要|去|的|到)'
 
 def get_module_info():
     return {
-        'id': 'ai.compose.core.geocoding',
+        'id': 'ai.compose.content.core.geocoding',
         'name': 'Geocoding',
         'description': 'Convert an address to a list of possible GPS '
                        'locations which users can select from.',

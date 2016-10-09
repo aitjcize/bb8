@@ -8,9 +8,13 @@
 
 import os
 
-from config import DevelopmentConfig, DeployConfig
+from config import DevelopmentConfig, DeployConfig, TestingConfig
 
-config = DevelopmentConfig()  # pylint: disable=R0204
+config = None
 
-if os.getenv('BB8_DEPLOY', '') == 'true':
+if os.getenv('BB8_TEST', '') == 'true':
+    config = TestingConfig()  # pylint: disable=R0204
+elif os.getenv('BB8_DEPLOY', '') == 'true':
     config = DeployConfig()  # pylint: disable=R0204
+else:
+    config = DevelopmentConfig()  # pylint: disable=R0204

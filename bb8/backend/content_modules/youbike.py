@@ -21,8 +21,8 @@ import grpc
 
 from bb8 import logger
 from bb8.backend.module_api import (Config, Message, GetUserTime,
-                                    GetgRPCService, LocationPayload, Resolve,
-                                    SupportedPlatform)
+                                    GetgRPCService, LocationPayload,
+                                    Resolve, SupportedPlatform)
 
 
 GRPC_TIMEOUT = 5
@@ -31,7 +31,7 @@ GOOGLE_STATIC_MAP_API_KEY = 'AIzaSyAJjjE4BnIS-JAlfC1V77QGvb5kCauUVnc'
 
 def get_module_info():
     return {
-        'id': 'ai.compose.third_party.youbike',
+        'id': 'ai.compose.content.third_party.youbike',
         'name': 'Youbike',
         'description': 'Youbike info search according to location.',
         'supported_platform': SupportedPlatform.All,
@@ -243,7 +243,7 @@ class YoubikeInfo(object):
         return 10
 
 
-def run(content_config, env, variables):
+def run(content_config, unused_env, variables):
     """
     content_config schema:
     {
@@ -265,10 +265,6 @@ def run(content_config, env, variables):
 
     k = content_config.get('max_count', 5)
     size = (500, 260)
-
-    if env['platform_type'] == SupportedPlatform.Line:
-        k = 2
-        size = (1000, 1000)
 
     stations = youbike.find_knn(k, c, content_config['distance_threshold'])
     if not stations:

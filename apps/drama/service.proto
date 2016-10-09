@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package bb8.apps;
+
+service DramaInfo {
+  rpc Subscribe (SubscribeRequest) returns (Empty) {}
+  rpc Search (SearchRequest) returns (Dramas) {}
+  rpc Trending (TrendingRequest) returns (Dramas) {}
+  rpc GetHistory (HistoryRequest) returns (Episodes) {}
+}
+
+message Empty {}
+
+message Drama {
+  uint32 id = 1;
+  string link = 2;
+  string name = 3;
+  string description = 4;
+  string image_url = 5;
+  string country = 6;
+}
+
+message Episode {
+  string link = 1;
+  uint32 drama_id = 2;
+  string drama_name = 3;
+  string image_url = 4;
+  string description = 5;
+  uint32 serial_number = 6;
+}
+
+message Dramas {
+  repeated Drama dramas = 1;
+}
+
+message Episodes {
+  repeated Episode episodes = 1;
+}
+
+message SubscribeRequest {
+  uint32 user_id = 1;
+  uint32 drama_id = 2;
+}
+
+message SearchRequest {
+  uint32 user_id = 1;
+  string term = 2;
+  uint32 count = 3;
+}
+
+message TrendingRequest {
+  uint32 user_id = 1;
+  string country = 2;
+  uint32 count = 3;
+}
+
+message HistoryRequest {
+  uint32 drama_id = 1;
+  uint32 from_episode = 2;
+  bool backward = 3;
+}

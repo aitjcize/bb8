@@ -8,3 +8,5 @@ states
 *_pb2.py
 apps/content/credential
 dist
+credential
+certs

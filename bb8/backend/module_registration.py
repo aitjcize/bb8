@@ -47,6 +47,10 @@ def register_content_modules():
             logger.info('Registering content module `%s\' ...', name)
             m = importlib.import_module('%s.%s' %
                                         (ContentModule.CONTENT_MODULES, name))
+            if not hasattr(m, 'get_module_info'):
+                logger.warn('Skip module %s due to lack of get_module_info()' %
+                            name)
+                continue
             info = m.get_module_info()
             assert info['module_name'] == name
 
@@ -58,7 +62,8 @@ def register_content_modules():
 
             cm = ContentModule.get_by(id=info['id'], single=True)
             if cm:
-                ContentModule.get_by(id=info['id'], query=True).update(info)
+                ContentModule.get_by(id=info['id'],
+                                     return_query=True).update(info)
             else:
                 ContentModule(**info).add()
 
@@ -84,7 +89,8 @@ def register_parser_modules():
 
             pm = ParserModule.get_by(id=info['id'], single=True)
             if pm:
-                ParserModule.get_by(id=info['id'], query=True).update(info)
+                ParserModule.get_by(id=info['id'],
+                                    return_query=True).update(info)
             else:
                 ParserModule(**info).add()
 

@@ -32,6 +32,7 @@ BB8_SRC_ROOT = os.path.normpath(os.path.join(
 BB8_DATA_ROOT = '/var/lib/bb8'
 BB8_NETWORK = 'bb8_network'
 BB8_CLIENT_PACKAGE_NAME = 'bb8-client-9999.tar.gz'
+BB8_CREDENTIALS_DIR = '/etc/bb8/'
 
 
 logger = logging.getLogger('bb8ctl')
@@ -43,6 +44,13 @@ def setup_logger():
         '%(log_color)s%(levelname)s:%(name)s:%(message)s'))
     logger.addHandler(handler)
     logger.setLevel(logging.DEBUG)
+
+
+def scoped_name(name):
+    """Return name if we are in deploy mode, else the scoped name for a given
+    bb8 object name."""
+    return (name if config.DEPLOY else
+            '%s.%s' % (os.getenv('BB8_SCOPE', 'nobody'), name))
 
 
 def get_manifest_schema():
@@ -87,23 +95,36 @@ def docker_get_instance(name):
         name).strip()
 
 
+def hostname_env_switch():
+    hostname = os.getenv('BB8_HOSTNAME', None)
+    return ' -e BB8_HOSTNAME={0} '.format(hostname) if hostname else ''
+
+
 def database_env_switch():
     if config.DEPLOY:
         return ''
     database = os.getenv('DATABASE', None)
     if database is None:
-        logger.error('dev database not specified')
-    database = database.replace('127.0.0.1', '172.17.0.1')
+        raise RuntimeError('dev database not specified')
     return ' -e DATABASE=%s ' % database
+
+
+def redis_env_switch():
+    if config.DEPLOY:
+        return ''
+    redis = os.getenv('REDIS_URI', None)
+    if redis is None:
+        raise RuntimeError('dev redis not specified')
+    return ' -e REDIS_URI=%s ' % redis
 
 
 class App(object):
     """App class representing an BB8 third-party app."""
 
-    BB8_APP_PREFIX = 'bb8.app'
+    BB8_APP_PREFIX = scoped_name('bb8.app')
     SCHEMA = get_manifest_schema()
 
-    VOLUME_PRIVILEGE_WHITELIST = ['system', 'content']
+    VOLUME_PRIVILEGE_WHITELIST = ['system', 'content', 'drama']
 
     def __init__(self, app_dir):
         self._app_dir = app_dir
@@ -119,10 +140,6 @@ class App(object):
         self._app_name = self._info['name']
         self._image_name = '%s.%s' % (self.BB8_APP_PREFIX,
                                       self._app_name)
-
-    def start(self, force=False, bind=False):
-        print('=' * 20, 'Starting %s' % self._app_name, '=' * 20)
-        self.start_container(force, bind)
 
     def get_cpu_shares(self):
         cpu = self._info['resource']['cpu']
@@ -171,10 +188,26 @@ class App(object):
         # Remove pb-python dir
         run('sudo rm -rf %s/pb-python' % self._app_dir)
 
+    def start(self, force=False, bind=False):
+        print('=' * 20, 'Starting %s' % self._app_name, '=' * 20)
+        self.start_container(force, bind)
+
     def stop(self):
         instance = docker_get_instance(self._image_name)
         if instance:
             run('docker rm -f %s' % instance, True)
+
+    def shell(self, command=None):
+        instance = docker_get_instance(self._image_name)
+        if not instance:
+            logger.error('App `%s\' not running', self._image_name)
+            return
+        s = subprocess.Popen('docker exec -it %s %s' %
+                             (instance,
+                              'bash' + (" -c '%s'" % command
+                                        if command else '')),
+                             shell=True)
+        s.wait()
 
     def start_container(self, force=False, bind=False):
         # Compile service proto before calculating app version hash, so the
@@ -207,8 +240,8 @@ class App(object):
                 # BB8 system app.
                 if ((target.startswith('/') or target.startswith('.')) and
                         self._app_name not in self.VOLUME_PRIVILEGE_WHITELIST):
-                    logger.info('%s: invalid volume `%s\' detected, abort.',
-                                self._app_name, target)
+                    logger.error('%s: invalid volume `%s\' detected, abort.',
+                                 self._app_name, target)
                     return
 
                 volumes.append('-v %s:%s' %
@@ -237,9 +270,12 @@ class App(object):
             ' --net-alias={0}'.format(self._image_name) +
             ' --cpu-shares={0}'.format(self.get_cpu_shares()) +
             ' -m {0}'.format(self.get_memory_limit()) +
+            ' -e BB8_SCOPE={0}'.format(os.getenv('BB8_SCOPE', 'nobody')) +
             ' -e BB8_DEPLOY={0}'.format(str(config.DEPLOY).lower()) +
-            (' -p 9999:9999' if bind else ' ') +
+            (' -p {0}:9999'.format(os.getenv('APP_RPC_PORT', 9999))
+             if bind else ' ') +
             database_env_switch() +
+            hostname_env_switch() +
             ' '.join(volumes) +
             ' -d %s' % self._image_name)
 
@@ -251,8 +287,8 @@ class App(object):
 
 class BB8(object):
     BB8_IMAGE_NAME = 'bb8'
-    BB8_CONTAINER_NAME = 'bb8.main'
-    BB8_SERVICE_PREFIX = 'bb8.service'
+    BB8_CONTAINER_NAME = scoped_name('bb8.main')
+    BB8_SERVICE_PREFIX = scoped_name('bb8.service')
     BB8_INDOCKER_PORT = 5000
     CLOUD_SQL_DIR = '/cloudsql'
 
@@ -274,6 +310,30 @@ class BB8(object):
         return [os.path.join(apps_dir, app_dir)
                 for app_dir in os.listdir(apps_dir)
                 if os.path.isdir(os.path.join(apps_dir, app_dir))]
+
+    def copy_credentials(self):
+        """Copy required credentials."""
+        # We shouldn't need credential when testing
+        if config.TESTING:
+            return
+
+        # Copy SSL-certificate
+        run('cp -r %s %s' % (os.path.join(BB8_CREDENTIALS_DIR, 'certs'),
+                             BB8_SRC_ROOT))
+
+        # Copy Google-Cloud credential
+        target = os.path.join(BB8_SRC_ROOT, 'credential')
+        if not os.path.exists(target):
+            os.makedirs(target)
+        run('cp -r %s %s' %
+            (os.path.join(BB8_CREDENTIALS_DIR, 'compose-ai.json'), target))
+
+        for app in ['content']:
+            target = os.path.join(BB8_SRC_ROOT, 'apps', app, 'credential')
+            if not os.path.exists(target):
+                os.makedirs(target)
+            run('cp -r %s %s' %
+                (os.path.join(BB8_CREDENTIALS_DIR, 'compose-ai.json'), target))
 
     def copy_extra_source(self):
         """Copy extra source required by client module."""
@@ -311,13 +371,15 @@ class BB8(object):
         run('cd %s; python setup.py sdist' % BB8_SRC_ROOT)
         run('rm -rf %s' % os.path.join(BB8_SRC_ROOT, 'bb8_client.egg-info'))
 
-    def prepare_resource(self):
+    def prepare_resource(self, copy_credential=True):
+        if copy_credential:
+            self.copy_credentials()
         self.copy_extra_source()
         self.build_client_package()
         self.compile_and_install_proto()
 
-    def compile_resource(self):
-        self.prepare_resource()
+    def compile_resource(self, copy_credential=True):
+        self.prepare_resource(copy_credential)
 
         for app_dir in self._app_dirs:
             app = App(app_dir)
@@ -338,11 +400,6 @@ class BB8(object):
         print('=' * 20, 'Starting BB8 main container', '=' * 20)
         self.start_container(force)
 
-    def get_git_version_hash(self):
-        commit_hash = get_output('cd %s; git rev-parse HEAD' %
-                                 BB8_SRC_ROOT)
-        return commit_hash[:6]
-
     def stop(self):
         instance = docker_get_instance(self.BB8_CONTAINER_NAME)
         if instance:
@@ -351,6 +408,24 @@ class BB8(object):
         for app_dir in self._app_dirs:
             app = App(app_dir)
             app.stop()
+
+    def shell(self, command=None):
+        instance = docker_get_instance(self.BB8_CONTAINER_NAME)
+        if not instance:
+            logger.error('Main container `%s\' not running',
+                         self.BB8_CONTAINER_NAME)
+            return
+        s = subprocess.Popen('docker exec -it %s %s' %
+                             (instance,
+                              'bash' + (" -c '%s'" % command
+                                        if command else '')),
+                             shell=True)
+        s.wait()
+
+    def get_git_version_hash(self):
+        commit_hash = get_output('cd %s; git rev-parse HEAD' %
+                                 BB8_SRC_ROOT)
+        return commit_hash[:6]
 
     def start_container(self, force=False):
         create_dir_if_not_exists(os.path.join(BB8_DATA_ROOT, 'log'), sudo=True)
@@ -372,7 +447,6 @@ class BB8(object):
                     logger.warn('BB8: skip deployment.')
                     sys.exit(1)
 
-        run('sudo umount %s/log >/dev/null 2>&1' % BB8_DATA_ROOT, True)
         run('docker build -t %s %s' % (self.BB8_IMAGE_NAME, BB8_SRC_ROOT))
 
         if instance:
@@ -383,16 +457,15 @@ class BB8(object):
             ' --net={0}'.format(BB8_NETWORK) +
             ' --net-alias={0}'.format(self.BB8_CONTAINER_NAME) +
             ' -p {0}:{1}'.format(config.HTTP_PORT, self.BB8_INDOCKER_PORT) +
-            ' -p {0}:{0}'.format(config.APP_API_SERVICE_PORT) +
             ' -v {0}:{0}'.format(self.CLOUD_SQL_DIR) +
+            ' -e BB8_SCOPE={0}'.format(os.getenv('BB8_SCOPE', 'nobody')) +
+            ' -e BB8_IN_DOCKER=true ' +
+            ' -e BB8_DEPLOY={0}'.format(str(config.DEPLOY).lower()) +
             ' -e HTTP_PORT={0}'.format(config.HTTP_PORT) +
             database_env_switch() +
+            redis_env_switch() +
+            hostname_env_switch() +
             ' -d {0}'.format(self.BB8_IMAGE_NAME))
-
-        run('sudo mount --bind '
-            '$(docker inspect -f \'{{index (index .Mounts 1) "Source"}}\' %s) '
-            '%s' %
-            (new_container_name, os.path.join(BB8_DATA_ROOT, 'log')), True)
 
     def logs(self):
         instance = docker_get_instance(self.BB8_CONTAINER_NAME)
@@ -402,12 +475,15 @@ class BB8(object):
     def status(self):
         run('docker ps -a --format '
             '"table {{.Image}}\t{{.Names}}\t{{.Ports}}\t{{.Status}}" | '
-            'egrep "(IMAGE|bb8\\.)"')
+            'egrep "(IMAGE|%s\\.)"' % scoped_name('bb8'))
 
 
 def main():
     root_parser = argparse.ArgumentParser(description='BB8 control script')
     subparsers = root_parser.add_subparsers(help='sub-command')
+
+    root_parser.add_argument('-a', '--app', dest='app', default=None,
+                             help='operate on specific app')
 
     # start sub-command
     start_parser = subparsers.add_parser('start', help='start bb8')
@@ -416,8 +492,6 @@ def main():
                               action='store_true', default=False,
                               help='Deploy even if version hash has not '
                               'changed')
-    start_parser.add_argument('-a', '--app', dest='app', default=None,
-                              help='operate on specific app')
     start_parser.add_argument('-b', '--bind', dest='bind',
                               action='store_true', default=False,
                               help='Bind app service port to localhost')
@@ -425,25 +499,38 @@ def main():
     # stop sub-command
     stop_parser = subparsers.add_parser('stop', help='stop bb8')
     stop_parser.set_defaults(which='stop')
-    stop_parser.add_argument('-a', '--app', dest='app', default=None,
-                             help='operate on specific app')
 
     # logs sub-command
     logs_parser = subparsers.add_parser('logs', help='show bb8 logs')
     logs_parser.set_defaults(which='logs')
-    logs_parser.add_argument('-a', '--app', dest='app', default=None,
-                             help='operate on specific app')
+
+    # shell sub-command
+    shell_parser = subparsers.add_parser('shell',
+                                         help='get a shell into container')
+    shell_parser.set_defaults(which='shell')
 
     # status sub-command
     status_parser = subparsers.add_parser('status', help='show bb8 status')
     status_parser.set_defaults(which='status')
 
-    # status sub-command
+    # compile-resource sub-command
     compile_resource_parser = subparsers.add_parser(
         'compile-resource', help='compile bb8 resource')
+    compile_resource_parser.add_argument('--no-copy-credential',
+                                         dest='no_copy_credential',
+                                         action='store_true',
+                                         default=False,
+                                         help='Skip copy credential step')
     compile_resource_parser.set_defaults(which='compile-resource')
 
-    args = root_parser.parse_args()
+    # We want to pass the rest of arguments after shell command directly to the
+    # function without parsing it.
+    try:
+        index = sys.argv.index('shell')
+    except ValueError:
+        args = root_parser.parse_args()
+    else:
+        args = root_parser.parse_args(sys.argv[1:index + 1])
 
     bb8 = BB8()
     app = None
@@ -471,10 +558,16 @@ def main():
             app.logs()
         else:
             bb8.logs()
+    elif args.which == 'shell':
+        command = ' '.join(sys.argv[sys.argv.index('shell') + 1:])
+        if app:
+            app.shell(command)
+        else:
+            bb8.shell(command)
     elif args.which == 'status':
         bb8.status()
     elif args.which == 'compile-resource':
-        bb8.compile_resource()
+        bb8.compile_resource(not args.no_copy_credential)
     else:
         raise RuntimeError('invalid sub-command')
 

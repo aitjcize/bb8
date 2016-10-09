@@ -34,15 +34,6 @@ class MessagingUnittest(unittest.TestCase, BaseMessagingMixin):
             messaging.send_message(self.user_1, [m, m])
             mock_send_message.assert_called_once_with(self.user_1, [m, m])
 
-    def test_broadcast_message(self):
-        # Test card message
-        m = Message('Message test')
-
-        target = 'bb8.backend.messaging.send_message_async'
-        with mock.patch(target) as mock_send_message:
-            messaging.broadcast_message(self.bot, [m, m])
-            self.assertEquals(mock_send_message.call_count, 2)
-
 
 if __name__ == '__main__':
     unittest.main()

@@ -16,30 +16,30 @@
     "admin_interaction_timeout": -1,
     "session_timeout": 864000,
     "nodes": {
-      "start": {
-        "name": "start",
-        "description": "start",
+      "Start": {
+        "name": "Start",
+        "description": "Start",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.core.text_message",
+          "id": "ai.compose.content.core.text_message",
           "config": {
-            "text": "In start"
+            "text": "In Start"
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.passthrough",
+          "id": "ai.compose.parser.core.passthrough",
           "config": {
-            "end_node_id": "[[root]]",
-            "ack_message": "Goto root"
+            "end_node_id": "Root",
+            "ack_message": "Goto Root"
           }
         }
       },
-      "root": {
-        "name": "root",
-        "description": "root",
+      "Root": {
+        "name": "Root",
+        "description": "Root",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.core.selection",
+          "id": "ai.compose.content.core.selection",
           "config": {
             "text": "question",
             "choices": [
@@ -57,7 +57,7 @@
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.default",
+          "id": "ai.compose.parser.core.default",
           "config": {
             "links": [
               {
@@ -65,56 +65,54 @@
                     "type": "regexp",
                     "params": ["payload1"]
                 },
-                "action_ident": "option1",
-                "end_node_id": "[[option1]]",
-                "ack_message": "Goto option1"
+                "end_node_id": "Option1",
+                "ack_message": "Goto Option1"
               },
               {
                 "rule": {
                     "type": "regexp",
                     "params": ["payload2"]
                 },
-                "action_ident": "option2",
-                "end_node_id": "[[option2]]",
-                "ack_message": "Goto option2"
+                "end_node_id": "Option2",
+                "ack_message": "Goto Option2"
               }
             ]
           }
         }
       },
-      "option1": {
-        "name": "option1",
-        "description": "option1",
+      "Option1": {
+        "name": "Option1",
+        "description": "Option1",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.test.show_response",
+          "id": "ai.compose.content.test.show_response",
           "config": {
             "response": "{{text}}"
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.passthrough",
+          "id": "ai.compose.parser.core.passthrough",
           "config": {
-            "end_node_id": "[[root]]",
-            "ack_message": "Goto root"
+            "end_node_id": "Root",
+            "ack_message": "Goto Root"
           }
         }
       },
-      "option2": {
-        "name": "option2",
-        "description": "option2",
+      "Option2": {
+        "name": "Option2",
+        "description": "Option2",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.test.show_response",
+          "id": "ai.compose.content.test.show_response",
           "config": {
             "response": "{{text}}"
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.passthrough",
+          "id": "ai.compose.parser.core.passthrough",
           "config": {
-            "end_node_id": "[[root]]",
-            "ack_message": "Goto root"
+            "end_node_id": "Root",
+            "ack_message": "Goto Root"
           }
         }
       }

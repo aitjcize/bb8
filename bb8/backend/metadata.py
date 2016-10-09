@@ -71,6 +71,35 @@ class SessionRecord(Mutable):
             self._input_transformation = []
 
 
+class ParseResult(object):
+    """A result object parser modules needs to return.
+    """
+    def __init__(self, end_node_id=None, ack_message=None, variables=None,
+                 collected_datum=None, skip_content_module=True):
+        """Constructor.
+
+        Args:
+            end_node_id: end_node stable_id.
+            ack_message: ack message that we want to reply immediately.
+            variables: parsed action variable.
+            collected_datum: data that the parser wants to collect.
+            skip_content_module: skip running content module if the current
+                node is executed immediately.
+        """
+        self.end_node_id = end_node_id
+        self.ack_message = ack_message
+        self.variables = variables or {}
+        self.collected_datum = collected_datum or {}
+        self.skip_content_module = skip_content_module
+
+    def collect(self, key, value):
+        self.collected_datum[key] = value
+
+    @property
+    def matched(self):
+        return self.end_node_id is not None or self.ack_message is not None
+
+
 class PostbackEvent(object):
     """Event class representing a postback event."""
     def __init__(self, event):
@@ -85,6 +114,7 @@ class UserInput(object):
         self.location = None
         self.jump_node_id = None
         self.event = None
+        self.raw_message = None
 
     @classmethod
     def Text(cls, text):
@@ -128,20 +158,22 @@ class UserInput(object):
         if event:
             u.event = PostbackEvent(event)
 
-        node_id = payload.get('node_id', None)
-        if node_id:
-            u.jump_node_id = int(node_id)
+        u.jump_node_id = payload.get('node_id', None)
         return u
 
     @classmethod
     def FromFacebookMessage(cls, messaging):
         u = UserInput()
         message = messaging.get('message')
-
         if message:
+            quick_reply = message.get('quick_reply')
+            if quick_reply:
+                return cls.FromPayload(quick_reply['payload'])
+
             u.text = message.get('text')
             u.parse_facebook_sticker(message)
             u.parse_facebook_attachments(message.get('attachments'))
+            u.parse_to_raw_message(message)
             return u
 
         postback = messaging.get('postback')
@@ -176,24 +208,39 @@ class UserInput(object):
             if att['type'] == 'location':
                 self.location = att.get('payload')
 
-    @classmethod
-    def FromLineMessage(cls, content):
-        u = UserInput()
-        if content['contentType'] == 1:  # Text Message
-            u.text = content['text']
-        elif content['contentType'] == 7:  # Location Message
-            loc = content['location']
-            u.location = {
-                'title': loc['title'],
-                'coordinates': {
-                    'lat': loc['latitude'],
-                    'long': loc['longitude']
-                }
-            }
-        else:
-            return None
+    def parse_to_raw_message(self, message):
+        for uneeded_key in ['mid', 'seq']:
+            del message[uneeded_key]
 
-        return u
+        attachments = message.get('attachments')
+        if attachments:
+            message['attachment'] = attachments[0]
+            del message['attachments']
+
+        self.raw_message = message
+
+    @classmethod
+    def FromLineMessage(cls, entry):
+        message = entry.get('message')
+        if message:
+            u = UserInput()
+            if message['type'] == 'text':
+                u.text = message['text']
+            elif message['type'] == 'location':
+                u.location = {
+                    'title': message['title'],
+                    'coordinates': {
+                        'lat': message['latitude'],
+                        'long': message['longitude']
+                    }
+                }
+            else:
+                return None
+            return u
+
+        postback = entry.get('postback')
+        if postback:
+            return cls.FromPayload(postback['data'])
 
     def jump(self):
         return self.jump_node_id is not None

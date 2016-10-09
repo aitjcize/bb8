@@ -16,7 +16,10 @@ from bb8 import config
 # pylint: disable=W0611
 from bb8.backend.database import PlatformTypeEnum, SupportedPlatform
 # pylint: disable=W0611
-from bb8.backend.message import Message, Render, Resolve, IsVariable
+from bb8.backend.message import (Message, Render, Resolve, IsVariable,
+                                 TextPayload, LocationPayload, EventPayload)
+from bb8.backend.messaging import broadcast_message_async
+from bb8.backend.metadata import ParseResult
 
 
 CONFIG = {
@@ -24,16 +27,8 @@ CONFIG = {
 }
 
 
-class LinkageItem(object):
-    def __init__(self, action_ident, end_node_id, ack_message):
-        """Constructor.
-
-        If end_node_id is None, then it means we want to go back to the self
-        node.
-        """
-        self.action_ident = action_ident
-        self.end_node_id = end_node_id
-        self.ack_message = ack_message
+# Expose broadcast_message_async as module API
+BroadcastMessage = broadcast_message_async
 
 
 def Config(key):
@@ -41,62 +36,8 @@ def Config(key):
     return CONFIG.get(key, None)
 
 
-def TextPayload(text, send_to_current_node=True):
-    """Create a text payload representation given text.
-
-    Args:
-        text: text to send
-        send_to_current_node: whether or not to jump to current node before
-            parsing the payload.
-    """
-    return {
-        'node_id': g.node.id if send_to_current_node else None,
-        'message': {'text': text}
-    }
-
-
-def LocationPayload(coordinate, send_to_current_node=True):
-    """Create a location payload representation given coordinate.
-
-    Args:
-        text: text to send
-        send_to_current_node: whether or not to jump to current node before
-            parsing the payload.
-    """
-    return {
-        'node_id': g.node.id if send_to_current_node else None,
-        'message': {
-            'attachments': [{
-                'type': 'location',
-                'payload': {
-                    'coordinates': {
-                        'lat': coordinate[0],
-                        'long': coordinate[1]
-                    }
-                }
-            }]
-        }
-    }
-
-
-def EventPayload(key, value, send_to_current_node=True):
-    """Create a event payload representing module events
-
-    Args:
-        text: text to send
-        send_to_current_node: whether or not to jump to current node before
-            parsing the payload.
-    """
-    return {
-        'node_id': g.node.id if send_to_current_node else None,
-        'event': {
-            'key': key,
-            'value': value
-        }
-    }
-
-
 def GetUserId():
+    """Get User ID."""
     return g.user.id
 
 
@@ -106,6 +47,7 @@ def GetUserTime():
 
 
 def GetgRPCService(name):
+    """Get third-party app gRPC service."""
     hostname = config.APP_HOSTNAME_MAP.get(name, None)
     if hostname is None:
         raise RuntimeError('unknown service `%s\'' % name)
@@ -117,3 +59,37 @@ def GetgRPCService(name):
         raise RuntimeError('no gRPC module available for `%s\'' % name)
 
     return module, (hostname, config.APP_GRPC_SERVICE_PORT)
+
+
+class Memory(object):
+    """API wrapper for User.memory dictionary."""
+    @classmethod
+    def Get(cls, key, default=None):
+        return g.user.memory.get(key, default)
+
+    @classmethod
+    def Set(cls, key, value):
+        g.user.memory[key] = value
+
+    @classmethod
+    def Clear(cls):
+        return g.user.memory.clear()
+
+
+class Settings(object):
+    """API wrapper for User.settings dictionary."""
+    __protected_fields__ = ['subscribe']
+
+    @classmethod
+    def Get(cls, key, default=None):
+        return g.user.settings.get(key, default)
+
+    @classmethod
+    def Set(cls, key, value):
+        g.user.settings[key] = value
+
+    @classmethod
+    def Clear(cls):
+        """Clear all non-protected fields."""
+        g.user.settings = dict((f, g.user.settings[f])
+                               for f in cls.__protected_fields__)

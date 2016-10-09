@@ -7,12 +7,6 @@ LINT_OPTIONS = --rcfile=bin/pylintrc \
 	       --msg-template='{path}:{line}: {msg_id}: {msg}' \
 	       --generated-members='service_pb2.*'
 
-MYSQL_PORT ?= 3307
-DOCKER_IP ?= 127.0.0.1
-
-DB_URI = "mysql+pymysql://bb8:bb8test@$(DOCKER_IP):$(MYSQL_PORT)/bb8?" \
-	 "charset=utf8mb4"
-
 CLOUD_SQL_DIR = "/cloudsql"
 
 all: test lint validate-bots
@@ -47,8 +41,8 @@ remove-redis:
 start-celery:
 	@celery -A bb8.celery worker --loglevel=info --concurrency 4
 
-test: setup-database setup-redis compile-resource
-	@export DATABASE=$(DB_URI); \
+test: setup-database setup-redis compile-resource-no-cred
+	@export BB8_TEST=true; \
 	 for test in $(UNITTESTS); do \
 	   if echo $$test | grep '^apps'; then \
 	     export PYTHONPATH=$(CURDIR):$(CURDIR)/$$(echo $$test | \
@@ -59,9 +53,10 @@ test: setup-database setup-redis compile-resource
 	   echo Running $$test ...; \
 	   $$test || exit 1; \
 	 done
+	@manage reset
 
-coverage: setup-database setup-redis compile-resource
-	@export DATABASE=$(DB_URI); \
+coverage: setup-database setup-redis compile-resource-no-cred
+	@export BB8_TEST=true; \
 	 for test in $(UNITTESTS); do \
 	   if echo $$test | grep '^apps'; then \
 	     export PYTHONPATH=$(CURDIR):$(CURDIR)/$$(echo $$test | \
@@ -73,15 +68,21 @@ coverage: setup-database setup-redis compile-resource
 	   echo Running $$test ...; \
 	   COVERAGE_FILE=.coverage_$$COVER coverage run $$test || exit 1; \
 	 done
+	@COVERAGE_FILE=.coverage_manage_reset coverage run bin/manage reset
 	@coverage combine .coverage_*
 	@coverage html --include=bb8/*
 
-lint: compile-resource
+lint: compile-resource-no-cred
 	@pep8 $(LINT_FILES)
 	@pylint $(LINT_OPTIONS) $(LINT_FILES)
 
 compile-resource:
 	@bb8ctl compile-resource
+
+# Compile resource without copying credentials. This is used in CI
+# environment, which is not run on compose.ai dev server.
+compile-resource-no-cred:
+	@bb8ctl compile-resource --no-copy-credential
 
 validate-bots:
 	make -C bots
@@ -97,9 +98,7 @@ clean:
 	find bb8 bb8_client apps -name '*_pb2.py' -exec rm -f {} \;
 
 test-deploy:
-	@BB8_DEPLOY=false \
-	 DATABASE=mysql+pymysql://bb8:bb8test@172.17.0.1:$$MYSQL_PORT/bb8?charset=utf8mb4 \
-	 bb8ctl start -f
+	@BB8_DEPLOY=false bb8ctl start
 
 deploy:
 	@BB8_DEPLOY=true HTTP_PORT=5000 bb8ctl start

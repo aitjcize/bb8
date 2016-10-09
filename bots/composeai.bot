@@ -30,12 +30,12 @@
     "session_timeout": 0,
     "ga_id": "UA-79887532-4",
     "nodes": {
-      "start": {
+      "Start": {
         "name": "Greet",
         "description": "Great user",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.core.generic_message",
+          "id": "ai.compose.content.core.generic_message",
           "config": {
             "messages": [
               {
@@ -85,27 +85,23 @@
           }
         }
       },
-      "root": {
-        "name": "Root",
-        "description": "Root node",
+      "Root": {
+        "name": "BotOp",
+        "description": "Main bot operation node",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.core.noop",
+          "id": "ai.compose.content.core.composeai",
           "config": {
+            "bot_admins": {
+              "1274840572534793": [2, 3, 6],
+              "1111176378929436": [2, 3, 6]
+            }
           }
         },
         "parser_module": {
-          "id": "ai.compose.core.default",
+          "id": "ai.compose.parser.core.composeai",
           "config": {
-            "links": [
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": [".*"]
-                },
-                "ack_message": []
-              }
-            ]
+            "done": "Root"
           }
         }
       }

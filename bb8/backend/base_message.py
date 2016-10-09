@@ -84,12 +84,61 @@ def Render(template, variables):
     return HAS_VARIABLE_RE.sub(replace, to_unicode(template))
 
 
+def TextPayload(text):
+    """Create a text payload representation given text.
+
+    Args:
+        text: text to send
+    """
+    return {
+        'message': {'text': text}
+    }
+
+
+def LocationPayload(coordinate):
+    """Create a location payload representation given coordinate.
+
+    Args:
+        coordinate: a coordinate representing the location
+    """
+    return {
+        'message': {
+            'attachments': [{
+                'type': 'location',
+                'payload': {
+                    'coordinates': {
+                        'lat': coordinate[0],
+                        'long': coordinate[1]
+                    }
+                }
+            }]
+        }
+    }
+
+
+def EventPayload(key, value):
+    """Create a event payload representing module events
+
+    Args:
+        key: the event name
+        value: the event value
+    """
+    return {
+        'event': {
+            'key': key,
+            'value': value
+        }
+    }
+
+
 class Message(object):
     """The Message class is a representation of messages.
 
     We use Facebook's message format as our internal/intermediate
     representation.
     """
+
+    MAX_TEXT_LEN = 320
 
     class NotificationType(enum.Enum):
         REGULAR = 'REGULAR'
@@ -201,6 +250,9 @@ class Message(object):
             return data
 
     class Bubble(object):
+        MAX_TITLE_LEN = 80
+        MAX_BUTTONS = 3
+
         def __init__(self, title, item_url=None, image_url=None, subtitle=None,
                      buttons=None, variables=None):
             variables = variables or {}
@@ -209,6 +261,12 @@ class Message(object):
             self.image_url = Render(image_url, variables)
             self.subtitle = Render(subtitle, variables)
             self.buttons = buttons or []
+
+            # Truncat to limits
+            if self.title:
+                self.title = self.title[:self.MAX_TITLE_LEN]
+            if self.subtitle:
+                self.subtitle = self.subtitle[:self.MAX_TITLE_LEN]
 
         def __str__(self):
             return json.dumps(self.as_dict())
@@ -258,6 +316,9 @@ class Message(object):
         def add_button(self, button):
             if not isinstance(button, Message.Button):
                 raise RuntimeError('object is not a Message.Button object')
+
+            if len(self.buttons) == self.MAX_BUTTONS:
+                raise RuntimeError('max number of Message.Button reached')
 
             self.buttons.append(button)
 
@@ -370,6 +431,12 @@ class Message(object):
         self.buttons = []
         self.quick_replies = []
 
+        # Truncat to limits
+        if self.text:
+            self.text = self.text[:self.MAX_TEXT_LEN]
+        if self.buttons_text:
+            self.buttons = self.buttons[:self.MAX_TEXT_LEN]
+
     def __str__(self):
         return json.dumps(self.as_dict())
 
@@ -411,7 +478,6 @@ class Message(object):
         if quick_replies:
             m.quick_replies = [cls.QuickReply.FromDict(x, variables)
                                for x in quick_replies]
-
         return m
 
     @classmethod
@@ -430,7 +496,7 @@ class Message(object):
                 }
             }, {
                 'required': ['attachment'],
-                'additionalProperties': False,
+                'additionalProperties': True,
                 'type': 'object',
                 'properties': {
                     'attachment': {
@@ -442,7 +508,7 @@ class Message(object):
                                 'payload': {
                                     'type': 'object',
                                     'required': ['url'],
-                                    'additionalProperties': False,
+                                    'additionalProperties': True,
                                     'properties': {
                                         'url': {'type': 'string'}
                                     }
@@ -454,7 +520,7 @@ class Message(object):
                                 'payload': {'oneOf': [{
                                     'type': 'object',
                                     'required': ['template_type', 'elements'],
-                                    'additionalProperties': False,
+                                    'additionalProperties': True,
                                     'properties': {
                                         'template_type': {
                                             'enum': ['generic']

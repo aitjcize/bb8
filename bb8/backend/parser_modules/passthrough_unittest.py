@@ -17,14 +17,13 @@ from bb8.backend.parser_modules import passthrough
 class PassthroughUnittest(unittest.TestCase):
     def test_next(self):
         config = {
-            'end_node_id': 0,
+            'end_node_id': 'Root',
             'ack_message': 'ack'
         }
         jsonschema.validate(config, passthrough.schema())
 
-        action, unused_msg, unused_var, unused_data = passthrough.run(
-            config, None, False)
-        self.assertEquals(action, 'next')
+        result = passthrough.run(config, None, False)
+        self.assertEquals(result.end_node_id, 'Root')
 
 
 if __name__ == '__main__':

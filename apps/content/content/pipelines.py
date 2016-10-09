@@ -21,9 +21,6 @@ from content import config
 from content.database import DatabaseManager, DatabaseSession, Entry
 
 
-gclient = datastore.Client()
-
-
 class SQLPipeline(object):
     def process_item(self, item, unused_spider):
         item_dict = {k: v for k, v in dict(item).iteritems()
@@ -34,7 +31,7 @@ class SQLPipeline(object):
         with DatabaseSession():
             try:
                 entry = Entry(**item_dict).add()
-                entry.commit()
+                DatabaseManager.commit()
 
                 item['link_hash'] = entry.link_hash
             except IntegrityError:
@@ -74,6 +71,7 @@ class DatastorePipeline(object):
 
         data = to_json(item)
 
+        gclient = datastore.Client()
         key = gclient.key(config.ENTRY_ENTITY, item['link_hash'])
         entity = datastore.Entity(
             key=key, exclude_from_indexes=['content', 'images'])

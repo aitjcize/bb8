@@ -61,9 +61,15 @@ class Entry(DeclarativeBase, ModelMixin):
 
     @classmethod
     def search(cls, term, count):
-        return cls.query().filter(
-            cls.title.like(unicode('%' + term + '%'))
-        ).order_by(desc('created_at')).limit(count).all()
+        if not isinstance(term, unicode):
+            term = unicode(term, 'utf8')
+
+        terms = [u'%%%s%%' % x for x in term.split()]
+        expr = cls.title.like(terms[0])
+        for t in terms[1:]:
+            expr |= cls.title.like(t)
+        return cls.query().filter(expr).order_by(
+            desc('created_at')).limit(count).all()
 
     def __repr__(self):
         return '<%s(\'%s\')>' % (type(self).__name__, self.link)

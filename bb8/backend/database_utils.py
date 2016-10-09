@@ -160,14 +160,6 @@ class ModelMixin(object):
         return [m.key for m in cls.__table__.columns]
 
     @classmethod
-    def commit(cls):
-        DatabaseManager.commit()
-
-    @classmethod
-    def flush(cls):
-        DatabaseManager.flush()
-
-    @classmethod
     def query(cls, *args):
         """Short hand for query."""
         if args:
@@ -182,10 +174,28 @@ class ModelMixin(object):
         return query_object.all()
 
     @classmethod
-    def get_by(cls, eager=None, order_by=None, offset=0, limit=0,
-               single=False, lock=False, query=False, **kwargs):
+    def get_or_create(cls, **kwargs):
+        """Create if not exist, otherwise returns the instance"""
+        instance = cls.get_by(single=True, **kwargs)
+        if not instance:
+            try:
+                instance = cls(**kwargs).add()
+                DatabaseManager.flush()
+                return instance
+            except IntegrityError:
+                DatabaseManager.rollback()
+                return cls.get_by(single=True, **kwargs)
+        return instance
+
+    @classmethod
+    def get_by(cls, query=None, eager=None, order_by=None, offset=0, limit=0,
+               single=False, lock=False, return_query=False, **kwargs):
         """Get item by kwargs."""
-        query_object = cls.query()
+        if query:
+            query_object = cls.query(query)
+        else:
+            query_object = cls.query()
+
         if eager:
             joinloads = [joinedload(x) for x in eager]
             query_object = query_object.options(*joinloads)
@@ -204,7 +214,7 @@ class ModelMixin(object):
         if lock:
             query_object = query_object.with_lockmode('update')
 
-        if query:
+        if return_query:
             return query_object
 
         if single:
@@ -281,6 +291,10 @@ class ModelMixin(object):
         """Merge a object with current session"""
         DatabaseManager.db().merge(self)
         return self
+
+    def has_session(self):
+        """Return the session associated with the object."""
+        return object_session(self) is not None
 
 
 class JSONSerializableMixin(object):

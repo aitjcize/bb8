@@ -10,12 +10,13 @@
 
 import re
 
-from bb8.backend.module_api import LinkageItem, SupportedPlatform
+from bb8.backend.module_api import (SupportedPlatform, ParseResult, Render,
+                                    Memory, Settings)
 
 
 def get_module_info():
     return {
-        'id': 'ai.compose.core.default',
+        'id': 'ai.compose.parser.core.default',
         'name': 'Default',
         'description': 'A rule-based parser that accepts keyword, '
                        'location, sticker, etc',
@@ -49,13 +50,29 @@ def schema():
                                         'type': 'array',
                                         'items': {'type': 'string'}
                                     },
-                                    'collect_as': {'type': 'string'}
+                                    'collect_as': {
+                                        '$ref': '#/definitions/collect_as'
+                                    },
+                                    'settings_set': {
+                                        '$ref': '#/definitions/dict_set'
+                                    },
+                                    'memory_set': {
+                                        '$ref': '#/definitions/dict_set'
+                                    }
                                 }
                             }, {
                                 'properties': {
                                     'type': {'enum': ['location']},
                                     'params': {'type': 'null'},
-                                    'collect_as': {'type': 'string'}
+                                    'collect_as': {
+                                        '$ref': '#/definitions/collect_as'
+                                    },
+                                    'settings_set': {
+                                        '$ref': '#/definitions/dict_set'
+                                    },
+                                    'memory_set': {
+                                        '$ref': '#/definitions/dict_set'
+                                    }
                                 },
                             }, {
                                 'properties': {
@@ -73,33 +90,47 @@ def schema():
                                         'items': {'type': 'string'}
                                     }
                                 }
-                            }, {
-                                'properties': {
-                                    'type': {'enum': ['force']},
-                                    'params': {'type': 'null'}
-                                },
                             }]
                         },
-                        'action_ident': {'type': 'string'},
-                        'end_node_id': {'type': ['null', 'integer']},
-                        'ack_message': {
-                            'oneOf': [{
-                                'type': 'string'
-                            }, {
-                                'type': 'array',
-                                'items': {'type': 'string'}
-                            }]
-                        }
+                        'end_node_id': {'type': ['null', 'string']},
+                        'ack_message': {'$ref': '#/definitions/ack_message'}
                     }
                 }
             },
             'on_error': {
                 'type': 'object',
-                'required': ['pattern', 'collect_as'],
+                'required': ['end_node_id'],
                 'additionalProperties': False,
                 'properties': {
-                    'pattern': {'type': 'string'},
-                    'collect_as': {'type': 'string'}
+                    'end_node_id': {'type': ['null', 'string']},
+                    'ack_message': {'$ref': '#/definitions/ack_message'},
+                    'collect_as': {'$ref': '#/definitions/collect_as'}
+                }
+            }
+        },
+        'definitions': {
+            'ack_message': {
+                'oneOf': [{
+                    'type': 'string'
+                }, {
+                    'type': 'array',
+                    'items': {'type': 'string'}
+                }]
+            },
+            'collect_as': {
+                'type': 'object',
+                'required': ['key'],
+                'properties': {
+                    'key': {'type': 'string'},
+                    'value': {'type': 'string'}
+                }
+            },
+            'dict_set': {
+                'type': 'object',
+                'required': ['key'],
+                'properties': {
+                    'key': {'type': 'string'},
+                    'value': {}
                 }
             }
         }
@@ -114,8 +145,15 @@ def run(parser_config, user_input, as_root):
            "rule": {
                "type": "regexp",
                "params": ["^action1-[0-9]$", "action[23]-1"],
+               "collect_as": {
+                 "key": "keyname",
+                 "value": "{{matches#1}}  # if omit, this will be {{text}}
+               },
+               "memory_set": {
+                 "key": "keyname",
+                 "value": "{{matches#1}}  # if omit, this will be {{text}}
+               },
            },
-           "action_ident": "action1",
            "end_node_id": 0,
            "ack_message": "action1 activated"
        }, {
@@ -123,59 +161,62 @@ def run(parser_config, user_input, as_root):
                "type": "location",
                "params": null
            },
-           "action_ident": "action2",
            "end_node_id": 1,
            "ack_message": "action2 activated"
        }]
     }
     """
-    def parse_collect(collect_as, match):
-        """Parse collect_as attribute and return the corresponding collect
-        dictionary.
-
-        The collect_as syntax is as follows:
-            key(#group_index)?
-        """
-        collect = {}
-        if '#' in collect_as:
-            try:
-                parts = collect_as.split('#')
-                group = int(parts[1])
-                collect[parts[0]] = match.group(group)
-            except Exception:
-                collect[collect_as] = user_input.text
-        else:
-            collect[collect_as] = user_input.text
-        return collect
+    collect = {}
 
     for link in parser_config['links']:
         if 'rule' not in link:
             continue
 
-        collect = {}
         r_type = link['rule']['type']
 
         def ret(link, variables, collect):
-            action_ident = link.get('action_ident', None)
-            if action_ident:
-                return action_ident, None, variables, collect
-            else:
-                return None, link['ack_message'], variables, collect
+            end_node_id = link.get('end_node_id', None)
+            ack_msg = link.get('ack_message', None)
+            return ParseResult(end_node_id, ack_msg, variables, collect)
+
+        collect_as = link['rule'].get('collect_as')
+        memory_set = link['rule'].get('memory_set')
+        settings_set = link['rule'].get('settings_set')
 
         if r_type == 'regexp' and user_input.text:
             for param in link['rule']['params']:
                 m = re.search(unicode(param), user_input.text)
                 if m:
-                    if 'collect_as' in link['rule']:
-                        collect = parse_collect(link['rule']['collect_as'], m)
-                    return ret(link, {
+                    new_vars = {
                         'text': user_input.text,
-                        'matches': m.groups()
-                    }, collect)
-        elif r_type == 'location' and user_input.location:
-            if 'collect_as' in link['rule']:
-                collect[link['rule']['collect_as']] = user_input.location
+                        'matches': [user_input.text] + list(m.groups())
+                    }
+                    if collect_as:
+                        collect[collect_as['key']] = Render(
+                            collect_as.get('value', '{{text}}'), new_vars)
 
+                    if memory_set:
+                        value = memory_set.get('value', '{{text}}')
+                        if (isinstance(value, unicode) or
+                                isinstance(value, str)):
+                            value = Render(value, new_vars)
+                        Memory.Set(memory_set['key'], value)
+
+                    if settings_set:
+                        value = settings_set.get('value', '{{text}}')
+                        if (isinstance(value, unicode) or
+                                isinstance(value, str)):
+                            value = Render(value, new_vars)
+                        Settings.Set(settings_set['key'], value)
+
+                    return ret(link, new_vars, collect)
+        elif r_type == 'location' and user_input.location:
+            if collect_as:
+                collect[collect_as['key']] = user_input.location
+            if memory_set:
+                Memory.Set(memory_set['key'], user_input.location)
+            if settings_set:
+                Settings.Set(settings_set['key'], user_input.location)
             return ret(link, {'location': user_input.location}, collect)
         elif r_type == 'event' and user_input.event:
             for param in link['rule']['params']:
@@ -187,29 +228,27 @@ def run(parser_config, user_input, as_root):
                     return ret(link, {'sticker': user_input.sticker}, {})
 
     if as_root:
-        return ('$bb8.global.nomatch', None, {}, {})
+        return ParseResult()
 
-    collect = {}
     on_error = parser_config.get('on_error')
     if on_error:
-        m = re.search(on_error['pattern'], user_input.text)
-        if m:
-            collect = parse_collect(on_error['collect_as'], m)
+        collect_as = on_error.get('collect_as')
+        if collect_as:
+            value = collect_as.get('value', '{{text}}')
+            collect[collect_as['key']] = Render(value,
+                                                {'text': user_input.text})
 
-    return ('$error', None, {'text': user_input.text}, collect)
+        return ParseResult(on_error['end_node_id'],
+                           on_error.get('ack_message'),
+                           {'text': user_input.text}, collect)
+
+    return ParseResult('$error', 'Invalid input, please re-enter',
+                       {'text': user_input.text}, collect)
 
 
 def get_linkages(parser_config):
     links = []
-
     for link in parser_config['links']:
         if 'end_node_id' in link:
-            links.append(LinkageItem(link['action_ident'],
-                                     link['end_node_id'],
-                                     link['ack_message']))
-
-    ais = [l.get('action_ident', None) for l in parser_config['links']]
-    if '$error' not in ais:
-        links.append(LinkageItem('$error', None,
-                                 'Invalid response, please re-enter.'))
+            links.append(link['end_node_id'])
     return links

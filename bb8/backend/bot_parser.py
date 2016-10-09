@@ -11,15 +11,14 @@
 import glob
 import json
 import os
-import re
 import sys
 
 import jsonschema
 
 from bb8 import config, logger
 from bb8.backend.messaging import get_messaging_provider
-from bb8.backend.database import (Bot, ContentModule, Node, Platform,
-                                  PlatformTypeEnum)
+from bb8.backend.database import (DatabaseManager, Bot, ContentModule, Node,
+                                  Platform, PlatformTypeEnum)
 
 
 def get_bots_dir():
@@ -71,6 +70,9 @@ def parse_bot(filename, to_bot_id=None):
         # Update existing bot.
         logger.info('Updating existing bot(id=%d) with %s ...',
                     to_bot_id, filename)
+
+        bot = Bot.get_by(id=to_bot_id, single=True)
+
         for platform_desc in bot_json['platforms']:
             ptype = PlatformTypeEnum(platform_desc['type_enum'])
             provider = get_messaging_provider(ptype)
@@ -82,20 +84,39 @@ def parse_bot(filename, to_bot_id=None):
                              platform_desc['type_enum'])
                 raise
 
+            # Make sure the platofrm exists
+            platform = Platform.get_by(
+                provider_ident=platform_desc['provider_ident'], single=True)
+
+            if platform is None:
+                Platform(bot_id=bot.id,
+                         type_enum=platform_desc['type_enum'],
+                         provider_ident=platform_desc['provider_ident'],
+                         config=platform_desc['config']).add()
+            else:
+                platform.type_enum = platform_desc['type_enum']
+                platform.config = platform_desc['config']
+
             if (not platform_desc['deployed'] or
                     (config.DEPLOY and platform_desc['deployed'])):
                 provider.apply_config(platform_desc['config'])
 
-        bot = Bot.get_by(id=to_bot_id, single=True)
-        bot.delete_all_node_and_links()  # Delete all previous node and links
+        # Delete platforms that no longer exists
+        all_platform_idents = [platform_desc['provider_ident']
+                               for platform_desc in bot_json['platforms']]
 
+        for platform in Platform.get_by(bot_id=bot.id):
+            if platform.provider_ident not in all_platform_idents:
+                platform.delete()
+
+        bot.delete_all_node_and_links()  # Delete all previous node and links
         bot.name = bot_desc['name']
         bot.description = bot_desc['description']
         bot.interaction_timeout = bot_desc['interaction_timeout']
         bot.admin_interaction_timeout = bot_desc['admin_interaction_timeout']
         bot.session_timeout = bot_desc['session_timeout']
         bot.ga_id = bot_desc.get('ga_id', None)
-        bot.flush()
+        DatabaseManager.flush()
     else:  # Create a new bot
         logger.info('Creating new bot from %s ...', filename)
         bot = Bot(
@@ -105,7 +126,7 @@ def parse_bot(filename, to_bot_id=None):
             admin_interaction_timeout=bot_desc['admin_interaction_timeout'],
             session_timeout=bot_desc['session_timeout'],
             ga_id=bot_desc.get('ga_id', None)).add()
-        bot.flush()
+        DatabaseManager.flush()
 
         for platform_desc in bot_json['platforms']:
             ptype = PlatformTypeEnum(platform_desc['type_enum'])
@@ -128,10 +149,10 @@ def parse_bot(filename, to_bot_id=None):
                 provider.apply_config(platform_desc['config'])
 
     nodes = bot_desc['nodes']
-    name_id_map = {}
+    id_map = {}  # Mapping of stable_id to id
 
     # Build node
-    for name, node in nodes.iteritems():
+    for stable_id, node in nodes.iteritems():
         try:
             cm = ContentModule.get_by(id=node['content_module']['id'],
                                       single=True)
@@ -139,10 +160,11 @@ def parse_bot(filename, to_bot_id=None):
                                 cm.get_module().schema())
         except jsonschema.exceptions.ValidationError:
             logger.error('Node `%s\' content module config validation '
-                         'failed', node['name'])
+                         'failed', stable_id)
             raise
 
-        n = Node(bot_id=bot.id, name=unicode(node['name']),
+        n = Node(stable_id=stable_id, bot_id=bot.id,
+                 name=unicode(node['name']),
                  description=unicode(node['description']),
                  expect_input=node['expect_input'],
                  content_module_id=node['content_module']['id'],
@@ -151,41 +173,30 @@ def parse_bot(filename, to_bot_id=None):
         if 'parser_module' in node:
             n.parser_module_id = node['parser_module']['id']
 
-        n.flush()
-        name_id_map[name] = n.id
+        DatabaseManager.flush()
+        id_map[stable_id] = n.id
 
-    # Set bot start, root node
-    bot.start_node_id = name_id_map['start']
-    bot.root_node_id = name_id_map['root']
-
-    # Build linkage
-    node_re = re.compile(r'"\[\[(.*?)\]\]"')
-
-    def replace_node_id(m):
-        name = m.group(1)
-        if name in name_id_map:
-            return str(name_id_map[name])
-        return m.group(0)
-
-    bot_json_text = node_re.sub(replace_node_id, bot_json_text)
-    bot_json = json.loads(bot_json_text, encoding='utf8')
-
-    for name, node in nodes.iteritems():
-        n = Node.get_by(id=name_id_map[name], single=True)
+    # Validate that parser module linkages are present in this bot file.
+    for stable_id, node in nodes.iteritems():
+        n = Node.get_by(id=id_map[stable_id], single=True)
         if n.parser_module is not None:
             nodes = bot_json['bot']['nodes']
-            n.parser_config = nodes[name]['parser_module']['config']
+            n.parser_config = node['parser_module']['config']
             pm = n.parser_module.get_module()
             try:
                 jsonschema.validate(n.parser_config, pm.schema())
             except jsonschema.exceptions.ValidationError:
                 logger.error('Node `%s\' parser module config validation '
-                             'failed', node['name'])
+                             'failed', stable_id)
                 raise
 
-            n.build_linkages(pm.get_linkages(n.parser_config))
+            for end_node_id in pm.get_linkages(n.parser_config):
+                if end_node_id is not None:
+                    if end_node_id not in id_map.keys():
+                        raise RuntimeError('end_node_id `%s\' is invalid' %
+                                           end_node_id)
 
-    bot.flush()
+    DatabaseManager.flush()
     return bot
 
 
