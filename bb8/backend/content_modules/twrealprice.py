@@ -359,8 +359,8 @@ def run(content_config, env, variables):
                 except ValueError:
                     return '--.--'
 
-            text = ' '.join([
-                '%d萬元' % (int(s['總價元']) / 10000),
+            title = ' '.join([
+                '%d萬' % (int(s['總價元']) / 10000),
                 '(%s * %.2f坪 + %d萬)' % (
                     UnitPrice(s),
                     float(s['建物移轉總面積平方公尺']) / M2_PER_PING,
@@ -369,9 +369,14 @@ def run(content_config, env, variables):
                     s['建物型態'].split('(')[0],
                     Age(s['建築完成年月']),
                 ),
+                '%s/共%s' % (
+                    s['移轉層次'].replace('層', '樓'),
+                    s['總樓層數'].replace('層', '樓')),
                 StreetOnly(s),
-                RocSlash(s['交易年月日']),
-                '%s/共%s' % (s['移轉層次'], s['總樓層數']),
+            ]).decode('utf-8')[:Message.MAX_TEXT_LEN]
+
+            subtitle = ' '.join([
+                RocSlash(s['交易年月日']) + '成交',
                 '%s房%s廳%s衛' % (
                     s['建物現況格局-房'],
                     s['建物現況格局-廳'],
@@ -381,8 +386,10 @@ def run(content_config, env, variables):
                 s['車位類別'],
                 s['主要用途'],
                 '備註: ' + s['備註'] if s['備註'] else '',
-            ]).decode('utf-8')[:320]
-            msg = Message(text=text)
+            ]).decode('utf-8')[:Message.MAX_TEXT_LEN]
+
+            msg = Message()
+            msg.add_bubble(Message.Bubble(title, subtitle=subtitle))
             msgs.append(msg)
 
         except ValueError:
