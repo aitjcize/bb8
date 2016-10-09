@@ -9,6 +9,16 @@
         "get_start_button": {"message": {"text": "Hi"}},
         "persistent_menu": [
           {
+            "type": "postback",
+            "title": "使用說明",
+            "payload": {"message": {"text": "tutorial"}}
+          },
+          {
+            "type": "postback",
+            "title": "留言",
+            "payload": {"message": {"text": "feedback"}}
+          },
+          {
             "type": "web_url",
             "title": "粉絲頁",
             "url": "https://www.facebook.com/twrealprice/"
@@ -91,7 +101,7 @@
             "messages": {
               "Facebook": [
                 {
-                  "text": "請使用訊息的定位功能將位置發送給我，我會替你找出鄰近的成交價，你也可以透過輸入地名或地址的方式查詢唷！"
+                  "text": "請使用訊息的定位功能將位置發送給我，我會替你找出鄰近的成交價。你也可以透過輸入地名或地址的方式查詢。如果想留言給我們，可以輸入「建議」。"
                 },
                 {
                   "attachment": {
@@ -104,7 +114,7 @@
               ],
               "Line": [
                 {
-                  "text": "請使用訊息的定位功能將位置發送給我，我會替你找出鄰近的成交價，你也可以透過輸入地名或地址的方式查詢唷！"
+                  "text": "請使用訊息的定位功能將位置發送給我，我會替你找出鄰近的成交價。你也可以透過輸入地名或地址的方式查詢。如果想留言給我們，可以輸入「建議」。"
                 },
                 {
                   "attachment": {
@@ -187,6 +197,30 @@
                   "params": ["(使用)?說明", "tutorial", "^\\?", "(?i)help", "幫助", "怎麼用?", "^？", "不會用", "求救"]
                 },
                 "end_node_id": "DemoDesc",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["建議", "feedback", "意見", "留言", "私訊"]
+                },
+                "end_node_id": "Feedback",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "sticker",
+                  "params": ["369239263222822", "369239343222814", "369239383222810"]
+                },
+                "end_node_id": "Thanks",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)thanks?", "謝", "感恩"]
+                },
+                "end_node_id": "Thanks",
                 "ack_message": ""
               },
               {
@@ -362,6 +396,30 @@
               {
                 "rule": {
                   "type": "regexp",
+                  "params": ["建議", "feedback", "意見", "留言", "私訊"]
+                },
+                "end_node_id": "Feedback",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "sticker",
+                  "params": ["369239263222822", "369239343222814", "369239383222810"]
+                },
+                "end_node_id": "Thanks",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)thanks?", "謝", "感恩"]
+                },
+                "end_node_id": "Thanks",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
                   "params": [".*"],
                   "collect_as": {"key": "filter"},
                   "memory_set": {
@@ -370,6 +428,47 @@
                 },
                 "end_node_id": "GetTransaction",
                 "ack_message": "收到你輸入的條件：{{matches#0}}"
+              }
+            ]
+          }
+        }
+      },
+      "Thanks": {
+        "name": "Thanks",
+        "description": "Thank user",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.content.core.text_message",
+          "config": {
+            "text": [
+              "感謝你的支持, 如果覺得實用，可以幫我們宣傳喔！",
+              "你也可以輸入「建議」來告訢我們可以改善的地方。"
+            ]
+          }
+        }
+      },
+      "Feedback": {
+        "name": "Feedback",
+        "description": "Feedback without content, guide user to input feedback",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.core.text_message",
+          "config": {
+            "text": "你覺得我們可以怎麼樣改善呢？"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [".*"],
+                  "collect_as": {"key": "feedback"}
+                },
+                "end_node_id": "Root",
+                "ack_message": "謝謝你的建議，我們會根據你的建議改善的！"
               }
             ]
           }
