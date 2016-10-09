@@ -31,8 +31,14 @@ spider_configs = {
             'content': '//div[@class="yom-mod yom-art-content "]'
                        '/div[@class="bd"]',
             'description': '',
-            'images': ('//div[@class="yom-mod yom-art-content "]'
-                       '//img', '@src', '@alt'),
+            'images': [
+                ('//div[@class="yom-mod yom-art-content "]'
+                 '//img', '@src', '@alt'),
+                ('//div[contains(@class, "image")]'
+                 '//img[re:test(@src, "^http")]', '@src', '@alt'),
+                ('//div[@class="yom-mod yom-art-content"]'
+                 '//img[contains(@class, "editorial")]', '@src', '@alt')
+            ],
             'author': '',
             'source': 'yahoo_rss',
         },
