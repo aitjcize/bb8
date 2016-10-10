@@ -361,9 +361,11 @@ def run(content_config, env, variables):
                     s['建物現況格局-房'],
                     s['建物現況格局-廳'],
                     s['建物現況格局-衛']),
-                '地坪%.2f' % (float(s['土地移轉總面積平方公尺']) /
+                '地坪%.2f' % (
+                    float(s['土地移轉總面積平方公尺']) /
                     twrealprice_rule.M2_PER_PING),
-                '車位%.2f' % (float(s['車位移轉總面積平方公尺']) /
+                '車位%.2f' % (
+                    float(s['車位移轉總面積平方公尺']) /
                     twrealprice_rule.M2_PER_PING),
                 s['車位類別'],
                 s['主要用途'],

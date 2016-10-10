@@ -161,13 +161,8 @@ class Number(Rule):
     def CountScore(self, tran):
         """Linear function to get the score.
 
-        score
-          | 1.0
-          |\         y = (delta / slope) if 0 <= delta <= slope
-          | \          = 1.0             if delta > slope
-          |  \
-        --+---*=====  delta
-          |   slope
+        score = (delta / slope)  if 0 <= delta <= slope
+              = 1.0              if delta > slope
 
         Args:
           tran: dict. transaction data.
