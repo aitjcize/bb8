@@ -27,9 +27,9 @@
           "payload": {"message": {"text": "trending_tw"}}
         },
         {
-          "type": "postback",
-          "title": "推薦給我",
-          "payload": {"message": {"text": "recommend"}}
+          "type": "web_url",
+          "title": "Compose.ai 官方網站",
+          "url": "http://compose.ai"
         }
       ]
     },

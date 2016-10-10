@@ -229,7 +229,7 @@
                   "type": "regexp",
                   "params": ["^建議$", "^feedback$", "意見", "留言"]
                 },
-                "end_node_id": "Reedback",
+                "end_node_id": "Feedback",
                 "ack_message": ""
               },
               {
@@ -361,7 +361,7 @@
           }
         }
       },
-      "Reedback": {
+      "Feedback": {
         "name": "Feedback",
         "description": "Feedback without content, guide user to input feedback",
         "expect_input": true,
