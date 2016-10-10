@@ -28,8 +28,6 @@ GOOGLE_STATIC_MAP_API_KEY = 'AIzaSyCpP0pV9_YtQuV-Gzf6aL9nRt1Es5UlBv4'
 # Maximum number of transaction to cache for "more data" feature.
 MAX_CACHE_TRANS = 49  # 7 pages
 
-M2_PER_PING = 3.3
-
 # For lat/lng
 GRID_NUM = 1000
 LAT_MIN = 20.0
@@ -335,7 +333,8 @@ def run(content_config, env, variables):
             def UnitPrice(s):
                 try:
                     return '%.2f萬' % (
-                        float(s['單價每平方公尺']) * M2_PER_PING / 10000)
+                        float(s['單價每平方公尺']) *
+                        twrealprice_rule.M2_PER_PING / 10000)
                 except ValueError:
                     return '--.--'
 
@@ -343,7 +342,8 @@ def run(content_config, env, variables):
                 '%d萬' % (int(s['總價元']) / 10000),
                 '(%s * %.2f坪 + %d萬)' % (
                     UnitPrice(s),
-                    float(s['建物移轉總面積平方公尺']) / M2_PER_PING,
+                    float(s['建物移轉總面積平方公尺']) /
+                    twrealprice_rule.M2_PER_PING,
                     int(s['車位總價元']) / 10000),
                 '%s(%s)' % (
                     s['建物型態'].split('(')[0],
@@ -361,8 +361,10 @@ def run(content_config, env, variables):
                     s['建物現況格局-房'],
                     s['建物現況格局-廳'],
                     s['建物現況格局-衛']),
-                '地坪%.2f' % (float(s['土地移轉總面積平方公尺']) / M2_PER_PING),
-                '車位%.2f' % (float(s['車位移轉總面積平方公尺']) / M2_PER_PING),
+                '地坪%.2f' % (float(s['土地移轉總面積平方公尺']) /
+                    twrealprice_rule.M2_PER_PING),
+                '車位%.2f' % (float(s['車位移轉總面積平方公尺']) /
+                    twrealprice_rule.M2_PER_PING),
                 s['車位類別'],
                 s['主要用途'],
                 '備註: ' + s['備註'] if s['備註'] else '',
