@@ -20,6 +20,9 @@ from bb8.backend.database import (Bot, DatabaseManager, Conversation,
 from bb8.backend.metadata import ParseResult, InputTransformation
 
 
+PASSTHROUGH_MODULE_ID = 'ai.compose.parser.core.passthrough'
+
+
 class Engine(object):
     def __init__(self):
         pass
@@ -51,23 +54,14 @@ class Engine(object):
         variables = result.variables
         variables.update(init_variables)
 
-        # Parser module can optionally send a message directly back to user.
-        if result.ack_message:
-            self.send_ack_message(user, result.ack_message, variables)
-
-        # Global parser nomatch
-        if not result.matched:
-            return result, init_variables
-
         # Collect data
         if result.collected_datum:
             self.insert_data(user, result.collected_datum)
 
         # Track error
-        if result.end_node_id == '$error':
+        if result.errored:
             track(TrackingInfo.Event(user.platform_user_ident,
                                      'Parser', 'Error', user_input.text))
-            result.end_node_id = None
 
         return result, variables
 
@@ -76,11 +70,6 @@ class Engine(object):
 
         try:  # pylint: disable=R0101
             now = datetime.datetime.now()
-
-            # Flag to detemine if we have jump to a node due to postback being
-            # pressed. In such case global command is to checked to prevent
-            # infinite loop.
-            jumped = False
 
             g.user = user
             if user_input:
@@ -109,7 +98,6 @@ class Engine(object):
                 user.goto(Bot.ROOT_STABLE_ID)
 
             if user_input and user_input.jump():
-                jumped = True
                 node = Node.get_by(stable_id=user_input.jump_node_id,
                                    bot_id=bot.id, single=True)
                 # Check if the node belongs to current bot
@@ -122,7 +110,7 @@ class Engine(object):
                     user.goto(user_input.jump_node_id)
                     user.session.message_sent = True
 
-            node = Node.get_by(id=user.session.node_id,
+            node = Node.get_by(stable_id=user.session.node_id, bot_id=bot.id,
                                eager=['content_module', 'parser_module'],
                                single=True)
             g.node = node
@@ -171,31 +159,17 @@ class Engine(object):
                         user.goto(Bot.ROOT_STABLE_ID)
                         user.session.message_sent = True
                         return
-                    # Has parser module, parser module should be a passthrough
-                    # module
-                    return self.step(bot, user)
+                    elif node.parser_module.id == PASSTHROUGH_MODULE_ID:
+                        return self.step(bot, user)
+                    else:
+                        raise RuntimeError('Node `%s\' with parser module '
+                                           'not expecting input' % node)
             else:
-                # Don't check for global command if we are jumping to a node
-                # due to postback being pressed.
-                if user_input and not jumped:
-                    result, variables = self.run_parser_module(
-                        bot.root_node, user, user_input, global_variables,
-                        True)
-
-                    if result.matched:  # There is a global command match
-                        if result.end_node_id:
-                            user.goto(result.end_node_id)
-                        else:
-                            # There is no end_node_id, replay current node.
-                            user.session.message_sent = False
-                        return self.step(bot, user, user_input, variables)
-                else:
-                    # We are already at root node and there is no user input.
-                    # Display root node again.
-                    if (not user_input and
-                            node.stable_id == Bot.ROOT_STABLE_ID):
-                        user.session.message_sent = False
-                        return self.step(bot, user, user_input)
+                # We are already at root node and there is no user input.
+                # Display root node again.
+                if not user_input and node.stable_id == Bot.ROOT_STABLE_ID:
+                    user.session.message_sent = False
+                    return self.step(bot, user, user_input)
 
                 # No parser module associate with this node, go back to root
                 # node.
@@ -206,15 +180,33 @@ class Engine(object):
                     user_input.disable_jump()
                     return self.step(bot, user, user_input)
 
+                if (not user_input and
+                        node.parser_module.id != PASSTHROUGH_MODULE_ID):
+                    raise RuntimeError('no user input when running parser')
+
                 result, variables = self.run_parser_module(
                     node, user, user_input, global_variables, False)
+
+                # Node parser failed, try root parser:
+                if result.errored and node.stable_id != Bot.ROOT_STABLE_ID:
+                    root_result, root_variables = self.run_parser_module(
+                        bot.root_node, user, user_input, global_variables,
+                        True)
+
+                    # If root paser matched, use root_parser result as result.
+                    if not root_result.errored:
+                        result = root_result
+                        variables = root_variables
+
+                if result.ack_message:
+                    self.send_ack_message(user, result.ack_message, variables)
 
                 # end_node_id may be None, either there is a bug or parser
                 # module decide not to move at all.
                 if result.end_node_id:
                     user.goto(result.end_node_id)
 
-                    # if we are going back the same node, assume there is an
+                    # If we are going back the same node, assume there is an
                     # error and we want to retry. don't send message in this
                     # case.
                     if (result.end_node_id == node.stable_id and

@@ -250,10 +250,6 @@
                 },
                 "end_node_id": "Thanks",
                 "ack_message": ""
-              },
-              {
-                "end_node_id": "SearchNews",
-                "ack_message": ""
               }
             ],
             "on_error": {

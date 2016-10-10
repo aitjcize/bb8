@@ -11,31 +11,31 @@
     "settings": {},
     "nodes": {
       "Start": {
-        "name": "start",
-        "description": "start",
+        "name": "Start",
+        "description": "Start",
         "expect_input": false,
         "content_module": {
           "id": "ai.compose.content.core.text_message",
           "config": {
-            "text": "In start"
+            "text": "In Start"
           }
         },
         "parser_module": {
           "id": "ai.compose.parser.core.passthrough",
           "config": {
             "end_node_id": "Root",
-            "ack_message": "Goto root"
+            "ack_message": "Goto Root"
           }
         }
       },
       "Root": {
-        "name": "root",
-        "description": "root",
+        "name": "Root",
+        "description": "Root",
         "expect_input": true,
         "content_module": {
           "id": "ai.compose.content.core.text_message",
           "config": {
-            "text": "In root"
+            "text": "In Root"
           }
         },
         "parser_module": {

@@ -22,7 +22,7 @@ class SessionRecord(Mutable):
         self._input_transformation = []
 
     def __repr__(self):
-        return '<SessionRecord(%d, %s)>' % (self._node_id, self._message_sent)
+        return '<SessionRecord(%s, %s)>' % (self._node_id, self._message_sent)
 
     @property
     def node_id(self):
@@ -75,7 +75,8 @@ class ParseResult(object):
     """A result object parser modules needs to return.
     """
     def __init__(self, end_node_id=None, ack_message=None, variables=None,
-                 collected_datum=None, skip_content_module=True):
+                 collected_datum=None, errored=False,
+                 skip_content_module=True):
         """Constructor.
 
         Args:
@@ -83,6 +84,7 @@ class ParseResult(object):
             ack_message: ack message that we want to reply immediately.
             variables: parsed action variable.
             collected_datum: data that the parser wants to collect.
+            errored: whether or that there was a parser error.
             skip_content_module: skip running content module if the current
                 node is executed immediately.
         """
@@ -90,6 +92,7 @@ class ParseResult(object):
         self.ack_message = ack_message
         self.variables = variables or {}
         self.collected_datum = collected_datum or {}
+        self.errored = errored
         self.skip_content_module = skip_content_module
 
     def collect(self, key, value):
@@ -158,7 +161,7 @@ class UserInput(object):
         if event:
             u.event = PostbackEvent(event)
 
-        u.jump_node_id = payload.get('node_id', None)
+        u.jump_node_id = payload.get('node_id', 'Root')
         return u
 
     @classmethod

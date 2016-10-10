@@ -75,12 +75,12 @@
                 },
                 "end_node_id": "Show",
                 "ack_message": "Goto Show"
-              },
-              {
-                "end_node_id": "Root",
-                "ack_message": "Goto Root"
               }
-            ]
+            ],
+            "on_error": {
+              "end_node_id": "Root",
+              "ack_message": "Goto Root"
+            }
           }
         }
       },

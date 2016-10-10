@@ -210,14 +210,8 @@ class User(DeclarativeBase, ModelMixin, JSONSerializableMixin):
 
     def goto(self, stable_id):
         """Goto a node."""
-        result = Node.get_by(query=Node.id, stable_id=str(stable_id),
-                             bot_id=self.bot_id, single=True)
-        # Goto Root if stable_id does not indicate a valid node
-        if result is None:
-            return self.goto(Bot.ROOT_STABLE_ID)
-
         sess = self.session
-        self.session = SessionRecord(result[0])
+        self.session = SessionRecord(stable_id)
         if sess:
             self.session.input_transformation = sess.input_transformation
 
@@ -241,9 +235,9 @@ class Node(DeclarativeBase, ModelMixin):
     content_module = relationship('ContentModule')
     parser_module = relationship('ParserModule')
 
-    @classmethod
-    def get_pk_id(cls, stable_id):
-        return Node.get_by(query=cls.id, stable_id=stable_id, single=True)[0]
+    def __repr__(self):
+        return '<%s(\'%s\', \'%s\')>' % (type(self).__name__, self.id,
+                                         self.stable_id)
 
 
 class Platform(DeclarativeBase, ModelMixin):

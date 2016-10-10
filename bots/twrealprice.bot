@@ -228,10 +228,6 @@
                   "params": ["WRONG_ADDRESS"]
                 },
                 "ack_message": "請重新輸入地址"
-              },
-              {
-                "end_node_id": null,
-                "ack_message": "我看不懂，你可以打「說明」看怎麼用。"
               }
             ],
             "on_error": {

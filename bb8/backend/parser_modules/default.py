@@ -37,7 +37,7 @@ def schema():
                 'type': 'array',
                 'items': {
                     'type': 'object',
-                    'required': ['ack_message'],
+                    'required': ['rule', 'ack_message'],
                     'additionalProperties': False,
                     'properties': {
                         'rule': {
@@ -228,7 +228,7 @@ def run(parser_config, user_input, as_root):
                     return ret(link, {'sticker': user_input.sticker}, {})
 
     if as_root:
-        return ParseResult()
+        return ParseResult(errored=True)
 
     on_error = parser_config.get('on_error')
     if on_error:
@@ -240,10 +240,10 @@ def run(parser_config, user_input, as_root):
 
         return ParseResult(on_error['end_node_id'],
                            on_error.get('ack_message'),
-                           {'text': user_input.text}, collect)
+                           {'text': user_input.text}, collect, errored=True)
 
-    return ParseResult('$error', 'Invalid input, please re-enter',
-                       {'text': user_input.text}, collect)
+    return ParseResult(None, 'Invalid input, please re-enter',
+                       {'text': user_input.text}, collect, errored=True)
 
 
 def get_linkages(parser_config):
