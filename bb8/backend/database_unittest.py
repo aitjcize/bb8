@@ -17,7 +17,7 @@ import pytz
 
 from bb8 import app, config
 from bb8.error import AppError
-from bb8.backend.bot_parser import get_bot_filename, parse_bot
+from bb8.backend.bot_parser import get_bot_filename, parse_bot_from_file
 from bb8.backend.database import DatabaseManager
 from bb8.backend.database import (Account, Bot, CollectedDatum, Conversation,
                                   ContentModule, Event, Node, ParserModule,
@@ -75,6 +75,7 @@ class SchemaUnittest(unittest.TestCase):
 
         bot = Bot(name=u'test', description=u'test', interaction_timeout=120,
                   session_timeout=86400).add()
+        account.bots.append(bot)
 
         content = ContentModule(id='test', name='Content1', description='desc',
                                 module_name='', ui_module_name='').add()
@@ -256,7 +257,7 @@ class SchemaUnittest(unittest.TestCase):
         self.assertEquals(len(bot2.nodes), bot2_node_len)
 
         # Test bot reconstruction
-        parse_bot(get_bot_filename('test/simple.bot'), bot1.id)
+        parse_bot_from_file(get_bot_filename('test/simple.bot'), bot1.id)
         DatabaseManager.commit()
 
         self.assertNotEquals(bot1.nodes, [])

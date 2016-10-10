@@ -30,12 +30,12 @@ class SocialRegistrationForm(FlaskForm):
 
 class LoginForm(FlaskForm):
     email = StringField('email', [Required(), Email()])
-    passwd = PasswordField('passwd', [Required(), Length(min=6, max=25)])
+    passwd = PasswordField('passwd', [Required(), Length(min=8, max=25)])
 
 
 # Bot Forms:
 class CreateBotForm(FlaskForm):
-    name = StringField('name', [Required(), Length(min=2, max=256)])
+    name = StringField('name', [Required(), Length(min=3, max=256)])
     description = StringField('description',
                               [Required(), Length(min=0, max=512)])
 

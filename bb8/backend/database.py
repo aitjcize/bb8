@@ -18,7 +18,9 @@ from passlib.hash import bcrypt  # pylint: disable=E0611
 from flask import Flask  # pylint: disable=C0411,C0413
 
 from sqlalchemy import (Boolean, Column, DateTime, Enum, ForeignKey, Integer,
-                        PickleType, Table, Text, String, Unicode, UnicodeText)
+                        PickleType, Table, Text, String, Unicode, UnicodeText,
+                        func)
+from sqlalchemy.exc import IntegrityError, InvalidRequestError
 from sqlalchemy.orm import relationship, deferred
 from sqlalchemy.schema import UniqueConstraint
 from sqlalchemy.ext.mutable import MutableDict
@@ -59,6 +61,7 @@ class AppContext(object):
 
 class Account(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     __tablename__ = 'account'
+    __table_args__ = (UniqueConstraint('email'),)
 
     __json_public__ = ['name', 'username', 'email']
 
@@ -69,7 +72,7 @@ class Account(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     email_verified = Column(Boolean, nullable=False, default=False)
     passwd = Column(String(256), nullable=False)
 
-    bots = relationship('Bot', secondary='account_bot')
+    bots = relationship('Bot')
     feeds = relationship('Feed', lazy='dynamic')
     oauth_infos = relationship('OAuthInfo', back_populates="account")
 
@@ -129,17 +132,20 @@ class PlatformTypeEnum(enum.Enum):
 class Bot(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     __tablename__ = 'bot'
 
-    __json_public__ = ['id', 'name', 'description', 'platforms']
+    __json_public__ = ['id', 'name', 'description', 'staging']
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(Unicode(256), nullable=False)
-    description = Column(UnicodeText, nullable=False)
+    account_id = Column(Integer, ForeignKey('account.id'), nullable=True)
+    name = Column(Unicode(64), nullable=False)
+    description = deferred(Column(Unicode(512), nullable=False))
     interaction_timeout = Column(Integer, nullable=False, default=120)
     admin_interaction_timeout = Column(Integer, nullable=False, default=180)
     session_timeout = Column(Integer, nullable=False, default=86400)
     ga_id = Column(Unicode(32), nullable=True)
     settings = Column(PickleType, nullable=True)
+    staging = deferred(Column(PickleType, nullable=True))
 
+    bot_defs = relationship('BotDef')
     nodes = relationship('Node')
     platforms = relationship('Platform')
 
@@ -154,7 +160,8 @@ class Bot(DeclarativeBase, ModelMixin, JSONSerializableMixin):
                            single=True)
 
     def delete(self):
-        self.delete_all_nodes()
+        Node.delete_by(bot_id=self.id)
+        BotDef.delete_by(bot_id=self.id)
         self.remove_platform_reference()
         super(Bot, self).delete()
 
@@ -223,7 +230,7 @@ class Node(DeclarativeBase, ModelMixin):
     stable_id = Column(String(128), nullable=False)
     bot_id = Column(ForeignKey('bot.id'), nullable=False)
     name = Column(Unicode(128), nullable=False)
-    description = Column(UnicodeText, nullable=True)
+    description = deferred(Column(UnicodeText, nullable=True))
     expect_input = Column(Boolean, nullable=False)
     content_module_id = Column(ForeignKey('content_module.id'), nullable=False)
     content_config = Column(PickleType, nullable=False)
@@ -239,9 +246,11 @@ class Node(DeclarativeBase, ModelMixin):
                                          self.stable_id)
 
 
-class Platform(DeclarativeBase, ModelMixin):
+class Platform(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     __tablename__ = 'platform'
     __table_args__ = (UniqueConstraint('provider_ident'),)
+
+    __json_public__ = ['id', 'bot_id', 'provider_ident']
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     bot_id = Column(ForeignKey('bot.id'), nullable=True)
@@ -347,6 +356,39 @@ class Broadcast(DeclarativeBase, ModelMixin):
     scheduled_time = Column(DateTime, nullable=False)
 
 
+class BotDef(DeclarativeBase, ModelMixin, JSONSerializableMixin):
+    __tablename__ = 'bot_def'
+    __table_args__ = (UniqueConstraint('bot_id', 'version'),)
+
+    __json_public__ = ['id', 'bot_id', 'version', 'note']
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    bot_id = Column(ForeignKey('bot.id'), nullable=False)
+    version = Column(Integer, nullable=False)
+    bot_json = deferred(Column(PickleType, nullable=False))
+    note = Column(Unicode(64), nullable=True)
+
+    @classmethod
+    def add_version(cls, bot_id, bot_json, note=None):
+        bot_def = None
+        for unused_i in range(3):  # Retry for three times
+            try:
+                max_version = cls.query(func.max(cls.version)).filter_by(
+                    bot_id=bot_id).one()[0]
+                if max_version is None:
+                    version = 1
+                else:
+                    version = max_version + 1
+                bot_def = BotDef(bot_id=bot_id, version=version,
+                                 bot_json=bot_json, note=note).add()
+                DatabaseManager.flush()
+            except (InvalidRequestError, IntegrityError):
+                DatabaseManager.rollback()
+            else:
+                break
+        return bot_def
+
+
 class FeedEnum(enum.Enum):
     RSS = 'RSS'
     ATOM = 'ATOM'
@@ -380,13 +422,6 @@ class PublicFeed(DeclarativeBase, ModelMixin):
     type = Column(Enum(FeedEnum), nullable=False)
     title = Column(Unicode(128), nullable=False)
     image_url = Column(String(256), nullable=False)
-
-
-t_account_bot = Table(
-    'account_bot', DeclarativeBase.metadata,
-    Column('account_id', ForeignKey('account.id'), nullable=False),
-    Column('bot_id', ForeignKey('bot.id'), nullable=False)
-)
 
 
 t_bot_node = Table(

@@ -21,20 +21,30 @@
         "nodes"
       ],
       "properties": {
-        "name": {"type": "string"},
+        "name": {
+          "type": "string",
+          "maxLength": 64
+        },
         "session_timeout": {"type": "integer"},
-        "description": {"type": "string"},
+        "description": {
+          "type": "string",
+          "maxLength": 512
+        },
         "interaction_timeout": {"type": "integer"},
         "admin_interaction_timeout": {"type": "integer"},
-        "ga_id": {"type": "string"},
+        "ga_id": {
+          "type": "string",
+          "maxLength": 32
+        },
         "nodes": {
           "type": "object",
           "required": [
             "Root",
             "Start"
           ],
+          "additionalProperties": false,
           "patternProperties": {
-            "^[A-Za-z.]+$": {"$ref": "#/definitions/node"}
+            "^[A-Za-z0-9.]{1,128}$": {"$ref": "#/definitions/node"}
           }
         }
       }
@@ -50,7 +60,8 @@
       "type": "object",
       "properties": {
         "name": {
-          "type": "string"
+          "type": "string",
+          "maxLength": 128
         },
         "description": {
           "type": "string"

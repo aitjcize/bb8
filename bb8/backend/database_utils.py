@@ -317,12 +317,15 @@ class JSONSerializableMixin(object):
         else:
             return int((dt - _EPOCH).total_seconds())
 
-    def to_json(self):
+    def to_json(self, additional=None):
+        additional = additional or []
         public = self.__json_public__ or self.columns()
         hidden = self.__json_hidden__ or []
 
+        target_fields = public + additional
+
         rv = dict()
-        for key in public:
+        for key in target_fields:
             rv[key] = getattr(self, key)
             if isinstance(rv[key], datetime):
                 rv[key] = self.unix_timestamp(rv[key])

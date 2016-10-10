@@ -11,7 +11,6 @@
 import glob
 import json
 import os
-import sys
 
 import jsonschema
 
@@ -33,7 +32,16 @@ def get_bot_filename(filename):
     return os.path.join(get_bots_dir(), filename)
 
 
-def parse_bot(filename, to_bot_id=None):
+def validate_bot_schema(bot_json, source='bot_json'):
+    try:
+        schema = util.get_schema('bot')
+        jsonschema.validate(bot_json, schema)
+    except jsonschema.exceptions.ValidationError:
+        logger.error('Validation failed for `%s\'!', source)
+        raise
+
+
+def parse_bot(bot_json, to_bot_id=None, source='bot_json'):
     """Parse Bot from bot definition.
 
     If *to_bot_id* is specified, update existing bot specified by *to_bot_id*
@@ -41,22 +49,7 @@ def parse_bot(filename, to_bot_id=None):
 
     If *to_bot_id* is a callable. The result of the call is used as the bot_id.
     """
-    schema = util.get_schema('bot')
-    bot_json = None
-    bot_json_text = None
-
-    with open(filename, 'r') as f:
-        try:
-            bot_json_text = f.read()
-            bot_json = json.loads(bot_json_text, encoding='utf8')
-        except ValueError:
-            raise RuntimeError('Invalid JSON file')
-
-    try:
-        jsonschema.validate(bot_json, schema)
-    except jsonschema.exceptions.ValidationError:
-        logger.exception('Validation failed for `%s\'!', filename)
-        sys.exit(1)
+    validate_bot_schema(bot_json, source=source)
 
     bot_desc = bot_json['bot']
 
@@ -65,8 +58,8 @@ def parse_bot(filename, to_bot_id=None):
 
     if to_bot_id:
         # Update existing bot.
-        logger.info('Updating existing Bot(id=%d) with %s ...',
-                    to_bot_id, filename)
+        logger.info(u'Updating existing Bot(id=%d, name=%s) from %s ...',
+                    to_bot_id, bot_desc['name'], source)
 
         bot = Bot.get_by(id=to_bot_id, single=True)
         bot.delete_all_nodes()
@@ -80,7 +73,8 @@ def parse_bot(filename, to_bot_id=None):
         DatabaseManager.flush()
     else:
         # Create a new bot
-        logger.info('Creating new bot from %s ...', filename)
+        logger.info(u'Creating new Bot(name=%s) from %s ...',
+                    bot_desc['name'], source)
         bot = Bot(
             name=bot_desc['name'],
             description=bot_desc['description'],
@@ -92,7 +86,8 @@ def parse_bot(filename, to_bot_id=None):
         DatabaseManager.flush()
 
     # Bind Platform with Bot
-    for unused_name, provider_ident in bot_json['platforms'].iteritems():
+    platforms = bot_json.get('platforms', {})
+    for unused_name, provider_ident in platforms.iteritems():
         platform = Platform.get_by(provider_ident=provider_ident, single=True)
         if platform is None:
             raise RuntimeError('associated platform `%s\' does not exist',
@@ -115,6 +110,9 @@ def parse_bot(filename, to_bot_id=None):
         try:
             cm = ContentModule.get_by(id=node['content_module']['id'],
                                       single=True)
+            if cm is None:
+                raise RuntimeError('Content_module `%d\' does not exist',
+                                   node['content_module']['id'])
             jsonschema.validate(node['content_module']['config'],
                                 cm.get_module().schema())
         except jsonschema.exceptions.ValidationError:
@@ -159,10 +157,21 @@ def parse_bot(filename, to_bot_id=None):
     return bot
 
 
+def parse_bot_from_file(filename, to_bot_id=None):
+    """Parse Bot from bot definition from file."""
+    with open(filename, 'r') as f:
+        try:
+            bot_json = json.load(f, encoding='utf8')
+        except ValueError as e:
+            raise RuntimeError('Invalid JSON file: %s' % e)
+
+    return parse_bot(bot_json, to_bot_id, filename)
+
+
 def build_all_bots():
     """Build all bots from bot definitions."""
     for bot in glob.glob(get_bots_dir() + '/*.bot'):
-        parse_bot(bot)
+        parse_bot_from_file(bot)
 
 
 def update_all_bots():
@@ -175,4 +184,4 @@ def update_all_bots():
             return None
 
     for bot in glob.glob(get_bots_dir() + '/*.bot'):
-        parse_bot(bot, find_bot_by_name)
+        parse_bot_from_file(bot, find_bot_by_name)
