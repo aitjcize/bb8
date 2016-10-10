@@ -65,14 +65,13 @@ def parse_platform(filename, to_platform_id=None):
         logger.info('Updating existing Platform(id=%d) with %s ...',
                     to_platform_id, filename)
         Platform.get_by(
-            id=to_platform_id, return_query=True).update(**platform_json)
+            id=to_platform_id, return_query=True).update(platform_json)
     else:
         # Create a new platform.
         logger.info('Creating new platform from %s ...', filename)
-        bot = Platform(**platform_json).add()
+        Platform(**platform_json).add()
 
     DatabaseManager.flush()
-    return bot
 
 
 def build_all_platforms(include_dev=False):
