@@ -30,6 +30,10 @@ import math
 import re
 
 
+# Square meter of a ping
+M2_PER_PING = 3.3
+
+
 def AdDate(roc_date):
     """Convert ROC date string to AD date.
 
@@ -125,7 +129,7 @@ class Matcher(Rule):
 
 
 class Number(Rule):
-    def __init__(self, unit, tran_key, weight, scale=1.0):
+    def __init__(self, unit, tran_key, weight, scale=1.0, slope=1.0):
         """A number with unit.
 
         Args:
@@ -133,11 +137,13 @@ class Number(Rule):
           tran_key: the key of transaction to search number.
           weight: weight for this score.
           scale: the scale factor to apply on the number in the user's query.
+          slope: the slope ratio used in count score.
         """
         super(Number, self).__init__(weight=weight)
         self.unit = unit
         self.tran_key = tran_key
         self.scale = scale
+        self.slope = slope
 
         # The variables will be set later
         self.number = None
@@ -153,12 +159,22 @@ class Number(Rule):
         return False
 
     def CountScore(self, tran):
+        """Linear function to get the score.
+
+        score = (delta / slope)  if 0 <= delta <= slope
+              = 1.0              if delta > slope
+
+        Args:
+          tran: dict. transaction data.
+
+        Returns:
+          float. scores
+        """
         m = re.search(r'([0-9]+(\.[0-9]+)?)',
                       Rules.Canonize(tran[self.tran_key]))
         if m:
             diff = math.fabs(self.number * self.scale - float(m.group(1)))
-            diff = max(diff, 1)  # Saturated at 1.0
-            return 1.0 * math.exp(-math.log(diff))
+            return 1.0 - max(0, min(1.0, diff / self.slope))
         else:
             return 0.0
 
@@ -219,8 +235,8 @@ class Location(Rule):
             (tran_lng - self.latlng[1]) ** 2)
 
         # 1.0: at same location.
-        # 0.0: ~1KM
-        return max(0, min(1.0, 1.0 - distance / 0.01))
+        # 0.0: ~500m
+        return max(0, min(1.0, 1.0 - distance / 0.005))
 
     def __str__(self):
         return ''
@@ -368,11 +384,11 @@ class Rules(object):
             accept_words=['店面'], tran_key='建物型態', tran_value='店面'))
 
         # Numbers
-        rules.Add(Number(weight=200, unit='年', tran_key='AGE'))
+        rules.Add(Number(weight=150, unit='年', tran_key='AGE', slope=10.0))
         rules.Add(Number(
-            weight=250, unit='坪',
-            tran_key='建物移轉總面積平方公尺', scale=3.3))
-        rules.Add(Number(weight=100, unit='樓', tran_key='移轉層次'))
+            weight=250, unit='坪', slope=20 * M2_PER_PING,
+            tran_key='建物移轉總面積平方公尺', scale=M2_PER_PING))
+        rules.Add(Number(weight=100, unit='樓', tran_key='移轉層次', slope=4))
 
         # Rules for sorting
         rules.Add(Days(weight=50, tran_key='交易年月日'))
