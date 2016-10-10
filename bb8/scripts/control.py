@@ -385,6 +385,33 @@ class BB8(object):
             app = App(app_dir)
             app.compile_and_install_service_proto()
 
+    def install_misc_resource(self):
+        RESOURCE_DEF = os.path.join(
+            BB8_SRC_ROOT, 'conf', 'misc-resource.json')
+        RESOURCE_DEF_SCHEMA = os.path.join(
+            BB8_SRC_ROOT, 'conf', 'misc-resource.schema.json')
+
+        with open(RESOURCE_DEF_SCHEMA, 'r') as f:
+            schema_def = json.load(f)
+
+        with open(RESOURCE_DEF, 'r') as f:
+            resource_def = json.load(f)
+
+        try:
+            jsonschema.validate(resource_def, schema_def)
+        except jsonschema.exceptions.ValidationError as e:
+            raise RuntimeError('Fail to validate misc-resource definition: '
+                               '%s' % e)
+
+        # gsutil maybe under /root/google-cloud-sdk/bin/ if installed via pip
+        os.environ['PATH'] = os.getenv('PATH') + ':/root/google-cloud-sdk/bin'
+
+        # Copy module-resource
+        for module, res_list in resource_def['module-resource'].iteritems():
+            logger.info('Installing resource for %s ...', module)
+            for resource in res_list:
+                run('gsutil cp %s %s' % (resource['source'], resource['dest']))
+
     def setup_network(self):
         run('docker network create %s' % BB8_NETWORK, True)
 
@@ -523,6 +550,11 @@ def main():
                                          help='Skip copy credential step')
     compile_resource_parser.set_defaults(which='compile-resource')
 
+    # install-misc-resource sub-command
+    install_misc_resource_parser = subparsers.add_parser(
+        'install-misc-resource', help='install misc resource')
+    install_misc_resource_parser.set_defaults(which='install-misc-resource')
+
     # We want to pass the rest of arguments after shell command directly to the
     # function without parsing it.
     try:
@@ -568,6 +600,8 @@ def main():
         bb8.status()
     elif args.which == 'compile-resource':
         bb8.compile_resource(not args.no_copy_credential)
+    elif args.which == 'install-misc-resource':
+        bb8.install_misc_resource()
     else:
         raise RuntimeError('invalid sub-command')
 

@@ -4,6 +4,7 @@ MAINTAINER Wei-Ning Huang <aitjcize@compose.ai>
 RUN apt-get update && apt-get upgrade -y && \
         apt-get install -y apt-utils && \
         apt-get install -y \
+                curl \
                 git \
                 libffi-dev \
                 libjpeg-dev \
@@ -59,3 +60,9 @@ COPY . ${BB8_ROOT}
 # Install credential
 COPY credential/compose-ai.json /opt/bb8
 ENV GOOGLE_APPLICATION_CREDENTIALS=/opt/bb8/compose-ai.json
+
+# Install gcloud
+RUN curl https://sdk.cloud.google.com | bash
+
+# Install misc-resource
+RUN /opt/bb8/bin/bb8ctl install-misc-resource

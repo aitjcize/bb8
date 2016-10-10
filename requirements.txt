@@ -18,7 +18,7 @@ enum==0.4.6
 enum34==1.1.6
 Flask==0.11.1
 Flask-Script==2.0.5
-Flask-WTF==0.13
+Flask-WTF==0.13.1
 funcsigs==1.0.2
 functools32==3.2.3.post2
 future==0.15.2
@@ -58,7 +58,7 @@ isort==4.2.5
 itsdangerous==0.24
 Jinja2==2.8
 jsonschema==2.5.1
-kombu==3.0.36
+kombu==3.0.37
 lazy-object-proxy==1.2.2
 Mako==1.0.4
 MarkupSafe==0.23
@@ -71,7 +71,7 @@ pbr==1.10.0
 pep8==1.7.0
 pexpect==4.2.1
 pickleshare==0.7.4
-Pillow==3.4.0
+Pillow==3.4.1
 ply==3.9
 prompt-toolkit==1.0.7
 protobuf==3.1.0.post1
@@ -94,7 +94,7 @@ requests==2.11.1
 rsa==3.4.2
 simplegeneric==0.8.1
 six==1.10.0
-SQLAlchemy==1.1.0b3
+SQLAlchemy==1.1.1
 traitlets==4.3.1
 uWSGI==2.0.14
 vine==1.1.2
