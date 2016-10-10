@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """TW Real Price Unittest"""
 
+import datetime
 import unittest
 
 import twrealprice_rule
@@ -59,7 +60,33 @@ class TestNumber(unittest.TestCase):
     def test_ping(self):
         self.assertTrue(self.float.ParseQuery(query='室內19.23坪'))
         self.assertAlmostEqual(self.float.CountScore(
-            {'建物移轉總面積平方公尺': '63.459'}), 140737488355328.34)
+            {'建物移轉總面積平方公尺': '63.459'}), 1.0)
+
+
+class TestDays(unittest.TestCase):
+    def setUp(self):
+        self.trading = twrealprice_rule.Days(
+            weight=10.0, tran_key='交易年月日')
+        self.trading.today = datetime.date(2011, 12, 13)
+
+    def test_days(self):
+        self.assertEqual(self.trading.CountScore(
+            {'交易年月日': '1001213'}), 1.0)
+        self.assertEqual(self.trading.CountScore(
+            {'交易年月日': '991213'}), 0.0)
+
+
+class TestLocation(unittest.TestCase):
+    def setUp(self):
+        self.location = twrealprice_rule.Location(
+            weight=10.0,
+            tran_key='latlng', latlng=(25.0554948, 121.6004863))
+
+    def test_days(self):
+        self.assertEqual(self.location.CountScore(
+            {'latlng': (25.0554948, 121.6004863)}), 1.0)
+        self.assertAlmostEqual(self.location.CountScore(
+            {'latlng': (25.0557478, 121.6060973)}), 0.43832990109835046)
 
 
 class TestRules(unittest.TestCase):

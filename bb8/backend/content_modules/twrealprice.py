@@ -79,37 +79,15 @@ def GenNearbyIndex(lat_center, lng_center, N):
             yield lat_center - n, lng_center + n - i  # bottom --> top
 
 
-def AdDate(roc_date):
-    """Convert ROC date string to AD date.
-
-    Args:
-      roc_date: 7-digit, e.g. 1050723 or 990102
-
-    Returns:
-      datetime.date
-    """
-    if len(roc_date) == 7:
-        roc = (int(roc_date[0:3]) + 1911,
-               int(roc_date[3:5]),
-               int(roc_date[5:]))
-    elif len(roc_date) == 6:
-        roc = (int(roc_date[0:2]) + 1911,
-               int(roc_date[2:4]),
-               int(roc_date[4:]))
-    else:
-        raise ValueError('Invalid ROC date string: [%s]' % roc_date)
-
-    return datetime.date(*roc)
-
-
 def RocSlash(roc_date):
     return '%s/%s/%s' % (roc_date[0:3], roc_date[3:5], roc_date[5:7])
 
 
 def Age(build_date):
     try:
-        return '%.f' % (
-            (datetime.date.today() - AdDate(build_date)).days / 365.0) + '年'
+        return '%.f' % ((
+            datetime.date.today() -
+            twrealprice_rule.AdDate(build_date)).days / 365.0) + '年'
     except ValueError:
         return ''
 
@@ -252,7 +230,9 @@ class TwRealPrice(object):
             for s in nearby:
                 s['AGE'] = Age(s['建築完成年月'])[:-3]  # remove 年
 
-            rules = twrealprice_rule.Rules.Create()
+            rules = twrealprice_rule.Rules.Create(
+                latlng=(coordinate[0], coordinate[1])
+            )
             rules.ParseQuery(query)
             filters = rules.filters
             rules.CountScore(nearby)
