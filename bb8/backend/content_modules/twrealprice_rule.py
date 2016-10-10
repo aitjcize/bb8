@@ -25,8 +25,32 @@ Because I am lazy, all funtions in this file accept 'UTF-8' encoding string.
 # pylint: disable=E0202
 
 import copy
+import datetime
 import math
 import re
+
+
+def AdDate(roc_date):
+    """Convert ROC date string to AD date.
+
+    Args:
+      roc_date: 7-digit, e.g. 1050723 or 990102
+
+    Returns:
+      datetime.date
+    """
+    if len(roc_date) == 7:
+        roc = (int(roc_date[0:3]) + 1911,
+               int(roc_date[3:5]),
+               int(roc_date[5:]))
+    elif len(roc_date) == 6:
+        roc = (int(roc_date[0:2]) + 1911,
+               int(roc_date[2:4]),
+               int(roc_date[4:]))
+    else:
+        raise ValueError('Invalid ROC date string: [%s]' % roc_date)
+
+    return datetime.date(*roc)
 
 
 class Rule(object):
@@ -132,16 +156,74 @@ class Number(Rule):
         m = re.search(r'([0-9]+(\.[0-9]+)?)',
                       Rules.Canonize(tran[self.tran_key]))
         if m:
-            try:
-                return 1.0 * math.exp(-math.log(
-                    math.fabs(self.number * self.scale - float(m.group(1)))))
-            except ValueError:  # log(0): math domain erro
-                return 1.0
+            diff = math.fabs(self.number * self.scale - float(m.group(1)))
+            diff = max(diff, 1)  # Saturated at 1.0
+            return 1.0 * math.exp(-math.log(diff))
         else:
             return 0.0
 
     def __str__(self):
         return '%s%s' % (self.number, self.unit)
+
+
+class Days(Rule):
+    def __init__(self, tran_key, weight):
+        """Used to count days. Higher score for closer date.
+
+        Args:
+          tran_key: the key of transaction to search number.
+          weight: weight for this score.
+        """
+        super(Days, self).__init__(weight=weight)
+        self.tran_key = tran_key
+        self.today = datetime.date.today()
+
+    def ParseQuery(self, query):
+        return True  # Always matched. Used to sort the results.
+
+    def CountScore(self, tran):
+        try:
+            delta = (self.today - AdDate(tran[self.tran_key])).days
+        except ValueError:
+            delta = 183  # half year
+
+        # 1.0:   0 day  = up-to-date price!
+        # 0.0: 365 days = the price year ago
+        # 0.0: 366+days = older than 1 year
+        return max(0, min(1.0, 1.0 - delta / 365))
+
+    def __str__(self):
+        return ''
+
+
+class Location(Rule):
+    def __init__(self, tran_key, latlng, weight):
+        """Used to sort distance. Closer location has higher score.
+
+        Args:
+          tran_key: the key of transaction to search number.
+          latlng: (lat, lng). the center lat/lng.
+          weight: weight for this score.
+        """
+        super(Location, self).__init__(weight=weight)
+        self.tran_key = tran_key
+        self.latlng = latlng
+
+    def ParseQuery(self, query):
+        return True  # Always matched. Used to sort the results.
+
+    def CountScore(self, tran):
+        tran_lat, tran_lng = tran[self.tran_key]
+        distance = math.sqrt(
+            (tran_lat - self.latlng[0]) ** 2 +
+            (tran_lng - self.latlng[1]) ** 2)
+
+        # 1.0: at same location.
+        # 0.0: ~1KM
+        return max(0, min(1.0, 1.0 - distance / 0.01))
+
+    def __str__(self):
+        return ''
 
 
 class Rules(object):
@@ -252,7 +334,7 @@ class Rules(object):
         return query.encode('utf-8')
 
     @classmethod
-    def Create(cls):
+    def Create(cls, latlng):
         rules = cls()
 
         # Building types
@@ -286,11 +368,14 @@ class Rules(object):
             accept_words=['店面'], tran_key='建物型態', tran_value='店面'))
 
         # Numbers
-        rules.Add(Number(weight=300, unit='年', tran_key='AGE'))
+        rules.Add(Number(weight=200, unit='年', tran_key='AGE'))
         rules.Add(Number(
-            weight=100, unit='坪',
+            weight=250, unit='坪',
             tran_key='建物移轉總面積平方公尺', scale=3.3))
-        rules.Add(Number(weight=10, unit='樓', tran_key='移轉層次'))
-        # TODO: traded days
+        rules.Add(Number(weight=100, unit='樓', tran_key='移轉層次'))
+
+        # Rules for sorting
+        rules.Add(Days(weight=50, tran_key='交易年月日'))
+        rules.Add(Location(weight=300, tran_key='latlng', latlng=latlng))
 
         return rules
