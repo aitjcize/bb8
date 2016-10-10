@@ -15,17 +15,17 @@ import sys
 
 import jsonschema
 
+import bb8
 from bb8 import config, logger
+from bb8 import util
 from bb8.backend.messaging import get_messaging_provider
 from bb8.backend.database import (DatabaseManager, Bot, ContentModule, Node,
-                                  Platform, PlatformTypeEnum)
+                                  Platform)
 
 
 def get_bots_dir():
     """Get directory contains bot definitions."""
-    backend_dir = os.path.dirname(__file__)
-    bots_dir = os.path.normpath(os.path.join(backend_dir, '../../bots'))
-    return bots_dir
+    return os.path.join(bb8.SRC_ROOT, 'bots')
 
 
 def get_bot_filename(filename):
@@ -34,19 +34,16 @@ def get_bot_filename(filename):
 
 
 def parse_bot(filename, to_bot_id=None):
-    """Parse bot from bot definition.
+    """Parse Bot from bot definition.
 
     If *to_bot_id* is specified, update existing bot specified by *to_bot_id*
     instead of creating a new bot.
 
     If *to_bot_id* is a callable. The result of the call is used as the bot_id.
     """
-    schema = None
+    schema = util.get_schema('bot')
     bot_json = None
     bot_json_text = None
-
-    with open(get_bot_filename('schema.bot.json'), 'r') as f:
-        schema = json.load(f)
 
     with open(filename, 'r') as f:
         try:
@@ -68,56 +65,21 @@ def parse_bot(filename, to_bot_id=None):
 
     if to_bot_id:
         # Update existing bot.
-        logger.info('Updating existing bot(id=%d) with %s ...',
+        logger.info('Updating existing Bot(id=%d) with %s ...',
                     to_bot_id, filename)
 
         bot = Bot.get_by(id=to_bot_id, single=True)
-
-        for platform_desc in bot_json['platforms']:
-            ptype = PlatformTypeEnum(platform_desc['type_enum'])
-            provider = get_messaging_provider(ptype)
-            try:
-                jsonschema.validate(platform_desc['config'],
-                                    provider.get_config_schema())
-            except jsonschema.exceptions.ValidationError:
-                logger.error('Platform `%s\' config validation failed',
-                             platform_desc['type_enum'])
-                raise
-
-            # Make sure the platofrm exists
-            platform = Platform.get_by(
-                provider_ident=platform_desc['provider_ident'], single=True)
-
-            if platform is None:
-                Platform(bot_id=bot.id,
-                         type_enum=platform_desc['type_enum'],
-                         provider_ident=platform_desc['provider_ident'],
-                         config=platform_desc['config']).add()
-            else:
-                platform.type_enum = platform_desc['type_enum']
-                platform.config = platform_desc['config']
-
-            if (not platform_desc['deployed'] or
-                    (config.DEPLOY and platform_desc['deployed'])):
-                provider.apply_config(platform_desc['config'])
-
-        # Delete platforms that no longer exists
-        all_platform_idents = [platform_desc['provider_ident']
-                               for platform_desc in bot_json['platforms']]
-
-        for platform in Platform.get_by(bot_id=bot.id):
-            if platform.provider_ident not in all_platform_idents:
-                platform.delete()
-
-        bot.delete_all_node_and_links()  # Delete all previous node and links
+        bot.delete_all_nodes()
         bot.name = bot_desc['name']
         bot.description = bot_desc['description']
         bot.interaction_timeout = bot_desc['interaction_timeout']
         bot.admin_interaction_timeout = bot_desc['admin_interaction_timeout']
         bot.session_timeout = bot_desc['session_timeout']
         bot.ga_id = bot_desc.get('ga_id', None)
+        bot.settings = bot_desc['settings']
         DatabaseManager.flush()
-    else:  # Create a new bot
+    else:
+        # Create a new bot
         logger.info('Creating new bot from %s ...', filename)
         bot = Bot(
             name=bot_desc['name'],
@@ -125,28 +87,25 @@ def parse_bot(filename, to_bot_id=None):
             interaction_timeout=bot_desc['interaction_timeout'],
             admin_interaction_timeout=bot_desc['admin_interaction_timeout'],
             session_timeout=bot_desc['session_timeout'],
-            ga_id=bot_desc.get('ga_id', None)).add()
+            ga_id=bot_desc.get('ga_id', None),
+            settings=bot_desc['settings']).add()
         DatabaseManager.flush()
 
-        for platform_desc in bot_json['platforms']:
-            ptype = PlatformTypeEnum(platform_desc['type_enum'])
-            provider = get_messaging_provider(ptype)
-            try:
-                jsonschema.validate(platform_desc['config'],
-                                    provider.get_config_schema())
-            except jsonschema.exceptions.ValidationError:
-                logger.error('Platform `%s\' config validation failed',
-                             platform_desc['type_enum'])
-                raise
+    # Bind Platform with Bot
+    for unused_name, provider_ident in bot_json['platforms'].iteritems():
+        platform = Platform.get_by(provider_ident=provider_ident, single=True)
+        if platform is None:
+            raise RuntimeError('associated platform `%s\' does not exist',
+                               provider_ident)
 
-            Platform(bot_id=bot.id,
-                     type_enum=platform_desc['type_enum'],
-                     provider_ident=platform_desc['provider_ident'],
-                     config=platform_desc['config']).add()
+        # Bind
+        platform.bot_id = bot.id
 
-            if (not platform_desc['deployed'] or
-                    (config.DEPLOY and platform_desc['deployed'])):
-                provider.apply_config(platform_desc['config'])
+        provider = get_messaging_provider(platform.type_enum)
+        if not platform.deployed or (config.DEPLOY and platform.deployed):
+            provider.apply_settings(platform.config, bot.settings)
+
+        DatabaseManager.flush()
 
     nodes = bot_desc['nodes']
     id_map = {}  # Mapping of stable_id to id
@@ -201,7 +160,7 @@ def parse_bot(filename, to_bot_id=None):
 
 
 def build_all_bots():
-    """Re-build all bots from bot definitions."""
+    """Build all bots from bot definitions."""
     for bot in glob.glob(get_bots_dir() + '/*.bot'):
         parse_bot(bot)
 

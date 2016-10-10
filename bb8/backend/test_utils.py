@@ -14,6 +14,7 @@ import subprocess
 import pytz
 
 from bb8.backend.bot_parser import get_bot_filename, parse_bot
+from bb8.backend.platform_parser import get_platform_filename, parse_platform
 from bb8.backend.database import (DatabaseManager, Bot, User, Platform,
                                   PlatformTypeEnum)
 from bb8.backend.module_registration import register_all_modules
@@ -25,9 +26,10 @@ def reset_and_setup_bots(bot_names):
     Args:
         bot_names: a list of bot names to setup
     """
-    DatabaseManager.reset()
     bots = []
+    DatabaseManager.reset()
     register_all_modules()
+    parse_platform(get_platform_filename('dev/bb8.test.platform'))
     for bot_name in bot_names:
         bots.append(parse_bot(get_bot_filename(bot_name)))
     return bots

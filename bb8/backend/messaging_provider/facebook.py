@@ -9,6 +9,8 @@
 import json
 import requests
 
+import jsonschema
+
 
 FACEBOOK_PROFILE_API_URL = 'https://graph.facebook.com/v2.6/%s'
 FACEBOOK_MESSAGING_THREAD_SETTING = ('https://graph.facebook.com/v2.6/me/'
@@ -23,6 +25,15 @@ def get_config_schema():
         'required': ['access_token'],
         'properties': {
             'access_token': {'type': 'string'},
+        }
+    }
+
+
+def get_settings_schema():
+    """Get settings schema."""
+    return {
+        'type': 'object',
+        'properties': {
             'get_start_button': {'type': 'object'},
             'greeting_text': {'type': 'string'},
             'persistent_menu': {
@@ -56,17 +67,23 @@ def get_config_schema():
     }
 
 
-def apply_config(config):
-    """Apply config to platform."""
-    greeting = config.get('greeting_text', None)
+def apply_settings(config, settings):
+    """Apply settings to platform."""
+    try:
+        jsonschema.validate(settings, get_settings_schema())
+    except jsonschema.ValidationError as e:
+        raise RuntimeError('Facebook settings schema validation failed: %s' %
+                           e)
+
+    greeting = settings.get('greeting_text', None)
     if greeting:
         set_greeting_text(config['access_token'], greeting)
 
-    payload = config.get('get_start_button', None)
+    payload = settings.get('get_start_button', None)
     if payload:
         set_get_start_button(config['access_token'], payload)
 
-    menu = config.get('persistent_menu', None)
+    menu = settings.get('persistent_menu', None)
     if menu:
         set_persistent_menu(config['access_token'], menu)
 

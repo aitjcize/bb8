@@ -23,12 +23,11 @@ import sys
 import colorlog
 import jsonschema
 
+from bb8 import SRC_ROOT as BB8_SRC_ROOT
 from bb8 import config
+from bb8 import util
 
 
-BB8_SRC_ROOT = os.path.normpath(os.path.join(
-    os.path.abspath(os.path.dirname(os.path.realpath(__file__))),
-    '..', '..'))
 BB8_DATA_ROOT = '/var/lib/bb8'
 BB8_NETWORK = 'bb8_network'
 BB8_CLIENT_PACKAGE_NAME = 'bb8-client-9999.tar.gz'
@@ -51,12 +50,6 @@ def scoped_name(name):
     bb8 object name."""
     return (name if config.DEPLOY else
             '%s.%s' % (os.getenv('BB8_SCOPE', 'nobody'), name))
-
-
-def get_manifest_schema():
-    """Return the schema of app manifest."""
-    with open(os.path.join(BB8_SRC_ROOT, 'apps', 'schema.app.json')) as f:
-        return json.load(f)
 
 
 def run(command, allow_error=False):
@@ -122,7 +115,7 @@ class App(object):
     """App class representing an BB8 third-party app."""
 
     BB8_APP_PREFIX = scoped_name('bb8.app')
-    SCHEMA = get_manifest_schema()
+    SCHEMA = util.get_schema('app')
 
     VOLUME_PRIVILEGE_WHITELIST = ['system', 'content', 'drama']
 
@@ -386,17 +379,12 @@ class BB8(object):
             app.compile_and_install_service_proto()
 
     def install_misc_resource(self):
-        RESOURCE_DEF = os.path.join(
-            BB8_SRC_ROOT, 'conf', 'misc-resource.json')
-        RESOURCE_DEF_SCHEMA = os.path.join(
-            BB8_SRC_ROOT, 'conf', 'misc-resource.schema.json')
-
-        with open(RESOURCE_DEF_SCHEMA, 'r') as f:
-            schema_def = json.load(f)
+        RESOURCE_DEF = os.path.join(BB8_SRC_ROOT, 'conf', 'misc-resource.json')
 
         with open(RESOURCE_DEF, 'r') as f:
             resource_def = json.load(f)
 
+        schema_def = util.get_schema('misc-resource')
         try:
             jsonschema.validate(resource_def, schema_def)
         except jsonschema.exceptions.ValidationError as e:

@@ -138,6 +138,7 @@ class Bot(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     admin_interaction_timeout = Column(Integer, nullable=False, default=180)
     session_timeout = Column(Integer, nullable=False, default=86400)
     ga_id = Column(Unicode(32), nullable=True)
+    settings = Column(PickleType, nullable=True)
 
     nodes = relationship('Node')
     platforms = relationship('Platform')
@@ -153,17 +154,18 @@ class Bot(DeclarativeBase, ModelMixin, JSONSerializableMixin):
                            single=True)
 
     def delete(self):
-        self.delete_all_node_and_links()
-        self.delete_all_platforms()
+        self.delete_all_nodes()
+        self.remove_platform_reference()
         super(Bot, self).delete()
 
-    def delete_all_node_and_links(self):
+    def delete_all_nodes(self):
         """Delete all associated node and links of this bot."""
         Node.delete_by(bot_id=self.id)
 
-    def delete_all_platforms(self):
-        """Delete all associated platform of this bot."""
-        Platform.delete_by(bot_id=self.id)
+    def remove_platform_reference(self):
+        """Remove all associated platform reference of this bot."""
+        Platform.get_by(bot_id=self.id, return_query=True).update(
+            {'bot_id': None})
 
 
 class GenderEnum(enum.Enum):
@@ -249,7 +251,8 @@ class Platform(DeclarativeBase, ModelMixin):
     __table_args__ = (UniqueConstraint('provider_ident'),)
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    bot_id = Column(ForeignKey('bot.id'), nullable=False)
+    bot_id = Column(ForeignKey('bot.id'), nullable=True)
+    deployed = Column(Boolean, nullable=False, default=False)
     type_enum = Column(Enum(PlatformTypeEnum), nullable=False)
     provider_ident = Column(String(128), nullable=False)
     config = Column(PickleType, nullable=False)

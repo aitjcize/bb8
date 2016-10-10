@@ -30,7 +30,7 @@ def mod_bot_for_testing(bot, platform):
     project_root = os.path.normpath(os.path.join(real_file_path, '..', '..'))
 
     bots_dir = os.path.join(project_root, 'bots')
-    platforms_dir = os.path.join(project_root, 'dev', 'platforms')
+    platforms_dir = os.path.join(project_root, 'platforms', 'dev')
 
     bot = bot.rstrip('.bot')
     bot_file = os.path.join(bots_dir, '%s.bot' % bot)
@@ -48,14 +48,11 @@ def mod_bot_for_testing(bot, platform):
         bot_json = json.load(f)
 
     with open(platform_file) as f:
-        old_bot_json = json.load(f)
+        platform_json = json.load(f)
 
     print('Modifying bot ...')
 
-    for plat in old_bot_json['platforms']:
-        plat['deployed'] = False
-
-    bot_json['platforms'] = old_bot_json['platforms']
+    bot_json['platforms'] = {platform: platform_json['provider_ident']}
     bot_json['bot']['name'] += '-' + platform
 
     def to_unicode(m):

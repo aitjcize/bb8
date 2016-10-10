@@ -1,46 +1,8 @@
 {
-  "platforms": [
-    {
-      "type_enum": "Facebook",
-      "deployed": true,
-      "provider_ident": "1764704343742166",
-      "config": {
-        "access_token": "EAAZAi0GnycPEBAHvBru8PVSYakotZBVP09RmJk6CqTXYGpKveuixVKJ95ZChq4U2CbYMXzGmQcK3AUB0RZCmnTRuMb9UBeFJjDGcUAQLkLRlZB6OZBB7ni30zDVm95YLw7xjrpAWUeq8xDAZClyOW7g5ToglIbCRxYZCrIeMABxl1gZDZD",
-        "get_start_button": {"message": {"text": "Hi"}},
-        "persistent_menu": [
-          {
-            "type": "postback",
-            "title": "使用說明",
-            "payload": {"message": {"text": "tutorial"}}
-          },
-          {
-            "type": "postback",
-            "title": "留言",
-            "payload": {"message": {"text": "feedback"}}
-          },
-          {
-            "type": "web_url",
-            "title": "粉絲頁",
-            "url": "https://goo.gl/wja6Rz"
-          },
-          {
-            "type": "web_url",
-            "title": "Compose.ai 官方網站",
-            "url": "http://compose.ai"
-          }
-        ]
-      }
-    },
-    {
-      "type_enum": "Line",
-      "deployed": true,
-      "provider_ident": "youbike.composeai",
-      "config": {
-        "access_token": "ageBtlRARPVjJShBar2a+dpnG7DKQyb/leRmRxT9PHNUVjYhoDDlCD7cJ/+ywjt0igu5N9HvoRkjO4mRF+S39/p5TRuMfkylMjBoKj3pLskAwWbGR26W1TEp7o+zPaVa2ghz3yxYfGZfMctsuQFojQdB04t89/1O/w1cDnyilFU=",
-        "channel_secret": "f87f24dab891fb6f106ac0489b835f46"
-      }
-    }
-  ],
+  "platforms": {
+      "Facebook": "1764704343742166",
+      "Line": "youbike.composeai"
+  },
   "bot": {
     "name": "Youbike",
     "description": "Provide location-based youbike info",
@@ -48,6 +10,31 @@
     "admin_interaction_timeout": 10,
     "session_timeout": 0,
     "ga_id": "UA-79887532-2",
+    "settings": {
+      "get_start_button": {"message": {"text": "Hi"}},
+      "persistent_menu": [
+        {
+          "type": "postback",
+          "title": "使用說明",
+          "payload": {"message": {"text": "tutorial"}}
+        },
+        {
+          "type": "postback",
+          "title": "留言",
+          "payload": {"message": {"text": "feedback"}}
+        },
+        {
+          "type": "web_url",
+          "title": "粉絲頁",
+          "url": "https://goo.gl/wja6Rz"
+        },
+        {
+          "type": "web_url",
+          "title": "Compose.ai 官方網站",
+          "url": "http://compose.ai"
+        }
+      ]
+    },
     "nodes": {
       "Start": {
         "name": "Start",

@@ -53,7 +53,7 @@ test: setup-database setup-redis compile-resource-no-cred
 	   echo Running $$test ...; \
 	   $$test || exit 1; \
 	 done
-	@manage reset
+	@manage reset_for_dev
 
 coverage: setup-database setup-redis compile-resource-no-cred
 	@export BB8_TEST=true; \
@@ -68,7 +68,8 @@ coverage: setup-database setup-redis compile-resource-no-cred
 	   echo Running $$test ...; \
 	   COVERAGE_FILE=.coverage_$$COVER coverage run $$test || exit 1; \
 	 done
-	@COVERAGE_FILE=.coverage_manage_reset coverage run bin/manage reset
+	@COVERAGE_FILE=.coverage_manage_reset coverage \
+	   run bin/manage reset_for_dev
 	@coverage combine .coverage_*
 	@coverage html --include=bb8/*
 

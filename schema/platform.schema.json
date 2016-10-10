@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "required": [
+    "deployed",
+    "type_enum",
+    "provider_ident",
+    "config"
+  ],
+  "properties": {
+    "deployed": {"type": "boolean"},
+    "type_enum": {"type": "string"},
+    "provider_ident": {"type": "string"},
+    "config": {"type": "object"}
+  }
+}

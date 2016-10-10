@@ -26,8 +26,13 @@ def get_config_schema():
     }
 
 
-def apply_config(unused_config):
-    """Apply config to platform."""
+def get_settings_schema():
+    """Get settings schema."""
+    return {}
+
+
+def apply_settings(unused_config, unused_settings):
+    """Apply settings to platform."""
     pass
 
 
@@ -45,7 +50,7 @@ def get_user_profile(unused_platform, unused_user_ident):
 
 def send_message(unused_user, messages):
     """Send message to the platform."""
-    g.line_messages += messages
+    g.line_messages += messages  # pylint: disable=E1101
 
 
 def flush_message(platform):
@@ -60,6 +65,7 @@ def flush_message(platform):
         headers=headers,
         json={
             'replyToken': g.line_reply_token,
+            # pylint: disable=E1101
             'messages': [m.as_line_message() for m in g.line_messages]
         }
     )

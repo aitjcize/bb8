@@ -1,37 +1,17 @@
 {
-  "required": [
-    "bot",
-    "platforms"
-  ],
+  "required": ["bot"],
   "type": "object",
   "properties": {
     "platforms": {
-      "type": "array",
-      "items": {
-        "required": [
-          "deployed",
-          "type_enum",
-          "provider_ident",
-          "config"
-        ],
-        "type": "object",
-        "properties": {
-          "deployed": {
-            "type": "boolean"
-          },
-          "type_enum": {
-            "type": "string"
-          },
-          "provider_ident": {
-            "type": "string"
-          },
-          "config": {
-            "type": "object"
-          }
+      "type": "object",
+      "patternProperties": {
+        "^[A-Za-z.]+$": {
+          "type": "string"
         }
       }
     },
     "bot": {
+      "type": "object",
       "required": [
         "description",
         "interaction_timeout",
@@ -40,35 +20,21 @@
         "session_timeout",
         "nodes"
       ],
-      "type": "object",
       "properties": {
-        "name": {
-          "type": "string"
-        },
-        "session_timeout": {
-          "type": "integer"
-        },
-        "description": {
-          "type": "string"
-        },
-        "interaction_timeout": {
-          "type": "integer"
-        },
-        "admin_interaction_timeout": {
-          "type": "integer"
-        },
-        "ga_id": {
-          "type": "string"
-        },
+        "name": {"type": "string"},
+        "session_timeout": {"type": "integer"},
+        "description": {"type": "string"},
+        "interaction_timeout": {"type": "integer"},
+        "admin_interaction_timeout": {"type": "integer"},
+        "ga_id": {"type": "string"},
         "nodes": {
+          "type": "object",
           "required": [
             "Root",
             "Start"
           ],
-          "type": "object",
-          "properties": {
-            "Start": {"$ref": "#/definitions/node"},
-            "Root": {"$ref": "#/definitions/node"}
+          "patternProperties": {
+            "^[A-Za-z.]+$": {"$ref": "#/definitions/node"}
           }
         }
       }
