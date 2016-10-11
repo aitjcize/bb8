@@ -61,6 +61,11 @@ def GetgRPCService(name):
     return module, (hostname, config.APP_GRPC_SERVICE_PORT)
 
 
+def CacheImage(link):
+    return 'https://{0}:{1}/util/cache_image?url={2}'.format(
+        config.HOSTNAME, config.HTTP_PORT, link)
+
+
 class Memory(object):
     """API wrapper for User.memory dictionary."""
     @classmethod

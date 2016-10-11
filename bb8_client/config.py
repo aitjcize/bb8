@@ -10,6 +10,8 @@ import os
 
 
 class Config(object):
+    HOSTNAME = 'dev.compose.ai'
+    HTTP_PORT = os.getenv('BB8_HTTP_PORT', 7000)
     HOST = 'bb8.main'
     PORT = 62629
 
@@ -23,4 +25,5 @@ class DevelopmentConfig(Config):
 
 
 class DeployConfig(Config):
-    pass
+    HOSTNAME = 'bot.compose.ai'
+    HTTP_PORT = 5000

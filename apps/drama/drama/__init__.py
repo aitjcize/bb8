@@ -13,6 +13,7 @@ import os
 class Config(object):
     DATABASE = os.getenv('DATABASE', '')
     N_THREADS = 8
+    DEFAULT_DRAMA_IMAGE = 'http://i.imgur.com/xa9wSAU.png'
 
 
 class DevelopmentConfig(Config):

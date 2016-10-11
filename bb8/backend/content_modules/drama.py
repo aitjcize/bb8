@@ -10,20 +10,14 @@
 
 import grpc
 
-from bb8.backend.module_api import (Message, EventPayload,
+from bb8.backend.module_api import (CacheImage, Message, EventPayload,
                                     GetgRPCService, GetUserId,
                                     SupportedPlatform, Resolve)
-from bb8 import config
 
 
 GRPC_TIMEOUT = 5
 MAX_KEYWORDS = 7
 DEFAULT_N_ITEMS = 7
-
-
-def cache_image(link):
-    return 'https://{0}:{1}/util/cache_image?url={2}'.format(
-        config.HOSTNAME, config.HTTP_PORT, link)
 
 
 def get_module_info():
@@ -67,9 +61,6 @@ class DramaInfo(object):
         self._stub = pb2_module.DramaInfoStub(channel)
         self._pb2_module = pb2_module
 
-    def get_default_image(self):
-        return 'http://i.imgur.com/xa9wSAU.png'
-
     def get_trending(self, user_id, country='kr', count=DEFAULT_N_ITEMS):
         return self._stub.Trending(
             self._pb2_module.TrendingRequest(
@@ -108,10 +99,8 @@ def render_dramas(dramas):
 
     m = Message()
     for d in dramas:
-        image_url = cache_image(d.image_url if d.image_url != ''
-                                else drama_info.get_default_image())
         b = Message.Bubble(d.name,
-                           image_url=image_url,
+                           image_url=CacheImage(d.image_url),
                            subtitle=d.description)
         b.add_button(Message.Button(
             Message.ButtonType.POSTBACK,
@@ -138,10 +127,8 @@ def render_episodes(episodes):
 
     m = Message()
     for ep in episodes:
-        image_url = cache_image(ep.image_url if ep.image_url else
-                                drama_info.get_default_image())
         b = Message.Bubble(ep.drama_name + u'第 %d 集' % ep.serial_number,
-                           image_url=image_url,
+                           image_url=CacheImage(ep.image_url),
                            subtitle=ep.description)
 
         b.add_button(Message.Button(

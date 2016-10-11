@@ -17,10 +17,11 @@ from concurrent import futures
 from sqlalchemy import desc
 
 import service_pb2  # pylint: disable=E0401
+
+from drama import config
 from drama.database import (DatabaseManager, DatabaseSession, Drama,
                             Episode, DramaCountryEnum, User)
 
-from drama import config
 
 _SECS_IN_A_DAY = 86400
 
@@ -31,7 +32,7 @@ def to_proto_drama(drama):
         link=drama.link,
         name=drama.name,
         description=drama.name,
-        image_url=drama.image,
+        image_url=drama.image or config.DEFAULT_DRAMA_IMAGE,
         country=drama.country.value,
     )
 
@@ -41,7 +42,7 @@ def to_proto_episode(episode):
         link=episode.link,
         drama_id=episode.drama.id,
         drama_name=episode.drama.name,
-        image_url=episode.drama.image,
+        image_url=episode.drama.image or config.DEFAULT_DRAMA_IMAGE,
         description=episode.drama.description,
         serial_number=episode.serial_number,
     )

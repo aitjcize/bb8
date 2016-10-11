@@ -55,3 +55,8 @@ class MessagingService(object):
                 messages_object=cPickle.dumps(serialized_message),
                 static=static),
             self._timeout)
+
+
+def CacheImage(link):
+    return 'https://{0}:{1}/util/cache_image?url={2}'.format(
+        config.HOSTNAME, config.HTTP_PORT, link)

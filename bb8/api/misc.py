@@ -35,10 +35,13 @@ def cache_image():
     url = request.args['url']
     host = urlparse.urlparse(url).netloc
 
-    if not url or host not in ALLOWED_HOSTS:
+    if not url:
         raise AppError(HTTPStatus.STATUS_BAD_REQUEST,
                        CustomError.ERR_WRONG_PARAM,
                        'invalid request argument')
+
+    if host not in ALLOWED_HOSTS:
+        return redirect(url)
 
     ext = url.split('.')[-1]
     if ext not in ['jpg', 'jpeg', 'png', 'gif']:

@@ -16,10 +16,14 @@ from scrapy.exceptions import DropItem
 from scrapy.spiders import CrawlSpider
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
 
-from bb8_client.app_api import EventPayload, Message, MessagingService
+from bb8_client.app_api import (CacheImage, EventPayload, Message,
+                                MessagingService)
 
+from drama import config
 from drama.database import Drama, Episode, DramaCountryEnum, DatabaseManager
 
+
+# Global MessagingService API endpoint
 message_service = MessagingService()
 
 
@@ -112,9 +116,11 @@ class DramaSpider(CrawlSpider):
                 drama.episodes.append(ep)
                 DatabaseManager.commit()
 
+                image_url = (CacheImage(drama.image) if drama.image else
+                             config.DEFAULT_DRAMA_IMAGE)
                 b = Message.Bubble((drama.name +
                                     u'第 %d 集' % ep.serial_number),
-                                   image_url=drama.image,
+                                   image_url=image_url,
                                    subtitle=drama.description,
                                    item_url=link)
 
@@ -128,6 +134,7 @@ class DramaSpider(CrawlSpider):
                                        'GET_HISTORY', {
                                            'drama_id': drama.id,
                                            'from_episode': serial_number,
+                                           'backward': True,
                                        })))
                 msg.add_bubble(b)
                 bubble_count += 1
