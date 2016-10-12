@@ -45,8 +45,7 @@ class FacebookMessagingUnittest(unittest.TestCase):
                             config=config).add()
         DatabaseManager.commit()
 
-        self.user = User(bot_id=self.bot.id,
-                         platform_id=platform.id,
+        self.user = User(platform_id=platform.id,
                          platform_user_ident='1153206858057166',
                          last_seen=datetime.datetime.now()).add()
 

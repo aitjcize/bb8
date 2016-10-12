@@ -23,10 +23,10 @@ from bb8.backend.messaging_provider import line
 from bb8.backend.metadata import UserInput
 
 
-def add_user(bot, platform, sender):
+def add_user(platform, sender):
     """Add a new user into the system."""
     profile_info = get_user_profile(platform, sender)
-    user = User(bot_id=bot.id, platform_id=platform.id,
+    user = User(platform_id=platform.id,
                 platform_user_ident=sender,
                 last_seen=datetime.datetime.now(),
                 **profile_info).add()
@@ -78,16 +78,16 @@ def facebook_receive():
                     # Ignore message sent by ourself
                     if msg.get('app_id', None):
                         continue
-                    user = User.get_by(bot_id=bot.id, platform_id=platform.id,
+                    user = User.get_by(platform_id=platform.id,
                                        platform_user_ident=recipient,
                                        single=True)
                     engine.process_admin_reply(bot, user, user_input)
                 else:
-                    user = User.get_by(bot_id=bot.id, platform_id=platform.id,
+                    user = User.get_by(platform_id=platform.id,
                                        platform_user_ident=sender,
                                        eager=['platform'], single=True)
                     if not user:
-                        user = add_user(bot, platform, sender)
+                        user = add_user(platform, sender)
 
                     if user_input:
                         engine.step(bot, user, user_input)
@@ -123,10 +123,10 @@ def line_receive(provider_ident):
 
             bot = platform.bot
 
-            user = User.get_by(bot_id=bot.id, platform_id=platform.id,
+            user = User.get_by(platform_id=platform.id,
                                platform_user_ident=sender, single=True)
             if not user:
-                user = add_user(bot, platform, sender)
+                user = add_user(platform, sender)
 
             user_input = UserInput.FromLineMessage(entry)
             if user_input:

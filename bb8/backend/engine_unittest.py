@@ -35,8 +35,7 @@ class EngineUnittest(unittest.TestCase):
     def setup_prerequisite(self, bot_file):
         InputTransformation.clear()
         self.bot = reset_and_setup_bots([bot_file])[0]
-        self.user = User(bot_id=self.bot.id,
-                         platform_id=Platform.get_by(id=1, single=True).id,
+        self.user = User(platform_id=Platform.get_by(id=1, single=True).id,
                          platform_user_ident='blablabla',
                          last_seen=datetime.datetime.now()).add()
 

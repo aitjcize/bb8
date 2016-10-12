@@ -180,7 +180,6 @@ class User(DeclarativeBase, ModelMixin, JSONSerializableMixin):
                        'timezone']
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    bot_id = Column(ForeignKey('bot.id'), nullable=False)
     platform_id = Column(ForeignKey('platform.id'), nullable=False)
     platform_user_ident = Column(String(128), nullable=False)
     last_seen = Column(DateTime, nullable=False)

@@ -15,8 +15,6 @@ import uuid
 import jwt
 import pytz
 
-from sqlalchemy.exc import IntegrityError
-
 from bb8 import app, config
 from bb8.error import AppError
 from bb8.backend.bot_parser import get_bot_filename, parse_bot
@@ -39,7 +37,7 @@ class UserUnittest(unittest.TestCase):
 
     def test_session_mutable_tracking(self):
         bot = reset_and_setup_bots(['test/simple.bot'])[0]
-        user = User(bot_id=bot.id, platform_id=bot.platforms[0].id,
+        user = User(platform_id=bot.platforms[0].id,
                     platform_user_ident='',
                     last_seen=datetime.datetime.now(), session=1).add()
         DatabaseManager.commit()
@@ -57,6 +55,7 @@ class UserUnittest(unittest.TestCase):
 class SchemaUnittest(unittest.TestCase):
     def setUp(self):
         DatabaseManager.connect()
+        DatabaseManager.reset()
 
     def tearDown(self):
         DatabaseManager.disconnect()
@@ -156,7 +155,7 @@ class SchemaUnittest(unittest.TestCase):
         # Test bot_node association table
         self.assertEquals(bot.orphan_nodes[0].id, node3.id)
 
-        user = User(bot_id=bot.id, platform_id=platform.id,
+        user = User(platform_id=platform.id,
                     platform_user_ident='',
                     last_seen=datetime.datetime.now()).add()
         DatabaseManager.commit()
@@ -262,14 +261,9 @@ class SchemaUnittest(unittest.TestCase):
 
         self.assertNotEquals(bot1.nodes, [])
 
-        user = User(bot_id=bot1.id,
-                    platform_id=bot1.platforms[0].id,
+        user = User(platform_id=bot1.platforms[0].id,
                     platform_user_ident='blablabla',
                     last_seen=datetime.datetime.now()).add()
-
-        # Delete should fail because of foreign key constraint
-        with self.assertRaises(IntegrityError):
-            bot1.delete()
 
         user.delete()
         DatabaseManager.commit()

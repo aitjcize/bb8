@@ -129,7 +129,7 @@ class Engine(object):
             # Shared global variables
             global_variables = {
                 'statistic': {
-                    'user_count': User.count_by(bot_id=bot.id)
+                    'user_count': User.count_by(platform_id=user.platform.id)
                 },
                 'user': user.to_json()
             }
