@@ -23,7 +23,7 @@ def email_register():
             'username': form.data['username'],
             'email': form.data['email'],
         }
-        account = Account.get_by(single=True, **user_info)
+        account = Account.get_by(email=form.data['email'], single=True)
         if not account:
             account = Account(**user_info) \
                         .set_passwd(form.data['passwd']) \

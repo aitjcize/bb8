@@ -12,7 +12,7 @@ import unittest
 
 from bb8 import app
 # Register request handlers, pylint: disable=W0611
-from bb8.api import account
+from bb8.api import accounts
 from bb8.constant import HTTPStatus, CustomError
 from bb8.backend.database import DatabaseManager, Account
 
