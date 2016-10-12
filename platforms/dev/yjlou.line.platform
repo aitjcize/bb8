@@ -1,4 +1,5 @@
 {
+  "name": "yjlou LINE dev",
   "type_enum": "Line",
   "deployed": false,
   "provider_ident": "twrealprice.dev",

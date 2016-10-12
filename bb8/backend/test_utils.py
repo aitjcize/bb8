@@ -14,7 +14,8 @@ import subprocess
 import pytz
 
 from bb8.backend.bot_parser import get_bot_filename, parse_bot_from_file
-from bb8.backend.platform_parser import get_platform_filename, parse_platform
+from bb8.backend.platform_parser import (get_platform_filename,
+                                         parse_platform_from_file)
 from bb8.backend.database import (DatabaseManager, Bot, User, Platform,
                                   PlatformTypeEnum)
 from bb8.backend.module_registration import register_all_modules
@@ -29,7 +30,7 @@ def reset_and_setup_bots(bot_names):
     bots = []
     DatabaseManager.reset()
     register_all_modules()
-    parse_platform(get_platform_filename('dev/bb8.test.platform'))
+    parse_platform_from_file(get_platform_filename('dev/bb8.test.platform'))
     for bot_name in bot_names:
         bots.append(parse_bot_from_file(get_bot_filename(bot_name)))
     return bots
@@ -60,7 +61,8 @@ class BaseTestMixin(object):
                             'HF6qra20ZC6HqNXwGpaP74knlNvQJqUmwZDZD'
         }
 
-        self.platform = Platform(bot_id=self.bot.id,
+        self.platform = Platform(name=u'Test platform',
+                                 bot_id=self.bot.id,
                                  type_enum=PlatformTypeEnum.Facebook,
                                  provider_ident='1155924351125985',
                                  config=config).add()

@@ -1,4 +1,5 @@
 {
+  "name": "AppleBot",
   "type_enum": "Facebook",
   "deployed": false,
   "provider_ident": "1854018554820901",

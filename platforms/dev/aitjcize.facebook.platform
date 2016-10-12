@@ -1,4 +1,5 @@
 {
+  "name": "Catbot",
   "type_enum": "Facebook",
   "deployed": false,
   "provider_ident": "1155924351125985",

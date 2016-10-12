@@ -120,7 +120,9 @@ class SchemaUnittest(unittest.TestCase):
         self.assertEquals(len(account.bots), 1)
         self.assertEquals(account.bots[0].id, bot.id)
 
-        platform = Platform(bot_id=bot.id, type_enum=PlatformTypeEnum.Facebook,
+        platform = Platform(name=u'Test platform',
+                            bot_id=bot.id,
+                            type_enum=PlatformTypeEnum.Facebook,
                             provider_ident='facebook_page_id',
                             config={}).add()
         DatabaseManager.commit()

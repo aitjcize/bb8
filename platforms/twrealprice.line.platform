@@ -1,4 +1,5 @@
 {
+  "name": "全台實價登錄網站",
   "type_enum": "Line",
   "deployed": true,
   "provider_ident": "twrealprice",

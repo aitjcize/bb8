@@ -1,4 +1,5 @@
 {
+  "name": "aitjcize LINE dev",
   "type_enum": "Line",
   "deployed": false,
   "provider_ident": "aitjcize.line",

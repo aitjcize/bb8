@@ -39,7 +39,8 @@ class FacebookMessagingUnittest(unittest.TestCase):
                             '7aAlcNEHQ3AZBIx0ZBfFLh95TlJWlLrYetzm9owKNR8Qju8'
                             'HF6qra20ZC6HqNXwGpaP74knlNvQJqUmwZDZD'
         }
-        platform = Platform(bot_id=self.bot.id,
+        platform = Platform(name=u'Test Platform',
+                            bot_id=self.bot.id,
                             type_enum=PlatformTypeEnum.Facebook,
                             provider_ident='1155924351125985',
                             config=config).add()

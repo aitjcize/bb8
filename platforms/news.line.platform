@@ -1,4 +1,5 @@
 {
+  "name": "新聞小幫手",
   "type_enum": "Line",
   "deployed": true,
   "provider_ident": "news.composeai",

@@ -73,8 +73,9 @@ class Account(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     passwd = Column(String(256), nullable=False)
 
     bots = relationship('Bot')
+    platforms = relationship('Platform')
     feeds = relationship('Feed', lazy='dynamic')
-    oauth_infos = relationship('OAuthInfo', back_populates="account")
+    oauth_infos = relationship('OAuthInfo', back_populates='account')
 
     def set_passwd(self, passwd):
         self.passwd = bcrypt.encrypt(passwd)
@@ -132,7 +133,9 @@ class PlatformTypeEnum(enum.Enum):
 class Bot(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     __tablename__ = 'bot'
 
-    __json_public__ = ['id', 'name', 'description', 'staging']
+    __json_public__ = ['id', 'name', 'description', 'interaction_timeout',
+                       'admin_interaction_timeout', 'session_timeout',
+                       'ga_id', 'settings']
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     account_id = Column(Integer, ForeignKey('account.id'), nullable=True)
@@ -250,11 +253,13 @@ class Platform(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     __tablename__ = 'platform'
     __table_args__ = (UniqueConstraint('provider_ident'),)
 
-    __json_public__ = ['id', 'bot_id', 'provider_ident']
+    __json_public__ = ['id', 'bot_id', 'name', 'type_enum', 'provider_ident']
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    account_id = Column(Integer, ForeignKey('account.id'), nullable=True)
     bot_id = Column(ForeignKey('bot.id'), nullable=True)
-    deployed = Column(Boolean, nullable=False, default=False)
+    name = Column(Unicode(128), nullable=False)
+    deployed = Column(Boolean, nullable=False, default=True)
     type_enum = Column(Enum(PlatformTypeEnum), nullable=False)
     provider_ident = Column(String(128), nullable=False)
     config = Column(PickleType, nullable=False)
@@ -265,6 +270,37 @@ class Platform(DeclarativeBase, ModelMixin, JSONSerializableMixin):
         for user in User.get_by(platform_id=self.id):
             user.delete()
         super(Platform, self).delete()
+
+    @classmethod
+    def schema(cls):
+        return {
+            'type': 'object',
+            'required': [
+                'name',
+                'deployed',
+                'type_enum',
+                'provider_ident',
+                'config'
+            ],
+            'properties': {
+                'bot_id': {
+                    'type': ['null', 'integer'],
+                },
+                'name': {
+                    'type': 'string',
+                    'maxLength': 128
+                },
+                'deployed': {'type': 'boolean'},
+                'type_enum': {
+                    'enum': ['Facebook', 'Line']
+                },
+                'provider_ident': {
+                    'type': 'string',
+                    'maxLength': 128
+                },
+                'config': {'type': 'object'}
+            }
+        }
 
 
 class SupportedPlatform(enum.Enum):
