@@ -1,6 +1,9 @@
 ## Customize the test machine
 machine:
 
+  pre:
+    - nvm install v6.7.0 && nvm use v6.7.0 && nvm alias default v6.7.0
+
   timezone:
     Asia/Taipei
 
@@ -13,10 +16,12 @@ machine:
 
 dependencies:
   pre:
+    - cd bb8/frontend && npm install
     - cat $(find -name requirements.txt) | sort | uniq | pip install -r /dev/stdin
 
 ## Customize test commands
 test:
   override:
+    - cd bb8/frontend && npm run lint:css && npm run test && npm run build
     - source bin/env.sh && make lint
     - source bin/env.sh && make coverage && mv htmlcov/* $CIRCLE_ARTIFACTS/
