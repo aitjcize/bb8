@@ -72,21 +72,19 @@ def schema():
 
 
 class GoogleMapsGeocodingAPI(object):
-    API_ENDPOINT = 'https://maps.googleapis.com/maps/api/geocode/json'
+    API_ENDPOINT = 'https://maps.googleapis.com/maps/api/place/textsearch/json'
 
     def __init__(self, api_key):
         self._api_key = api_key
 
     def build_address(self, item):
-        address = ''
-        for comp in reversed(item['address_components']):
-            if ('postal_code' in comp['types'] or
-                    'country' in comp['types'] or
-                    'administrative_area_level_4' in comp['types']):
-                continue
-            address += comp['long_name']
+        name = item.get('name', '')
+        address = item.get('formatted_address', '')
 
-        return address
+        if name in address:
+            return address
+        else:
+            return ' '.join([name, address])
 
     def query_top_n(self, n, address, language, region, bounds, center=None):
         """Query top *n* possible location that matches *address*."""
@@ -101,7 +99,7 @@ class GoogleMapsGeocodingAPI(object):
 
         params = {
             'key': self._api_key,
-            'address': address,
+            'query': address,
             'language': language,
             'region': region,
             'bounds': '%f,%f|%f,%f' % (max_bounds[0] + max_bounds[1])
