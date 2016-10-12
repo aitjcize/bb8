@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-    unit testing for account api
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Unittest for Content API
+    ~~~~~~~~~~~~~~~~~~~~~~~~
 
     Copyright 2016 bb8 Authors
 """
@@ -12,7 +12,7 @@ import unittest
 
 from bb8 import app
 # Register request handlers, pylint: disable=W0611
-from bb8.api import accounts, content
+from bb8.api import accounts, contents
 from bb8.constant import HTTPStatus, CustomError
 from bb8.backend.database import DatabaseManager, Account, Feed, FeedEnum
 

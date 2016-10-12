@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    handlers for content
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Content API Endpoint
+    ~~~~~~~~~~~~~~~~~~~~
 
     Copyright 2016 bb8 Authors
 """
