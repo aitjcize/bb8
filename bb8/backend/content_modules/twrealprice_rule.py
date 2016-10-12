@@ -71,6 +71,7 @@ class Rule(object):
             self.CountScore = count_score
 
         self.weight = weight
+        self.for_sort_only = False
 
     def ParseQuery(self, query):
         """Parse user's query and return whether matched or not.
@@ -191,6 +192,7 @@ class Days(Rule):
           weight: weight for this score.
         """
         super(Days, self).__init__(weight=weight)
+        self.for_sort_only = True
         self.tran_key = tran_key
         self.today = datetime.date.today()
 
@@ -222,6 +224,7 @@ class Location(Rule):
           weight: weight for this score.
         """
         super(Location, self).__init__(weight=weight)
+        self.for_sort_only = True
         self.tran_key = tran_key
         self.latlng = latlng
 
@@ -306,7 +309,7 @@ class Rules(object):
     @property
     def filters(self):
         """Returns the list of human-readable filter used for count score"""
-        return ['%s' % m for m in self.matched]
+        return ['%s' % m for m in self.matched if not m.for_sort_only]
 
     @classmethod
     def Canonize(cls, query):

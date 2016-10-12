@@ -1,0 +1,9 @@
+{
+  "type_enum": "Line",
+  "deployed": false,
+  "provider_ident": "twrealprice.dev",
+  "config": {
+    "access_token": "VVeRAjsu0SuG7P/vKe1ACPtNSXFedsOZEyPo0DM/56okG7JePXDQKH18VKMVOAQAHLdxRgdQJT6oqdBJdWsLyo3vcKrOMOBWRR7GV5o0BMbrAd5y0gwJ+GEe0oWcCSlc3FyxU1gO0IOg8TrhQHLXGQdB04t89/1O/w1cDnyilFU=",
+    "channel_secret": "edeba8235af37f80ca302ad89c65c00a"
+  }
+}

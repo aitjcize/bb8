@@ -256,12 +256,13 @@ def run(content_config, env, variables):
     msgs = []
 
     # output limit and map size
+    size = (500, 260)
     if env['platform_type'] == SupportedPlatform.Line:
         max_count = 2
-        size = (1000, 1000)
+        max_text_len = 60
     else:
         max_count = content_config.get('max_count', 10)
-        size = (500, 260)
+        max_text_len = Message.MAX_TEXT_LEN
 
     # Check if the user requests more data. Maintain the pointers.
     more_data = Memory.Get('more_data', None)
@@ -271,6 +272,10 @@ def run(content_config, env, variables):
     Memory.Set('next_data_index', max_count)  # could be updated soon below
     if more_data == '1' and cached_transaction:
         # Yes, user clicks 'more data', dump data from cache.
+
+        if env['platform_type'] == SupportedPlatform.Line:
+            max_count = 4
+
         trans = cached_transaction[next_data_index:next_data_index + max_count]
         Memory.Set('next_data_index', next_data_index + max_count)
 
@@ -278,7 +283,7 @@ def run(content_config, env, variables):
             return [Message('沒有更多物件了，請重新輸入地址或條件。')]
 
     else:
-        # No. USer enters an address or a query.
+        # No. User enters an address or a query.
         location = Resolve(content_config['location'], variables)
         if 'coordinates' not in location:
             location = Memory.Get('location')
@@ -353,7 +358,7 @@ def run(content_config, env, variables):
                     s['移轉層次'].replace('層', '樓'),
                     s['總樓層數'].replace('層', '樓')),
                 StreetOnly(s),
-            ]).decode('utf-8')[:Message.MAX_TEXT_LEN]
+            ]).decode('utf-8')[:max_text_len]
 
             subtitle = ' '.join([
                 RocSlash(s['交易年月日']) + '成交',
@@ -370,7 +375,7 @@ def run(content_config, env, variables):
                 s['車位類別'],
                 s['主要用途'],
                 '備註: ' + s['備註'] if s['備註'] else '',
-            ]).decode('utf-8')[:Message.MAX_TEXT_LEN]
+            ]).decode('utf-8')[:max_text_len]
 
             msg = Message()
             msg.add_bubble(Message.Bubble(title, subtitle=subtitle))

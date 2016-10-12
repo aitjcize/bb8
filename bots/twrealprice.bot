@@ -1,6 +1,7 @@
 {
   "platforms": {
-    "Facebook": "233392910121400"
+    "Facebook": "233392910121400",
+    "Line": "twrealprice"
   },
   "bot": {
     "name": "TwRealPrice",
@@ -266,7 +267,7 @@
           "id": "ai.compose.content.third_party.twrealprice",
           "config": {
             "api_key": "AIzaSyCpP0pV9_YtQuV-Gzf6aL9nRt1Es5UlBv4",
-            "max_count": 7,
+            "max_count": 5,
             "location": "{{location}}",
             "distance_threshold": 0.050
           }
@@ -370,7 +371,7 @@
                   }
                 },
                 "end_node_id": "GetTransaction",
-                "ack_message": "好的，為您送上更多物件"
+                "ack_message": ""
               },
               {
                 "rule": {
@@ -382,7 +383,7 @@
                   }
                 },
                 "end_node_id": "GetTransaction",
-                "ack_message": "好的，為您重設條件"
+                "ack_message": ""
               },
               {
                 "rule": {
@@ -426,7 +427,7 @@
                   }
                 },
                 "end_node_id": "GetTransaction",
-                "ack_message": "收到你輸入的條件：{{matches#0}}"
+                "ack_message": ""
               }
             ],
             "on_error": {
