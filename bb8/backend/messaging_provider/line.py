@@ -13,6 +13,7 @@ from flask import g
 
 LINE_PROFILE_API_URL = 'https://api.line.me/v2/bot/profile/%s'
 LINE_MESSAGE_REPLY_API_URL = 'https://api.line.me/v2/bot/message/reply'
+LINE_MESSAGE_PUSH_API_URL = 'https://api.line.me/v2/bot/message/push'
 
 
 def get_config_schema():
@@ -82,6 +83,27 @@ def flush_message(platform):
             'replyToken': g.line_reply_token,
             # pylint: disable=E1101
             'messages': [m.as_line_message() for m in g.line_messages]
+        }
+    )
+
+    if response.status_code != 200:
+        text = response.text.replace(u'\xa0', '\n')
+        raise RuntimeError('HTTP %d: %s' % (response.status_code, text))
+
+
+def push_message(user, messages):
+    """Push message to user proactively."""
+    headers = {
+        'Authorization': 'Bearer %s' % user.platform.config['access_token']
+    }
+
+    response = requests.request(
+        'POST',
+        LINE_MESSAGE_PUSH_API_URL,
+        headers=headers,
+        json={
+            'to': user.platform_user_ident,
+            'messages': [m.as_line_message() for m in messages]
         }
     )
 

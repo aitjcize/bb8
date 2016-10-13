@@ -71,6 +71,7 @@ class Account(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     email = Column(String(256), nullable=False)
     email_verified = Column(Boolean, nullable=False, default=False)
     passwd = Column(String(256), nullable=False)
+    timezone = Column(String(32), nullable=False, default='UTC')
 
     bots = relationship('Bot')
     platforms = relationship('Platform')
@@ -264,6 +265,7 @@ class Platform(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     provider_ident = Column(String(128), nullable=False)
     config = Column(PickleType, nullable=False)
 
+    account = relationship('Account')
     bot = relationship('Bot')
 
     def delete(self):
@@ -389,7 +391,8 @@ class Broadcast(DeclarativeBase, ModelMixin):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     message = Column(PickleType, nullable=False)
-    scheduled_time = Column(DateTime, nullable=False)
+    scheduled_time = Column(DateTime, nullable=True)
+    sent = Column(Boolean, nullable=False, default=False)
 
 
 class BotDef(DeclarativeBase, ModelMixin, JSONSerializableMixin):

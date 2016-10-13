@@ -31,16 +31,18 @@ class MessagingService(object):
     def Ping(self):
         self._stub.Ping(app_service_pb2.Empty(), self._timeout)
 
-    def Send(self, user_ids, msgs):
+    def Push(self, user_ids, msgs, eta=None, user_localtime=False):
         try:
             serialized_message = [m.as_dict() for m in msgs]
         except Exception as e:
             raise RuntimeError('Failed to serialize message: %s' % e)
 
-        self._stub.Send(
-            app_service_pb2.SendRequest(
+        self._stub.Push(
+            app_service_pb2.PushRequest(
                 user_ids=user_ids,
-                messages_object=cPickle.dumps(serialized_message)),
+                messages_object=cPickle.dumps(serialized_message),
+                eta=eta,
+                user_localtime=user_localtime),
             self._timeout)
 
     def Broadcast(self, bot_id, msgs, static=True):

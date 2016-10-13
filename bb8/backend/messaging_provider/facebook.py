@@ -180,7 +180,7 @@ def get_user_profile(platform, user_ident):
 
 
 def send_message(user, messages):
-    """Send message to the platform."""
+    """Send message to the user."""
     for message in messages:
         response = requests.request(
             'POST',
@@ -196,3 +196,8 @@ def send_message(user, messages):
         if response.status_code != 200:
             raise RuntimeError('HTTP %d: %s' % (response.status_code,
                                                 response.text))
+
+
+def push_message(user, messages):
+    """Push message to user proactively."""
+    return send_message(user, messages)

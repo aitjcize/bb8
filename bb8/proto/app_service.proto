@@ -4,20 +4,23 @@ package bb8.core;
 
 service MessagingService {
   rpc Ping (Empty) returns (Empty) {}
-  rpc Send (SendRequest) returns (Empty) {}
+  rpc Push (PushRequest) returns (Empty) {}
   rpc Broadcast (BroadcastRequest) returns (Empty) {}
 }
 
 message Empty {
 }
 
-message SendRequest {
+message PushRequest {
   repeated uint32 user_ids = 1;
   bytes messages_object = 2;
+  int32 eta = 3;
+  bool user_localtime = 4;
 }
 
 message BroadcastRequest {
   uint32 bot_id = 1;
   bytes messages_object = 2;
   bool static = 3;
+  int32 eta = 4;
 }

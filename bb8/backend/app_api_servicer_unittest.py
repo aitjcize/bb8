@@ -48,12 +48,12 @@ class MessagingServicerUnittest(unittest.TestCase, BaseTestMixin):
     def test_Ping(self):
         self._service.Ping()
 
-    def test_Send(self):
-        ms = [Message('AppAPI: Send: Test message')]
-        self._service.Send([self.user_1.id], ms)
+    def test_Push(self):
+        ms = [Message('AppAPI: Push: Test message')]
+        self._service.Push([self.user_1.id], ms)
 
         with self.assertRaises(RuntimeError):
-            self._service.Send([self.user_1.id], ['bad message'])
+            self._service.Push([self.user_1.id], ['bad message'])
 
         # Wait for celery to process task
         time.sleep(5)

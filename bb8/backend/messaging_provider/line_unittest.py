@@ -13,6 +13,8 @@ import datetime
 from bb8 import app
 from bb8.backend.database import DatabaseManager
 from bb8.backend.database import Bot, Platform, PlatformTypeEnum, User
+from bb8.backend.messaging import Message
+from bb8.backend.messaging_provider import line
 
 
 class LineMessagingUnittest(unittest.TestCase):
@@ -33,40 +35,36 @@ class LineMessagingUnittest(unittest.TestCase):
         DatabaseManager.commit()
 
         config = {
-            'channel_id': '1468633788',
-            'channel_secret': '70a5bfd80b2cf26e387b83aa836fc884',
-            'mid': 'u5526efbbc9c7ad1b3375c5102c276e68'
+            "access_token": "iHRMgmp3zRLOc6kPCbPNMwEDHyFqLGSy0tyG3uZxnkNlhMKg"
+                            "8GVFqMGslcOkmgOAFLlBvvYuXmKF9odhXtsCm3tBxRcPryKr"
+                            "kOvzHBcBvS2zrVGiVmZGh5EBcqazgurYMwVSdgNSrhCm/qp6"
+                            "2aR7HAdB04t89/1O/w1cDnyilFU=",
+            "channel_secret": "335c901df3a1969ca28a48bf6ddcc333"
         }
         platform = Platform(bot_id=self.bot.id,
+                            name=u'Line',
                             type_enum=PlatformTypeEnum.Line,
-                            provider_ident='u5526efbbc9c7ad1b3375c5102c276e68',
+                            provider_ident='aitjcize.line',
                             config=config).add()
         DatabaseManager.commit()
 
         self.user = User(
-            bot_id=self.bot.id,
             platform_id=platform.id,
-            platform_user_ident='ua5afdc200e1fd44a748f6896376b9076',
+            platform_user_ident='U7200f33369e7e586c973c3a9df8feee4',
             last_seen=datetime.datetime.now()).add()
 
         DatabaseManager.commit()
 
     def test_send_message(self):
-        """Test line message sending.
-
-        Disable theses tests for now, as we don't support LINE message pushing
-        yet.
-
-        from bb8.backend.messaging import Message
-        from bb8.backend.messaging_provider import line
+        """Test line message sending."""
 
         # Test simple text message
         m = Message('test')
-        line.send_message(self.user, [m])
+        line.push_message(self.user, [m])
 
         # Test image message
         m = Message(image_url='http://i.imgur.com/4loi6PJ.jpg')
-        line.send_message(self.user, [m])
+        line.push_message(self.user, [m])
 
         # Test button template message
         m = Message(buttons_text='Button template test')
@@ -74,7 +72,7 @@ class LineMessagingUnittest(unittest.TestCase):
                                     'Google', url='http://www.google.com/'))
         m.add_button(Message.Button(Message.ButtonType.WEB_URL,
                                     '17', url='http://www.17.media/'))
-        line.send_message(self.user, [m])
+        line.push_message(self.user, [m])
 
         # Test generic template message
         m = Message()
@@ -95,9 +93,7 @@ class LineMessagingUnittest(unittest.TestCase):
         m.add_bubble(bubble)
         m.add_bubble(bubble)
 
-        line.send_message(self.user, [m])
-        """
-        pass
+        line.push_message(self.user, [m])
 
 
 if __name__ == '__main__':

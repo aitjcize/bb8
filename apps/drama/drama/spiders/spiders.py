@@ -145,7 +145,7 @@ class DramaSpider(CrawlSpider):
         # TODO(kevin): figure out a way to group
         # the notification of the same drama
         if bubble_count > 0:
-            message_service.Send(
+            message_service.Push(
                 [u.id for u in drama.users],
                 [Message(u'您訂閱的戲劇%s'
                          u'有新的一集囉！快來看！' % drama.name), msg])
