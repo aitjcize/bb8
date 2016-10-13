@@ -19,6 +19,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 
 import colorlog
 import jsonschema
@@ -32,6 +33,8 @@ BB8_DATA_ROOT = '/var/lib/bb8'
 BB8_NETWORK = 'bb8_network'
 BB8_CLIENT_PACKAGE_NAME = 'bb8-client-9999.tar.gz'
 BB8_CREDENTIALS_DIR = '/etc/bb8/'
+BB8_CELERY_PID_FILE = '/var/lib/bb8/celery.pid'
+BB8_CELERY_SHUTDOWN_WAIT_SECS = 10
 
 
 logger = logging.getLogger('bb8ctl')
@@ -419,8 +422,13 @@ class BB8(object):
     def stop(self):
         instance = docker_get_instance(self.BB8_CONTAINER_NAME)
         if instance:
+            logging.info('Waiting for celery workers to stop...')
+            self.shell('kill -TERM $(cat %s)' % BB8_CELERY_PID_FILE)
+            time.sleep(BB8_CELERY_SHUTDOWN_WAIT_SECS)
             run('docker rm -f %s' % instance, True)
 
+    def stop_all(self):
+        self.stop()
         for app_dir in self._app_dirs:
             app = App(app_dir)
             app.stop()
@@ -465,9 +473,7 @@ class BB8(object):
 
         run('docker build -t %s %s' % (self.BB8_IMAGE_NAME, BB8_SRC_ROOT))
 
-        if instance:
-            run('docker rm -f %s' % instance, True)
-
+        self.stop()
         run('docker run'
             ' --name={0} '.format(new_container_name) +
             ' --net={0}'.format(BB8_NETWORK) +
@@ -573,7 +579,7 @@ def main():
         if app:
             app.stop()
         else:
-            bb8.stop()
+            bb8.stop_all()
     elif args.which == 'logs':
         if app:
             app.logs()
