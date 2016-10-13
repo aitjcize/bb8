@@ -11,6 +11,7 @@ import requests
 from flask import g
 
 
+LINE_PROFILE_API_URL = 'https://api.line.me/v2/bot/profile/%s'
 LINE_MESSAGE_REPLY_API_URL = 'https://api.line.me/v2/bot/message/reply'
 
 
@@ -36,10 +37,24 @@ def apply_settings(unused_config, unused_settings):
     pass
 
 
-def get_user_profile(unused_platform, unused_user_ident):
+def get_user_profile(platform, user_ident):
     """Get user profile information."""
+    headers = {
+        'Authorization': 'Bearer %s' % platform.config['access_token']
+    }
+
+    response = requests.request(
+        'GET',
+        LINE_PROFILE_API_URL % user_ident,
+        headers=headers)
+
+    if response.status_code != 200:
+        raise RuntimeError('HTTP %d: %s' % (response.status_code,
+                                            response.text))
+
+    api_ret = response.json()
     ret = {
-        'first_name': u'你好',
+        'first_name': api_ret['displayName'],
         'last_name': u'',
         'locale': 'zh_TW',
         'timezone': 8,
