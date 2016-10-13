@@ -24,4 +24,5 @@ test:
   override:
     - cd bb8/frontend && npm run lint:css && npm run test && npm run build
     - source bin/env.sh && make lint
-    - source bin/env.sh && make coverage && mv htmlcov/* $CIRCLE_ARTIFACTS/
+    - source bin/env.sh && make coverage && mv htmlcov/* $CIRCLE_ARTIFACTS/:
+        timeout: 1200
