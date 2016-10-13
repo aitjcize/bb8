@@ -75,6 +75,7 @@ class Account(DeclarativeBase, ModelMixin, JSONSerializableMixin):
 
     bots = relationship('Bot')
     platforms = relationship('Platform')
+    broadcasts = relationship('Broadcast')
     feeds = relationship('Feed', lazy='dynamic')
     oauth_infos = relationship('OAuthInfo', back_populates='account')
 
@@ -386,13 +387,55 @@ class Event(DeclarativeBase, ModelMixin):
     event_value = Column(PickleType, nullable=False)
 
 
-class Broadcast(DeclarativeBase, ModelMixin):
+class BroadcastStatusEnum(enum.Enum):
+    QUEUED = 'Queued'
+    SENDING = 'Sending'
+    SENT = 'Sent'
+    CANCELED = 'Canceled'
+
+
+class Broadcast(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     __tablename__ = 'broadcast'
 
+    __json_public__ = ['id', 'bot_id', 'name', 'scheduled_time', 'status']
+
     id = Column(Integer, primary_key=True, autoincrement=True)
-    message = Column(PickleType, nullable=False)
+    account_id = Column(ForeignKey('account.id'), nullable=False)
+    bot_id = Column(ForeignKey('bot.id'), nullable=False)
+    name = Column(Unicode(64), nullable=False)
+    messages = Column(PickleType, nullable=False)
     scheduled_time = Column(DateTime, nullable=True)
-    sent = Column(Boolean, nullable=False, default=False)
+    status = Column(Enum(BroadcastStatusEnum), nullable=False,
+                    default=BroadcastStatusEnum.QUEUED)
+
+    account = relationship('Account')
+
+    @classmethod
+    def schema(cls):
+        return {
+            'type': 'object',
+            'required': [
+                'account_id',
+                'bot_id',
+                'name',
+                'messages',
+                'scheduled_time',
+            ],
+            'properties': {
+                'account_id': {'type': 'integer'},
+                'bot_id': {'type': 'integer'},
+                'name': {
+                    'type': 'string',
+                    'maxLength': 64
+                },
+                'messages': {
+                    'type': 'array',
+                    'item': {'type': 'object'}
+                },
+                'scheduled_time': {'type': 'integer'},
+                'status': {'enum': ['Canceled']}
+            }
+        }
 
 
 class BotDef(DeclarativeBase, ModelMixin, JSONSerializableMixin):

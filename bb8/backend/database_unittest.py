@@ -187,7 +187,8 @@ class SchemaUnittest(unittest.TestCase):
                                                  single=True), None)
 
         # Broadcast
-        bc = Broadcast(message={},
+        bc = Broadcast(account_id=account.id, bot_id=bot.id,
+                       name=u'New broadcast', messages=[],
                        scheduled_time=datetime.datetime.utcnow()).add()
 
         DatabaseManager.commit()
