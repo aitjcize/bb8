@@ -59,7 +59,10 @@ class DefaultUnittest(unittest.TestCase, BaseTestMixin):
             }, {
                 'rule': {
                     'type': 'location',
-                    'params': None
+                    'params': None,
+                    'collect_as': {'key': 'location'},
+                    'memory_set': {'key': 'location'},
+                    'settings_set': {'key': 'location'}
                 },
                 'end_node_id': 'Node3',
                 'ack_message': 'action4 activated'
@@ -70,7 +73,12 @@ class DefaultUnittest(unittest.TestCase, BaseTestMixin):
                 },
                 'end_node_id': 'Node4',
                 'ack_message': 'event activated'
-            }]
+            }],
+            'on_error': {
+                'end_node_id': 'Root',
+                'ack_message': 'on_error',
+                'collect_as': {'key': 'error'}
+            }
         }
         jsonschema.validate(config, default.schema())
 
@@ -78,6 +86,7 @@ class DefaultUnittest(unittest.TestCase, BaseTestMixin):
         result = default.run(config, UserInput.Text('action1-0'), False)
         self.assertEquals(result.end_node_id, 'Node1')
         self.assertEquals(result.ack_message, 'action1 activated')
+        self.assertEquals(result.errored, False)
         self.assertEquals(result.variables['text'], 'action1-0')
         self.assertEquals(result.variables['matches'], ['action1-0', '0'])
         self.assertEquals(result.collected_datum['action'], 'action1-0')
@@ -87,12 +96,14 @@ class DefaultUnittest(unittest.TestCase, BaseTestMixin):
         result = default.run(config, UserInput.Text('action2-1'), False)
         self.assertEquals(result.end_node_id, 'Node1')
         self.assertEquals(result.ack_message, 'action1 activated')
+        self.assertEquals(result.errored, False)
         self.assertEquals(result.variables['text'], 'action2-1')
         self.assertEquals(result.variables['matches'], ['action2-1'])
 
         result = default.run(config, UserInput.Text(u'中文'), False)
         self.assertEquals(result.end_node_id, 'Node2')
         self.assertEquals(result.ack_message, 'action2 activated')
+        self.assertEquals(result.errored, False)
         self.assertEquals(result.variables['text'], u'中文')
         self.assertEquals(result.variables['matches'], [u'中文', u'文'])
         self.assertEquals(result.collected_datum['group'], u'文')
@@ -102,14 +113,29 @@ class DefaultUnittest(unittest.TestCase, BaseTestMixin):
         result = default.run(config, UserInput.Text(u'action3'), False)
         self.assertEquals(result.end_node_id, None)
         self.assertEquals(result.ack_message, 'reply by parser')
+        self.assertEquals(result.errored, False)
         self.assertEquals(result.variables['text'], u'action3')
 
-        result = default.run(config, UserInput.Location((25, 121)), False)
+        loc = UserInput.Location((25, 121))
+        result = default.run(config, loc, False)
         self.assertEquals(result.end_node_id, 'Node3')
+        self.assertEquals(result.errored, False)
+        self.assertEquals(result.collected_datum['location'], loc.location)
+        self.assertEquals(self.user_1.memory['location'], loc.location)
+        self.assertEquals(self.user_1.settings['location'], loc.location)
 
         result = default.run(
             config, UserInput.Event('TEST_EVENT', 'event value'), False)
         self.assertEquals(result.end_node_id, 'Node4')
+
+        result = default.run(config, UserInput.Text('XXXXXX'), False)
+        self.assertEquals(result.end_node_id, 'Root')
+        self.assertEquals(result.ack_message, 'on_error')
+        self.assertEquals(result.errored, True)
+        self.assertEquals(result.collected_datum['error'], 'XXXXXX')
+
+        result = default.run(config, UserInput.Text('XXXXXX'), True)
+        self.assertEquals(result.errored, True)
 
 
 if __name__ == '__main__':

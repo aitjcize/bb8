@@ -169,9 +169,6 @@ def run(parser_config, user_input, as_root):
     collect = {}
 
     for link in parser_config['links']:
-        if 'rule' not in link:
-            continue
-
         r_type = link['rule']['type']
 
         def ret(link, variables, collect):
