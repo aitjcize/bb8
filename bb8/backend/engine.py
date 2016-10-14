@@ -81,6 +81,8 @@ class Engine(object):
                 user_input = user_input.RunInputTransformation()
 
             if user.session is None:
+                if user_input:
+                    user_input.disable_jump()
                 user.goto(Bot.START_STABLE_ID)
 
             # If there was admin interaction, and admin_interaction_timeout
