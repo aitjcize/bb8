@@ -27,7 +27,7 @@ class DeployConfig(Config):
 
 
 def ConfigureLogger():
-    logger_ = logging.getLogger('news')
+    logger_ = logging.getLogger('drama')
     logger_.setLevel(logging.DEBUG)
 
     ch = logging.StreamHandler()
