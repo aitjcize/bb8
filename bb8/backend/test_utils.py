@@ -44,7 +44,7 @@ def stop_celery_worker():
     subprocess.call('pkill -9 -f celery', shell=True)
 
 
-class BaseMessagingMixin(object):
+class BaseTestMixin(object):
     """A mixin for setting up prerequisite for messaging related unittests."""
     def setup_prerequisite(self):
         DatabaseManager.reset()

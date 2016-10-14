@@ -14,12 +14,12 @@ import unittest
 from bb8.backend.app_api_servicer import start_server
 from bb8.backend.database import DatabaseManager
 from bb8.backend.message import Message
-from bb8.backend.test_utils import (BaseMessagingMixin, start_celery_worker,
+from bb8.backend.test_utils import (BaseTestMixin, start_celery_worker,
                                     stop_celery_worker)
 from bb8_client.app_api import MessagingService
 
 
-class MessagingServicerUnittest(unittest.TestCase, BaseMessagingMixin):
+class MessagingServicerUnittest(unittest.TestCase, BaseTestMixin):
     def setUp(self):
         self._process = None
         self._service = MessagingService()

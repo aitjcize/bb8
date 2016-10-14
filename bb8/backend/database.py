@@ -201,11 +201,11 @@ class User(DeclarativeBase, ModelMixin, JSONSerializableMixin):
                       default={'subscribe': False})
 
     platform = relationship('Platform')
-    colleted_data = relationship('ColletedDatum')
+    colleted_data = relationship('CollectedDatum')
 
     def delete(self):
         Conversation.delete_by(user_id=self.id)
-        ColletedDatum.delete_by(user_id=self.id)
+        CollectedDatum.delete_by(user_id=self.id)
         super(User, self).delete()
 
     def goto(self, stable_id):
@@ -304,7 +304,7 @@ class ParserModule(DeclarativeBase, ModelMixin):
             '%s.%s' % (self.PARSER_MODULES, name))
 
 
-class ColletedDatum(DeclarativeBase, ModelMixin):
+class CollectedDatum(DeclarativeBase, ModelMixin):
     __tablename__ = 'collected_data'
 
     id = Column(Integer, primary_key=True, autoincrement=True)

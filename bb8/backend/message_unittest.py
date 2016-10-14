@@ -15,10 +15,10 @@ import jsonschema
 from flask import g
 
 from bb8 import app
-from bb8.backend.database import ColletedDatum, DatabaseManager
+from bb8.backend.database import CollectedDatum, DatabaseManager
 from bb8.backend.message import (Message, TextPayload, LocationPayload,
                                  IsVariable, Resolve, Render)
-from bb8.backend.test_utils import BaseMessagingMixin
+from bb8.backend.test_utils import BaseTestMixin
 
 
 class MockNode(object):
@@ -27,7 +27,7 @@ class MockNode(object):
         self.stable_id = str(_id)
 
 
-class MessageUnittest(unittest.TestCase, BaseMessagingMixin):
+class MessageUnittest(unittest.TestCase, BaseTestMixin):
     def setUp(self):
         DatabaseManager.connect()
         self.setup_prerequisite()
@@ -235,15 +235,20 @@ class MessageUnittest(unittest.TestCase, BaseMessagingMixin):
 
     def test_query_expression_rendering(self):
         """Test that query expresssion can be query and rendered correctly."""
-        ColletedDatum(user_id=self.user_1.id, key='data', value='value1').add()
+        CollectedDatum(user_id=self.user_1.id, key='data',
+                       value='value1').add()
         DatabaseManager.commit()
         time.sleep(1)
-        ColletedDatum(user_id=self.user_1.id, key='data', value='value2').add()
+        CollectedDatum(user_id=self.user_1.id, key='data',
+                       value='value2').add()
         DatabaseManager.commit()
         time.sleep(1)
-        ColletedDatum(user_id=self.user_1.id, key='data', value='value3').add()
-        ColletedDatum(user_id=self.user_1.id, key='aaa', value='aaa').add()
-        ColletedDatum(user_id=self.user_2.id, key='data', value='value4').add()
+        CollectedDatum(user_id=self.user_1.id, key='data',
+                       value='value3').add()
+        CollectedDatum(user_id=self.user_1.id, key='aaa',
+                       value='aaa').add()
+        CollectedDatum(user_id=self.user_2.id, key='data',
+                       value='value4').add()
         DatabaseManager.commit()
 
         g.user = self.user_1
