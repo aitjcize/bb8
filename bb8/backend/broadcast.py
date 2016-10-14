@@ -8,10 +8,13 @@
 
 from datetime import datetime
 
-from bb8 import logger
-from bb8.backend.database import (Broadcast, BroadcastStatusEnum,
-                                  DatabaseManager)
+from sqlalchemy.exc import IntegrityError, InvalidRequestError
+
+from bb8 import celery, logger
+from bb8.backend.database import (Bot, Broadcast, BroadcastStatusEnum,
+                                  DatabaseManager, DatabaseSession)
 from bb8.backend.message import Message
+from bb8.backend.messaging import broadcast_message_async
 
 import jsonschema
 
@@ -29,6 +32,48 @@ def validate_broadcast_schema(broadcast_json):
     except jsonschema.exceptions.ValidationError:
         logger.error('Validation failed for `broadcast_json\'!')
         raise
+
+
+@celery.task
+def broadcast_task(broadcast_id):
+    with DatabaseSession():
+        broadcast = Broadcast.get_by(id=broadcast_id, single=True)
+        # The broadcast entry could be delted by user
+        if not broadcast:
+            return
+
+        # Either broadcast in progress or already sent
+        if broadcast.status != BroadcastStatusEnum.QUEUED:
+            return
+
+        # The user may have changed the broadcasting time, ignore it as it
+        # should be automatically rescheduled.
+        if broadcast.scheduled_time >= datetime.now():
+            return
+
+        broadcast.status = BroadcastStatusEnum.SENDING
+        try:
+            DatabaseManager.commit()
+        except (InvalidRequestError, IntegrityError):
+            # The broadcast task have changed during our modification, retry.
+            DatabaseManager.rollback()
+            return broadcast_task(broadcast_id)
+
+        # Do the actually broadcast
+        bot = Bot.get_by(id=broadcast.id, account_id=broadcast.account_id,
+                         single=True)
+
+        # Bot may have been deleted
+        if not bot:
+            return
+
+        messages = [Message.FromDict(m) for m in broadcast.messages]
+        broadcast_message_async(bot, messages)
+
+
+def schedule_broadcast(broadcast):
+    """Schedule a broadcast."""
+    broadcast_task.apply_async((broadcast.id,), eta=broadcast.scheduled_time)
 
 
 def parse_broadcast(broadcast_json, to_broadcast_id=None):
@@ -68,5 +113,7 @@ def parse_broadcast(broadcast_json, to_broadcast_id=None):
             broadcast_json['scheduled_time'])
         broadcast = Broadcast(**broadcast_json).add()
 
-    DatabaseManager.flush()
+    DatabaseManager.commit()
+    schedule_broadcast(broadcast)
+
     return broadcast
