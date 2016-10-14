@@ -22,7 +22,7 @@ from gcloud import storage
 
 from bb8 import app, config
 from bb8.constant import HTTPStatus, CustomError
-from bb8.error import AppError
+from bb8.api.error import AppError
 
 
 ALLOWED_HOSTS = ['dramaq.biz', 'www.dramaq.biz', 'showq.biz', 'www.showq.biz']

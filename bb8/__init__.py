@@ -13,7 +13,7 @@ from celery import Celery
 
 from bb8 import configuration
 from bb8.logging_utils import Logger
-from bb8.error import AppError
+from bb8.api.error import AppError
 
 
 SRC_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))

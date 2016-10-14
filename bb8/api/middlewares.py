@@ -10,7 +10,7 @@ from functools import wraps
 
 from flask import g, session
 
-from bb8.error import AppError
+from bb8.api.error import AppError
 from bb8.constant import HTTPStatus, CustomError, Key
 from bb8.backend.database import Account
 

@@ -16,7 +16,7 @@ import jwt
 import pytz
 
 from bb8 import app, config
-from bb8.error import AppError
+from bb8.api.error import AppError
 from bb8.backend.bot_parser import get_bot_filename, parse_bot_from_file
 from bb8.backend.database import DatabaseManager
 from bb8.backend.database import (Account, Bot, CollectedDatum, Conversation,

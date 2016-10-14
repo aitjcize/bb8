@@ -32,7 +32,7 @@ from bb8.backend.database_utils import (DeclarativeBase, DatabaseManager,
                                         DatabaseSession, ModelMixin,
                                         JSONSerializableMixin)
 from bb8.backend.metadata import SessionRecord
-from bb8.error import AppError
+from bb8.api.error import AppError
 from bb8.constant import HTTPStatus, CustomError
 
 
