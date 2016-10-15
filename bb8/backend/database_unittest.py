@@ -16,7 +16,6 @@ import jwt
 import pytz
 
 from bb8 import app, config
-from bb8.api.error import AppError
 from bb8.backend.bot_parser import get_bot_filename, parse_bot_from_file
 from bb8.backend.database import DatabaseManager
 from bb8.backend.database import (Account, Bot, CollectedDatum, Conversation,
@@ -323,7 +322,7 @@ class DatabaseUnittest(unittest.TestCase):
             'exp': datetime.datetime.utcnow() + datetime.timedelta(days=14)
         }, 'im fake secret')
 
-        with self.assertRaises(AppError):
+        with self.assertRaises(RuntimeError):
             Account.from_auth_token(fake_token)
 
         outdated_token = jwt.encode({
@@ -334,7 +333,7 @@ class DatabaseUnittest(unittest.TestCase):
             'exp': datetime.datetime.utcnow() - datetime.timedelta(days=15)
         }, config.JWT_SECRET)
 
-        with self.assertRaises(AppError):
+        with self.assertRaises(RuntimeError):
             Account.from_auth_token(outdated_token)
 
 

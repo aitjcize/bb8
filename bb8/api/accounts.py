@@ -6,7 +6,7 @@
     Copyright 2016 bb8 Authors
 """
 
-from flask import g, jsonify, session
+from flask import g, jsonify
 
 from bb8 import app, AppError
 from bb8.constant import HTTPStatus, CustomError, Key
@@ -36,10 +36,10 @@ def email_register():
                 'username {username} or email {email} is already taken'
                 .format(**user_info))
 
-        session[Key.ACCESS_TOKEN] = account.auth_token
+        ret = account.to_json()
+        ret[Key.AUTH_TOKEN] = account.auth_token
+        return jsonify(ret)
 
-        # TODO: Send an email confirmation
-        return jsonify(account.to_json())
     raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
                    CustomError.ERR_FORM_VALIDATION, form.errors)
 
@@ -64,8 +64,10 @@ def login():
             raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
                            CustomError.ERR_WRONG_PASSWD,
                            'Invalid combination of email and password')
-        session[Key.ACCESS_TOKEN] = account.auth_token
-        return jsonify(account.to_json())
+
+        ret = account.to_json()
+        ret[Key.AUTH_TOKEN] = account.auth_token
+        return jsonify(ret)
     raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
                    CustomError.ERR_FORM_VALIDATION, form.errors)
 
