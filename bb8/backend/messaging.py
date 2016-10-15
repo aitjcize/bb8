@@ -14,7 +14,7 @@ from flask import g
 
 from bb8 import app, config, logger, celery
 from bb8.backend.database import (Conversation, DatabaseSession, User,
-                                  Platform, PlatformTypeEnum, SenderEnum)
+                                  PlatformTypeEnum, SenderEnum)
 from bb8.backend.message import Message
 from bb8.backend.messaging_provider import facebook, line
 
@@ -131,13 +131,7 @@ def _broadcast_message(bot, messages, eta=None):
     asynchronously by broadcast_message_async().
     """
     with DatabaseSession():
-        platform_ids = [p.id for p in Platform.get_by(bot_id=bot.id)]
-        if not platform_ids:  # No associated platform
-            return
-
-        users = User.query().filter(
-            User.platform_id.in_(platform_ids)).all()
-        for user in users:
+        for user in bot.users:
             if not user.settings.get('subscribe', True):
                 continue
             try:

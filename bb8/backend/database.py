@@ -160,6 +160,18 @@ class Bot(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     START_STABLE_ID = 'Start'
 
     @property
+    def __repr__(self):
+        return '<%s(\'%s\', \'%s\')>' % (type(self).__name__, self.id,
+                                         self.name.encode('utf8'))
+
+    @property
+    def users(self):
+        platform_ids = [p.id for p in Platform.get_by(bot_id=self.id)]
+        if not platform_ids:  # No associated platform
+            return []
+        return User.query().filter(User.platform_id.in_(platform_ids)).all()
+
+    @property
     def root_node(self):
         return Node.get_by(bot_id=self.id, stable_id=Bot.ROOT_STABLE_ID,
                            single=True)

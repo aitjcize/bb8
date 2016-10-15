@@ -1,6 +1,7 @@
 {
   "platforms": {
-    "Facebook": "bb8.test.platform"
+    "Facebook": "bb8.test.platform",
+    "Facebook2": "bb8.test2.platform"
   },
   "bot": {
     "name": "simple",

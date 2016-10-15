@@ -52,7 +52,7 @@ class UserUnittest(unittest.TestCase):
         self.assertEquals(s.session.message_sent, True)
 
 
-class SchemaUnittest(unittest.TestCase):
+class DatabaseUnittest(unittest.TestCase):
     def setUp(self):
         DatabaseManager.connect()
         DatabaseManager.reset()
@@ -264,13 +264,16 @@ class SchemaUnittest(unittest.TestCase):
         DatabaseManager.commit()
 
         self.assertNotEquals(bot1.nodes, [])
+        self.assertEquals(bot1.users, [])
 
-        user = User(platform_id=bot1.platforms[0].id,
-                    platform_user_ident='blablabla',
-                    last_seen=datetime.datetime.now()).add()
-
-        user.delete()
+        User(platform_id=bot1.platforms[0].id,
+             platform_user_ident='blablabla',
+             last_seen=datetime.datetime.now()).add()
+        User(platform_id=bot1.platforms[1].id,
+             platform_user_ident='blablabla2',
+             last_seen=datetime.datetime.now()).add()
         DatabaseManager.commit()
+        self.assertEquals(len(bot1.users), 2)
 
         bot1_id = bot1.id
         bot1.delete()

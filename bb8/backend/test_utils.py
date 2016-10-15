@@ -30,7 +30,9 @@ def reset_and_setup_bots(bot_names):
     bots = []
     DatabaseManager.reset()
     register_all_modules()
-    parse_platform_from_file(get_platform_filename('dev/bb8.test.platform'))
+    for platform_name in ['dev/bb8.test.platform', 'dev/bb8.test2.platform']:
+        parse_platform_from_file(get_platform_filename(platform_name))
+
     for bot_name in bot_names:
         bots.append(parse_bot_from_file(get_bot_filename(bot_name)))
     return bots
