@@ -151,11 +151,6 @@ def render_episodes(episodes):
             url=ep.link))
         b.add_button(Message.Button(
             Message.ButtonType.POSTBACK,
-            u'追蹤我', payload=EventPayload('SUBSCRIBE', {
-                'drama_id': ep.drama_id,
-            }, False)))
-        b.add_button(Message.Button(
-            Message.ButtonType.POSTBACK,
             u'我想看前幾集',
             payload=EventPayload(
                 'GET_HISTORY', {
