@@ -72,7 +72,7 @@ class DramaInfo(object):
     @classmethod
     def Search(cls, user_id, term, count=10):
         with DatabaseSession():
-            user = User.get_by(id=user_id, single=True)
+            user = User.get_or_create(id=user_id)
             dramas = Drama.query().filter(
                 Drama.name.like(unicode('%' + term + '%'))
             ).order_by(
@@ -85,7 +85,7 @@ class DramaInfo(object):
     @classmethod
     def Trending(cls, user_id, country, count=10):
         with DatabaseSession():
-            user = User.get_by(id=user_id, single=True)
+            user = User.get_or_create(id=user_id)
             dramas = Drama.query().filter(
                 Drama.country == DramaCountryEnum(country)
             ).order_by(
