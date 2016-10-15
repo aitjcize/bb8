@@ -7,5 +7,8 @@
     ],
     "env": {
         "browser": true
+    },
+    "rules": {
+      "no-constant-condition": 0
     }
 }
