@@ -192,7 +192,7 @@ class ModelMixin(object):
                single=False, lock=False, return_query=False, **kwargs):
         """Get item by kwargs."""
         if query:
-            query_object = cls.query(query)
+            query_object = cls.query(*query)
         else:
             query_object = cls.query()
 

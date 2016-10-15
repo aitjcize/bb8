@@ -21,7 +21,7 @@ from bb8 import app, config
 from bb8.error import AppError
 from bb8.backend.bot_parser import get_bot_filename, parse_bot
 from bb8.backend.database import DatabaseManager
-from bb8.backend.database import (Account, Bot, ColletedDatum, Conversation,
+from bb8.backend.database import (Account, Bot, CollectedDatum, Conversation,
                                   ContentModule, Event, Node, ParserModule,
                                   Platform, PlatformTypeEnum, SenderEnum, User,
                                   Broadcast, FeedEnum, Feed, PublicFeed,
@@ -169,12 +169,12 @@ class SchemaUnittest(unittest.TestCase):
 
         self.assertNotEquals(Event.get_by(id=event.id, single=True), None)
 
-        collected_datum = ColletedDatum(user_id=user.id,
-                                        key='key', value={}).add()
+        collected_datum = CollectedDatum(user_id=user.id,
+                                         key='key', value={}).add()
         DatabaseManager.commit()
 
-        self.assertNotEquals(ColletedDatum.get_by(id=collected_datum.id,
-                                                  single=True), None)
+        self.assertNotEquals(CollectedDatum.get_by(id=collected_datum.id,
+                                                   single=True), None)
         self.assertEquals(len(user.colleted_data), 1)
         self.assertEquals(user.colleted_data[0].id, collected_datum.id)
 

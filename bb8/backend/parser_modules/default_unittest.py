@@ -17,10 +17,10 @@ from bb8 import app
 from bb8.backend.database import DatabaseManager
 from bb8.backend.metadata import UserInput
 from bb8.backend.parser_modules import default
-from bb8.backend.test_utils import BaseMessagingMixin
+from bb8.backend.test_utils import BaseTestMixin
 
 
-class DefaultUnittest(unittest.TestCase, BaseMessagingMixin):
+class DefaultUnittest(unittest.TestCase, BaseTestMixin):
     def setUp(self):
         DatabaseManager.connect()
         self.setup_prerequisite()

@@ -15,7 +15,7 @@ from bb8 import config, logger
 from bb8.backend import messaging
 from bb8.tracking import track, TrackingInfo
 from bb8.backend.database import (Bot, DatabaseManager, Conversation,
-                                  ColletedDatum, Node, SupportedPlatform,
+                                  CollectedDatum, Node, SupportedPlatform,
                                   SenderEnum, User)
 from bb8.backend.metadata import ParseResult, InputTransformation
 
@@ -42,7 +42,7 @@ class Engine(object):
     def insert_data(self, user, data):
         """Insert collected data into database."""
         for key in data:
-            ColletedDatum(user_id=user.id, key=key, value=data[key]).add()
+            CollectedDatum(user_id=user.id, key=key, value=data[key]).add()
 
     def run_parser_module(self, node, user, user_input, init_variables,
                           as_root=False):

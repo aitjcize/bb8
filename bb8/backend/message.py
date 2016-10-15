@@ -20,7 +20,7 @@ from sqlalchemy import desc, func
 
 from bb8 import logger
 from bb8.backend import base_message
-from bb8.backend.database import ColletedDatum
+from bb8.backend.database import CollectedDatum
 from bb8.backend.metadata import InputTransformation
 from bb8.backend.query_filters import FILTERS
 from bb8.backend.util import image_convert_url
@@ -79,7 +79,7 @@ def parse_query(expr):
         return expr
 
     key = m.group(2)
-    q = ColletedDatum.query(ColletedDatum.value, ColletedDatum.created_at)
+    q = CollectedDatum.query(CollectedDatum.value, CollectedDatum.created_at)
     q = q.filter_by(key=key)
 
     if m.group(1) is None:  # q.
@@ -101,28 +101,28 @@ def parse_query(expr):
                 break
             m = re.match(r'lru\((\d+)\)', f)
             if m:
-                result = ColletedDatum.query(
-                    ColletedDatum.value,
-                    func.max(ColletedDatum.created_at).label('latest')
+                result = CollectedDatum.query(
+                    CollectedDatum.value,
+                    func.max(CollectedDatum.created_at).label('latest')
                 ).filter_by(
                     key=key,
                     user_id=g.user.id
                 ).group_by(
-                    ColletedDatum.value
+                    CollectedDatum.value
                 ).order_by(
                     desc('latest')
                 ).offset(int(m.group(1))).limit(1).first()
                 result = result.value if result else None
                 break
             if f == 'last':
-                result = q.order_by(ColletedDatum.created_at.desc()).first()
+                result = q.order_by(CollectedDatum.created_at.desc()).first()
                 result = result.value if result else None
                 break
             elif f == 'count':
                 result = q.count()
                 break
             elif f == 'uniq':
-                q = q.distinct(ColletedDatum.value)
+                q = q.distinct(CollectedDatum.value)
             else:
                 m = re.match(r'order_by\(\'(.*)\'\)', f)
                 if m:

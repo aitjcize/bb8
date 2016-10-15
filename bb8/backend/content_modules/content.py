@@ -10,9 +10,8 @@
 
 import grpc
 
-from bb8.backend.module_api import (Message, EventPayload,
-                                    GetgRPCService, Resolve,
-                                    SupportedPlatform, Render,
+from bb8.backend.module_api import (Message, CollectedData, EventPayload,
+                                    GetgRPCService, Resolve, SupportedPlatform,
                                     GetUserId)
 
 GRPC_TIMEOUT = 5
@@ -130,7 +129,7 @@ def add_quick_reply_keywords(message, show_related=False):
     keywords = news_info.get_keywords(MAX_KEYWORDS)
     reply_kws = []
     if show_related:
-        query_term = Render("{{q.query_term|last|fallback('')}}", {})
+        query_term = CollectedData.GetLast('query_term', '')
         related_kws = news_info.get_related_keywords(query_term, 3)
 
         reply_kws = [kw.name for kw in related_kws]
