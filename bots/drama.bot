@@ -106,6 +106,17 @@
           }
         }
       },
+      "UnsubscribeDrama": {
+        "name": "UnsubscribeDrama",
+        "description": "UnsubscribeDrama drama",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.content.third_party.drama",
+          "config": {
+            "mode": "unsubscribe"
+          }
+        }
+      },
       "TrendingKR": {
         "name": "TrendingKR",
         "description": "Trending Korea Drama",
@@ -211,9 +222,17 @@
               {
                 "rule": {
                   "type": "event",
-                  "params": ["SUBSCRIBE"]
+                  "params": ["^SUBSCRIBE$"]
                 },
                 "end_node_id": "SubscribeDrama",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "event",
+                  "params": ["^UNSUBSCRIBE$"]
+                },
+                "end_node_id": "UnsubscribeDrama",
                 "ack_message": ""
               },
               {

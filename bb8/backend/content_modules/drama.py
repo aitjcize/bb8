@@ -44,6 +44,7 @@ def schema():
                     'trending_tw',
                     'trending_cn',
                     'subscribe',
+                    'unsubscribe',
                     'search',
                     'get_history',
                 ]
@@ -74,6 +75,11 @@ class DramaInfo(object):
             self._pb2_module.SubscribeRequest(
                 user_id=user_id, drama_id=drama_id), GRPC_TIMEOUT)
 
+    def unsubscribe(self, user_id, drama_id):
+        self._stub.Unsubscribe(
+            self._pb2_module.UnsubscribeRequest(
+                user_id=user_id, drama_id=drama_id), GRPC_TIMEOUT)
+
     def search(self, user_id, term, count):
         return self._stub.Search(
             self._pb2_module.SearchRequest(
@@ -102,11 +108,19 @@ def render_dramas(dramas):
         b = Message.Bubble(d.name,
                            image_url=CacheImage(d.image_url),
                            subtitle=d.description)
-        b.add_button(Message.Button(
-            Message.ButtonType.POSTBACK,
-            u'追蹤我', payload=EventPayload('SUBSCRIBE', {
-                'drama_id': d.id,
-            }, False)))
+        if d.subscribed:
+            b.add_button(Message.Button(
+                Message.ButtonType.POSTBACK,
+                u'取消追蹤', payload=EventPayload('UNSUBSCRIBE', {
+                    'drama_id': d.id,
+                }, False)))
+        else:
+            b.add_button(Message.Button(
+                Message.ButtonType.POSTBACK,
+                u'追蹤我', payload=EventPayload('SUBSCRIBE', {
+                    'drama_id': d.id,
+                }, False)))
+
         b.add_button(Message.Button(
             Message.ButtonType.POSTBACK,
             u'我想看前幾集',
@@ -181,6 +195,13 @@ def run(content_config, unused_env, variables):
                  Message(u'在等待的同時，'
                          u'您可以先看看之前的集數喲！')] +
                 render_episodes(episodes))
+
+    if content_config['mode'] == 'unsubscribe':
+        event = variables['event']
+        drama_id = event.value['drama_id']
+        drama_info.unsubscribe(user_id, drama_id)
+
+        return [Message(u'已成功取消訂閱')]
 
     if content_config['mode'] == 'get_history':
         event = variables['event']

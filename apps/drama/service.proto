@@ -4,6 +4,7 @@ package bb8.apps;
 
 service DramaInfo {
   rpc Subscribe (SubscribeRequest) returns (Empty) {}
+  rpc Unsubscribe (UnsubscribeRequest) returns (Empty) {}
   rpc Search (SearchRequest) returns (Dramas) {}
   rpc Trending (TrendingRequest) returns (Dramas) {}
   rpc GetHistory (HistoryRequest) returns (Episodes) {}
@@ -18,6 +19,7 @@ message Drama {
   string description = 4;
   string image_url = 5;
   string country = 6;
+  bool subscribed = 7;
 }
 
 message Episode {
@@ -38,6 +40,11 @@ message Episodes {
 }
 
 message SubscribeRequest {
+  uint32 user_id = 1;
+  uint32 drama_id = 2;
+}
+
+message UnsubscribeRequest {
   uint32 user_id = 1;
   uint32 drama_id = 2;
 }
