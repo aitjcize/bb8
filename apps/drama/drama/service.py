@@ -26,7 +26,7 @@ from drama.database import (DatabaseManager, DatabaseSession, Drama,
 _SECS_IN_A_DAY = 86400
 
 
-def to_proto_drama(drama):
+def to_proto_drama(drama, user):
     return service_pb2.Drama(
         id=drama.id,
         link=drama.link,
@@ -34,6 +34,7 @@ def to_proto_drama(drama):
         description=drama.name,
         image_url=drama.image or config.DEFAULT_DRAMA_IMAGE,
         country=drama.country.value,
+        subscribed=drama in user.subscribed_dramas
     )
 
 
@@ -58,8 +59,20 @@ class DramaInfo(object):
             DatabaseManager.commit()
 
     @classmethod
-    def Search(cls, unused_user_id, term, count=10):
+    def Unsubscribe(cls, user_id, drama_id):
         with DatabaseSession():
+            user = User.get_or_create(id=user_id)
+            drama = Drama.get_by(id=drama_id, single=True)
+            try:
+                user.subscribed_dramas.remove(drama)
+            except Exception:
+                pass
+            DatabaseManager.commit()
+
+    @classmethod
+    def Search(cls, user_id, term, count=10):
+        with DatabaseSession():
+            user = User.get_by(id=user_id, single=True)
             dramas = Drama.query().filter(
                 Drama.name.like(unicode('%' + term + '%'))
             ).order_by(
@@ -67,11 +80,12 @@ class DramaInfo(object):
                 Drama.order == None,  # noqa
                 'order', desc('updated_at'),
             ).limit(count)
-            return [to_proto_drama(drama) for drama in dramas]
+            return [to_proto_drama(drama, user) for drama in dramas]
 
     @classmethod
-    def Trending(cls, unused_user_id, country, count=10):
+    def Trending(cls, user_id, country, count=10):
         with DatabaseSession():
+            user = User.get_by(id=user_id, single=True)
             dramas = Drama.query().filter(
                 Drama.country == DramaCountryEnum(country)
             ).order_by(
@@ -79,7 +93,7 @@ class DramaInfo(object):
                 Drama.order == None,  # noqa
                 'order', desc('updated_at'),
             ).limit(count)
-            return [to_proto_drama(drama) for drama in dramas]
+            return [to_proto_drama(drama, user) for drama in dramas]
 
     @classmethod
     def GetHistory(cls, drama_id, from_episode, backward, count=5):
@@ -111,6 +125,10 @@ class DramaInfoServicer(service_pb2.DramaInfoServicer):
 
     def Subscribe(self, request, unused_context):
         DramaInfo.Subscribe(request.user_id, request.drama_id)
+        return service_pb2.Empty()
+
+    def Unsubscribe(self, request, unused_context):
+        DramaInfo.Unsubscribe(request.user_id, request.drama_id)
         return service_pb2.Empty()
 
     def GetHistory(self, request, unused_context):
