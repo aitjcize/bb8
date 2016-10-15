@@ -1,0 +1,9 @@
+{
+  "name": "amyBot",
+  "type_enum": "Facebook",
+  "deployed": false,
+  "provider_ident": "857336747704159",
+  "config": {
+    "access_token": "EAAYzQ8FLtfwBAIyXMXtzPYLcuMVqtrGwIe33kkL953B8zh1AH2O2mEljZA6jIzKaoMKx35j1pff2Qs7ZC4xcp9IxRRyzgNuAiEM9sgbTZAfSjiCVnOaRQ05Uzmx65ZCGsFEy4ZBhVqZCUwou5PkFjsaPQ3L8iHqYDYZAS64LiOc1AZDZD"
+  }
+}
