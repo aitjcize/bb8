@@ -12,6 +12,12 @@ const defaultConfig = {
     port: '8080',
     contentBase: './build',
     inline: true,
+    proxy: {
+      '/': {
+        target: 'https://localhost:' + process.env.HTTP_PORT,
+        secure: false
+      }
+    },
   },
   entry: {
     app: './index',
@@ -56,6 +62,10 @@ const defaultConfig = {
     require('autoprefixer')(),
   ],
   plugins: [
+    new webpack.DefinePlugin({
+          'process.env.BB8_DEPLOY': process.env.BB8_DEPLOY,
+          'process.env.HTTP_PORT': process.env.HTTP_PORT,
+    }),
     new webpack.ProvidePlugin({
       React: 'react',
     }),
@@ -72,7 +82,7 @@ const defaultConfig = {
         'https://fonts.googleapis.com/css?family=Roboto',
       ],
     }),
-    new ExtractTextPlugin('[name].[hash].css')
+    new ExtractTextPlugin('[name].[hash].css'),
   ],
 };
 
