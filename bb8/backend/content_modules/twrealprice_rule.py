@@ -80,7 +80,7 @@ class Rule(object):
           query: str. user's query. contains keywords.
 
         Returns:
-          Anything not None: means this rule is matched.
+          not None: means this rule is matched.
         """
         raise NotImplementedError
 
@@ -115,12 +115,17 @@ class Matcher(Rule):
         self.accept_words = accept_words
         self.tran_key = tran_key
         self.tran_value = tran_value
+        self.matched = None
 
     def ParseQuery(self, query):
         for word in self.accept_words:
             if word in query:
+                self.matched = word
                 return True
         return False
+
+    def Eliminate(self, query):
+        return query.replace(self.matched, '', 1)
 
     def CountScore(self, tran):
         return 1.0 if self.tran_value in tran[self.tran_key] else 0
@@ -153,14 +158,21 @@ class Number(Rule):
         self.matched = None
 
     def ParseQuery(self, query):
-        m = re.search(r'([0-9]+(\.[0-9]+)?)\s*' + self.unit, query)
+        m = re.search(r'(([0-9]+(\.[0-9]+)?)\s*' + self.unit + ')', query)
         if m:
-            self.number = float(m.group(1))
+            self.matched = m.group(1)
+            self.number = float(m.group(2))
             return True
         return False
 
+    def Eliminate(self, query):
+        return query.replace(self.matched, '', 1)
+
     def CountScore(self, tran):
         """Linear function to get the score.
+
+        if slope < 0: is percentage of the query.
+                 > 0: same unit as query.
 
         score = (delta / slope)  if 0 <= delta <= slope
               = 1.0              if delta > slope
@@ -173,9 +185,17 @@ class Number(Rule):
         """
         m = re.search(r'([0-9]+(\.[0-9]+)?)',
                       Rules.Canonize(tran[self.tran_key]))
+
+        query_number = self.number * self.scale
+
+        if self.slope < 0:
+            slope = float(query_number) * -self.slope
+        else:
+            slope = self.slope
+
         if m:
-            diff = math.fabs(self.number * self.scale - float(m.group(1)))
-            return 1.0 - max(0, min(1.0, diff / self.slope))
+            diff = math.fabs(query_number - float(m.group(1)))
+            return 1.0 - max(0, min(1.0, diff / slope))
         else:
             return 0.0
 
@@ -251,7 +271,7 @@ class Rules(object):
         self.rules = []
         self.sorted = None
         self.scores = None
-        self.matched = None
+        self.matched = []
 
     def Add(self, rule):
         self.rules.append(rule)
@@ -263,12 +283,24 @@ class Rules(object):
 
         Args:
           query: utf-8 encoded str.
+
+        Returns:
+          str: the remaining string after eliminating matched rules.
         """
         query = self.Canonize(query)
-        self.matched = []
         for r in self.rules:
             if r.ParseQuery(query):
                 self.matched.append(r)
+
+        for m in self.matched:
+            query = m.Eliminate(query)
+
+        return query
+
+    def AddPureSortingRules(self, latlng):
+        self.matched.append(Days(weight=50, tran_key='交易年月日'))
+        self.matched.append(Location(
+            weight=300, tran_key='latlng', latlng=latlng))
 
     def CountScore(self, trans):
         """Count score of each transaction in trans.
@@ -338,22 +370,39 @@ class Rules(object):
             u'零': 0, u'壹': 1, u'贰': 2, u'叁': 3, u'肆': 4,
             u'伍': 5, u'陸': 6, u'柒': 7, u'捌': 8, u'玖': 9,
         }
-        query = re.sub(ur'([一二三四五六七八九])千', ur'\1', query)
-        query = re.sub(ur'([一二三四五六七八九])百', ur'\1', query)
-        query = re.sub(ur'([一二三四五六七八九])十([一二三四五六七八九])',
-                       ur'\1\2', query)  # 五十六 --> 五六
-        query = re.sub(ur'([一二三四五六七八九])十',
-                       ur'\g<1>0', query)  # 七十 --> 七0
-        query = re.sub(ur'十([一二三四五六七八九])',
-                       ur'1\1', query)  # 十八 --> 1八
-        query = query.replace(u'十', u'10')
-        for chinese_num, arabic_num in nums.iteritems():
-            query = query.replace(chinese_num, unicode(arabic_num))  # 五六-->56
 
-        return query.encode('utf-8')
+        # Split into 2 parts: larther than and less than 億.
+        # So that 二億五千一百萬 ==> 25100萬
+        query = re.sub(
+            ur'([0123456789一二三四五六七八九])億', ur'\g<1>==YI==', query)
+        yis = re.split(ur'==YI==', query)
+
+        ret = u''
+        for query in yis:
+            query = re.sub(ur'([一二三四五六七八九])千萬', ur'\g<1>000萬', query)
+            query = re.sub(ur'([一二三四五六七八九])千', ur'\1', query)
+            query = re.sub(ur'([一二三四五六七八九])百萬', ur'\g<1>00萬', query)
+            query = re.sub(ur'([一二三四五六七八九])百', ur'\1', query)
+            query = re.sub(ur'([一二三四五六七八九])十([一二三四五六七八九])',
+                           ur'\1\2', query)  # 五十六 --> 五六
+            query = re.sub(ur'([一二三四五六七八九])十',
+                           ur'\g<1>0', query)  # 七十 --> 七0
+            query = re.sub(ur'十([一二三四五六七八九])',
+                           ur'1\1', query)  # 十八 --> 1八
+            query = query.replace(u'十', u'10')
+            for chinese_num, arabic_num in nums.iteritems():
+                # 五六-->56
+                query = query.replace(chinese_num, unicode(arabic_num))
+
+            if not query:
+                query = u'0000萬'
+
+            ret = ret + query
+
+        return ret.encode('utf-8')
 
     @classmethod
-    def Create(cls, latlng):
+    def Create(cls):
         rules = cls()
 
         # Building types
@@ -363,14 +412,14 @@ class Rules(object):
         rules.Add(Matcher(
             weight=1000,
             accept_words=['公寓'], tran_key='建物型態', tran_value='公寓'))
-        rules.Add(Matcher(
+        rules.Add(Matcher(  # Hack. Must be prior to 華廈.
             weight=1000,
-            accept_words=['華廈', '大樓'], tran_key='建物型態',
-            tran_value='華廈'))
-        rules.Add(Matcher(
-            weight=1000,
-            accept_words=['大樓', '住宅大樓'], tran_key='建物型態',
+            accept_words=['電梯大樓', '住宅大樓', '大樓'], tran_key='建物型態',
             tran_value='住宅大樓'))
+        rules.Add(Matcher(
+            weight=1000,
+            accept_words=['電梯華廈', '華廈', '大樓'], tran_key='建物型態',
+            tran_value='華廈'))
         rules.Add(Matcher(
             weight=1000,
             accept_words=['商辦', '商業大樓'], tran_key='建物型態',
@@ -392,9 +441,7 @@ class Rules(object):
             weight=250, unit='坪', slope=20 * M2_PER_PING,
             tran_key='建物移轉總面積平方公尺', scale=M2_PER_PING))
         rules.Add(Number(weight=100, unit='樓', tran_key='移轉層次', slope=4))
-
-        # Rules for sorting
-        rules.Add(Days(weight=50, tran_key='交易年月日'))
-        rules.Add(Location(weight=300, tran_key='latlng', latlng=latlng))
+        rules.Add(Number(
+            weight=200, unit='萬', tran_key='總價元', slope=-0.2, scale=10000))
 
         return rules

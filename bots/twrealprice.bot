@@ -101,7 +101,7 @@
             "messages": {
               "Facebook": [
                 {
-                  "text": "請使用訊息的定位功能將位置發送給我，我會替你找出鄰近的成交價。你也可以透過輸入地名或地址的方式查詢。如果想留言給我們，可以輸入「建議」。"
+                  "text": "請使用訊息的定位功能將位置發送給我。你也可以透過輸入地名或地址的方式查詢。如果想留言給我們，可以輸入「建議」。"
                 },
                 {
                   "attachment": {
@@ -114,7 +114,7 @@
               ],
               "Line": [
                 {
-                  "text": "請使用訊息的定位功能將位置發送給我，我會替你找出鄰近的成交價。你也可以透過輸入地名或地址的方式查詢。如果想留言給我們，可以輸入「建議」。"
+                  "text": "請使用訊息的定位功能將位置發送給我。你也可以透過輸入地名或地址的方式查詢。如果想留言給我們，可以輸入「建議」。"
                 },
                 {
                   "attachment": {
@@ -145,10 +145,14 @@
           "config": {
             "messages": [
               {
-                "text": "你想要找哪裡的成交行情呢？",
+                "text": "輸入「地址」或是「篩選條件」",
                 "quick_replies": [
                   {
                     "content_type": "location"
+                  },
+                  {
+                    "content_type": "text",
+                    "title": "更多物件"
                   },
                   {
                     "content_type": "text",
@@ -156,11 +160,23 @@
                   },
                   {
                     "content_type": "text",
-                    "title": "{{q.query_address|lru(1)|fallback('台中公益路')}}"
+                    "title": "大樓"
                   },
                   {
                     "content_type": "text",
-                    "title": "{{q.query_address|lru(2)|fallback('左營高鐵站')}}"
+                    "title": "8年"
+                  },
+                  {
+                    "content_type": "text",
+                    "title": "55.66坪"
+                  },
+                  {
+                    "content_type": "text",
+                    "title": "十一樓"
+                  },
+                  {
+                    "content_type": "text",
+                    "title": "重設條件"
                   }
                 ]
               }
@@ -174,26 +190,6 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["路", "街", "市", "橋", "區", "館", "大道", "捷運", "醫院", "高鐵", "夜市", "台?中(一|女)中", "車站", "縣", "區", "鄉", "鎮", "村", "里"],
-                  "collect_as": {"key": "query_address"}
-                },
-                "end_node_id": "Geocoding",
-                "ack_message": ""
-              },
-              {
-                "rule": {
-                  "type": "location",
-                  "collect_as": {"key": "location"},
-                  "memory_set": {
-                    "key": "location"
-                  }
-                },
-                "end_node_id": "GetTransaction",
-                "ack_message": ""
-              },
-              {
-                "rule": {
-                  "type": "regexp",
                   "params": ["(使用)?說明", "tutorial", "^\\?", "(?i)help", "幫助", "怎麼用?", "^？", "不會用", "求救"]
                 },
                 "end_node_id": "DemoDesc",
@@ -218,44 +214,55 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)thanks?", "謝", "感恩"]
+                  "params": ["(?i)thanks?", "謝", "感恩", "好的"]
                 },
                 "end_node_id": "Thanks",
                 "ack_message": ""
               },
               {
                 "rule": {
-                  "type": "event",
-                  "params": ["WRONG_ADDRESS"]
+                  "type": "regexp",
+                  "params": ["更多", "more"],
+                  "collect_as": {"key": "more_data"},
+                  "memory_set": {"key": "more_data"}
                 },
-                "ack_message": "請重新輸入地址"
+                "end_node_id": "GetTransaction",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["重設", "reset"],
+                  "collect_as": {"key": "reset"},
+                  "memory_set": {"key": "reset"}
+                },
+                "end_node_id": "GetTransaction",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "location",
+                  "collect_as": {"key": "location"},
+                  "memory_set": {"key": "location"}
+                },
+                "end_node_id": "GetTransaction",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [".*"],
+                  "collect_as": {"key": "query"},
+                  "memory_set": {"key": "query"}
+                },
+                "end_node_id": "GetTransaction",
+                "ack_message": ""
               }
             ],
             "on_error": {
               "end_node_id": null,
               "ack_message": "我不了解你的指令，可以再輸入一次，或輸入「使用說明」喔。"
             }
-          }
-        }
-      },
-      "Geocoding": {
-        "name": "Geocoding",
-        "description": "Prompt user for correct address",
-        "expect_input": false,
-        "content_module": {
-          "id": "ai.compose.content.core.geocoding",
-          "config": {
-            "send_payload_to_current_node": false,
-            "api_key": "AIzaSyCpP0pV9_YtQuV-Gzf6aL9nRt1Es5UlBv4",
-            "query_term": "{{text}}",
-            "language": "zh_TW",
-            "region": "tw",
-            "bounds": [
-              [
-                {"lat": 20.0, "long": 118.0},
-                {"lat": 26.0, "long": 123.0}
-              ]
-            ]
           }
         }
       },
@@ -266,174 +273,13 @@
         "content_module": {
           "id": "ai.compose.content.third_party.twrealprice",
           "config": {
-            "api_key": "AIzaSyCpP0pV9_YtQuV-Gzf6aL9nRt1Es5UlBv4",
-            "max_count": 5,
-            "location": "{{location}}",
-            "distance_threshold": 0.050
           }
         },
         "parser_module": {
           "id": "ai.compose.parser.core.passthrough",
           "config": {
-            "end_node_id": "HintFilter",
+            "end_node_id": "Root",
             "ack_message": ""
-          }
-        }
-      },
-      "HintFilter": {
-        "name": "Hint",
-        "description": "Hint user",
-        "expect_input": true,
-        "content_module": {
-          "id": "ai.compose.content.core.text_message",
-          "config": {
-            "text": {
-              "Facebook": "你可以繼續送出位置查詢，或輸入篩選條件",
-              "Line": "你可以繼續送出位置查詢，或輸入篩選條件"
-            },
-            "quick_replies": [
-              {
-                "content_type": "text",
-                "title": "更多物件"
-              },
-              {
-                "content_type": "text",
-                "title": "{{q.filter|lru(0)|fallback('透天')}}"
-              },
-              {
-                "content_type": "text",
-                "title": "大樓"
-              },
-              {
-                "content_type": "text",
-                "title": "8年房"
-              },
-              {
-                "content_type": "text",
-                "title": "55.66坪"
-              },
-              {
-                "content_type": "text",
-                "title": "十一樓"
-              },
-              {
-                "content_type": "text",
-                "title": "重設條件"
-              },
-              {
-                "content_type": "text",
-                "title": "{{q.query_address|lru(0)|fallback('桃園中正路')}}"
-              },
-              {
-                "content_type": "location"
-              }
-            ]
-          }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.default",
-          "config": {
-            "links": [
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": ["路", "街", "市", "橋", "區", "館", "大道", "捷運", "醫院", "高鐵", "夜市", "台?中(一|女)中", "車站", "縣", "區", "鄉", "鎮", "村", "里"],
-                  "collect_as": {"key": "query_address"}
-                },
-                "end_node_id": "Geocoding",
-                "ack_message": ""
-              },
-              {
-                "rule": {
-                  "type": "event",
-                  "params": ["WRONG_ADDRESS"]
-                },
-                "ack_message": "請重新輸入地址"
-              },
-              {
-                "rule": {
-                  "type": "location",
-                  "collect_as": {"key": "location"},
-                  "memory_set": {
-                    "key": "location"
-                  }
-                },
-                "end_node_id": "GetTransaction",
-                "ack_message": "請稍等，處理中。。。"
-              },
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": ["更多", "more"],
-                  "memory_set": {
-                    "key": "more_data",
-                    "value": "1"
-                  }
-                },
-                "end_node_id": "GetTransaction",
-                "ack_message": ""
-              },
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": ["重設", "reset"],
-                  "memory_set": {
-                    "key": "filter",
-                    "value": ""
-                  }
-                },
-                "end_node_id": "GetTransaction",
-                "ack_message": ""
-              },
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": ["(使用)?說明", "tutorial", "^\\?", "(?i)help", "幫助", "怎麼用?", "^？", "不會用", "求救"]
-                },
-                "end_node_id": "DemoDesc",
-                "ack_message": ""
-              },
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": ["建議", "feedback", "意見", "留言", "私訊"]
-                },
-                "end_node_id": "Feedback",
-                "ack_message": ""
-              },
-              {
-                "rule": {
-                  "type": "sticker",
-                  "params": ["369239263222822", "369239343222814", "369239383222810"]
-                },
-                "end_node_id": "Thanks",
-                "ack_message": ""
-              },
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": ["(?i)thanks?", "謝", "感恩"]
-                },
-                "end_node_id": "Thanks",
-                "ack_message": ""
-              },
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": [".*"],
-                  "collect_as": {"key": "filter"},
-                  "memory_set": {
-                    "key": "filter"
-                  }
-                },
-                "end_node_id": "GetTransaction",
-                "ack_message": ""
-              }
-            ],
-            "on_error": {
-              "end_node_id": null,
-              "ack_message": "我不了解你的指令，可以再輸入一次，或輸入「使用說明」喔。"
-            }
           }
         }
       },

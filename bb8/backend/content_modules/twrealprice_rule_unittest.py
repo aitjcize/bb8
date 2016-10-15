@@ -86,7 +86,21 @@ class TestLocation(unittest.TestCase):
         self.assertEqual(self.location.CountScore(
             {'latlng': (25.0554948, 121.6004863)}), 1.0)
         self.assertAlmostEqual(self.location.CountScore(
-            {'latlng': (25.0557478, 121.6060973)}), 0.43832990109835046)
+            {'latlng': (25.0557478, 121.6030973)}), 0.47535421473121797)
+
+
+class TestPrice(unittest.TestCase):
+    def setUp(self):
+        self.price = twrealprice_rule.Number(
+            weight=10.0, unit='萬', tran_key='總價元', slope=-0.2, scale=10000)
+
+    def test_price(self):
+        self.assertTrue(self.price.ParseQuery(query='1000.0萬'))
+        self.assertEqual(self.price.CountScore({'總價元': '10000000'}), 1.0)
+        self.assertTrue(self.price.ParseQuery(query='100萬'))
+        self.assertEqual(self.price.CountScore({'總價元': '900000'}), 0.5)
+        self.assertTrue(self.price.ParseQuery(query='10萬'))
+        self.assertEqual(self.price.CountScore({'總價元': '110000'}), 0.5)
 
 
 class TestRules(unittest.TestCase):
@@ -123,6 +137,13 @@ class TestCanonize(unittest.TestCase):
         self.assertEqual(self.canonizer('１９７８'), '1978')
         self.assertEqual(self.canonizer('叁層'), '3樓')
         self.assertEqual(self.canonizer('三十坪'), '30坪')
+
+        self.assertEqual(self.canonizer('一千五百萬'), '1500萬')
+        self.assertEqual(self.canonizer('一千五百六十八萬'), '1568萬')
+        self.assertEqual(self.canonizer('二億'), '20000萬')
+        self.assertEqual(self.canonizer('二億五千一百萬'), '25100萬')
+        self.assertEqual(self.canonizer('二十三億五千一百六十八萬'), '235168萬')
+
 
 if __name__ == "__main__":
     unittest.main()
