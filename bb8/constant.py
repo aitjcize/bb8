@@ -8,7 +8,8 @@
 
 
 class Key(object):
-    ACCESS_TOKEN = 'access_token'
+    AUTH_TOKEN = 'auth_token'
+    X_COMPOSEAI_AUTH = 'X-COMPOSEAI-AUTH'
 
 
 class HTTPStatus(object):

@@ -13,6 +13,7 @@ import unittest
 from bb8 import app
 # Register request handlers, pylint: disable=W0611
 from bb8.api import accounts, bots, platforms
+from bb8.api.test_utils import BearerAuthTestClient
 from bb8.constant import HTTPStatus, CustomError
 from bb8.backend.platform_parser import get_platform_filename, parse_platform
 from bb8.backend.database import DatabaseManager, Account
@@ -26,6 +27,7 @@ class PlatformAPIUnittest(unittest.TestCase):
         DatabaseManager.connect()
         DatabaseManager.reset()
 
+        app.test_client_class = BearerAuthTestClient
         self.app = app.test_client()
         self.bot_ids = []
         self.platform_ids = []
@@ -40,6 +42,8 @@ class PlatformAPIUnittest(unittest.TestCase):
             passwd='12345678'
         ))
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
+        data = json.loads(rv.data)
+        self.app.set_auth_token(data['auth_token'])
 
     def create_bot(self):
         # Test create bots

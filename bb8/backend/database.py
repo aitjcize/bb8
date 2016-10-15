@@ -32,7 +32,6 @@ from bb8.backend.database_utils import (DeclarativeBase, DatabaseManager,
                                         DatabaseSession, ModelMixin,
                                         JSONSerializableMixin)
 from bb8.backend.metadata import SessionRecord
-from bb8.api.error import AppError
 from bb8.constant import HTTPStatus, CustomError
 
 
@@ -103,9 +102,7 @@ class Account(DeclarativeBase, ModelMixin, JSONSerializableMixin):
         try:
             payload = jwt.decode(token, config.JWT_SECRET)
         except (jwt.DecodeError, jwt.ExpiredSignature):
-            raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
-                           CustomError.ERR_UNAUTHENTICATED,
-                           'The token %s is invalid' % token)
+            raise RuntimeError('auth token is invalid')
         return cls.get_by(id=payload['sub'], single=True)
 
 
