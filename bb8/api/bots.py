@@ -25,14 +25,14 @@ def get_account_bot_by_id(bot_id):
     return bot
 
 
-@app.route('/bots', methods=['GET'])
+@app.route('/api/bots', methods=['GET'])
 @login_required
 def list_bots():
     """List all bots."""
     return jsonify(bots=[b.to_json() for b in g.account.bots])
 
 
-@app.route('/bots', methods=['POST'])
+@app.route('/api/bots', methods=['POST'])
 @login_required
 def create_bot():
     """Create a new bot."""
@@ -47,7 +47,7 @@ def create_bot():
                    form.errors)
 
 
-@app.route('/bots/<int:bot_id>', methods=['GET'])
+@app.route('/api/bots/<int:bot_id>', methods=['GET'])
 @login_required
 def show_bot(bot_id):
     """Return Bot JSON object."""
@@ -55,7 +55,7 @@ def show_bot(bot_id):
     return jsonify(bot.to_json(['staging']))
 
 
-@app.route('/bots/<int:bot_id>', methods=['PATCH'])
+@app.route('/api/bots/<int:bot_id>', methods=['PATCH'])
 @login_required
 def update_bot(bot_id):
     """Modify a bot staging area."""
@@ -75,7 +75,7 @@ def update_bot(bot_id):
     return jsonify(message='ok')
 
 
-@app.route('/bots/<int:bot_id>', methods=['PUT'])
+@app.route('/api/bots/<int:bot_id>', methods=['PUT'])
 @login_required
 def deploy_bot(bot_id):
     bot = get_account_bot_by_id(bot_id)
@@ -92,7 +92,7 @@ def deploy_bot(bot_id):
     return jsonify(version=bot_def.version)
 
 
-@app.route('/bots/<int:bot_id>', methods=['DELETE'])
+@app.route('/api/bots/<int:bot_id>', methods=['DELETE'])
 @login_required
 def delete_bot(bot_id):
     bot = get_account_bot_by_id(bot_id)
@@ -101,7 +101,7 @@ def delete_bot(bot_id):
     return jsonify(message='ok')
 
 
-@app.route('/bots/<int:bot_id>/revisions', methods=['GET'])
+@app.route('/api/bots/<int:bot_id>/revisions', methods=['GET'])
 @login_required
 def list_bot_def_revisions(bot_id):
     """List all available revision for a given bot."""
@@ -109,7 +109,7 @@ def list_bot_def_revisions(bot_id):
     return jsonify(bot_defs=[d.to_json() for d in bot.bot_defs])
 
 
-@app.route('/bots/<int:bot_id>/revisions/<int:version>', methods=['GET'])
+@app.route('/api/bots/<int:bot_id>/revisions/<int:version>', methods=['GET'])
 @login_required
 def get_bot_def_revision(bot_id, version):
     """Get bot_def JSON object given a version."""

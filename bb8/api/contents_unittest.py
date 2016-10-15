@@ -45,38 +45,38 @@ class ContentAPIUnittest(unittest.TestCase):
         DatabaseManager.commit()
 
     def test_pagnination(self):
-        rv = self.app.post('/login', data=dict(
+        rv = self.app.post('/api/login', data=dict(
             email='test@gmail.com',
             passwd='12345678'
         ))
-        rv = self.app.get('/feeds?limit=5')
+        rv = self.app.get('/api/feeds?limit=5')
         data = json.loads(rv.data)
         self.assertEquals(len(data['feeds']), 5)
 
-        rv = self.app.get('/feeds?offset=25&limit=50')
+        rv = self.app.get('/api/feeds?offset=25&limit=50')
         data = json.loads(rv.data)
         self.assertEquals(len(data['feeds']), 25)
 
-        rv = self.app.get('/feeds')
+        rv = self.app.get('/api/feeds')
         data = json.loads(rv.data)
         self.assertEquals(len(data['feeds']), 10)
 
-        rv = self.app.get('/feeds?offset=10')
+        rv = self.app.get('/api/feeds?offset=10')
         data = json.loads(rv.data)
         self.assertEquals(len(data['feeds']), 10)
 
-        rv = self.app.get('/feeds?offset=b&limit=a')
+        rv = self.app.get('/api/feeds?offset=b&limit=a')
         data = json.loads(rv.data)
         self.assertEquals(len(data['feeds']), 10)
 
     def test_feed(self):
-        rv = self.app.post('/login', data=dict(
+        rv = self.app.post('/api/login', data=dict(
             email='test@gmail.com',
             passwd='12345678'
         ))
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
 
-        rv = self.app.post('/feeds', data=dict(
+        rv = self.app.post('/api/feeds', data=dict(
             url='www.appledaily.com',
             type='RSS',
             title=u'apple daily',

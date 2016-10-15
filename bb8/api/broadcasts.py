@@ -26,14 +26,14 @@ def get_account_broadcast_by_id(broadcast_id):
     return broadcast
 
 
-@app.route('/broadcasts', methods=['GET'])
+@app.route('/api/broadcasts', methods=['GET'])
 @login_required
 def list_broadcasts():
     """List all broadcasts."""
     return jsonify(broadcasts=[b.to_json() for b in g.account.broadcasts])
 
 
-@app.route('/broadcasts', methods=['POST'])
+@app.route('/api/broadcasts', methods=['POST'])
 @login_required
 def create_broadcast():
     """Create a new broadcast."""
@@ -50,14 +50,14 @@ def create_broadcast():
     return jsonify(broadcast.to_json())
 
 
-@app.route('/broadcasts/<int:broadcast_id>', methods=['GET'])
+@app.route('/api/broadcasts/<int:broadcast_id>', methods=['GET'])
 @login_required
 def show_broadcast(broadcast_id):
     broadcast = get_account_broadcast_by_id(broadcast_id)
     return jsonify(broadcast.to_json(['messages']))
 
 
-@app.route('/broadcasts/<int:broadcast_id>', methods=['PUT'])
+@app.route('/api/broadcasts/<int:broadcast_id>', methods=['PUT'])
 @login_required
 def update_broadcast(broadcast_id):
     """Update a broadcast."""
@@ -79,7 +79,7 @@ def update_broadcast(broadcast_id):
     return jsonify(message='ok')
 
 
-@app.route('/broadcasts/<int:broadcast_id>', methods=['DELETE'])
+@app.route('/api/broadcasts/<int:broadcast_id>', methods=['DELETE'])
 @login_required
 def delete_broadcast(broadcast_id):
     """Delete a broadcast."""

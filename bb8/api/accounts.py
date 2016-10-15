@@ -15,7 +15,7 @@ from bb8.api.middlewares import login_required
 from bb8.backend.database import Account, DatabaseManager
 
 
-@app.route('/email_register', methods=['POST'])
+@app.route('/api/email_register', methods=['POST'])
 def email_register():
     form = RegistrationForm(csrf_enabled=False)
     if form.validate_on_submit():
@@ -44,7 +44,7 @@ def email_register():
                    CustomError.ERR_FORM_VALIDATION, form.errors)
 
 
-@app.route('/social_register', methods=['POST'])
+@app.route('/api/social_register', methods=['POST'])
 def social_register():
     form = SocialRegistrationForm(csrf_enabled=False)
     if form.validate_on_submit():
@@ -53,7 +53,7 @@ def social_register():
                    CustomError.ERR_FORM_VALIDATION, form.errors)
 
 
-@app.route('/login', methods=['POST'])
+@app.route('/api/login', methods=['POST'])
 def login():
     form = LoginForm(csrf_enabled=False)
     if form.validate_on_submit():
@@ -70,17 +70,17 @@ def login():
                    CustomError.ERR_FORM_VALIDATION, form.errors)
 
 
-@app.route('/social_login', methods=['POST'])
+@app.route('/api/social_login', methods=['POST'])
 def social_login():
     return jsonify(message='ok')
 
 
-@app.route('/verify_email', methods=['GET'])
+@app.route('/api/verify_email', methods=['GET'])
 def verify_email():
     return jsonify(message='ok')
 
 
-@app.route('/me', methods=['GET'])
+@app.route('/api/me', methods=['GET'])
 @login_required
 def get_me():
     return jsonify(g.account.to_json())

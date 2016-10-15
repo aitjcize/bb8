@@ -35,7 +35,7 @@ class PlatformAPIUnittest(unittest.TestCase):
         DatabaseManager.disconnect()
 
     def login(self, acnt):
-        rv = self.app.post('/login', data=dict(
+        rv = self.app.post('/api/login', data=dict(
             email=acnt.email,
             passwd='12345678'
         ))
@@ -43,7 +43,7 @@ class PlatformAPIUnittest(unittest.TestCase):
 
     def create_bot(self):
         # Test create bots
-        rv = self.app.post('/bots', data=dict(
+        rv = self.app.post('/api/bots', data=dict(
             name='test-bot',
             description='test-description',
         ))
@@ -57,7 +57,7 @@ class PlatformAPIUnittest(unittest.TestCase):
         with open(get_platform_filename(platform_filename), 'r') as f:
             data = f.read()
 
-        rv = self.app.post('/platforms', data=data,
+        rv = self.app.post('/api/platforms', data=data,
                            content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
@@ -93,7 +93,7 @@ class PlatformAPIUnittest(unittest.TestCase):
         self.create_platform('dev/bb8.test3.platform')
 
         # Test get all platforms
-        rv = self.app.get('/platforms')
+        rv = self.app.get('/api/platforms')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.assertEquals(len(data['platforms']), 2)
@@ -106,34 +106,34 @@ class PlatformAPIUnittest(unittest.TestCase):
         Also very that platform access permision is bound by account.
         """
         # Test get one platforms
-        rv = self.app.get('/platforms/%d' % self.platform_ids[0])
+        rv = self.app.get('/api/platforms/%d' % self.platform_ids[0])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.assertEquals(data['provider_ident'], 'bb8.test.platform')
         self.assertEquals(data['config']['access_token'], 'access_token')
 
         # Test invalid platform_id
-        rv = self.app.get('/platforms/9999999')
+        rv = self.app.get('/api/platforms/9999999')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
 
         # Test invalid platform_id (platform own by account2)
-        rv = self.app.get('/platforms/%s' % self.platform_ids[1])
+        rv = self.app.get('/api/platforms/%s' % self.platform_ids[1])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
 
         # Login as account2, and should have access to the second platform
         self.login(self.account2)
-        rv = self.app.get('/platforms/%s' % self.platform_ids[1])
+        rv = self.app.get('/api/platforms/%s' % self.platform_ids[1])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
 
     def test_platform_update(self):
         with open(get_platform_filename('dev/bb8.test3.platform'), 'r') as f:
             data = f.read()
 
-        rv = self.app.put('/platforms/%d' % self.platform_ids[0], data=data,
-                          content_type='application/json')
+        rv = self.app.put('/api/platforms/%d' % self.platform_ids[0],
+                          data=data, content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
 
-        rv = self.app.get('/platforms/%d' % self.platform_ids[0])
+        rv = self.app.get('/api/platforms/%d' % self.platform_ids[0])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.assertEquals(data['provider_ident'], 'bb8.test3.platform')
@@ -144,37 +144,37 @@ class PlatformAPIUnittest(unittest.TestCase):
 
         # Bind platform1 with bot1
         input_data['bot_id'] = self.bot_ids[0]
-        rv = self.app.put('/platforms/%d' % self.platform_ids[0],
+        rv = self.app.put('/api/platforms/%d' % self.platform_ids[0],
                           data=json.dumps(input_data),
                           content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
 
         # Check binding
-        rv = self.app.get('/platforms/%d' % self.platform_ids[0])
+        rv = self.app.get('/api/platforms/%d' % self.platform_ids[0])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.assertEquals(data['bot_id'], self.bot_ids[0])
 
         # Try to bind account2's bot
         input_data['bot_id'] = self.bot_ids[1]
-        rv = self.app.put('/platforms/%d' % self.platform_ids[0],
+        rv = self.app.put('/api/platforms/%d' % self.platform_ids[0],
                           data=json.dumps(input_data),
                           content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
 
     def test_platform_deletion(self):
         # Test get all platforms
-        rv = self.app.get('/platforms')
+        rv = self.app.get('/api/platforms')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
 
         # Delete the platform
-        self.app.delete('/platforms/%d' % data['platforms'][0]['id'])
+        self.app.delete('/api/platforms/%d' % data['platforms'][0]['id'])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
 
         # Make sure we don't have any platforms left
-        rv = self.app.get('/platforms')
+        rv = self.app.get('/api/platforms')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.assertEquals(len(data['platforms']), 0)

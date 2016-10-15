@@ -25,14 +25,14 @@ def get_account_platform_by_id(platform_id):
     return platform
 
 
-@app.route('/platforms', methods=['GET'])
+@app.route('/api/platforms', methods=['GET'])
 @login_required
 def list_platforms():
     """List all platforms."""
     return jsonify(platforms=[p.to_json() for p in g.account.platforms])
 
 
-@app.route('/platforms', methods=['POST'])
+@app.route('/api/platforms', methods=['POST'])
 @login_required
 def create_platform():
     """Create a new platform."""
@@ -49,14 +49,14 @@ def create_platform():
     return jsonify(platform.to_json(['config']))
 
 
-@app.route('/platforms/<int:platform_id>', methods=['GET'])
+@app.route('/api/platforms/<int:platform_id>', methods=['GET'])
 @login_required
 def show_platform(platform_id):
     platform = get_account_platform_by_id(platform_id)
     return jsonify(platform.to_json(['config']))
 
 
-@app.route('/platforms/<int:platform_id>', methods=['PUT'])
+@app.route('/api/platforms/<int:platform_id>', methods=['PUT'])
 @login_required
 def update_platform(platform_id):
     """Update a platform."""
@@ -74,7 +74,7 @@ def update_platform(platform_id):
     return jsonify(message='ok')
 
 
-@app.route('/platforms/<int:platform_id>', methods=['DELETE'])
+@app.route('/api/platforms/<int:platform_id>', methods=['DELETE'])
 @login_required
 def delete_platform(platform_id):
     """Delete a platform."""

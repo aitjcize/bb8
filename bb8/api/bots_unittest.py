@@ -34,7 +34,7 @@ class BotAPIUnittest(unittest.TestCase):
         DatabaseManager.disconnect()
 
     def login(self, acnt):
-        rv = self.app.post('/login', data=dict(
+        rv = self.app.post('/api/login', data=dict(
             email=acnt.email,
             passwd='12345678'
         ))
@@ -42,7 +42,7 @@ class BotAPIUnittest(unittest.TestCase):
 
     def create_bot(self):
         # Test create bots
-        rv = self.app.post('/bots', data=dict(
+        rv = self.app.post('/api/bots', data=dict(
             name='test-bot',
             description='test-description',
         ))
@@ -77,7 +77,7 @@ class BotAPIUnittest(unittest.TestCase):
         self.create_bot()
 
         # Test get all bots
-        rv = self.app.get('/bots')
+        rv = self.app.get('/api/bots')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.assertEquals(len(data['bots']), 2)
@@ -88,23 +88,23 @@ class BotAPIUnittest(unittest.TestCase):
         Also very that bot access permision is bound by account.
         """
         # Test get one bots
-        rv = self.app.get('/bots/%d' % self.bot_ids[0])
+        rv = self.app.get('/api/bots/%d' % self.bot_ids[0])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.assertEquals(data['name'], 'test-bot')
         self.assertTrue('staging' in data)
 
         # Test invalid bot_id
-        rv = self.app.get('/bots/9999999')
+        rv = self.app.get('/api/bots/9999999')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
 
         # Test invalid bot_id (bot own by account2)
-        rv = self.app.get('/bots/%s' % self.bot_ids[1])
+        rv = self.app.get('/api/bots/%s' % self.bot_ids[1])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
 
         # Login as account2, and should have access to the second bot
         self.login(self.account2)
-        rv = self.app.get('/bots/%s' % self.bot_ids[1])
+        rv = self.app.get('/api/bots/%s' % self.bot_ids[1])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
 
     def test_bot_revisions(self):
@@ -114,65 +114,68 @@ class BotAPIUnittest(unittest.TestCase):
             bot_json_text = f.read()
 
         # Modify the staging area
-        rv = self.app.patch('/bots/%d' % self.bot_ids[0], data=bot_json_text,
+        rv = self.app.patch('/api/bots/%d' % self.bot_ids[0],
+                            data=bot_json_text,
                             content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
 
         # Commit the bot
-        rv = self.app.put('/bots/%d' % self.bot_ids[0])
+        rv = self.app.put('/api/bots/%d' % self.bot_ids[0])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.assertEquals(data['version'], 1)
 
         # Test schema validation
-        rv = self.app.patch('/bots/%d' % self.bot_ids[0], data='{"test": 1}',
+        rv = self.app.patch('/api/bots/%d' % self.bot_ids[0],
+                            data='{"test": 1}',
                             content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
 
         # Test account scoping
-        rv = self.app.patch('/bots/%d' % self.bot_ids[1], data=bot_json_text,
+        rv = self.app.patch('/api/bots/%d' % self.bot_ids[1],
+                            data=bot_json_text,
                             content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
 
         # Add another new revision
         bot_json = json.loads(bot_json_text)
         bot_json['bot']['name'] = 'a_new_bot'
-        rv = self.app.patch('/bots/%d' % self.bot_ids[0],
+        rv = self.app.patch('/api/bots/%d' % self.bot_ids[0],
                             data=json.dumps(bot_json),
                             content_type='application/json')
         data = json.loads(rv.data)
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
 
         # The bot name should changed when the bot is saved
-        rv = self.app.get('/bots/%d' % self.bot_ids[0])
+        rv = self.app.get('/api/bots/%d' % self.bot_ids[0])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.assertEquals(data['name'], 'a_new_bot')
 
         # Commit the bot
-        rv = self.app.put('/bots/%d' % self.bot_ids[0])
+        rv = self.app.put('/api/bots/%d' % self.bot_ids[0])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.assertEquals(data['version'], 2)
 
         # Make sure that the name of bot has changed after v2 submitted
-        rv = self.app.get('/bots/%d' % self.bot_ids[0])
+        rv = self.app.get('/api/bots/%d' % self.bot_ids[0])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.assertEquals(data['name'], 'a_new_bot')
 
         # Test bot revision listing
-        rv = self.app.get('/bots/%d/revisions' % self.bot_ids[0])
+        rv = self.app.get('/api/bots/%d/revisions' % self.bot_ids[0])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.assertEquals(len(data['bot_defs']), 2)
 
-        rv = self.app.get('/bots/%d/revisions/1' % self.bot_ids[0])
+        rv = self.app.get('/api/bots/%d/revisions/1' % self.bot_ids[0])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.assertEquals(data['bot_json']['bot']['name'], u'simple')
 
-        rv = self.app.get('/bots/%d/revisions/2' % self.bot_ids[0])
+        rv = self.app.get('/api/bots/%d/revisions/2' % self.bot_ids[0])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.assertEquals(data['bot_json']['bot']['name'], u'a_new_bot')
@@ -183,28 +186,29 @@ class BotAPIUnittest(unittest.TestCase):
             bot_json_text = f.read()
 
         # Make a revision
-        rv = self.app.patch('/bots/%d' % self.bot_ids[0], data=bot_json_text,
+        rv = self.app.patch('/api/bots/%d' % self.bot_ids[0],
+                            data=bot_json_text,
                             content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
 
-        rv = self.app.put('/bots/%d' % self.bot_ids[0])
+        rv = self.app.put('/api/bots/%d' % self.bot_ids[0])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.assertEquals(data['version'], 1)
 
         # Test get all bots
-        rv = self.app.get('/bots')
+        rv = self.app.get('/api/bots')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.assertEquals(len(data['bots']), 1)
 
         # Delete the bot
-        self.app.delete('/bots/%d' % data['bots'][0]['id'])
+        self.app.delete('/api/bots/%d' % data['bots'][0]['id'])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
 
         # Make sure we don't have any bots left
-        rv = self.app.get('/bots')
+        rv = self.app.get('/api/bots')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.assertEquals(len(data['bots']), 0)

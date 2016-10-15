@@ -28,7 +28,7 @@ from bb8.api.error import AppError
 ALLOWED_HOSTS = ['dramaq.biz', 'www.dramaq.biz', 'showq.biz', 'www.showq.biz']
 
 
-@app.route('/util/cache_image', methods=['GET'])
+@app.route('/api/util/cache_image', methods=['GET'])
 def cache_image():
     gs_client = storage.Client(project=config.GCP_PROJECT)
     bucket = gs_client.get_bucket('cached-pictures')
@@ -68,7 +68,7 @@ def cache_image():
     return redirect(blob.public_url)
 
 
-@app.route('/util/image_convert', methods=['GET'])
+@app.route('/api/util/image_convert', methods=['GET'])
 def image_convert_url():
     """Image convert service."""
     # TODO(aitjcize): cache converted image to S3

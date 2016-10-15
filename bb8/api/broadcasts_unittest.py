@@ -37,7 +37,7 @@ class BroadcastAPIUnittest(unittest.TestCase):
         DatabaseManager.disconnect()
 
     def login(self, acnt):
-        rv = self.app.post('/login', data=dict(
+        rv = self.app.post('/api/login', data=dict(
             email=acnt.email,
             passwd='12345678'
         ))
@@ -45,7 +45,7 @@ class BroadcastAPIUnittest(unittest.TestCase):
 
     def create_bot(self):
         # Test create bots
-        rv = self.app.post('/bots', data=dict(
+        rv = self.app.post('/api/bots', data=dict(
             name='test-bot',
             description='test-description',
         ))
@@ -63,7 +63,7 @@ class BroadcastAPIUnittest(unittest.TestCase):
             'scheduled_time': int(time.time()),
         }
 
-        rv = self.app.post('/broadcasts', data=json.dumps(input_data),
+        rv = self.app.post('/api/broadcasts', data=json.dumps(input_data),
                            content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
@@ -99,7 +99,7 @@ class BroadcastAPIUnittest(unittest.TestCase):
         self.create_broadcast(self.bot_ids[0])
 
         # Test get all broadcasts
-        rv = self.app.get('/broadcasts')
+        rv = self.app.get('/api/broadcasts')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.assertEquals(len(data['broadcasts']), 2)
@@ -117,7 +117,7 @@ class BroadcastAPIUnittest(unittest.TestCase):
             'scheduled_time': int(time.time()),
         }
 
-        rv = self.app.post('/broadcasts', data=json.dumps(input_data),
+        rv = self.app.post('/api/broadcasts', data=json.dumps(input_data),
                            content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
 
@@ -129,32 +129,32 @@ class BroadcastAPIUnittest(unittest.TestCase):
             'scheduled_time': int(time.time()),
         }
 
-        rv = self.app.post('/broadcasts', data=json.dumps(input_data),
+        rv = self.app.post('/api/broadcasts', data=json.dumps(input_data),
                            content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
 
         # Test get one broadcasts
-        rv = self.app.get('/broadcasts/%d' % self.broadcast_ids[0])
+        rv = self.app.get('/api/broadcasts/%d' % self.broadcast_ids[0])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.assertEquals(data['name'], 'New broadcast')
 
         # Test invalid broadcast_id
-        rv = self.app.get('/broadcasts/9999999')
+        rv = self.app.get('/api/broadcasts/9999999')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
 
         # Test invalid broadcast_id (broadcast own by account2)
-        rv = self.app.get('/broadcasts/%s' % self.broadcast_ids[1])
+        rv = self.app.get('/api/broadcasts/%s' % self.broadcast_ids[1])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
 
         # Login as account2, and should have access to the second broadcast
         self.login(self.account2)
-        rv = self.app.get('/broadcasts/%s' % self.broadcast_ids[1])
+        rv = self.app.get('/api/broadcasts/%s' % self.broadcast_ids[1])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
 
     def test_broadcast_update(self):
         # Test get all broadcasts
-        rv = self.app.get('/broadcasts')
+        rv = self.app.get('/api/broadcasts')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
 
@@ -168,7 +168,7 @@ class BroadcastAPIUnittest(unittest.TestCase):
             'scheduled_time': int(time.time()),
             'status': 'Queued'
         }
-        rv = self.app.put('/broadcasts/%d' % broadcast_id,
+        rv = self.app.put('/api/broadcasts/%d' % broadcast_id,
                           data=json.dumps(input_data),
                           content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
@@ -181,12 +181,12 @@ class BroadcastAPIUnittest(unittest.TestCase):
             'scheduled_time': int(time.time()),
             'status': 'Canceled'
         }
-        rv = self.app.put('/broadcasts/%d' % broadcast_id,
+        rv = self.app.put('/api/broadcasts/%d' % broadcast_id,
                           data=json.dumps(input_data),
                           content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
 
-        rv = self.app.get('/broadcasts/%d' % broadcast_id)
+        rv = self.app.get('/api/broadcasts/%d' % broadcast_id)
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.assertEquals(data['messages'][0]['text'], '1234')
@@ -198,14 +198,14 @@ class BroadcastAPIUnittest(unittest.TestCase):
             'messages': [Message('1234').as_dict()],
             'scheduled_time': int(time.time()),
         }
-        rv = self.app.put('/broadcasts/%d' % broadcast_id,
+        rv = self.app.put('/api/broadcasts/%d' % broadcast_id,
                           data=json.dumps(input_data),
                           content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
 
     def test_broadcast_deletion(self):
         # Test get all broadcasts
-        rv = self.app.get('/broadcasts')
+        rv = self.app.get('/api/broadcasts')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
 
@@ -217,7 +217,7 @@ class BroadcastAPIUnittest(unittest.TestCase):
         DatabaseManager.commit()
 
         # Delete the broadcast (should fail becuase it's sent already)
-        rv = self.app.delete('/broadcasts/%d' % broadcast_id)
+        rv = self.app.delete('/api/broadcasts/%d' % broadcast_id)
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
         data = json.loads(rv.data)
 
@@ -227,12 +227,12 @@ class BroadcastAPIUnittest(unittest.TestCase):
         DatabaseManager.commit()
 
         # Delete the broadcast
-        rv = self.app.delete('/broadcasts/%d' % broadcast_id)
+        rv = self.app.delete('/api/broadcasts/%d' % broadcast_id)
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
 
         # Make sure we don't have any broadcasts left
-        rv = self.app.get('/broadcasts')
+        rv = self.app.get('/api/broadcasts')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.assertEquals(len(data['broadcasts']), 0)

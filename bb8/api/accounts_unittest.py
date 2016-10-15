@@ -38,11 +38,11 @@ class AccountAPIUnittest(unittest.TestCase):
 
     def test_account(self):
         # Test for accessing login-only data, should fail
-        rv = self.app.get('/me')
+        rv = self.app.get('/api/me')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
 
         # Test for existing email and username
-        rv = self.app.post('/email_register', data=dict(
+        rv = self.app.post('/api/email_register', data=dict(
             email='test@gmail.com',
             username='test-account-1',
             passwd='12345678'
@@ -52,7 +52,7 @@ class AccountAPIUnittest(unittest.TestCase):
         self.assertEquals(data['error_code'], CustomError.ERR_USER_EXISTED)
 
         # Test for successful register
-        rv = self.app.post('/email_register', data=dict(
+        rv = self.app.post('/api/email_register', data=dict(
             email='test-2@gmail.com',
             username='test-account-2',
             passwd='12345678'
@@ -60,21 +60,21 @@ class AccountAPIUnittest(unittest.TestCase):
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
 
         # Test for wrong password
-        rv = self.app.post('/login', data=dict(
+        rv = self.app.post('/api/login', data=dict(
             email='test-2@gmail.com',
             passwd='87654321'
         ))
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
 
         # Test for login
-        rv = self.app.post('/login', data=dict(
+        rv = self.app.post('/api/login', data=dict(
             email='test-2@gmail.com',
             passwd='12345678'
         ))
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
 
         # Test for accessing login-only data
-        rv = self.app.get('/me')
+        rv = self.app.get('/api/me')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.assertEquals(data['email'], 'test-2@gmail.com')

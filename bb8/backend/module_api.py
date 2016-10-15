@@ -65,7 +65,7 @@ def GetgRPCService(name):
 
 
 def CacheImage(link):
-    return 'https://{0}:{1}/util/cache_image?url={2}'.format(
+    return 'https://{0}:{1}/api/util/cache_image?url={2}'.format(
         config.HOSTNAME, config.HTTP_PORT, link)
 
 
