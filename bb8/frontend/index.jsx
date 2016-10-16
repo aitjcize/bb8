@@ -2,11 +2,13 @@ import 'babel-polyfill';
 
 import React from 'react';
 import { render } from 'react-dom';
+import { Provider } from 'react-redux';
 import { Router, Route, hashHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
 import { createStore, applyMiddleware } from 'redux';
 import createSagaMiddleware from 'redux-saga';
 import injectTapEventPlugin from 'react-tap-event-plugin';
+import createLogger from 'redux-logger';
 
 import apiClient from './api';
 import App from './modules/App';
@@ -20,10 +22,11 @@ import './styles/style.scss';
 injectTapEventPlugin();
 
 // Configure middleware and store
+const logger = createLogger();
 const sagaMiddleware = createSagaMiddleware();
 const store = createStore(
     rootReducer,
-    applyMiddleware(sagaMiddleware)
+    applyMiddleware(sagaMiddleware, logger),
 );
 sagaMiddleware.run(rootSaga);
 
@@ -33,8 +36,11 @@ document.apiClient = apiClient;
 
 syncHistoryWithStore(hashHistory, store);
 
-render((<Router history={hashHistory}>
-  <Route path="/" component={App} />
-  <Route path="/route1" component={App} />
-  <Route path="/route2" component={App} />
-</Router>), document.getElementById('root'));
+render(
+(<Provider store={store}>
+  <Router history={hashHistory}>
+    <Route path="/" component={App} />
+    <Route path="/route1" component={App} />
+    <Route path="/route2" component={App} />
+  </Router>
+</Provider>), document.getElementById('root'));
