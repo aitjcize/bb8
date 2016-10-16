@@ -1,0 +1,9 @@
+{
+  "name": "Hans Facebook dev",
+  "type_enum": "Facebook",
+  "deployed": false,
+  "provider_ident": "1071178563001617",
+  "config": {
+    "access_token": "EAAHMqD9bQB4BAAW4T609Sj6qo7sWF1lgb6X22qYtarXH0vS7MeQoCGOm1Q9K6NR2kMvyqTrTMgYmv3K1WIpoF5qYKUnFWNZAgICVPZBZBTk5JOOcX3YKJZBFQtMM8CydNKnQMRiLRCrwmjVAkMBrJYVZCV7vmDThSfUFbutgXMQZDZD"
+  }
+}
