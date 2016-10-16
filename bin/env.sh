@@ -6,7 +6,7 @@ if [ -e $GITROOT/.env ]; then
   source $GITROOT/.env/bin/activate
 fi
 
-export PATH=$GITROOT/bin:$PATH
+export PATH=$GITROOT/bin:$GITROOT/bb8/frontend/node_modules/.bin:$PATH
 export PYTHONPATH=$GITROOT
 
 # Set python path
