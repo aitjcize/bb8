@@ -158,7 +158,7 @@ class Number(Rule):
         self.matched = None
 
     def ParseQuery(self, query):
-        m = re.search(r'(([0-9]+(\.[0-9]+)?)\s*' + self.unit + ')', query)
+        m = re.search(ur'(([0-9]+(\.[0-9]+)?)\s*' + self.unit + ')', query)
         if m:
             self.matched = m.group(1)
             self.number = float(m.group(2))
@@ -363,7 +363,7 @@ class Rules(object):
 
         nums = {
             u'一': 1, u'二': 2, u'三': 3, u'四': 4, u'五': 5,
-            u'六': 6, u'七': 7, u'八': 8, u'九': 9,
+            u'六': 6, u'七': 7, u'八': 8, u'九': 9, u'兩': 2,
             u'０': 0, u'１': 1, u'２': 2, u'３': 3, u'４': 4,
             u'５': 5, u'６': 6, u'７': 7, u'８': 8, u'９': 9,
             u'零': 0, u'壹': 1, u'贰': 2, u'叁': 3, u'肆': 4,
@@ -440,8 +440,17 @@ class Rules(object):
         rules.Add(Number(
             weight=250, unit=u'坪', slope=20 * M2_PER_PING,
             tran_key='建物移轉總面積平方公尺', scale=M2_PER_PING))
-        rules.Add(Number(weight=100, unit='樓', tran_key='移轉層次', slope=4))
+        rules.Add(Number(weight=100, unit=u'樓', tran_key='移轉層次', slope=4))
         rules.Add(Number(
             weight=200, unit=u'萬', tran_key='總價元', slope=-0.2, scale=10000))
+        rules.Add(Number(
+            weight=400, unit=u'房', tran_key='建物現況格局-房',
+            slope=1.0, scale=1.0))
+        rules.Add(Number(
+            weight=150, unit=u'廳', tran_key='建物現況格局-廳',
+            slope=1.0, scale=1.0))
+        rules.Add(Number(
+            weight=150, unit=u'衛', tran_key='建物現況格局-衛',
+            slope=1.0, scale=1.0))
 
         return rules

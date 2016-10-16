@@ -219,7 +219,7 @@ class TwRealPrice(object):
             lat_center, lng_center = LatLngIndex(latlng[0], latlng[1])
         except ValueError:
             traceback.print_exc()
-            return [], []
+            return []
 
         for lat_in, lng_in in GenNearbyIndex(lat_center, lng_center, 1):
             for row in conn.execute(
@@ -367,12 +367,15 @@ def run(unused_content_config, env, unused_variables):
             if rules:
                 rules.AddPureSortingRules(latlng)
 
+        next_data_index = max_count
+
         if not latlng:
             return [Message(
                 u'我還不知道你想查的地方是哪裡。請輸入地址或是送出你的位置。')]
 
         Memory.Set('rules', cPickle.dumps(rules))
         Memory.Set('latlng', latlng)
+        Memory.Set('next_data_index', next_data_index)
 
         twrealprice = TwRealPrice()
         try:

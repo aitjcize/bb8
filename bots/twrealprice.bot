@@ -94,7 +94,7 @@
       "DemoDesc": {
         "name": "Demo-Desc",
         "description": "Give context about the demo",
-        "expect_input": true,
+        "expect_input": false,
         "content_module": {
           "id": "ai.compose.content.core.generic_message",
           "config": {
@@ -160,19 +160,15 @@
                   },
                   {
                     "content_type": "text",
-                    "title": "大樓"
+                    "title": "八年大樓三房"
                   },
                   {
                     "content_type": "text",
-                    "title": "8年"
+                    "title": "台中誠品40坪公寓五樓"
                   },
                   {
                     "content_type": "text",
-                    "title": "55.66坪"
-                  },
-                  {
-                    "content_type": "text",
-                    "title": "十一樓"
+                    "title": "帝寶三千萬華廈"
                   },
                   {
                     "content_type": "text",

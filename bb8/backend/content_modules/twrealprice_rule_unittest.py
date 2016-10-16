@@ -52,6 +52,10 @@ class TestNumber(unittest.TestCase):
             tran_key='建物移轉總面積平方公尺',
             weight=10,
             scale=3.3)
+        self.room = twrealprice_rule.Number(
+            unit=u'房',
+            tran_key='建物現況格局-房',
+            weight=10)  # To regress slope=1.0 and scale=1.0
 
     def test_integer(self):
         self.assertTrue(self.integer.ParseQuery(query=u'我想買5樓'))
@@ -61,6 +65,13 @@ class TestNumber(unittest.TestCase):
         self.assertTrue(self.float.ParseQuery(query=u'室內19.23坪'))
         self.assertAlmostEqual(self.float.CountScore(
             {'建物移轉總面積平方公尺': '63.459'}), 1.0)
+
+    def test_room(self):
+        self.assertTrue(self.room.ParseQuery(query=u'2房'))
+        self.assertAlmostEqual(self.room.CountScore(
+            {'建物現況格局-房': '2'}), 1.0)
+        self.assertAlmostEqual(self.room.CountScore(
+            {'建物現況格局-房': '3'}), 0.0)
 
 
 class TestDays(unittest.TestCase):
