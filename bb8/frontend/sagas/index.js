@@ -1,7 +1,7 @@
 import storage from 'store2';
 import { take, call, put, fork } from 'redux-saga/effects';
 import { hashHistory } from 'react-router';
-import { LOGIN, LOGOUT, FETCH_BOTS } from '../actions';
+import { LOGIN, LOGOUT, BOTS_GET_ALL } from '../actions';
 import api from '../api';
 import AUTH_TOKEN from '../constants';
 
@@ -16,10 +16,10 @@ export function* logoutSaga() {
 export function* loginSaga() {
   while (true) {
     const request = yield take(LOGIN.REQUEST);
-    const { username, passwd } = request.payload;
+    const { email, passwd } = request.payload;
 
     const { response, error } =
-      yield call(api.login, { username, passwd });
+      yield call(api.login, email, passwd);
 
     if (error) {
       yield put({ type: LOGIN.ERROR });
@@ -34,12 +34,14 @@ export function* loginSaga() {
 
 export function* fetchBots() {
   while (true) {
-    yield take(FETCH_BOTS.REQUEST);
+    yield take(BOTS_GET_ALL.REQUEST);
 
-    const { error } = yield call(api.fetchAll);
+    const { bots, error } = yield call(api.getAllBots);
 
     if (error) {
-      yield put({});
+      yield put({ type: BOTS_GET_ALL.ERROR });
+    } else {
+      yield put({ type: BOTS_GET_ALL.SUCCESS, payload: bots });
     }
   }
 }

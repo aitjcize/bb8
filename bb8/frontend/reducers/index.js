@@ -1,9 +1,10 @@
 import { routerReducer as routing } from 'react-router-redux';
+import { reducer as reduxFormReducer } from 'redux-form';
 import { combineReducers } from 'redux';
 import {
   LOGIN,
   LOGOUT,
-  FETCH_BOTS,
+  BOTS_GET_ALL,
   SET_ACTIVE_BOT,
   UPDATE_BOT_STAGING,
 } from '../actions';
@@ -27,7 +28,7 @@ function bot(state = {}, action) {
   const { bots, active } = state;
 
   switch (action.type) {
-    case FETCH_BOTS:
+    case BOTS_GET_ALL:
       return {
         active: active || action.payload[0].id,
         bots: action.payload,
@@ -52,6 +53,7 @@ function bot(state = {}, action) {
 }
 
 const rootReducer = combineReducers({
+  form: reduxFormReducer,
   account,
   bot,
   routing,
