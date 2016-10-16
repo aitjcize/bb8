@@ -156,7 +156,6 @@ class Bot(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     ROOT_STABLE_ID = 'Root'
     START_STABLE_ID = 'Start'
 
-    @property
     def __repr__(self):
         return '<%s(\'%s\', \'%s\')>' % (type(self).__name__, self.id,
                                          self.name.encode('utf8'))
