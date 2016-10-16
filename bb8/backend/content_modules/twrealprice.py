@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-    Search for TW Real Price
-    ~~~~~~~~~~~~~~~~~~~~~~~
+Search for TW Real Price
+~~~~~~~~~~~~~~~~~~~~~~~
 
-    Provide Taiwan eState info.
+Provide Taiwan eState info.
+
+Note that all transaction data are encoded in utf-8 (specificly, tran, trans,
+and cached_transaction. All other string in this file should be unicode.
 """
 
 import cPickle
@@ -79,10 +82,12 @@ def GenNearbyIndex(lat_center, lng_center, N):
 
 
 def RocSlash(roc_date):
+    """Returns utf-8"""
     return '%s/%s/%s' % (roc_date[0:3], roc_date[3:5], roc_date[5:7])
 
 
 def Age(build_date):
+    """Returns utf-8"""
     try:
         return '%.f' % ((
             datetime.date.today() -
@@ -92,6 +97,7 @@ def Age(build_date):
 
 
 def StreetOnly(s):
+    """Returns utf-8"""
     sub = s['土地區段位置或建物區門牌'].split(s['鄉鎮市區'])
     if len(sub) == 2:
         return sub[1]
@@ -245,9 +251,6 @@ class UserInput(object):
     def __init__(self):
         # First time, read from bot and clear them.
         self.singleton = {k: Memory.Get(k, None) for k in self.KEYS}
-        # Query is special because it is Unicode.
-        if self.singleton['query']:
-            self.singleton['query'] = self.singleton['query'].encode('utf-8')
         _LOG.info('User input: %r', self.singleton)
 
         for k in self.KEYS:
@@ -270,7 +273,7 @@ def run(unused_content_config, env, unused_variables):
         max_count = 5
         max_text_len = Message.MAX_TEXT_LEN
 
-    address = ''   # str. The address user entered.
+    address = u''   # str. The address user entered.
 
     geocoder = GoogleMapsGeocodingAPI(api_key=GOOGLE_STATIC_MAP_API_KEY)
 
@@ -282,13 +285,13 @@ def run(unused_content_config, env, unused_variables):
         # Yes, user clicks 'more data', dump data from cache.
 
         if not cached_transaction:
-            return [Message('請重新輸入地址或條件。')]
+            return [Message(u'請重新輸入地址或條件。')]
 
         trans = cached_transaction[next_data_index:next_data_index + max_count]
         Memory.Set('next_data_index', next_data_index + max_count)
 
         if not trans:
-            return [Message('沒有更多物件了，請重新輸入地址或條件。')]
+            return [Message(u'沒有更多物件了，請重新輸入地址或條件。')]
 
     else:
         # Nope. User is not entering 'more data'.
@@ -334,7 +337,7 @@ def run(unused_content_config, env, unused_variables):
                     center=center)
 
                 if not geo_results and not rules.filters:
-                    return [Message('我不認識這個地址: [%s]' % address)]
+                    return [Message(u'我不認識這個地址: [%s]' % address)]
 
                 if len(geo_results) == 1:
                     latlng = (geo_results[0]['location'][0],
@@ -366,7 +369,7 @@ def run(unused_content_config, env, unused_variables):
 
         if not latlng:
             return [Message(
-                '我還不知道你想查的地方是哪裡。請輸入地址或是送出你的位置。')]
+                u'我還不知道你想查的地方是哪裡。請輸入地址或是送出你的位置。')]
 
         Memory.Set('rules', cPickle.dumps(rules))
         Memory.Set('latlng', latlng)
@@ -375,13 +378,13 @@ def run(unused_content_config, env, unused_variables):
         try:
             trans = twrealprice.nearby_transaction(max_count, latlng, rules)
         except IOError:
-            return [Message('資料庫找不到，趕快回報給粉絲頁管理員，謝謝。')]
+            return [Message(u'資料庫找不到，趕快回報給粉絲頁管理員，謝謝。')]
 
         if rules and rules.filters:
-            msgs.append(Message('篩選條件: %s' % ' '.join(rules.filters)))
+            msgs.append(Message(u'篩選條件: %s' % ' '.join(rules.filters)))
 
         if not trans:
-            msg = Message('對不起，找不到成交行情喔！試試別的地址或條件。')
+            msg = Message(u'對不起，找不到成交行情喔！試試別的地址或條件。')
             msgs.append(msg)
             return msgs
 
@@ -395,10 +398,10 @@ def run(unused_content_config, env, unused_variables):
         lng = float(s['latlng'][1])
         main_map.add_marker((lat, lng), style.next())
 
-    subtitle = '搜尋結果僅供參考，詳細完整實價登錄資料，以內政部公佈為準。'
+    subtitle = u'搜尋結果僅供參考，詳細完整實價登錄資料，以內政部公佈為準。'
 
     msg = Message()
-    b = Message.Bubble('%s附近的成交行情' % address,
+    b = Message.Bubble(u'%s附近的成交行情' % address,
                        image_url=main_map.build_url(),
                        subtitle=subtitle)
 
@@ -409,6 +412,8 @@ def run(unused_content_config, env, unused_variables):
 
     i = -1
     for s in trans:
+        # In this loop, the strings are concatenated in utf-8 first because the
+        # transaction data come with utf-8 encoded.
         try:
             def UnitPrice(s):
                 try:
@@ -456,7 +461,7 @@ def run(unused_content_config, env, unused_variables):
 
             msg = Message()
             msg.add_bubble(Message.Bubble(
-                ('%c: ' % (i + ord('A'))) + title,
+                (u'%c: ' % (i + ord('A'))) + title,
                 subtitle=subtitle))
             msgs.append(msg)
 

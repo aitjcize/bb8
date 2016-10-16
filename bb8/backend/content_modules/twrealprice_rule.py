@@ -131,7 +131,7 @@ class Matcher(Rule):
         return 1.0 if self.tran_value in tran[self.tran_key] else 0
 
     def __str__(self):
-        return '%s' % self.tran_value
+        return self.tran_value.decode('utf-8')
 
 
 class Number(Rule):
@@ -184,7 +184,7 @@ class Number(Rule):
           float. scores
         """
         m = re.search(r'([0-9]+(\.[0-9]+)?)',
-                      Rules.Canonize(tran[self.tran_key]))
+                      Rules.Canonize(tran[self.tran_key].decode('utf-8')))
 
         query_number = self.number * self.scale
 
@@ -200,7 +200,7 @@ class Number(Rule):
             return 0.0
 
     def __str__(self):
-        return '%s%s' % (self.number, self.unit)
+        return u'%s%s' % (self.number, self.unit)
 
 
 class Days(Rule):
@@ -231,7 +231,7 @@ class Days(Rule):
         return max(0, min(1.0, 1.0 - delta / 365))
 
     def __str__(self):
-        return ''
+        return u''
 
 
 class Location(Rule):
@@ -262,7 +262,7 @@ class Location(Rule):
         return max(0, min(1.0, 1.0 - distance / 0.005))
 
     def __str__(self):
-        return ''
+        return u''
 
 
 class Rules(object):
@@ -282,10 +282,10 @@ class Rules(object):
         Results saved in self.matched.
 
         Args:
-          query: utf-8 encoded str.
+          query: unicode str.
 
         Returns:
-          str: the remaining string after eliminating matched rules.
+          unicode str: the remaining string after eliminating matched rules.
         """
         query = self.Canonize(query)
         for r in self.rules:
@@ -341,7 +341,7 @@ class Rules(object):
     @property
     def filters(self):
         """Returns the list of human-readable filter used for count score"""
-        return ['%s' % m for m in self.matched if not m.for_sort_only]
+        return [u'%s' % m for m in self.matched if not m.for_sort_only]
 
     @classmethod
     def Canonize(cls, query):
@@ -354,12 +354,11 @@ class Rules(object):
         Due to RE match issue, convert to unicode while processing.
 
         Args:
-          query: utf-8 encoded str.
+          query: Unicode str.
 
         Returns:
-          str: canonized str
+          Unicode str: canonized str
         """
-        query = query.decode('utf-8')
         query = query.replace(u'層', u'樓')
 
         nums = {
@@ -399,7 +398,7 @@ class Rules(object):
 
             ret = ret + query
 
-        return ret.encode('utf-8')
+        return ret
 
     @classmethod
     def Create(cls):
@@ -408,40 +407,41 @@ class Rules(object):
         # Building types
         rules.Add(Matcher(
             weight=1000,
-            accept_words=['套房'], tran_key='建物型態', tran_value='套房'))
+            accept_words=[u'套房'], tran_key='建物型態', tran_value='套房'))
         rules.Add(Matcher(
             weight=1000,
-            accept_words=['公寓'], tran_key='建物型態', tran_value='公寓'))
+            accept_words=[u'公寓'], tran_key='建物型態', tran_value='公寓'))
         rules.Add(Matcher(  # Hack. Must be prior to 華廈.
             weight=1000,
-            accept_words=['電梯大樓', '住宅大樓', '大樓'], tran_key='建物型態',
+            accept_words=[u'電梯大樓', u'住宅大樓', u'大樓'],
+            tran_key='建物型態',
             tran_value='住宅大樓'))
         rules.Add(Matcher(
             weight=1000,
-            accept_words=['電梯華廈', '華廈', '大樓'], tran_key='建物型態',
+            accept_words=[u'電梯華廈', u'華廈', u'大樓'], tran_key='建物型態',
             tran_value='華廈'))
         rules.Add(Matcher(
             weight=1000,
-            accept_words=['商辦', '商業大樓'], tran_key='建物型態',
+            accept_words=[u'商辦', u'商業大樓'], tran_key='建物型態',
             tran_value='辦公商業大樓'))
         rules.Add(Matcher(
             weight=1000,
-            accept_words=['透天', '獨棟'], tran_key='建物型態',
+            accept_words=[u'透天', u'獨棟'], tran_key='建物型態',
             tran_value='透天厝'))
         rules.Add(Matcher(
             weight=1000,
-            accept_words=['農舍'], tran_key='建物型態', tran_value='農舍'))
+            accept_words=[u'農舍'], tran_key='建物型態', tran_value='農舍'))
         rules.Add(Matcher(
             weight=1000,
-            accept_words=['店面'], tran_key='建物型態', tran_value='店面'))
+            accept_words=[u'店面'], tran_key='建物型態', tran_value='店面'))
 
         # Numbers
-        rules.Add(Number(weight=150, unit='年', tran_key='AGE', slope=10.0))
+        rules.Add(Number(weight=150, unit=u'年', tran_key='AGE', slope=10.0))
         rules.Add(Number(
-            weight=250, unit='坪', slope=20 * M2_PER_PING,
+            weight=250, unit=u'坪', slope=20 * M2_PER_PING,
             tran_key='建物移轉總面積平方公尺', scale=M2_PER_PING))
         rules.Add(Number(weight=100, unit='樓', tran_key='移轉層次', slope=4))
         rules.Add(Number(
-            weight=200, unit='萬', tran_key='總價元', slope=-0.2, scale=10000))
+            weight=200, unit=u'萬', tran_key='總價元', slope=-0.2, scale=10000))
 
         return rules
