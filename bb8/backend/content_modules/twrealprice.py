@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-Search for TW Real Price
-~~~~~~~~~~~~~~~~~~~~~~~
+    Search for TW Real Price
+    ~~~~~~~~~~~~~~~~~~~~~~~
 
-Provide Taiwan eState info.
+    Provide Taiwan eState info.
 
-Note that all transaction data are encoded in utf-8 (specificly, tran, trans,
-and cached_transaction. All other string in this file should be unicode.
+    Note that all transaction data are encoded in utf-8 (specifically trans
+    and cached_transaction). All other string in this file should be unicode.
 """
 
 import cPickle
@@ -230,7 +230,8 @@ class TwRealPrice(object):
 
         conn.close()
         end_time = time.time()
-        _LOG.info('DB search: %.6f sec ...', end_time - start_time)
+        _LOG.info('DB search (%d data): %.6f sec ...',
+                  len(nearby), end_time - start_time)
 
         for s in nearby:
             s['AGE'] = Age(s['建築完成年月'])[:-3]  # remove 年
@@ -355,6 +356,7 @@ def run(unused_content_config, env, unused_variables):
 
                     # If user also entered criteria, save it for later query.
                     if rules.filters:
+                        rules.AddPureSortingRules(latlng)
                         Memory.Set('rules', cPickle.dumps(rules))
 
                     return [m]
