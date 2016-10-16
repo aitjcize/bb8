@@ -2,10 +2,10 @@ import fetch from './util';
 
 const auth = {
   login(email, passwd) {
-    fetch('POST', '/login', {
+    return fetch('POST', '/api/login', {
       email, passwd,
     })
-    .then(response => ({ response: response.json() }))
+    .then(response => ({ response }))
     .catch(error => ({ error }));
   },
 };
