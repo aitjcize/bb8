@@ -11,7 +11,9 @@ from bb8.backend.database import DatabaseManager
 from bb8.tracking import send_ga_track_info
 
 # Register request handlers
-from bb8.api import webhooks, account, third_party, misc  # pylint: disable=W0611
+# pylint: disable=W0611
+from bb8.api import (webhooks, accounts, bots, broadcasts, platforms,
+                     third_party, misc)
 
 
 @app.before_request
