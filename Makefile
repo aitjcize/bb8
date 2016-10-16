@@ -41,7 +41,12 @@ remove-redis:
 start-celery:
 	@celery -A bb8.celery worker --loglevel=info --concurrency 4
 
-test: setup-database setup-redis compile-resource-no-cred
+frontend-test:
+	@cd bb8/frontend && \
+	 npm run test && \
+	 npm run build
+
+test: setup-database setup-redis compile-resource-no-cred frontend-test
 	@export BB8_TEST=true; \
 	 for test in $(UNITTESTS); do \
 	   if echo $$test | grep '^apps'; then \
@@ -55,7 +60,7 @@ test: setup-database setup-redis compile-resource-no-cred
 	 done
 	@manage reset_for_dev
 
-coverage: setup-database setup-redis compile-resource-no-cred
+coverage: setup-database setup-redis compile-resource-no-cred frontend-test
 	@export BB8_TEST=true; \
 	 for test in $(UNITTESTS); do \
 	   if echo $$test | grep '^apps'; then \
@@ -74,6 +79,7 @@ coverage: setup-database setup-redis compile-resource-no-cred
 	@coverage html --include=bb8/*
 
 lint: compile-resource-no-cred
+	@cd bb8/frontend && npm run lint:css
 	@pep8 $(LINT_FILES)
 	@pylint $(LINT_OPTIONS) $(LINT_FILES)
 
