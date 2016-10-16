@@ -12,7 +12,8 @@ from flask import jsonify
 from bb8 import app, logger
 
 # pylint: disable=W0611
-from bb8.api import request, webhooks, third_party, misc
+from bb8.api import (request, webhooks, accounts, bots, broadcasts, platforms,
+                     third_party, misc)
 from bb8.api.error import AppError
 
 
