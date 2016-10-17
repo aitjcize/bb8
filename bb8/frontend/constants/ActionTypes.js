@@ -5,7 +5,7 @@ export default {
   ACCOUNTS_REGISTER: createRequestTypes('ACCOUNTS_REGISTER'),
   ACCOUNTS_LOGIN: createRequestTypes('ACCOUNTS_LOGIN'),
   ACCOUNTS_LOGOUT: 'ACCOUNTS_LOGOUT',
-  ACCOUNTS_ME: createRequestTypes('ACCOUNTS_ME'),
+  ACCOUNTS_GET_ME: createRequestTypes('ACCOUNTS_GET_ME'),
   ACCOUNTS_VERIFY_EMAIL: createRequestTypes('ACCOUNTS_VERIFY_EMAIL'),
 
   // Bots
