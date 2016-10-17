@@ -34,7 +34,11 @@ sagaMiddleware.run(rootSaga)
 // FIXME(kevin): remove this
 document.apiClient = apiClient
 
-syncHistoryWithStore(hashHistory, store)
+syncHistoryWithStore(hashHistory, store, {
+  selectLocationState(state) {
+    return state.get('routing').toJS()
+  },
+})
 
 render(
 (<Provider store={store}>
