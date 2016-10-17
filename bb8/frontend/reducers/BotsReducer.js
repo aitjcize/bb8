@@ -32,8 +32,7 @@ function BotsReducer(state = INITIAL_STATE, action) {
                 s.getIn(['listing', 'result']).push(payload.result))
       })
     case types.BOTS_UPDATE.SUCCESS:
-      return state.withMutations((s) = {
-      })
+      return state.withMutations(() => {})
     default:
       return state
   }
