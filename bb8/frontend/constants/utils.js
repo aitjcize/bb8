@@ -3,7 +3,7 @@ function createRequestTypes(base) {
     REQUEST: `${base}_REQUEST`,
     SUCCESS: `${base}_SUCCESS`,
     ERROR: `${base}_ERROR`,
-  };
+  }
 }
 
-export default createRequestTypes;
+export default createRequestTypes
