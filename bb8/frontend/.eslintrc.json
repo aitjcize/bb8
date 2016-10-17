@@ -9,6 +9,7 @@
         "browser": true
     },
     "rules": {
-      "no-constant-condition": 0
+      "no-constant-condition": 0,
+      "semi": [2, "never"]
     }
 }
