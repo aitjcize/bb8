@@ -1,4 +1,4 @@
-import fetch from './util';
+import fetch from './util'
 
 const auth = {
   login(email, passwd) {
@@ -6,8 +6,8 @@ const auth = {
       email, passwd,
     })
     .then(response => ({ response }))
-    .catch(error => ({ error }));
+    .catch(error => ({ error }))
   },
-};
+}
 
-export default auth;
+export default auth

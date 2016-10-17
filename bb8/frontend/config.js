@@ -3,10 +3,10 @@ const constants = {
   },
   prod: {
   },
-};
+}
 
 if (process.env.BB8_DEPLOY) {
-  module.exports = constants.prod;
+  module.exports = constants.prod
 } else {
-  module.exports = constants.dev;
+  module.exports = constants.dev
 }

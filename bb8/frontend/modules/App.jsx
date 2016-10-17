@@ -1,8 +1,8 @@
-import React from 'react';
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import FlatButton from 'material-ui/FlatButton';
+import React from 'react'
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
+import FlatButton from 'material-ui/FlatButton'
 
-import LoginForm from '../components/LoginForm';
+import LoginForm from '../components/LoginForm'
 
 const App = () => (
   <div>
@@ -17,6 +17,6 @@ const App = () => (
         <LoginForm />
       </div>
     </MuiThemeProvider>
-  </div>);
+  </div>)
 
-export default App;
+export default App

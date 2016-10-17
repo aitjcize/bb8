@@ -1,11 +1,11 @@
-import fetch from './util';
+import fetch from './util'
 
 const bot = {
   getAllBots() {
     return fetch('GET', '/api/bots', {})
       .then(response => ({ response: response.bots }))
-      .catch(error => ({ error }));
+      .catch(error => ({ error }))
   },
-};
+}
 
-export default bot;
+export default bot

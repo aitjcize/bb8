@@ -1,23 +1,23 @@
-import React from 'react';
-import { Field, reduxForm } from 'redux-form';
-import TextField from 'material-ui/TextField';
-import RaisedButton from 'material-ui/RaisedButton';
-import validator from 'validator';
+import React from 'react'
+import { Field, reduxForm } from 'redux-form'
+import TextField from 'material-ui/TextField'
+import RaisedButton from 'material-ui/RaisedButton'
+import validator from 'validator'
 
-import { startLogin } from '../actions';
+import { startLogin } from '../actions'
 
 
 function validate(values) {
-  const errors = {};
+  const errors = {}
   if (typeof values.email === 'string' &&
       !validator.isEmail(values.email)) {
-    errors.email = 'Please provide a valid email address';
+    errors.email = 'Please provide a valid email address'
   }
   if (typeof values.passwd === 'string' &&
       !validator.isLength(values.passwd, { min: 6, max: 20 })) {
-    errors.passwd = 'Password length should between 6 to 20';
+    errors.passwd = 'Password length should between 6 to 20'
   }
-  return errors;
+  return errors
 }
 
 const renderTextField = ({ input, label, meta: { touched, error }, ...custom }) => (
@@ -28,7 +28,7 @@ const renderTextField = ({ input, label, meta: { touched, error }, ...custom }) 
     {...input}
     {...custom}
   />
-);
+)
 
 renderTextField.propTypes = {
   input: React.PropTypes.shape({
@@ -46,10 +46,10 @@ renderTextField.propTypes = {
     touched: React.PropTypes.bool,
     error: React.PropTypes.string,
   }),
-};
+}
 
 function handleSubmit(value, dispatch) {
-  dispatch(startLogin(value.email, value.passwd));
+  dispatch(startLogin(value.email, value.passwd))
 }
 
 
@@ -65,13 +65,13 @@ const LoginForm = props => (
       <RaisedButton type="submit" label="Login" primary />
     </div>
   </form>
-);
+)
 
 LoginForm.propTypes = {
   handleSubmit: React.PropTypes.func,
-};
+}
 
 export default reduxForm({
   form: 'LoginForm',  // a unique identifier for this form
   validate,
-})(LoginForm);
+})(LoginForm)
