@@ -62,11 +62,10 @@ class Account(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     __tablename__ = 'account'
     __table_args__ = (UniqueConstraint('email'),)
 
-    __json_public__ = ['name', 'username', 'email']
+    __json_public__ = ['name', 'email', 'email_verified', 'timezone']
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(Unicode(256), nullable=False, default=u'')
-    username = Column(String(256), nullable=False)
     email = Column(String(256), nullable=False)
     email_verified = Column(Boolean, nullable=False, default=False)
     passwd = Column(String(256), nullable=False)
@@ -132,9 +131,7 @@ class PlatformTypeEnum(enum.Enum):
 class Bot(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     __tablename__ = 'bot'
 
-    __json_public__ = ['id', 'name', 'description', 'interaction_timeout',
-                       'admin_interaction_timeout', 'session_timeout',
-                       'ga_id', 'settings']
+    __json_public__ = ['id', 'name', 'description']
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     account_id = Column(Integer, ForeignKey('account.id'), nullable=True)
@@ -159,6 +156,17 @@ class Bot(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     def __repr__(self):
         return '<%s(\'%s\', \'%s\')>' % (type(self).__name__, self.id,
                                          self.name.encode('utf8'))
+
+    @property
+    def detail_fields(self):
+        return [
+            'interaction_timeout',
+            'admin_interaction_timeout',
+            'session_timeout',
+            'ga_id',
+            'settings',
+            'staging'
+        ]
 
     @property
     def users(self):

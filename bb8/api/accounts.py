@@ -6,70 +6,97 @@
     Copyright 2016 bb8 Authors
 """
 
-from flask import g, jsonify
+import jsonschema
+import pytz
+
+from flask import g, jsonify, request
 
 from bb8 import app, AppError
 from bb8.constant import HTTPStatus, CustomError, Key
-from bb8.api.forms import RegistrationForm, SocialRegistrationForm, LoginForm
 from bb8.api.middlewares import login_required
 from bb8.backend.database import Account, DatabaseManager
 
 
+REGISTER_SCHEMA = {
+    'type': 'object',
+    'required': ['email', 'passwd', 'timezone'],
+    'additionalProperties': False,
+    'properties': {
+        'email': {
+            'type': 'string',
+            'pattern': r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)'
+        },
+        'passwd': {
+            'type': 'string',
+            'minLength': 6,
+            'maxLength': 25
+        },
+        'timezone': {'type': 'string'}
+    }
+}
+
+SOCIAL_REGISTER_SCHEMA = {
+    'type': 'object',
+    'required': ['provider', 'provider_ident'],
+    'additionalProperties': False,
+    'properties': {
+        'provider': {'enum': ['Facebook', 'Google', 'Github']},
+        'provider_ident': {'type': 'string'}
+    }
+}
+
+
 @app.route('/api/email_register', methods=['POST'])
 def email_register():
-    form = RegistrationForm(csrf_enabled=False)
-    if form.validate_on_submit():
-        user_info = {
-            'username': form.data['username'],
-            'email': form.data['email'],
-        }
-        account = Account.get_by(email=form.data['email'], single=True)
-        if not account:
-            account = Account(**user_info) \
-                        .set_passwd(form.data['passwd']) \
-                        .add()
-            DatabaseManager.commit()
-        else:
-            raise AppError(
-                HTTPStatus.STATUS_CLIENT_ERROR,
-                CustomError.ERR_USER_EXISTED,
-                'username {username} or email {email} is already taken'
-                .format(**user_info))
+    data = request.json
+    try:
+        jsonschema.validate(data, REGISTER_SCHEMA)
+        pytz.timezone(data['timezone'])
+    except Exception:
+        raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
+                       CustomError.ERR_FORM_VALIDATION,
+                       'schema validation fail')
 
-        ret = account.to_json()
-        ret[Key.AUTH_TOKEN] = account.auth_token
-        return jsonify(ret)
+    account = Account.get_by(email=data['email'], single=True)
+    if not account:
+        account = Account(email=data['email']).set_passwd(data['passwd']).add()
+        DatabaseManager.commit()
+    else:
+        raise AppError(
+            HTTPStatus.STATUS_CLIENT_ERROR,
+            CustomError.ERR_USER_EXISTED,
+            'email %s is already taken' % data['email'])
 
-    raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
-                   CustomError.ERR_FORM_VALIDATION, form.errors)
+    ret = account.to_json()
+    ret[Key.AUTH_TOKEN] = account.auth_token
+    return jsonify(ret)
 
 
 @app.route('/api/social_register', methods=['POST'])
 def social_register():
-    form = SocialRegistrationForm(csrf_enabled=False)
-    if form.validate_on_submit():
-        return jsonify(message='ok')
-    raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
-                   CustomError.ERR_FORM_VALIDATION, form.errors)
+    data = request.json
+    try:
+        jsonschema.validate(data, SOCIAL_REGISTER_SCHEMA)
+    except Exception:
+        raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
+                       CustomError.ERR_FORM_VALIDATION,
+                       'schema validation fail')
+
+    # TODO(aitjcize): implement this
 
 
 @app.route('/api/login', methods=['POST'])
 def login():
-    form = LoginForm(csrf_enabled=False)
-    if form.validate_on_submit():
-        email = form.data['email']
-        passwd = form.data['passwd']
-        account = Account.get_by(email=email, single=True)
-        if not account or not account.verify_passwd(passwd):
-            raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
-                           CustomError.ERR_WRONG_PASSWD,
-                           'Invalid combination of email and password')
+    data = request.json
+    account = Account.get_by(email=data['email'], single=True)
+    if not account or not account.verify_passwd(data['passwd']):
+        raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
+                       CustomError.ERR_WRONG_PASSWD,
+                       'Invalid combination of email and password')
 
-        ret = account.to_json()
-        ret[Key.AUTH_TOKEN] = account.auth_token
-        return jsonify(ret)
-    raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
-                   CustomError.ERR_FORM_VALIDATION, form.errors)
+    ret = account.to_json()
+    ret[Key.AUTH_TOKEN] = account.auth_token
+    return jsonify(ret)
 
 
 @app.route('/api/social_login', methods=['POST'])

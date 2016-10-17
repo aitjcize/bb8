@@ -39,20 +39,19 @@ class BroadcastAPIUnittest(unittest.TestCase):
         DatabaseManager.disconnect()
 
     def login(self, acnt):
-        rv = self.app.post('/api/login', data=dict(
+        rv = self.app.post('/api/login', data=json.dumps(dict(
             email=acnt.email,
             passwd='12345678'
-        ))
+        )), content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.app.set_auth_token(data['auth_token'])
 
     def create_bot(self):
-        # Test create bots
-        rv = self.app.post('/api/bots', data=dict(
+        rv = self.app.post('/api/bots', data=json.dumps(dict(
             name='test-bot',
             description='test-description',
-        ))
+        )), content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.assertEquals('test-bot', data['name'])
@@ -79,10 +78,10 @@ class BroadcastAPIUnittest(unittest.TestCase):
         register_all_modules()
 
         self.account1 = Account(
-            name=u'test', username='test-account-1',
+            name=u'test',
             email='test@gmail.com').set_passwd('12345678').add()
         self.account2 = Account(
-            name=u'test2', username='test-account-2',
+            name=u'test2',
             email='test2@gmail.com').set_passwd('12345678').add()
         DatabaseManager.commit()
 
