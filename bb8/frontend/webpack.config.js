@@ -1,10 +1,10 @@
-const path = require('path');
-const webpack = require('webpack');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require('path')
+const webpack = require('webpack')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
-const isDebug = global.DEBUG === false ? false : !process.argv.includes('--release');
-const isVerbose = process.argv.includes('--verbose') || process.argv.includes('-v');
+const isDebug = global.DEBUG === false ? false : !process.argv.includes('--release')
+const isVerbose = process.argv.includes('--verbose') || process.argv.includes('-v')
 
 const defaultConfig = {
   context: __dirname,
@@ -84,6 +84,6 @@ const defaultConfig = {
     }),
     new ExtractTextPlugin('[name].[hash].css'),
   ],
-};
+}
 
-module.exports = defaultConfig;
+module.exports = defaultConfig
