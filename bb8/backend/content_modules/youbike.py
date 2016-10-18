@@ -20,9 +20,11 @@ import enum
 import grpc
 
 from bb8 import logger
-from bb8.backend.module_api import (Config, Message, GetUserTime,
+from bb8.backend.module_api import (Message, GetUserTime,
                                     GetgRPCService, LocationPayload,
                                     Resolve, SupportedPlatform)
+from bb8.backend.content_modules.lib.gmap_builder import (
+    GoogleStaticMapAPIRequestBuilder)
 
 
 GRPC_TIMEOUT = 5
@@ -76,42 +78,6 @@ def schema():
             'display_weather': {'type': 'boolean'}
         }
     }
-
-
-class GoogleStaticMapAPIRequestBuilder(object):
-    API_ENDPOINT = 'https://maps.googleapis.com/maps/api/staticmap'
-    REDIRECT_URL = (Config('HTTP_ROOT') +
-                    '/api/third_party/youbike/render_map?url=')
-
-    def __init__(self, api_key, size):
-        self._api_key = api_key
-        self._size = '%dx%d' % size
-        self._maptype = 'roadmap'
-        self._markers = {}
-
-    def add_marker(self, coordinate, color='red'):
-        self._markers[coordinate] = color
-
-    def remove_marker(self, coordinate):
-        del self._markers[coordinate]
-
-    def clear_markers(self):
-        self._markers = {}
-
-    def _markers_string(self):
-        return '&'.join(['markers=color:%s|%3.8f,%3.8f' %
-                         ((color,) + coordinate)
-                         for coordinate, color in self._markers.iteritems()])
-
-    def build_url(self):
-        url = ('%s?size=%s&maptype=%s&' %
-               (self.API_ENDPOINT, self._size, self._maptype) +
-               self._markers_string())
-        return self.REDIRECT_URL + urllib.quote(url)
-
-    @classmethod
-    def build_navigation_url(cls, c):
-        return 'http://maps.google.com/?daddr=%3.8f,%3.8f' % c
 
 
 class YoubikeAPI(object):
