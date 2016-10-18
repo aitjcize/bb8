@@ -285,6 +285,10 @@ class Platform(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     account = relationship('Account')
     bot = relationship('Bot')
 
+    def __repr__(self):
+        return '<%s(\'%s\', \'%s\')>' % (type(self).__name__, self.id,
+                                         self.name.encode('utf8'))
+
     def delete(self):
         for user in User.get_by(platform_id=self.id):
             user.delete()

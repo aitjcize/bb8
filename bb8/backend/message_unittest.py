@@ -252,41 +252,51 @@ class MessageUnittest(unittest.TestCase, BaseTestMixin):
         DatabaseManager.commit()
 
         g.user = self.user_1
-        m = Message('{{q.data|first|upper}}')
+        m = Message("{{data('data').first|upper}}")
         self.assertEquals(m.as_dict()['text'], 'VALUE1')
 
-        m = Message("{{q.data|get(1)}}")
+        m = Message("{{data('data').get(1)}}")
         self.assertEquals(m.as_dict()['text'], 'value2')
 
-        m = Message("{{q.data|last}}")
+        m = Message("{{data('data').last}}")
         self.assertEquals(m.as_dict()['text'], 'value3')
 
-        m = Message("{{q.data|lru(0)}}")
+        m = Message("{{data('data').lru(0)}}")
         self.assertEquals(m.as_dict()['text'], 'value3')
 
-        m = Message("{{q.data|lru(1)}}")
+        m = Message("{{data('data').lru(1)}}")
         self.assertEquals(m.as_dict()['text'], 'value2')
 
-        m = Message("{{q.data|get(5)|fallback('valuef')}}")
+        m = Message("{{data('data').get(5).fallback('valuef')}}")
         self.assertEquals(m.as_dict()['text'], 'valuef')
 
-        m = Message("{{q.data|order_by('-created_at')|first}}")
+        m = Message("{{data('data').order_by('-created_at').first}}")
         self.assertEquals(m.as_dict()['text'], 'value3')
 
-        m = Message("{{q.data|count}}")
+        m = Message("{{data('data').count}}")
         self.assertEquals(m.as_dict()['text'], '3')
 
-        m = Message("{{qall.data|count}}")
-        self.assertEquals(m.as_dict()['text'], '4')
-
         # Test error
-        wrong_tmpl = '{{q.data|some_filter}}'
+        wrong_tmpl = "{{data('data')|some_filter}}"
         m = Message(wrong_tmpl)
         self.assertEquals(m.as_dict()['text'], wrong_tmpl)
 
-        wrong_tmpl = '{{q.some_key|first}}'
+        wrong_tmpl = "{{data('some_key').first}}"
         m = Message(wrong_tmpl)
         self.assertEquals(m.as_dict()['text'], wrong_tmpl)
+
+    def test_settings_memory_rendering(self):
+        """Test memory and setting variable access."""
+
+        g.user = self.user_1
+        g.user.settings['key1'] = 'value1'
+        m = Message("{{settings.key1|upper}}")
+        self.assertEquals(m.as_dict()['text'], 'VALUE1')
+
+        g.user = self.user_1
+        g.user.memory['key2'] = 'value2'
+        m = Message("{{memory.key2|upper}}")
+        self.assertEquals(m.as_dict()['text'], 'VALUE2')
 
 
 if __name__ == '__main__':

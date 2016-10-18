@@ -19,7 +19,7 @@ import enum
 import jsonschema
 
 # Use relative import here so base_message can be used in app_api
-from query_filters import FILTERS
+from template_filters import FILTERS
 
 
 HAS_VARIABLE_RE = re.compile('{{(.*?)}}')

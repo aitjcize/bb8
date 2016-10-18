@@ -22,7 +22,7 @@ from bb8 import logger
 from bb8.backend import base_message
 from bb8.backend.database import CollectedDatum
 from bb8.backend.metadata import InputTransformation
-from bb8.backend.query_filters import FILTERS
+from bb8.backend.template_filters import FILTERS
 from bb8.backend.util import image_convert_url
 
 
@@ -71,35 +71,34 @@ def Resolve(obj, variables):
 def parse_query(expr):
     """Parse query expression."""
     parts = expr.split('|')
-    query = parts[0]
     filters = parts[1:]
+    parts = parts[0].split('.')
+    query = parts[0]
+    options = parts[1:]
 
-    m = re.match(r'^q(all)?\.([^.]*)$', query)
+    m = re.match(r'^data\(\'(.*?)\'\)$', query)
     if not m:
         return expr
 
-    key = m.group(2)
+    key = m.group(1)
     q = CollectedDatum.query(CollectedDatum.value, CollectedDatum.created_at)
-    q = q.filter_by(key=key)
-
-    if m.group(1) is None:  # q.
-        q = q.filter_by(user_id=g.user.id)
+    q = q.filter_by(key=key, user_id=g.user.id)
 
     # Parse query filter
     result = None
     try:
-        for f in filters[:]:
-            filters = filters[1:]
-            if f == 'one' or f == 'first':
+        for option in options[:]:
+            options = options[1:]
+            if option == 'one' or option == 'first':
                 result = q.first()
                 result = result.value if result else None
                 break
-            m = re.match(r'get\((\d+)\)', f)
+            m = re.match(r'get\((\d+)\)', option)
             if m:
                 result = q.offset(int(m.group(1))).limit(1).first()
                 result = result.value if result else None
                 break
-            m = re.match(r'lru\((\d+)\)', f)
+            m = re.match(r'lru\((\d+)\)', option)
             if m:
                 result = CollectedDatum.query(
                     CollectedDatum.value,
@@ -114,17 +113,17 @@ def parse_query(expr):
                 ).offset(int(m.group(1))).limit(1).first()
                 result = result.value if result else None
                 break
-            if f == 'last':
+            if option == 'last':
                 result = q.order_by(CollectedDatum.created_at.desc()).first()
                 result = result.value if result else None
                 break
-            elif f == 'count':
+            elif option == 'count':
                 result = q.count()
                 break
-            elif f == 'uniq':
+            elif option == 'uniq':
                 q = q.distinct(CollectedDatum.value)
             else:
-                m = re.match(r'order_by\(\'(.*)\'\)', f)
+                m = re.match(r'order_by\(\'(.*)\'\)', option)
                 if m:
                     field = m.group(1)
                     if field.startswith('-'):
@@ -136,8 +135,8 @@ def parse_query(expr):
         return None
 
     if result is None:
-        if filters:
-            m = re.match(r'fallback\(\'(.*)\'\)', filters[0])
+        if options:
+            m = re.match(r'fallback\(\'(.*)\'\)', options[0])
             if m:
                 return m.group(1)
         return None
@@ -158,9 +157,14 @@ def Render(template, variables):
     if template is None:
         return None
 
+    # Inject user settings and memory access
+    if hasattr(g, 'user'):
+        variables['settings'] = g.user.settings
+        variables['memory'] = g.user.memory
+
     def replace(m):
         expr = m.group(1)
-        if re.match(r'^q(all)?\.', expr):  # Query expression
+        if re.match(r'^data\(\'.*?\'\)', expr):  # Query expression
             ret = parse_query(expr)
         else:
             ret = base_message.parse_variable(expr, variables)
