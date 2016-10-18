@@ -157,6 +157,10 @@ def Render(template, variables):
     if template is None:
         return None
 
+    # Inject user settings and memory access
+    variables['settings'] = g.user.settings
+    variables['memory'] = g.user.memory
+
     def replace(m):
         expr = m.group(1)
         if re.match(r'^data\(\'.*?\'\)', expr):  # Query expression
