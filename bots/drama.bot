@@ -51,8 +51,34 @@
         "parser_module": {
           "id": "ai.compose.parser.core.passthrough",
           "config": {
-            "end_node_id": "Root",
+            "end_node_id": "Notification",
             "ack_message": ""
+          }
+        }
+      },
+      "Notification": {
+        "name": "Notification",
+        "description": "User enable/disable notification",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.core.generic_message",
+          "config": {
+            "messages": [
+              {
+                "text": "你想要啟用通知（新劇推出）功能嗎？",
+                "quick_replies": [
+                  {
+                    "content_type": "text",
+                    "title": "好",
+                    "payload": {"message": {"text": "通知"}}
+                  },
+                  {
+                    "content_type": "text",
+                    "title": "不用了"
+                  }
+                ]
+              }
+            ]
           }
         }
       },
@@ -297,7 +323,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?<!取消)訂閱", "(?<!un)subscribe"],
+                  "params": ["(?<!取消)通知", "(?<!un)subscribe"],
                   "settings_set": {
                     "key": "subscribe",
                     "value": true
@@ -308,13 +334,13 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["取消訂閱", "停止訂閱", "unsubscribe"],
+                  "params": ["取消通知", "停止通知", "unsubscribe"],
                   "settings_set": {
                     "key": "subscribe",
                     "value": false
                   }
                 },
-                "ack_message": "你已取消訂閱！"
+                "ack_message": "你已取消通知！"
               }
             ],
             "on_error": {
