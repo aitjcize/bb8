@@ -312,6 +312,8 @@ def run(unused_content_config, env, unused_variables):
                 location['coordinates']['long'])
 
             rules = Deser(Memory.Get('rules', None))
+            if rules:
+                rules.AddPureSortingRules(latlng)
 
         else:  # User entered either an address or criteria; or both.
             query = user_input.Get('query')
@@ -357,8 +359,8 @@ def run(unused_content_config, env, unused_variables):
 
                     # If user also entered criteria, save it for later query.
                     if rules.filters:
-                        rules.AddPureSortingRules(latlng)
                         Memory.Set('rules', cPickle.dumps(rules))
+                        # Postpone the AddPureSortingRules until we get latlng.
 
                     return [m]
 
