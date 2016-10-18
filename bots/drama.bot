@@ -80,6 +80,13 @@
               }
             ]
           }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.passthrough",
+          "config": {
+            "end_node_id": "Root",
+            "ack_message": ""
+          }
         }
       },
       "PromptSearchTerm": {
