@@ -15,11 +15,12 @@ import logging
 import sqlite3
 import time
 import traceback
-import urllib
 
-from bb8.backend.module_api import (Config, Message, Memory,
+from bb8.backend.module_api import (Message, Memory,
                                     SupportedPlatform, LocationPayload)
 from bb8.backend.content_modules.geocoding import GoogleMapsGeocodingAPI
+from bb8.backend.content_modules.lib.gmap_builder import (
+    GoogleStaticMapAPIRequestBuilder)
 import twrealprice_rule
 
 
@@ -105,11 +106,11 @@ def StreetOnly(s):
 
 
 def MarkerStyle():
-    yield 'color:purple'
+    yield {'color': 'purple'}
     i = -1
     while True:
         i += 1
-        yield 'color:red|label:%c' % (i + ord('A'))
+        yield {'color': 'red', 'label': '%c' % (i + ord('A'))}
 
 
 def Deser(obj):
@@ -143,42 +144,6 @@ def schema():
         'properties': {
         }
     }
-
-
-class GoogleStaticMapAPIRequestBuilder(object):
-    API_ENDPOINT = 'https://maps.googleapis.com/maps/api/staticmap'
-    REDIRECT_URL = (Config('HTTP_ROOT') +
-                    '/api/third_party/youbike/render_map?url=')
-
-    def __init__(self, api_key, size):
-        self._api_key = api_key
-        self._size = '%dx%d' % size
-        self._maptype = 'roadmap'
-        self._markers = {}
-
-    def add_marker(self, coordinate, style):
-        self._markers[coordinate] = style
-
-    def remove_marker(self, coordinate):
-        del self._markers[coordinate]
-
-    def clear_markers(self):
-        self._markers = {}
-
-    def _markers_string(self):
-        return '&'.join(['markers=%s|%3.8f,%3.8f' %
-                         ((style,) + coordinate)
-                         for coordinate, style in self._markers.iteritems()])
-
-    def build_url(self):
-        url = ('%s?size=%s&maptype=%s&' %
-               (self.API_ENDPOINT, self._size, self._maptype) +
-               self._markers_string())
-        return self.REDIRECT_URL + urllib.quote(url)
-
-    @classmethod
-    def build_navigation_url(cls, c):
-        return 'http://maps.google.com/?daddr=%3.8f,%3.8f' % c
 
 
 class TwRealPrice(object):
@@ -398,11 +363,11 @@ def run(unused_content_config, env, unused_variables):
     main_map = GoogleStaticMapAPIRequestBuilder(
         GOOGLE_STATIC_MAP_API_KEY, size)
     style = MarkerStyle()
-    main_map.add_marker(latlng, style.next())
+    main_map.add_marker(latlng, **style.next())
     for s in trans:
         lat = float(s['latlng'][0])
         lng = float(s['latlng'][1])
-        main_map.add_marker((lat, lng), style.next())
+        main_map.add_marker((lat, lng), **style.next())
 
     subtitle = u'搜尋結果僅供參考，詳細完整實價登錄資料，以內政部公佈為準。'
 
