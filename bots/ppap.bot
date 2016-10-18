@@ -1,0 +1,199 @@
+{
+  "platforms": {
+  },
+  "bot": {
+    "name": "PPAP",
+    "description": "PPAP",
+    "interaction_timeout": 120,
+    "admin_interaction_timeout": 10,
+    "session_timeout": 0,
+    "ga_id": "UA-79887532-2",
+    "settings": {
+      "get_start_button": {"message": {"text": "Hi"}},
+      "persistent_menu": [
+        {
+          "type": "web_url",
+          "title": "Compose.ai 官方網站",
+          "url": "http://compose.ai"
+        }
+      ]
+    },
+    "nodes": {
+      "Start": {
+        "name": "Start",
+        "description": "Great user",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.content.core.noop",
+          "config": {}
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.passthrough",
+          "config": {
+            "end_node_id": "Root",
+            "ack_message": ""
+          }
+        }
+      },
+      "Root": {
+        "name": "Root",
+        "description": "Root node",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.core.text_message",
+          "config": {
+            "text": [
+              "PPAP!",
+              "(dance) (dance) ~ ~"
+            ],
+            "quick_replies": [
+              {
+                "content_type": "text",
+                "title": "Start!"
+              }
+            ]
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.passthrough",
+          "config": {
+            "end_node_id": "Apple",
+            "ack_message": ""
+          }
+        }
+      },
+      "Apple": {
+        "name": "Apple",
+        "description": "Root node",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.core.text_message",
+          "config": {
+            "text": "I have a pen. You have an?",
+            "quick_replies": [
+              {
+                "content_type": "text",
+                "title": "Apple"
+              },
+              {
+                "content_type": "text",
+                "title": "Ape"
+              }
+            ]
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(.*).*"],
+                  "memory_set": {"key": "apple"}
+                },
+                "end_node_id": "ApplePen",
+                "ack_message": ""
+              }
+            ]
+          }
+        }
+      },
+      "ApplePen": {
+        "name": "ApplePen",
+        "description": "ApplePen",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.content.core.text_message",
+          "config": {
+            "text": "uhmmm! {{memory.apple}}Pen!"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.passthrough",
+          "config": {
+            "end_node_id": "Pinapple",
+            "ack_message": ""
+          }
+        }
+      },
+      "Pinapple": {
+        "name": "ApplePen",
+        "description": "ApplePen",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.core.text_message",
+          "config": {
+            "text": "I have a Pen. You have a?",
+            "quick_replies": [
+              {
+                "content_type": "text",
+                "title": "Pineapple"
+              },
+              {
+                "content_type": "text",
+                "title": "Pizza"
+              }
+            ]
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [".*"],
+                  "memory_set": {"key": "pineapple"}
+                },
+                "end_node_id": "PineapplePen",
+                "ack_message": ""
+              }
+            ]
+          }
+        }
+      },
+      "PineapplePen": {
+        "name": "PineapplePen",
+        "description": "PineapplePen",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.content.core.text_message",
+          "config": {
+            "text": "uhmmm! {{memory.pineapple}}Pen!"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.passthrough",
+          "config": {
+            "end_node_id": "PPAP",
+            "ack_message": ""
+          }
+        }
+      },
+      "PPAP": {
+        "name": "PPAP",
+        "description": "PPAP",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.core.text_message",
+          "config": {
+            "text": [
+              "{{memory.apple}}Pen ~~~",
+              "{{memory.pineapple}}Pen ~~~",
+              "uhmmm! Pen{{memory.pineapple}}{{memory.apple}}Pen"
+            ]
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.passthrough",
+          "config": {
+            "end_node_id": "Root",
+            "ack_message": ""
+          }
+        }
+      }
+    }
+  }
+}
