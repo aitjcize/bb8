@@ -285,6 +285,19 @@ class MessageUnittest(unittest.TestCase, BaseTestMixin):
         m = Message(wrong_tmpl)
         self.assertEquals(m.as_dict()['text'], wrong_tmpl)
 
+    def test_settings_memory_rendering(self):
+        """Test memory and setting variable access."""
+
+        g.user = self.user_1
+        g.user.settings['key1'] = 'value1'
+        m = Message("{{settings.key1|upper}}")
+        self.assertEquals(m.as_dict()['text'], 'VALUE1')
+
+        g.user = self.user_1
+        g.user.memory['key2'] = 'value2'
+        m = Message("{{memory.key2|upper}}")
+        self.assertEquals(m.as_dict()['text'], 'VALUE2')
+
 
 if __name__ == '__main__':
     with app.test_request_context():
