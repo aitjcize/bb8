@@ -252,39 +252,36 @@ class MessageUnittest(unittest.TestCase, BaseTestMixin):
         DatabaseManager.commit()
 
         g.user = self.user_1
-        m = Message('{{q.data|first|upper}}')
+        m = Message("{{data('data').first|upper}}")
         self.assertEquals(m.as_dict()['text'], 'VALUE1')
 
-        m = Message("{{q.data|get(1)}}")
+        m = Message("{{data('data').get(1)}}")
         self.assertEquals(m.as_dict()['text'], 'value2')
 
-        m = Message("{{q.data|last}}")
+        m = Message("{{data('data').last}}")
         self.assertEquals(m.as_dict()['text'], 'value3')
 
-        m = Message("{{q.data|lru(0)}}")
+        m = Message("{{data('data').lru(0)}}")
         self.assertEquals(m.as_dict()['text'], 'value3')
 
-        m = Message("{{q.data|lru(1)}}")
+        m = Message("{{data('data').lru(1)}}")
         self.assertEquals(m.as_dict()['text'], 'value2')
 
-        m = Message("{{q.data|get(5)|fallback('valuef')}}")
+        m = Message("{{data('data').get(5).fallback('valuef')}}")
         self.assertEquals(m.as_dict()['text'], 'valuef')
 
-        m = Message("{{q.data|order_by('-created_at')|first}}")
+        m = Message("{{data('data').order_by('-created_at').first}}")
         self.assertEquals(m.as_dict()['text'], 'value3')
 
-        m = Message("{{q.data|count}}")
+        m = Message("{{data('data').count}}")
         self.assertEquals(m.as_dict()['text'], '3')
 
-        m = Message("{{qall.data|count}}")
-        self.assertEquals(m.as_dict()['text'], '4')
-
         # Test error
-        wrong_tmpl = '{{q.data|some_filter}}'
+        wrong_tmpl = "{{data('data')|some_filter}}"
         m = Message(wrong_tmpl)
         self.assertEquals(m.as_dict()['text'], wrong_tmpl)
 
-        wrong_tmpl = '{{q.some_key|first}}'
+        wrong_tmpl = "{{data('some_key').first}}"
         m = Message(wrong_tmpl)
         self.assertEquals(m.as_dict()['text'], wrong_tmpl)
 

@@ -156,7 +156,7 @@
                   },
                   {
                     "content_type": "text",
-                    "title": "{{q.query_address|lru(0)|fallback('台北永康街')}}"
+                    "title": "{{data('query_address').lru(0).fallback('台北永康街')}}"
                   },
                   {
                     "content_type": "text",
