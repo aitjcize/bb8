@@ -133,4 +133,29 @@ describe('Reducer for Bots', () => {
       }
     })
   })
+
+  it('should remove the bot from record', () => {
+    expect(
+      (() => {
+        let state = BotsReducer(undefined, {
+          type: types.BOTS_LIST.SUCCESS,
+          payload: normalize(BOTS_LISTING, arrayOf(Bot)),
+        })
+        return BotsReducer(state, {
+          type: types.BOTS_DELETE.SUCCESS,
+          payload: 1,
+        }).toJS()
+      })()
+    ).toEqual({
+      active: -1,
+      listing: {
+        result: [2],
+        entities: {
+          bots: {
+            2: BOTS_LISTING[1]
+          }
+        }
+      }
+    })
+  })
 })
