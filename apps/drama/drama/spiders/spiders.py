@@ -81,6 +81,10 @@ class DramaSpider(CrawlSpider):
             if not drama:
                 raise RuntimeError(u'Should not be here! name=' + meta['name'])
 
+            # Update Drama info
+            Drama.get_by(name=meta['name'], return_query=True).update(meta)
+            DatabaseManager.commit()
+
         hrefs = response.xpath('//div[@id="main"]//li/a/@href').extract()
         for idx, link in enumerate(hrefs):
             yield scrapy.Request(
