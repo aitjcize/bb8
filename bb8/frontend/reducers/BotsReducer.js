@@ -39,6 +39,11 @@ function BotsReducer(state = INITIAL_STATE, action) {
         const idx = s.getIn(['listing', 'result']).indexOf(id)
         s.deleteIn(['listing', 'result', idx])
       })
+    case types.BOTS_UPDATE.SUCCESS:
+      return state.withMutations(() => {})
+    case types.BOTS_SET_ACTIVE:
+      return action.payload <= state.get('listing').get('result').size ?
+        state.set('active', action.payload) : state
     default:
       return state
   }

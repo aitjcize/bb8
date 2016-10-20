@@ -10,10 +10,13 @@ import createSagaMiddleware from 'redux-saga'
 import injectTapEventPlugin from 'react-tap-event-plugin'
 import createLogger from 'redux-logger'
 
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
+import getMuiTheme from 'material-ui/styles/getMuiTheme'
+
 import apiClient from './api'
-import App from './modules/App'
 import rootSaga from './sagas'
 import rootReducer from './reducers'
+import App from './modules/App'
 
 import './styles/style.scss'
 
@@ -22,7 +25,11 @@ import './styles/style.scss'
 injectTapEventPlugin()
 
 // Configure middleware and store
-const logger = createLogger()
+const logger = createLogger({
+  stateTransformer(state) {
+    return state.toJS()
+  },
+})
 const sagaMiddleware = createSagaMiddleware()
 const store = createStore(
     rootReducer,
@@ -40,11 +47,16 @@ syncHistoryWithStore(hashHistory, store, {
   },
 })
 
+const muiTheme = getMuiTheme()
+muiTheme.toolbar.backgroundColor = muiTheme.appBar.color
+
 render(
 (<Provider store={store}>
-  <Router history={hashHistory}>
-    <Route path="/" component={App} />
-    <Route path="/route1" component={App} />
-    <Route path="/route2" component={App} />
-  </Router>
+  <MuiThemeProvider muiTheme={muiTheme}>
+    <Router history={hashHistory}>
+      <Route path="/" component={App} />
+      <Route path="/route1" component={App} />
+      <Route path="/route2" component={App} />
+    </Router>
+  </MuiThemeProvider>
 </Provider>), document.getElementById('root'))
