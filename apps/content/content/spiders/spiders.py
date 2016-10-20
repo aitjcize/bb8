@@ -50,13 +50,15 @@ def extract_imgs(response, rules):
         print 'src:1:', srcs
         if not srcs:
             print 'extracting empty src1!!!'
-            print 'img::', imgs
-            print 'imgs::', imgs.extract()
-            print 'imgs::', type(imgs.extract())
+            print 'imgs::', imgs
+            print 'imgs.extract::', imgs.extract()
+            print 'imgs.extract type::', type(imgs.extract())
             #srcs = imgs.re(r'url\(\'(.*)\'\)')
-            print 'rule::', xpath
             srcs = response.xpath(xpath).re(r'url\(\'(.*)\'\)')
+        if not alts:
+            alts = ['' for tmp in srcs]
         print 'src:2:', srcs
+        print 'alts::', alts
         return [dict(src=s, alt=a) for s, a in zip(srcs, alts)]
 
     if isinstance(rules, tuple):
@@ -73,12 +75,18 @@ class RSSSpider(XMLFeedSpider):
         return self.extractor[name]  # pylint: disable=E1101
 
     def parse_page(self, variables, response):
+        print 'RSSSpider start----------------------------'
         print 'RSSSpider::parse_page()'
         title = extract_xpath(response, self.get_extractor('title'))
         author = extract_xpath(response, self.get_extractor('author'))
 
         content = extract_content(response, self.get_extractor('content'))
         imgs = extract_imgs(response, self.get_extractor('images'))
+        #print 'RSS::title::', unicode(title)
+        print 'RSS::imgs::', imgs
+        print 'RSS::source::', unicode(self.name)
+        #print 'RSS::original_source::', unicode(variables['original_source'])
+        print 'RSS::link::', unicode(response.url)
 
         item = EntryItem()
         item['author'] = unicode(author)
@@ -90,20 +98,27 @@ class RSSSpider(XMLFeedSpider):
         item['content'] = unicode(content)
         item['publish_time'] = variables['publish_time']
         item['created_at'] = datetime.now()
+        print 'RSSSpider end----------------------------'
         return item
 
     def parse_node(self, response, node):
         try:
+            print 'parse_node::start'
             link = node.xpath('link/text()').extract()[0]
+            print 'parse_node::link::', link
             pub_date = node.xpath('pubDate/text()').extract()[0]
+            print 'parse_node::pub_date::', pub_date
             original_source = node.xpath('source/text()').extract()[0]
+            #print 'parse_node::original_source::', original_source
             publish_time = parser.parse(pub_date)
+            print 'parse_node::publish_time::', publish_time
             yield scrapy.Request(
                 link,
                 partial(self.parse_page,
                         dict(publish_time=publish_time,
                              original_source=original_source)))
         except IndexError:
+            print 'parse_node::fail!!!'
             pass
 
 
