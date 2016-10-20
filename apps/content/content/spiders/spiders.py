@@ -47,6 +47,10 @@ def extract_imgs(response, rules):
             return []
         srcs = imgs.xpath(src_path).extract()
         alts = imgs.xpath(alt_path).extract() if alt_path else [''] * len(imgs)
+        if not srcs:
+            srcs = response.xpath(xpath).re(r'url\(\'(.*)\'\)')
+        if not alts:
+            alts = [''] * len(srcs)
         return [dict(src=s, alt=a) for s, a in zip(srcs, alts)]
 
     if isinstance(rules, tuple):
