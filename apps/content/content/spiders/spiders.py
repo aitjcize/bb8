@@ -47,6 +47,16 @@ def extract_imgs(response, rules):
             return []
         srcs = imgs.xpath(src_path).extract()
         alts = imgs.xpath(alt_path).extract() if alt_path else [''] * len(imgs)
+        print 'src:1:', srcs
+        if not srcs:
+            print 'extracting empty src1!!!'
+            print 'img::', imgs
+            print 'imgs::', imgs.extract()
+            print 'imgs::', type(imgs.extract())
+            #srcs = imgs.re(r'url\(\'(.*)\'\)')
+            print 'rule::', xpath
+            srcs = response.xpath(xpath).re(r'url\(\'(.*)\'\)')
+        print 'src:2:', srcs
         return [dict(src=s, alt=a) for s, a in zip(srcs, alts)]
 
     if isinstance(rules, tuple):
@@ -59,9 +69,11 @@ def extract_imgs(response, rules):
 
 class RSSSpider(XMLFeedSpider):
     def get_extractor(self, name):
+        print 'RSSSpider::get_extractor()'
         return self.extractor[name]  # pylint: disable=E1101
 
     def parse_page(self, variables, response):
+        print 'RSSSpider::parse_page()'
         title = extract_xpath(response, self.get_extractor('title'))
         author = extract_xpath(response, self.get_extractor('author'))
 
@@ -97,9 +109,11 @@ class RSSSpider(XMLFeedSpider):
 
 class WebsiteSpider(CrawlSpider):
     def get_extractor(self, name):
+        print 'WebsiteSpider::get_extractor()'
         return self.extractor[name]  # pylint: disable=E1101
 
     def parse_item(self, response):
+        print 'WebsiteSpider::parse_item()'
         title = extract_xpath(response, self.get_extractor('title'))
         author = extract_xpath(response, self.get_extractor('author'))
 
