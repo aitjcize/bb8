@@ -64,8 +64,7 @@ class DramaSpider(CrawlSpider):
             image=urlparse.urljoin(
                 base,
                 extract_xpath(response, '//div[@id="top"]//img/@src')),
-            country=DramaCountryEnum(country),
-            order=None,
+            country=DramaCountryEnum(country)
         )
 
     def parse_drama(self, response):
