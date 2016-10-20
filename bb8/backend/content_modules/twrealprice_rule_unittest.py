@@ -135,7 +135,8 @@ class TestRules(unittest.TestCase):
 
 class TestCanonize(unittest.TestCase):
     def setUp(self):
-        self.canonizer = twrealprice_rule.Rules.Canonize
+        self.rules = twrealprice_rule.Rules.Create()
+        self.canonizer = self.rules.Canonize
 
     def test_numbers(self):
         self.assertEqual(self.canonizer(u'五十六'), u'56')
@@ -149,12 +150,51 @@ class TestCanonize(unittest.TestCase):
         self.assertEqual(self.canonizer(u'叁層'), u'3樓')
         self.assertEqual(self.canonizer(u'三十坪'), u'30坪')
 
+        self.assertEqual(self.canonizer(u'十萬'), u'10萬')
         self.assertEqual(self.canonizer(u'一千五百萬'), u'1500萬')
         self.assertEqual(self.canonizer(u'一千五百六十八萬'), u'1568萬')
         self.assertEqual(self.canonizer(u'二億'), u'20000萬')
         self.assertEqual(self.canonizer(u'二億五千一百萬'), u'25100萬')
         self.assertEqual(self.canonizer(
             u'二十三億五千一百六十八萬'), u'235168萬')
+
+        units = self.rules.units
+        self.assertEqual(self.canonizer(u'三十坪', units=units), u'30坪')
+        self.assertEqual(self.canonizer(u'十六坪', units=units), u'16坪')
+        self.assertEqual(self.canonizer(u'三十六坪', units=units), u'36坪')
+        self.assertEqual(self.canonizer(u'十坪', units=units), u'10坪')
+        self.assertEqual(
+            self.canonizer(
+                u'五結鄉親河路二段', units=units),
+            u'五結鄉親河路二段')
+        self.assertEqual(
+            self.canonizer(
+                u'大墩十二街', units=units),
+            u'大墩十二街')
+        self.assertEqual(
+            self.canonizer(
+                u'十信高中', units=units),
+            u'十信高中')
+        self.assertEqual(
+            self.canonizer(
+                u'十全十美', units=units),
+            u'十全十美')
+        self.assertEqual(
+            self.canonizer(
+                u'新竹縣竹北市六家一路一段27號', units=units),
+            u'新竹縣竹北市六家一路一段27號')
+        self.assertEqual(
+            self.canonizer(
+                u'雙十路', units=units),
+            u'雙十路')
+        self.assertEqual(
+            self.canonizer(
+                u'三二行館', units=units),
+            u'三二行館')
+        self.assertEqual(
+            self.canonizer(
+                u'四十八章', units=units),
+            u'四十八章')
 
 
 if __name__ == "__main__":

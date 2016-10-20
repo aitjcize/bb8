@@ -276,6 +276,10 @@ class Rules(object):
     def Add(self, rule):
         self.rules.append(rule)
 
+    @property
+    def units(self):
+        return ''.join([r.unit for r in self.rules if hasattr(r, 'unit')])
+
     def ParseQuery(self, query):
         """Parse user's query and collect matched rules internally.
 
@@ -287,7 +291,7 @@ class Rules(object):
         Returns:
           unicode str: the remaining string after eliminating matched rules.
         """
-        query = self.Canonize(query)
+        query = self.Canonize(query, units=self.units)
         for r in self.rules:
             if r.ParseQuery(query):
                 self.matched.append(r)
@@ -344,7 +348,7 @@ class Rules(object):
         return [u'%s' % m for m in self.matched if not m.for_sort_only]
 
     @classmethod
-    def Canonize(cls, query):
+    def Canonize(cls, query, units=None):
         """Canonize user's query before parse.
 
         Including:
@@ -383,15 +387,52 @@ class Rules(object):
             query = re.sub(ur'([一二三四五六七八九])百萬', ur'\g<1>00萬', query)
             query = re.sub(ur'([一二三四五六七八九])百', ur'\1', query)
             query = re.sub(ur'([一二三四五六七八九])十([一二三四五六七八九])',
-                           ur'\1\2', query)  # 五十六 --> 五六
+                           ur'\1__MIDTEN__\2', query)  # 五十六 --> 五六
             query = re.sub(ur'([一二三四五六七八九])十',
-                           ur'\g<1>0', query)  # 七十 --> 七0
+                           ur'\g<1>__TENS__', query)  # 七十 --> 七__TENS__
             query = re.sub(ur'十([一二三四五六七八九])',
-                           ur'1\1', query)  # 十八 --> 1八
-            query = query.replace(u'十', u'10')
-            for chinese_num, arabic_num in nums.iteritems():
-                # 五六-->56
-                query = query.replace(chinese_num, unicode(arabic_num))
+                           ur'__TENTH__\1', query)  # 十八 --> __TENTH__八
+            query = query.replace(u'十', u'__TEN__')  # 十 --> __TEN__
+
+            # At final, convert chinese numbers: 五六-->56
+            if units:
+                # Only convert chinese numbers right before unit
+                for _ in range(len(query)):
+                    org = query
+
+                    for chinese_num, arabic_num in nums.iteritems():
+                        query = re.sub(
+                            ur'%s([\d%s])' % (chinese_num, units),
+                            ur'%s\g<1>' % arabic_num,
+                            query)
+                        query = re.sub(ur'__MIDTEN__([\d])', ur'\g<1>', query)
+                        query = re.sub(ur'__TENTH__([\d])', ur'1\g<1>', query)
+                        query = re.sub(
+                            ur'__TENS__([%s])' % units, ur'0\g<1>', query)
+                        query = re.sub(
+                            ur'__TEN__([%s])' % units, ur'10\g<1>', query)
+
+                    if org == query:
+                        break
+
+                # If those special numbers cannot be converted, that must be
+                # not something with units, convert it back.
+                query = query.replace(ur'__MIDTEN__', u'十')
+                query = query.replace(ur'__TENTH__', u'十')
+                query = query.replace(ur'__TEN__', u'十')
+
+            else:
+                # not units
+                for chinese_num, arabic_num in nums.iteritems():
+                    query = query.replace(chinese_num, unicode(arabic_num))
+
+                query = query.replace(ur'__MIDTEN__', u'')
+                query = query.replace(ur'__TENS__', u'0')
+                query = re.sub(ur'__TENTH__', ur'1', query)
+                query = query.replace(ur'__TEN__', u'10')
+
+            if re.search(ur'__.*TEN.*__', query):
+                raise RuntimeError('Not convert it back: %s' % query)
 
             if not query:
                 query = u'0000萬'
@@ -426,7 +467,8 @@ class Rules(object):
             tran_value='辦公商業大樓'))
         rules.Add(Matcher(
             weight=1000,
-            accept_words=[u'透天', u'獨棟'], tran_key='建物型態',
+            accept_words=[u'透天厝', u'透天', u'獨棟', u'別墅', u'獨棟別墅'],
+            tran_key='建物型態',
             tran_value='透天厝'))
         rules.Add(Matcher(
             weight=1000,
