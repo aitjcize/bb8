@@ -14,16 +14,6 @@
       "get_start_button": {"message": {"text": "Hi"}},
       "persistent_menu": [
         {
-          "type": "postback",
-          "title": "使用說明",
-          "payload": {"message": {"text": "tutorial"}}
-        },
-        {
-          "type": "postback",
-          "title": "留言",
-          "payload": {"message": {"text": "feedback"}}
-        },
-        {
           "type": "web_url",
           "title": "粉絲頁",
           "url": "https://www.facebook.com/twrealprice/"
@@ -214,6 +204,22 @@
                 },
                 "end_node_id": "Thanks",
                 "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)(hi|hello)", "你好", "哈囉"]
+                },
+                "end_node_id": "Start",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)(bye)", "再見", "掰掰"]
+                },
+                "end_node_id": "Root",
+                "ack_message": "再見"
               },
               {
                 "rule": {
