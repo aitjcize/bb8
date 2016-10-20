@@ -61,22 +61,19 @@
         "description": "User enable/disable notification",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.generic_message",
+          "id": "ai.compose.content.core.text_message",
           "config": {
-            "messages": [
+            "text": "你想要啟用通知（新劇推出）功能嗎？",
+            "quick_replies": [
               {
-                "text": "你想要啟用通知（新劇推出）功能嗎？",
-                "quick_replies": [
-                  {
-                    "content_type": "text",
-                    "title": "好",
-                    "payload": {"message": {"text": "通知"}}
-                  },
-                  {
-                    "content_type": "text",
-                    "title": "不用了"
-                  }
-                ]
+                "content_type": "text",
+                "title": "好",
+                "payload": {"message": {"text": "通知"}},
+                "acceptable_inputs": ["要", "(?i)ok","(?i)yes"]
+              },
+              {
+                "content_type": "text",
+                "title": "不用了"
               }
             ]
           }
