@@ -8,4 +8,12 @@ const startLogin = (email, passwd) => ({
   },
 })
 
-export default startLogin
+const setActiveBot = botId => ({
+  type: types.BOTS_SET_ACTIVE,
+  payload: botId,
+})
+
+export default {
+  startLogin,
+  setActiveBot,
+}

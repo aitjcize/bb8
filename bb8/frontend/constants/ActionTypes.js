@@ -29,4 +29,7 @@ export default {
   PLATFORMS_CREATE: createRequestTypes('PLATFORMS_CREATE'),
   PLATFORMS_UPDATE: createRequestTypes('PLATFORMS_UPDATE'),
   PLATFORMS_DELETE: createRequestTypes('PLATFORMS_DELETE'),
+
+  // UI
+  BOTS_SET_ACTIVE: 'BOTS_SET_ACTIVE',
 }

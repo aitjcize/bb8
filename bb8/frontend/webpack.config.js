@@ -42,11 +42,12 @@ const defaultConfig = {
         loader: 'babel',
         query: {
           presets: ['es2015', 'react'],
+          plugins: ["transform-class-properties"],
         },
       },
       {
-        test: /\.(eot|svg)$/,
-        loader: 'url?limit=100000',
+        test: /\.(eot|svg|png)$/,
+        loader: 'url-loader?limit=200000',
       },
       {
         test: /\.scss$/,
