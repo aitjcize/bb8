@@ -298,6 +298,31 @@ class MessageUnittest(unittest.TestCase, BaseTestMixin):
         m = Message("{{memory.key2|upper}}")
         self.assertEquals(m.as_dict()['text'], 'VALUE2')
 
+    def test_input_transformation_reconstruction(self):
+        """Test that input transformation is applied when constructing message
+        with Message.FromDict."""
+
+        msg_dict = {
+            "text": "test",
+            "quick_replies": [
+                {
+                    "content_type": "text",
+                    "title": "A",
+                },
+                {
+                    "content_type": "text",
+                    "title": "B"
+                }
+            ]
+        }
+
+        g.input_transformation = []
+        Message.FromDict(msg_dict)
+        transform_keys = reduce(lambda x, y: x + y,
+                                [x[0] for x in g.input_transformation], [])
+        self.assertTrue('A' in transform_keys)
+        self.assertTrue('B' in transform_keys)
+
 
 if __name__ == '__main__':
     with app.test_request_context():

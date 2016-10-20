@@ -258,11 +258,9 @@ class Message(base_message.Message):
 
     class _QuickReply(base_message.Message.QuickReply):
         def register_mapping(self):
-            if self.acceptable_inputs:
-                acceptable_inputs = self.acceptable_inputs[:]
-                acceptable_inputs.append(self.title)
-                InputTransformation.add_mapping(acceptable_inputs,
-                                                self.payload)
+            acceptable_inputs = self.acceptable_inputs[:]
+            acceptable_inputs.append(self.title)
+            InputTransformation.add_mapping(acceptable_inputs, self.payload)
 
     # Patch Message.QuickReply
     base_message.Message.QuickReply = _QuickReply
@@ -363,6 +361,14 @@ class Message(base_message.Message):
             }
 
         return {}
+
+    @classmethod
+    def FromDict(cls, data, variables=None):
+        """Construct Message object given a dictionary."""
+        m = super(Message, cls).FromDict(data, variables)
+        for reply in m.quick_replies:
+            reply.register_mapping()
+        return m
 
     def add_button(self, button):
         super(Message, self).add_button(button)
