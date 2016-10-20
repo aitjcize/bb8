@@ -158,4 +158,32 @@ describe('Reducer for Bots', () => {
       }
     })
   })
+
+  it('should not update the active id', () => {
+    expect(
+      BotsReducer(undefined, {
+        type: types.BOTS_SET_ACTIVE,
+        payload: 5,
+      }).toJS()
+    ).toEqual({
+      active: -1,
+      listing: {
+        result: [],
+        entities: {},
+      }
+    })
+  })
+
+  it('should update the active id', () => {
+    let state = BotsReducer(undefined, {
+      type: types.BOTS_LIST.SUCCESS,
+      payload: normalize(BOTS_LISTING, arrayOf(Bot)),
+    })
+    expect(
+      BotsReducer(state, {
+        type: types.BOTS_SET_ACTIVE,
+        payload: 1,
+      }).toJS()
+    ).toEqual(state.set('active', 1).toJS())
+  })
 })
