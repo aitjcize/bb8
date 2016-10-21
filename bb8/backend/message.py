@@ -258,9 +258,11 @@ class Message(base_message.Message):
 
     class _QuickReply(base_message.Message.QuickReply):
         def register_mapping(self):
-            acceptable_inputs = self.acceptable_inputs[:]
-            acceptable_inputs.append(self.title)
-            InputTransformation.add_mapping(acceptable_inputs, self.payload)
+            if self.content_type == Message.QuickReplyType.TEXT:
+                acceptable_inputs = self.acceptable_inputs[:]
+                acceptable_inputs.append(self.title)
+                InputTransformation.add_mapping(acceptable_inputs,
+                                                self.payload)
 
     # Patch Message.QuickReply
     base_message.Message.QuickReply = _QuickReply

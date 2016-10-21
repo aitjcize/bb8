@@ -312,6 +312,9 @@ class MessageUnittest(unittest.TestCase, BaseTestMixin):
                 {
                     "content_type": "text",
                     "title": "B"
+                },
+                {
+                    "content_type": "location",
                 }
             ]
         }
@@ -322,6 +325,7 @@ class MessageUnittest(unittest.TestCase, BaseTestMixin):
                                 [x[0] for x in g.input_transformation], [])
         self.assertTrue('A' in transform_keys)
         self.assertTrue('B' in transform_keys)
+        self.assertFalse(None in transform_keys)
 
 
 if __name__ == '__main__':
