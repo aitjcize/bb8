@@ -317,11 +317,26 @@
                 "rule": {
                   "type": "regexp",
                   "params": [
-                    "(?i)help", "(?i)tutorial", "幫助", "說明", "支持",
-                    "(?i)support", "你是誰", "(?i)hi", "(?i)hello", "(?i)yo$",
-                    "(?i)ya$", "(?i)ha$"]
+                    "(?i)help", "(?i)tutorial", "幫助", "說明", "支持", "教學"
+                  ]
                 },
-                "end_node_id": "Help",
+                "ack_message": "輸入你想要找的劇名，我們就會幫你找到你想要的劇噢！"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(?i)hi$", "(?i)hello", "(?i)yo$", "(?i)ya$", "(?i)ha$"
+                  ]
+                },
+                "ack_message": "Hi {{user.first_name}}"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [ "(?i)support", "你是"]
+                },
+                "end_node_id": "About",
                 "ack_message": ""
               },
               {
@@ -368,25 +383,14 @@
           }
         }
       },
-      "Help": {
-        "name": "Help",
-        "description": "",
+      "About": {
+        "name": "About",
+        "description": "About",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.content.core.generic_message",
+          "id": "ai.compose.content.core.text_message",
           "config": {
-            "messages": [
-                {
-                  "text": "你好，我是 Compose.ai 的追劇機器人，我的目標是幫愛看劇的你不漏看任何一集"
-                }
-            ]
-          }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.passthrough",
-          "config": {
-            "end_node_id": "Root",
-            "ack_message": ""
+            "text": "你好，我是 Compose.ai 的追劇機器人，我的目標是幫愛看劇的你不漏看任何一集"
           }
         }
       }
