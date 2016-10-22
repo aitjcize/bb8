@@ -32,12 +32,11 @@ class SQLPipeline(object):
             try:
                 entry = Entry(**item_dict).add()
                 DatabaseManager.commit()
-
                 item['link_hash'] = entry.link_hash
             except IntegrityError:
                 DatabaseManager.rollback()
                 raise DropItem('Duplicate entry ignored')
-            except Exception:
+            except Exception, e:
                 DatabaseManager.rollback()
                 raise DropItem('Invalid database operation: %s' %
                                traceback.format_exc())
