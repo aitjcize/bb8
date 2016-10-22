@@ -139,6 +139,8 @@ class DramaSpider(CrawlSpider):
                                            'from_episode': serial_number,
                                            'backward': True,
                                        })))
+                b.add_button(Message.Button(
+                    Message.ButtonType.ELEMENT_SHARE))
                 msg.add_bubble(b)
                 bubble_count += 1
 

@@ -130,6 +130,7 @@ def render_dramas(dramas):
                     'from_episode': 1,
                     'backward': False,
                 })))
+        b.add_button(Message.Button(Message.ButtonType.ELEMENT_SHARE))
         m.add_bubble(b)
     return [m]
 
