@@ -204,20 +204,39 @@ class Number(Rule):
 
 
 class Days(Rule):
-    def __init__(self, tran_key, weight):
+    def __init__(self, tran_key, weight, accept_words=None):
         """Used to count days. Higher score for closer date.
 
         Args:
           tran_key: the key of transaction to search number.
           weight: weight for this score.
+          accept_words: list. Words to trigger this rule
         """
         super(Days, self).__init__(weight=weight)
-        self.for_sort_only = True
+        if accept_words:
+            self.for_sort_only = False
+        else:
+            self.for_sort_only = True
         self.tran_key = tran_key
         self.today = datetime.date.today()
+        self.accept_words = accept_words
+        self.matched = None
 
     def ParseQuery(self, query):
-        return True  # Always matched. Used to sort the results.
+        if not self.accept_words:
+            return True
+
+        for word in self.accept_words:
+            if word in query:
+                self.matched = word
+                return True
+        return False
+
+    def Eliminate(self, query):
+        if self.matched:
+            return query.replace(self.matched, '', 1)
+        else:
+            return query
 
     def CountScore(self, tran):
         try:
@@ -228,10 +247,13 @@ class Days(Rule):
         # 1.0:   0 day  = up-to-date price!
         # 0.0: 365 days = the price year ago
         # 0.0: 366+days = older than 1 year
-        return max(0, min(1.0, 1.0 - delta / 365))
+        return max(0, min(1.0, 1.0 - delta / 365.0))
 
     def __str__(self):
-        return u''
+        if self.accept_words:
+            return self.accept_words[0]
+        else:
+            return u''
 
 
 class Location(Rule):
@@ -316,9 +338,10 @@ class Rules(object):
         """
         self.scores = copy.copy(trans)
 
+        sortings = self.matched + [m for m in self.matched if m.for_sort_only]
         for tran in self.scores:
             score = 0.0
-            for m in self.matched:
+            for m in sortings:
                 score += m.CountScore(tran) * m.weight
             tran['score'] = score
 
@@ -448,18 +471,20 @@ class Rules(object):
         # Building types
         rules.Add(Matcher(
             weight=1000,
-            accept_words=[u'套房'], tran_key='建物型態', tran_value='套房'))
+            accept_words=[u'小坪數', u'套房'],
+            tran_key='建物型態', tran_value='套房'))
         rules.Add(Matcher(
             weight=1000,
             accept_words=[u'公寓'], tran_key='建物型態', tran_value='公寓'))
         rules.Add(Matcher(  # Hack. Must be prior to 華廈.
             weight=1000,
-            accept_words=[u'電梯大樓', u'住宅大樓', u'大樓'],
+            accept_words=[u'電梯大樓', u'住宅大樓', u'大樓', u'電梯'],
             tran_key='建物型態',
             tran_value='住宅大樓'))
         rules.Add(Matcher(
             weight=1000,
-            accept_words=[u'電梯華廈', u'華廈', u'大樓'], tran_key='建物型態',
+            accept_words=[u'電梯華廈', u'華廈', u'大樓', u'電梯'],
+            tran_key='建物型態',
             tran_value='華廈'))
         rules.Add(Matcher(
             weight=1000,
@@ -476,6 +501,11 @@ class Rules(object):
         rules.Add(Matcher(
             weight=1000,
             accept_words=[u'店面'], tran_key='建物型態', tran_value='店面'))
+
+        # Parking lot
+        rules.Add(Matcher(
+            weight=300,
+            accept_words=[u'車位'], tran_key='交易標的', tran_value='車位'))
 
         # Numbers
         rules.Add(Number(weight=150, unit=u'年', tran_key='AGE', slope=10.0))
@@ -494,5 +524,8 @@ class Rules(object):
         rules.Add(Number(
             weight=150, unit=u'衛', tran_key='建物現況格局-衛',
             slope=1.0, scale=1.0))
+        rules.Add(Days(
+            weight=700, tran_key='交易年月日',
+            accept_words=[u'最近成交價', u'最近成交', u'最近']))
 
         return rules
