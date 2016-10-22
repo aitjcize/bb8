@@ -32,10 +32,7 @@ class AccountAPIUnittest(unittest.TestCase):
 
     def setup_prerequisite(self):
         Account(name=u'test',
-                username='test-account-1',
-                email='test@gmail.com') \
-            .set_passwd('12345678') \
-            .add()
+                email='test@gmail.com').set_passwd('12345678').add()
         DatabaseManager.commit()
 
     def test_account(self):
@@ -43,36 +40,52 @@ class AccountAPIUnittest(unittest.TestCase):
         rv = self.app.get('/api/me')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
 
-        # Test for existing email and username
-        rv = self.app.post('/api/email_register', data=dict(
+        # Test for existing email
+        rv = self.app.post('/api/email_register', data=json.dumps(dict(
             email='test@gmail.com',
-            username='test-account-1',
-            passwd='12345678'
-        ))
+            passwd='12345678',
+            timezone='Asia/Taipei'
+        )), content_type='application/json')
         data = json.loads(rv.data)
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
         self.assertEquals(data['error_code'], CustomError.ERR_USER_EXISTED)
 
-        # Test for successful register
-        rv = self.app.post('/api/email_register', data=dict(
+        # Test for invalid email
+        rv = self.app.post('/api/email_register', data=json.dumps(dict(
+            email='not-valid-email',
+            passwd='12345678',
+            timezone='Asia/Taipei'
+        )), content_type='application/json')
+        self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
+
+        # Test for invalid timezone
+        rv = self.app.post('/api/email_register', data=json.dumps(dict(
             email='test-2@gmail.com',
-            username='test-account-2',
-            passwd='12345678'
-        ))
+            passwd='12345678',
+            timezone='Not-A-Timezone'
+        )), content_type='application/json')
+        self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
+
+        # Test for successful register
+        rv = self.app.post('/api/email_register', data=json.dumps(dict(
+            email='test-2@gmail.com',
+            passwd='12345678',
+            timezone='Asia/Taipei'
+        )), content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
 
         # Test for wrong password
-        rv = self.app.post('/api/login', data=dict(
+        rv = self.app.post('/api/login', data=json.dumps(dict(
             email='test-2@gmail.com',
             passwd='87654321'
-        ))
+        )), content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
 
         # Test for login
-        rv = self.app.post('/api/login', data=dict(
+        rv = self.app.post('/api/login', data=json.dumps(dict(
             email='test-2@gmail.com',
             passwd='12345678'
-        ))
+        )), content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.app.set_auth_token(data['auth_token'])

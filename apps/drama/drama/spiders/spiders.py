@@ -64,8 +64,7 @@ class DramaSpider(CrawlSpider):
             image=urlparse.urljoin(
                 base,
                 extract_xpath(response, '//div[@id="top"]//img/@src')),
-            country=DramaCountryEnum(country),
-            order=None,
+            country=DramaCountryEnum(country)
         )
 
     def parse_drama(self, response):
@@ -80,6 +79,10 @@ class DramaSpider(CrawlSpider):
             drama = Drama.get_by(name=meta['name'], single=True)
             if not drama:
                 raise RuntimeError(u'Should not be here! name=' + meta['name'])
+
+            # Update Drama info
+            Drama.get_by(name=meta['name'], return_query=True).update(meta)
+            DatabaseManager.commit()
 
         hrefs = response.xpath('//div[@id="main"]//li/a/@href').extract()
         for idx, link in enumerate(hrefs):

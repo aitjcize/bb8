@@ -69,7 +69,7 @@ class DatabaseUnittest(unittest.TestCase):
         """Populate data into all tables and make sure there are no error."""
         DatabaseManager.reset()
 
-        account = Account(name=u'Test Account', username='test',
+        account = Account(name=u'Test Account',
                           email='test@test.com', passwd='test_hashed').add()
 
         bot = Bot(name=u'test', description=u'test', interaction_timeout=120,
@@ -194,7 +194,7 @@ class DatabaseUnittest(unittest.TestCase):
         self.assertNotEquals(Broadcast.get_by(id=bc.id, single=True), None)
 
         # PublicFeed, Feed
-        account = Account(name=u'Test Account - 1', username='test1',
+        account = Account(name=u'Test Account - 1',
                           email='test1@test.com', passwd='test_hashed').add()
         feed1 = Feed(url='example.com/rss', type=FeedEnum.RSS,
                      title=u'foo.com', image_url='foo.com/logo').add()
@@ -223,7 +223,7 @@ class DatabaseUnittest(unittest.TestCase):
     def test_timestamp_update(self):
         """Make sure the updated_at timestamp automatically updates on
         commit."""
-        account = Account(username=u'user', email='test@test.com',
+        account = Account(email='test@test.com',
                           passwd='test_hashed').add()
         DatabaseManager.commit()
 
@@ -232,7 +232,7 @@ class DatabaseUnittest(unittest.TestCase):
         last_updated = account.updated_at
 
         time.sleep(1)
-        account.username = 'user2'
+        account.email = 'test2@test.com'
         DatabaseManager.commit()
 
         account.refresh()
@@ -281,7 +281,7 @@ class DatabaseUnittest(unittest.TestCase):
 
     def test_json_serializer(self):
         DatabaseManager.reset()
-        account = Account(name=u'tester', username='test1',
+        account = Account(name=u'tester',
                           email='test@test.com')
 
         dt = datetime.datetime(2010, 1, 1, 0, 0, tzinfo=pytz.utc)
@@ -291,13 +291,12 @@ class DatabaseUnittest(unittest.TestCase):
 
         d = account.to_json()
         self.assertEquals(d['created_at'], 1262304000)
-        self.assertEquals(d['username'], 'test1')
         self.assertEquals(d['name'], 'tester')
         self.assertEquals(d['email'], 'test@test.com')
 
     def test_auth(self):
         DatabaseManager.reset()
-        account = Account(name=u'Test Account 3', username='test3',
+        account = Account(name=u'Test Account 3',
                           email='test3@test.com').add()
 
         some_passwd = 'abcdefg'

@@ -6,14 +6,26 @@
     Copyright 2016 bb8 Authors
 """
 
+import jsonschema
+
 from flask import g, jsonify, request
 
 from bb8 import app, logger, AppError
 from bb8.constant import HTTPStatus, CustomError
-from bb8.api.forms import CreateBotForm
 from bb8.api.middlewares import login_required
 from bb8.backend.database import Bot, BotDef, DatabaseManager
 from bb8.backend.bot_parser import validate_bot_schema, parse_bot
+
+
+BOT_CREATE_SCHEMA = {
+    'type': 'object',
+    'required': ['name', 'description'],
+    'additionalProperties': False,
+    'properties': {
+        'name': {'type': 'string'},
+        'description': {'type': 'string'},
+    }
+}
 
 
 def get_account_bot_by_id(bot_id):
@@ -36,15 +48,18 @@ def list_bots():
 @login_required
 def create_bot():
     """Create a new bot."""
-    form = CreateBotForm(csrf_enabled=False)
-    if form.validate_on_submit():
-        bot = Bot(**form.data).add()
-        g.account.bots.append(bot)
-        DatabaseManager.commit()
-        return jsonify(bot.to_json())
-    raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
-                   CustomError.ERR_FORM_VALIDATION,
-                   form.errors)
+    data = request.json
+    try:
+        jsonschema.validate(data, BOT_CREATE_SCHEMA)
+    except Exception:
+        raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
+                       CustomError.ERR_FORM_VALIDATION,
+                       'schema validation fail')
+
+    bot = Bot(**data).add()
+    g.account.bots.append(bot)
+    DatabaseManager.commit()
+    return jsonify(bot.to_json(bot.detail_fields))
 
 
 @app.route('/api/bots/<int:bot_id>', methods=['GET'])
@@ -52,7 +67,7 @@ def create_bot():
 def show_bot(bot_id):
     """Return Bot JSON object."""
     bot = get_account_bot_by_id(bot_id)
-    return jsonify(bot.to_json(['staging']))
+    return jsonify(bot.to_json(bot.detail_fields))
 
 
 @app.route('/api/bots/<int:bot_id>', methods=['PATCH'])
@@ -87,7 +102,7 @@ def deploy_bot(bot_id):
                        CustomError.ERR_WRONG_PARAM,
                        'Bot definition parsing failed')
     bot_def = BotDef.add_version(bot.id, bot.staging)
-    bot.staging = None  # Clear stagging area
+    bot.staging = None  # Clear staging area
     DatabaseManager.commit()
     return jsonify(version=bot_def.version)
 
