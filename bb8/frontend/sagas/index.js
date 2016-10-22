@@ -27,7 +27,7 @@ export function* loginSaga() {
     } else {
       storage.set(AUTH_TOKEN, response.auth_token)
       yield put({ type: types.ACCOUNTS_LOGIN.SUCCESS, payload: response })
-      hashHistory.push('/login')
+      hashHistory.push('/')
     }
   }
 }
