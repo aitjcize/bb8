@@ -78,6 +78,8 @@ class TestDays(unittest.TestCase):
     def setUp(self):
         self.trading = twrealprice_rule.Days(
             weight=10.0, tran_key='交易年月日')
+        self.latest = twrealprice_rule.Days(
+            weight=500.0, tran_key='交易年月日', accept_words=[u'最近'])
         self.trading.today = datetime.date(2011, 12, 13)
 
     def test_days(self):
@@ -85,6 +87,9 @@ class TestDays(unittest.TestCase):
             {'交易年月日': '1001213'}), 1.0)
         self.assertEqual(self.trading.CountScore(
             {'交易年月日': '991213'}), 0.0)
+
+        self.assertEqual(self.latest.ParseQuery(u'X最近Y'), True)
+        self.assertEqual(self.latest.Eliminate(u'XX最近YY'), u'XXYY')
 
 
 class TestLocation(unittest.TestCase):

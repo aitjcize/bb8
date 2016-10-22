@@ -429,7 +429,7 @@ def run(unused_content_config, env, unused_variables):
                 '地坪%.2f' % (
                     float(s['土地移轉總面積平方公尺']) /
                     twrealprice_rule.M2_PER_PING),
-                '車位%.2f' % (
+                '車位%.2f坪' % (
                     float(s['車位移轉總面積平方公尺']) /
                     twrealprice_rule.M2_PER_PING),
                 s['車位類別'],
