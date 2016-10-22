@@ -14,4 +14,5 @@ FILTERS = {
     'lower': lambda x: x.lower(),
     'upper': lambda x: x.upper(),
     'title': lambda x: x.title(),
+    'truncat': lambda l: lambda x: x[:l]  # pylint: disable=E0602
 }

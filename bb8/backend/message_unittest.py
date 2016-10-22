@@ -71,6 +71,9 @@ class MessageUnittest(unittest.TestCase, BaseTestMixin):
         self.assertEquals(text, 'Hi ISAAC')
 
         variables = {'name': 'Isaac'}
+        text = Render('Hi {{target.name,name|upper}}', variables)
+        self.assertEquals(text, 'Hi ISAAC')
+
         text = Render('Hi {{name,target.name|upper}}', variables)
         self.assertEquals(text, 'Hi ISAAC')
 
@@ -267,7 +270,7 @@ class MessageUnittest(unittest.TestCase, BaseTestMixin):
         m = Message("{{data('data').lru(1)}}")
         self.assertEquals(m.as_dict()['text'], 'value2')
 
-        m = Message("{{data('data').get(5).fallback('valuef')}}")
+        m = Message("{{data('data').fallback('valuef').get(5)}}")
         self.assertEquals(m.as_dict()['text'], 'valuef')
 
         m = Message("{{data('data').order_by('-created_at').first}}")

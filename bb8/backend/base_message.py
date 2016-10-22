@@ -12,76 +12,13 @@
 """
 
 import json
-import re
 import sys
 
 import enum
 import jsonschema
 
 # Use relative import here so base_message can be used in app_api
-from template_filters import FILTERS
-
-
-HAS_VARIABLE_RE = re.compile('{{(.*?)}}')
-
-
-def parse_variable(expr, variables):
-    """Parse variable expression."""
-    parts = expr.split('|')
-    keys_expr = parts[0]
-    filters = parts[1:]
-
-    keys_exprs = keys_expr.split(',')
-
-    for keys_expr in keys_exprs:
-        keys = keys_expr.split('.')
-        var = variables
-        try:
-            for key in keys:
-                if '#' in key:
-                    parts = key.split('#')
-                    var = var[parts[0]][int(parts[1])]
-                else:
-                    var = var[key]
-        except Exception:
-            # One of the keys_expr does not exist in variables, try next one.
-            pass
-        else:
-            break
-    else:
-        return None
-
-    # Parse transform filter
-    result = var
-    for f in filters:
-        if f in FILTERS:
-            result = FILTERS[f](result)
-
-    if not isinstance(result, str) and not isinstance(result, unicode):
-        result = str(result)
-
-    return result
-
-
-def to_unicode(text):
-    if text is None:
-        return None
-
-    if not isinstance(text, unicode):
-        return unicode(text, 'utf8')
-    return text
-
-
-def Render(template, variables):
-    """Render template with variables."""
-    if template is None:
-        return None
-
-    def replace(m):
-        expr = m.group(1)
-        ret = parse_variable(expr, variables)
-        return ret if ret else m.group(0)
-    return HAS_VARIABLE_RE.sub(replace, to_unicode(template))
+from template import Render
 
 
 def TextPayload(text):
