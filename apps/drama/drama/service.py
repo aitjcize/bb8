@@ -31,7 +31,7 @@ def to_proto_drama(drama, user):
         id=drama.id,
         link=drama.link,
         name=drama.name,
-        description=drama.name,
+        description=drama.description,
         image_url=drama.image or config.DEFAULT_DRAMA_IMAGE,
         country=drama.country.value,
         subscribed=drama in user.subscribed_dramas
