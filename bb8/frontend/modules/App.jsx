@@ -1,23 +1,17 @@
 import React from 'react'
-import FlatButton from 'material-ui/FlatButton'
 
-import LoginForm from '../components/LoginForm'
 import TopBar from '../components/TopBar'
 
-const App = () => (
+const App = props => (
   <div>
-    <div>
-      <TopBar />
-      <div>
-        Hello, Compose.ai!
-        Here is a demo of material ui buttons:
-      </div>
-      <FlatButton label="Default" />
-      <FlatButton label="Primary" primary />
-      <FlatButton label="Secondary" secondary />
-      <FlatButton label="Disabled" disabled />
-      <LoginForm />
-    </div>
-  </div>)
+    <TopBar />
+    Hello compose.ai!
+    {props.children}
+  </div>
+)
+
+App.propTypes = {
+  children: React.PropTypes.node,
+}
 
 export default App
