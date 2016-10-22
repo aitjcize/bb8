@@ -1,18 +1,18 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import Popover from 'material-ui/Popover'
-import Menu from 'material-ui/Menu'
-import RaisedButton from 'material-ui/RaisedButton'
-import ImmutablePropTypes from 'react-immutable-proptypes'
-import ContentAdd from 'material-ui/svg-icons/content/add'
-import { Toolbar, ToolbarGroup } from 'material-ui/Toolbar'
-import NavigationExpandMoreIcon from 'material-ui/svg-icons/navigation/expand-more'
-import MenuItem from 'material-ui/MenuItem'
-import IconMenu from 'material-ui/IconMenu'
-import IconButton from 'material-ui/IconButton'
 
-import LogoPNG from '../assets/logo.png'
-import actions from '../actions'
+import ContentAdd from 'material-ui/svg-icons/content/add'
+import IconButton from 'material-ui/IconButton'
+import IconMenu from 'material-ui/IconMenu'
+import ImmutablePropTypes from 'react-immutable-proptypes'
+import Menu from 'material-ui/Menu'
+import MenuItem from 'material-ui/MenuItem'
+import NavigationExpandMoreIcon from 'material-ui/svg-icons/navigation/expand-more'
+import Popover from 'material-ui/Popover'
+import RaisedButton from 'material-ui/RaisedButton'
+import { ToolbarGroup } from 'material-ui/Toolbar'
+
+import actions from '../../actions'
 
 class RightToolbarGroup extends React.Component {
 
@@ -114,13 +114,4 @@ const ConnectedRightToolbarGroup = connect(
   mapDispatchToProps,
 )(RightToolbarGroup)
 
-const TopBar = () => (
-  <Toolbar className="b-right-toolbar">
-    <ToolbarGroup firstChild>
-      <img className="b-logo" src={LogoPNG} alt="logo" />
-    </ToolbarGroup>
-    <ConnectedRightToolbarGroup />
-  </Toolbar>
-)
-
-export default TopBar
+export default ConnectedRightToolbarGroup
