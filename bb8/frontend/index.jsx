@@ -3,7 +3,7 @@ import 'babel-polyfill'
 import React from 'react'
 import { render } from 'react-dom'
 import { Provider } from 'react-redux'
-import { Router, Route, hashHistory } from 'react-router'
+import { IndexRoute, Router, Route, hashHistory } from 'react-router'
 import { syncHistoryWithStore } from 'react-router-redux'
 import { createStore, applyMiddleware } from 'redux'
 import createSagaMiddleware from 'redux-saga'
@@ -13,12 +13,23 @@ import createLogger from 'redux-logger'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
 
-import apiClient from './api'
 import rootSaga from './sagas'
 import rootReducer from './reducers'
-import App from './modules/App'
 
+import modules from './modules'
 import './styles/style.scss'
+
+const {
+  Analytics,
+  App,
+  Broadcast,
+  Dashboard,
+  Flow,
+  Help,
+  Login,
+  Platforms,
+  Signup,
+} = modules
 
 // Needed for onTouchTap (material-ui)
 // http://stackoverflow.com/a/34015469/988941
@@ -37,10 +48,6 @@ const store = createStore(
 )
 sagaMiddleware.run(rootSaga)
 
-// inject for debugging purpose
-// FIXME(kevin): remove this
-document.apiClient = apiClient
-
 syncHistoryWithStore(hashHistory, store, {
   selectLocationState(state) {
     return state.get('routing').toJS()
@@ -54,9 +61,17 @@ render(
 (<Provider store={store}>
   <MuiThemeProvider muiTheme={muiTheme}>
     <Router history={hashHistory}>
-      <Route path="/" component={App} />
-      <Route path="/route1" component={App} />
-      <Route path="/route2" component={App} />
+      <Route path="/" component={App} >
+        <IndexRoute component={Dashboard} />
+        <Route path="dashboard" component={Dashboard} />
+        <Route path="flow" component={Flow} />
+        <Route path="broadcast" component={Broadcast} />
+        <Route path="platforms" component={Platforms} />
+        <Route path="analytics" component={Analytics} />
+        <Route path="help" component={Help} />
+      </Route>
+      <Route path="login" component={Login} />
+      <Route path="signup" component={Signup} />
     </Router>
   </MuiThemeProvider>
 </Provider>), document.getElementById('root'))
