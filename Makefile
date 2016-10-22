@@ -1,6 +1,6 @@
 # Copyright 2016 bb8 Authors
 
-LINT_FILES = $(shell find bb8 bb8_client apps -name '*.py' -type f | egrep -v '(_pb2|alembic)' | sort)
+LINT_FILES = $(shell find bb8 bb8_client apps -name '*.py' -type f | egrep -v '(_pb2|alembic|node_modules)' | sort)
 UNITTESTS = $(shell find bb8 bb8_client apps -name '*_unittest.py' | sort)
 
 LINT_OPTIONS = --rcfile=bin/pylintrc \

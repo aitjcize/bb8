@@ -1,4 +1,5 @@
 import Immutable from 'immutable'
+import { reducer as form } from 'redux-form/immutable'
 import { combineReducers } from 'redux-immutable'
 import { LOCATION_CHANGE } from 'react-router-redux'
 import AccountsReducer from './AccountsReducer'
@@ -18,6 +19,7 @@ function routingReducer(state = initialState, action) {
 }
 
 const rootReducer = combineReducers({
+  form,
   bots: BotsReducer,
   account: AccountsReducer,
   routing: routingReducer,

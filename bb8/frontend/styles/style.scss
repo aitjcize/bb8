@@ -7,3 +7,35 @@ body {
   width: 50%;
   margin-left: 25%;
 }
+
+.b-login-card {
+  width: 50%;
+  margin: 0 auto;
+}
+
+.b-login-card__container {
+  width: 50%;
+  margin: 0 auto;
+  margin-top: 3em;
+  padding-top: 2em;
+  text-align: center;
+
+  .b-login-card__title {
+    font-size: 2em;
+  }
+
+  .b-login-card__logo {
+    width: 50%;
+    margin: 0 auto;
+    display: block;
+  }
+
+  .b-login-card__button {
+    width: 50%;
+    margin: 2em auto;
+  }
+
+  .b-login-card__bottom {
+    padding: 3em 0;
+  }
+}
