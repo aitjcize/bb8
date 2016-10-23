@@ -28,6 +28,11 @@
           "payload": {"message": {"text": "trending_tw"}}
         },
         {
+          "type": "postback",
+          "title": "通知設定",
+          "payload": {"message": {"text": "notification_settings"}}
+        },
+        {
           "type": "web_url",
           "title": "Compose.ai 官方網站",
           "url": "http://compose.ai"
@@ -84,6 +89,180 @@
           "config": {
             "end_node_id": "Root",
             "ack_message": ""
+          }
+        }
+      },
+      "Root": {
+        "name": "Root",
+        "description": "Root node, show usage",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.third_party.drama",
+          "config": {
+            "mode": "prompt"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["notification_settings"]
+                },
+                "end_node_id": "{{'PromptDisableNotification' if settings.subscribe else 'PromptEnableNotification'}}",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["^搜尋$", "^找$", "^search$"]
+                },
+                "end_node_id": "PromptSearchTerm",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["搜尋 ?(.*)$", "^找 (.*)$", "search ?(.*)$"],
+                  "collect_as": {
+                    "key": "query_term",
+                    "value": "{{matches#1}}"
+                  }
+                },
+                "end_node_id": "SearchDramas",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "sticker",
+                  "params": ["369239263222822", "369239343222814", "369239383222810"]
+                },
+                "end_node_id": "Thanks",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "event",
+                  "params": ["^SUBSCRIBE$"],
+                  "settings_set": {
+                    "key": "subscribe",
+                    "value": true
+                  }
+                },
+                "end_node_id": "SubscribeDrama",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "event",
+                  "params": ["^UNSUBSCRIBE$"]
+                },
+                "end_node_id": "UnsubscribeDrama",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "event",
+                  "params": ["GET_HISTORY"]
+                },
+                "end_node_id": "GetHistory",
+                "ack_message": "稍等一下，我現在幫你找找看有沒有比較早的集數"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)thanks?", "謝", "感恩"]
+                },
+                "end_node_id": "Thanks",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["trending_kr", "韓", "(?i)kr", "(?i)korea"]
+                },
+                "end_node_id": "TrendingKR",
+                "ack_message": "您好，以下為您送上現在最熱門的韓劇"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["trending_jp", "日", "(?i)jp", "(?i)japan"]
+                },
+                "end_node_id": "TrendingJP",
+                "ack_message": "您好，以下為您送上現在最熱門的日劇"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["trending_tw", "臺", "台", "(?i)tw", "(?i)taiwan"]
+                },
+                "end_node_id": "TrendingTW",
+                "ack_message": "您好，以下為您送上現在最熱門的台劇"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["trending_cn", "陸劇", "中國", "(?i)china", "(?i)ch"]
+                },
+                "end_node_id": "TrendingCN",
+                "ack_message": "您好，以下為您送上現在最熱門的陸劇"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(?i)help", "(?i)tutorial", "幫助", "說明", "支持", "教學"
+                  ]
+                },
+                "ack_message": "輸入你想要找的劇名，我們就會幫你找到你想要的劇噢！"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(?i)hi$", "(?i)hello", "(?i)yo$", "(?i)ya$", "(?i)ha$"
+                  ]
+                },
+                "ack_message": "Hi {{user.first_name}}"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [ "(?i)support", "你是"]
+                },
+                "end_node_id": "About",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(開啟|打開)通知", "(?<!un)subscribe"],
+                  "settings_set": {
+                    "key": "subscribe",
+                    "value": true
+                  }
+                },
+                "ack_message": "好的，之後會在有新劇的時候通知您！"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(關掉|關閉|停止|取消)通知", "unsubscribe"],
+                  "settings_set": {
+                    "key": "subscribe",
+                    "value": false
+                  }
+                },
+                "ack_message": "你已關閉通知！"
+              }
+            ],
+            "on_error": {
+              "collect_as": {"key": "query_term"},
+              "end_node_id": "SearchDramas"
+            }
           }
         }
       },
@@ -208,165 +387,63 @@
           }
         }
       },
-      "Root": {
-        "name": "Root",
-        "description": "Root node, show usage",
+      "PromptEnableNotification": {
+        "name": "PromptEnableNotification",
+        "description": "PromptEnableNotification",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.third_party.drama",
+          "id": "ai.compose.content.core.text_message",
           "config": {
-            "mode": "prompt"
+            "text": "目前通知是關閉的，你想要開啟嗎？",
+            "quick_replies": [
+              {
+                "content_type": "text",
+                "title": "開啟通知",
+                "payload": {"message": {"text": "subscribe"}},
+                "acceptable_inputs": ["好", "要", "(?i)ok","(?i)yes"]
+              },
+              {
+                "content_type": "text",
+                "title": "放棄設定"
+              }
+            ]
           }
         },
         "parser_module": {
-          "id": "ai.compose.parser.core.default",
+          "id": "ai.compose.parser.core.passthrough",
           "config": {
-            "links": [
+            "end_node_id": "Root",
+            "ack_message": ""
+          }
+        }
+      },
+      "PromptDisableNotification": {
+        "name": "PromptDisableNotification",
+        "description": "PromptDisableNotification",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.core.text_message",
+          "config": {
+            "text": "目前通知是開啟的，你想要關閉嗎？",
+            "quick_replies": [
               {
-                "rule": {
-                  "type": "regexp",
-                  "params": ["^搜尋$", "^找$", "^search$"]
-                },
-                "end_node_id": "PromptSearchTerm",
-                "ack_message": ""
+                "content_type": "text",
+                "title": "關閉通知",
+                "payload": {"message": {"text": "unsubscribe"}},
+                "acceptable_inputs": ["好", "要", "(?i)ok","(?i)yes"]
               },
               {
-                "rule": {
-                  "type": "regexp",
-                  "params": ["搜尋 ?(.*)$", "^找 (.*)$", "search ?(.*)$"],
-                  "collect_as": {
-                    "key": "query_term",
-                    "value": "{{matches#1}}"
-                  }
-                },
-                "end_node_id": "SearchDramas",
-                "ack_message": ""
-              },
-              {
-                "rule": {
-                  "type": "sticker",
-                  "params": ["369239263222822", "369239343222814", "369239383222810"]
-                },
-                "end_node_id": "Thanks",
-                "ack_message": ""
-              },
-              {
-                "rule": {
-                  "type": "event",
-                  "params": ["^SUBSCRIBE$"]
-                },
-                "end_node_id": "SubscribeDrama",
-                "ack_message": ""
-              },
-              {
-                "rule": {
-                  "type": "event",
-                  "params": ["^UNSUBSCRIBE$"]
-                },
-                "end_node_id": "UnsubscribeDrama",
-                "ack_message": ""
-              },
-              {
-                "rule": {
-                  "type": "event",
-                  "params": ["GET_HISTORY"]
-                },
-                "end_node_id": "GetHistory",
-                "ack_message": "稍等一下，我現在幫你找找看有沒有比較早的集數"
-              },
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": ["(?i)thanks?", "謝", "感恩"]
-                },
-                "end_node_id": "Thanks",
-                "ack_message": ""
-              },
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": ["trending_kr", "韓", "(?i)kr", "(?i)korea"]
-                },
-                "end_node_id": "TrendingKR",
-                "ack_message": "您好，以下為您送上現在最熱門的韓劇"
-              },
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": ["trending_jp", "日", "(?i)jp", "(?i)japan"]
-                },
-                "end_node_id": "TrendingJP",
-                "ack_message": "您好，以下為您送上現在最熱門的日劇"
-              },
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": ["trending_tw", "臺", "台", "(?i)tw", "(?i)taiwan"]
-                },
-                "end_node_id": "TrendingTW",
-                "ack_message": "您好，以下為您送上現在最熱門的台劇"
-              },
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": ["trending_cn", "陸劇", "中國", "(?i)china", "(?i)ch"]
-                },
-                "end_node_id": "TrendingCN",
-                "ack_message": "您好，以下為您送上現在最熱門的陸劇"
-              },
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": [
-                    "(?i)help", "(?i)tutorial", "幫助", "說明", "支持", "教學"
-                  ]
-                },
-                "ack_message": "輸入你想要找的劇名，我們就會幫你找到你想要的劇噢！"
-              },
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": [
-                    "(?i)hi$", "(?i)hello", "(?i)yo$", "(?i)ya$", "(?i)ha$"
-                  ]
-                },
-                "ack_message": "Hi {{user.first_name}}"
-              },
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": [ "(?i)support", "你是"]
-                },
-                "end_node_id": "About",
-                "ack_message": ""
-              },
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": ["(?<!取消)通知", "(?<!un)subscribe"],
-                  "settings_set": {
-                    "key": "subscribe",
-                    "value": true
-                  }
-                },
-                "ack_message": "好的，之後會在有新劇的時候通知您！"
-              },
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": ["取消通知", "停止通知", "unsubscribe"],
-                  "settings_set": {
-                    "key": "subscribe",
-                    "value": false
-                  }
-                },
-                "ack_message": "你已取消通知！"
+                "content_type": "text",
+                "title": "放棄設定"
               }
-            ],
-            "on_error": {
-              "collect_as": {"key": "query_term"},
-              "end_node_id": "SearchDramas"
-            }
+            ]
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.passthrough",
+          "config": {
+            "end_node_id": "Root",
+            "ack_message": ""
           }
         }
       },
