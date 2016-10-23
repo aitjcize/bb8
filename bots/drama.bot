@@ -74,7 +74,7 @@
               {
                 "content_type": "text",
                 "title": "好",
-                "payload": {"message": {"text": "通知"}},
+                "payload": {"message": {"text": "subscribe"}},
                 "acceptable_inputs": ["要", "(?i)ok","(?i)yes"]
               },
               {
