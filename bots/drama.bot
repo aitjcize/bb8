@@ -8,6 +8,7 @@
     "interaction_timeout": 120,
     "session_timeout": 0,
     "admin_interaction_timeout": 10,
+    "ga_id": "UA-79887532-5",
     "settings": {
       "get_start_button": {"message": {"text": "Hi"}},
       "persistent_menu": [
