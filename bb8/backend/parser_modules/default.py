@@ -220,6 +220,24 @@ def run(parser_config, user_input, as_root):
         elif r_type == 'event' and user_input.event:
             for param in link['rule']['params']:
                 if re.search(param, user_input.event.key):
+                    new_vars = {
+                        'key': user_input.event.key,
+                        'value': user_input.event.value
+                    }
+                    if memory_set:
+                        value = memory_set.get('value', '{{text}}')
+                        if (isinstance(value, unicode) or
+                                isinstance(value, str)):
+                            value = Render(value, new_vars)
+                        Memory.Set(memory_set['key'], value)
+
+                    if settings_set:
+                        value = settings_set.get('value', '{{text}}')
+                        if (isinstance(value, unicode) or
+                                isinstance(value, str)):
+                            value = Render(value, new_vars)
+                        Settings.Set(settings_set['key'], value)
+
                     return ret(link, {'event': user_input.event}, {})
         elif r_type == 'sticker' and user_input.sticker:
             for param in link['rule']['params']:
