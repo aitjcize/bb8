@@ -216,15 +216,15 @@
               },
               {
                 "content_type": "text",
-                "title": "{{data('query_address').lru(0).fallback('台北車站')}}"
+                "title": "{{data('query_address').fallback('台北車站').lru(0)}}"
               },
               {
                 "content_type": "text",
-                "title": "{{data('query_address').lru(1).fallback('台北101')}}"
+                "title": "{{data('query_address').fallback('台北101').lru(1)}}"
               },
               {
                 "content_type": "text",
-                "title": "{{data('query_address').lru(2).fallback('信義威秀')}}"
+                "title": "{{data('query_address').fallback('信義威秀').lru(2)}}"
               },
               {
                 "content_type": "text",
@@ -490,19 +490,19 @@
               },
               {
                 "content_type": "text",
-                "title": "{{data('query_address').lru(0).fallback('台北車站')}}"
+                "title": "{{data('query_address').fallback('台北車站').lru(0)}}"
               },
               {
                 "content_type": "text",
-                "title": "{{data('query_address').lru(1).fallback('台北101')}}"
+                "title": "{{data('query_address').fallback('台北101').lru(1)}}"
               },
               {
                 "content_type": "text",
-                "title": "{{data('query_address').lru(2).fallback('信義威秀')}}"
+                "title": "{{data('query_address').fallback('信義威秀').lru(2)}}"
               },
               {
                 "content_type": "text",
-                "title": "{{data('query_address').lru(3).fallback('捷運忠孝復興')}}"
+                "title": "{{data('query_address').fallback('捷運忠孝復興').lru(3)}}"
               }
             ]
           }
@@ -574,15 +574,15 @@
               },
               {
                 "content_type": "text",
-                "title": "{{data('query_address').lru(0).fallback('台北車站')}}"
+                "title": "{{data('query_address').fallback('台北車站').lru(0)}}"
               },
               {
                 "content_type": "text",
-                "title": "{{data('query_address').lru(1).fallback('台北101')}}"
+                "title": "{{data('query_address').fallback('台北101').lru(1)}}"
               },
               {
                 "content_type": "text",
-                "title": "{{data('query_address').lru(2).fallback('信義威秀')}}"
+                "title": "{{data('query_address').fallback('信義威秀').lru(2)}}"
               }
             ]
           }

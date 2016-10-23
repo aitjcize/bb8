@@ -19,15 +19,13 @@ from flask import g
 from sqlalchemy import desc, func
 
 from bb8 import logger
-from bb8.backend import base_message
+from bb8.backend import base_message, template
 from bb8.backend.database import CollectedDatum
 from bb8.backend.metadata import InputTransformation
-from bb8.backend.template_filters import FILTERS
 from bb8.backend.util import image_convert_url
 
 
 VARIABLE_RE = re.compile('^{{(.*?)}}$')
-HAS_VARIABLE_RE = base_message.HAS_VARIABLE_RE
 
 
 def IsVariable(text):
@@ -68,108 +66,79 @@ def Resolve(obj, variables):
     return obj
 
 
-def parse_query(expr):
-    """Parse query expression."""
-    parts = expr.split('|')
-    filters = parts[1:]
-    parts = parts[0].split('.')
-    query = parts[0]
-    options = parts[1:]
+class DataQuery(object):
+    def __init__(self, key):
+        self.key = key
+        self.fallback_value = ''
+        self.query = CollectedDatum.query(
+            CollectedDatum.value, CollectedDatum.created_at).filter_by(
+                key=key, user_id=g.user.id)
 
-    m = re.match(r'^data\(\'(.*?)\'\)$', query)
-    if not m:
-        return expr
+    @property
+    def one(self):
+        result = self.query.limit(1).first()
+        return result[0] if result else self.fallback_value
 
-    key = m.group(1)
-    q = CollectedDatum.query(CollectedDatum.value, CollectedDatum.created_at)
-    q = q.filter_by(key=key, user_id=g.user.id)
+    @property
+    def first(self):
+        return self.one
 
-    # Parse query filter
-    result = None
-    try:
-        for option in options[:]:
-            options = options[1:]
-            if option == 'one' or option == 'first':
-                result = q.first()
-                result = result.value if result else None
-                break
-            m = re.match(r'get\((\d+)\)', option)
-            if m:
-                result = q.offset(int(m.group(1))).limit(1).first()
-                result = result.value if result else None
-                break
-            m = re.match(r'lru\((\d+)\)', option)
-            if m:
-                result = CollectedDatum.query(
-                    CollectedDatum.value,
-                    func.max(CollectedDatum.created_at).label('latest')
-                ).filter_by(
-                    key=key,
-                    user_id=g.user.id
-                ).group_by(
-                    CollectedDatum.value
-                ).order_by(
-                    desc('latest')
-                ).offset(int(m.group(1))).limit(1).first()
-                result = result.value if result else None
-                break
-            if option == 'last':
-                result = q.order_by(CollectedDatum.created_at.desc()).first()
-                result = result.value if result else None
-                break
-            elif option == 'count':
-                result = q.count()
-                break
-            elif option == 'uniq':
-                q = q.distinct(CollectedDatum.value)
-            else:
-                m = re.match(r'order_by\(\'(.*)\'\)', option)
-                if m:
-                    field = m.group(1)
-                    if field.startswith('-'):
-                        q = q.order_by(desc(field[1:]))
-                    else:
-                        q = q.order_by(field)
-    except Exception as e:
-        logger.exception(e)
-        return None
+    @property
+    def count(self):
+        return self.query.count()
 
-    if result is None:
-        if options:
-            m = re.match(r'fallback\(\'(.*)\'\)', options[0])
-            if m:
-                return m.group(1)
-        return None
+    @property
+    def last(self):
+        result = self.query.order_by(CollectedDatum.created_at.desc()).limit(
+            1).first()
+        return result[0] if result else self.fallback_value
 
-    # Parse transform filter
-    for f in filters:
-        if f in FILTERS:
-            result = FILTERS[f](result)
+    def get(self, index):
+        result = self.query.offset(index).limit(1).first()
+        return result[0] if result else self.fallback_value
 
-    if not isinstance(result, str) and not isinstance(result, unicode):
-        result = str(result)
+    def lru(self, index):
+        result = CollectedDatum.query(
+            CollectedDatum.value,
+            func.max(CollectedDatum.created_at).label('latest')
+        ).filter_by(
+            key=self.key,
+            user_id=g.user.id
+        ).group_by(
+            CollectedDatum.value
+        ).order_by(
+            desc('latest')
+        ).offset(index).limit(1).first()
+        return result[0] if result else self.fallback_value
 
-    return result
+    def fallback(self, fallback):
+        self.fallback_value = fallback
+        return self
+
+    def order_by(self, field):
+        if field.startswith('-'):
+            self.query = self.query.order_by(desc(field[1:]))
+        else:
+            self.query = self.query.order_by(field)
+        return self
+
+    def uniq(self):
+        self.query = self.query.distinct(CollectedDatum.value)
+        return self
 
 
-def Render(template, variables):
+def Render(tmpl, variables):
     """Render template with variables."""
-    if template is None:
-        return None
 
     # Inject user settings and memory access
     if hasattr(g, 'user'):
         variables['settings'] = g.user.settings
         variables['memory'] = g.user.memory
 
-    def replace(m):
-        expr = m.group(1)
-        if re.match(r'^data\(\'.*?\'\)', expr):  # Query expression
-            ret = parse_query(expr)
-        else:
-            ret = base_message.parse_variable(expr, variables)
-        return ret if ret is not None else m.group(0)
-    return HAS_VARIABLE_RE.sub(replace, base_message.to_unicode(template))
+    # Inject data query object
+    variables['data'] = DataQuery
+
+    return template.Render(tmpl, variables)
 
 
 def TextPayload(text, send_to_current_node=True):

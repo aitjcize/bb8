@@ -173,6 +173,8 @@ def run(parser_config, user_input, as_root):
 
         def ret(link, variables, collect):
             end_node_id = link.get('end_node_id', None)
+            if end_node_id:
+                end_node_id = Render(end_node_id, variables)
             ack_msg = link.get('ack_message', None)
             return ParseResult(end_node_id, ack_msg, variables, collect)
 
@@ -235,9 +237,10 @@ def run(parser_config, user_input, as_root):
             collect[collect_as['key']] = Render(value,
                                                 {'text': user_input.text})
 
-        return ParseResult(on_error['end_node_id'],
+        variables = {'text': user_input.text}
+        return ParseResult(Render(on_error['end_node_id'], variables),
                            on_error.get('ack_message'),
-                           {'text': user_input.text}, collect, errored=True)
+                           variables, collect, errored=True)
 
     return ParseResult(None, 'Invalid input, please re-enter',
                        {'text': user_input.text}, collect, errored=True)
