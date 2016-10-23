@@ -11,6 +11,7 @@
 import glob
 import json
 import os
+import re
 
 import jsonschema
 
@@ -20,6 +21,9 @@ from bb8 import util
 from bb8.backend.messaging import get_messaging_provider
 from bb8.backend.database import (DatabaseManager, Bot, ContentModule, Node,
                                   Platform)
+
+
+HAS_VARIABLE_RE = re.compile('{{(.*?)}}')
 
 
 def get_bots_dir():
@@ -149,6 +153,10 @@ def parse_bot(bot_json, to_bot_id=None, source='bot_json'):
 
             for end_node_id in pm.get_linkages(n.parser_config):
                 if end_node_id is not None:
+                    if re.search(HAS_VARIABLE_RE, end_node_id):
+                        logger.info('Rendered end_node_id `%s\', check '
+                                    'skipped ...' % end_node_id)
+                        continue
                     if end_node_id not in id_map.keys():
                         raise RuntimeError('end_node_id `%s\' is invalid' %
                                            end_node_id)
