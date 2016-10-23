@@ -25,6 +25,11 @@
         },
         {
           "type": "postback",
+          "title": "通知設定",
+          "payload": {"message": {"text": "notification_settings"}}
+        },
+        {
+          "type": "postback",
           "title": "留言",
           "payload": {"message": {"text": "feedback"}}
         },
@@ -102,6 +107,14 @@
           "id": "ai.compose.parser.core.default",
           "config": {
             "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["notification_settings"]
+                },
+                "end_node_id": "{{'PromptDisableNotification' if settings.subscribe else 'PromptEnableNotification'}}",
+                "ack_message": ""
+              },
               {
                 "rule": {
                   "type": "regexp",
@@ -212,7 +225,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["取消訂閱", "停止訂閱", "unsubscribe"],
+                  "params": ["(關掉|關閉|停止|取消)訂閱", "unsubscribe"],
                   "settings_set": {
                     "key": "subscribe",
                     "value": false
@@ -382,6 +395,66 @@
                 "ack_message": "謝謝你的建議，我們會根據你的建議改善的！"
               }
             ]
+          }
+        }
+      },
+      "PromptEnableNotification": {
+        "name": "PromptEnableNotification",
+        "description": "PromptEnableNotification",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.core.text_message",
+          "config": {
+            "text": "您目前「沒有訂閱」新聞小幫手，你想要訂閱嗎？",
+            "quick_replies": [
+              {
+                "content_type": "text",
+                "title": "訂閱",
+                "payload": {"message": {"text": "subscribe"}},
+                "acceptable_inputs": ["好", "要", "(?i)ok","(?i)yes"]
+              },
+              {
+                "content_type": "text",
+                "title": "放棄設定"
+              }
+            ]
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.passthrough",
+          "config": {
+            "end_node_id": "Root",
+            "ack_message": ""
+          }
+        }
+      },
+      "PromptDisableNotification": {
+        "name": "PromptDisableNotification",
+        "description": "PromptDisableNotification",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.core.text_message",
+          "config": {
+            "text": "您目前已「訂閱」新聞小幫手，你想要取消嗎？",
+            "quick_replies": [
+              {
+                "content_type": "text",
+                "title": "取消訂閱",
+                "payload": {"message": {"text": "unsubscribe"}},
+                "acceptable_inputs": ["好", "要", "(?i)ok","(?i)yes"]
+              },
+              {
+                "content_type": "text",
+                "title": "放棄設定"
+              }
+            ]
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.passthrough",
+          "config": {
+            "end_node_id": "Root",
+            "ack_message": ""
           }
         }
       },
