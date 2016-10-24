@@ -71,6 +71,36 @@
                         "subtitle": "幫您蒐集彙整國內外各大媒體報導的新聞小幫手！",
                         "image_url": "http://i.imgur.com/0eCpkUj.png",
                         "title": "新聞小幫手"
+                      },
+                      {
+                        "buttons": [
+                          {
+                            "url": "http://m.me/chat.dramabot",
+                            "type": "web_url",
+                            "title": "開始使用"
+                          },
+                          {
+                            "type": "element_share"
+                          }
+                        ],
+                        "subtitle": "幫您追蹤您喜歡的各國影集，也會推薦其他您可能會喜歡的影集唷！",
+                        "image_url": "http://i.imgur.com/sbNVF6H.png",
+                        "title": "追劇吧"
+                      },
+                      {
+                        "buttons": [
+                          {
+                            "url": "http://m.me/twrealprice",
+                            "type": "web_url",
+                            "title": "開始使用"
+                          },
+                          {
+                            "type": "element_share"
+                          }
+                        ],
+                        "subtitle": "幫您尋找各地點的實價登錄資訊！",
+                        "image_url": "http://i.imgur.com/o7LgCo3.png",
+                        "title": "全台實價登錄網站"
                       }
                     ]
                   }
