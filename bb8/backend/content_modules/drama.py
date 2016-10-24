@@ -95,9 +95,6 @@ class DramaInfo(object):
             ), GRPC_TIMEOUT).episodes
 
 
-drama_info = DramaInfo()
-
-
 def render_dramas(dramas):
     """Render cards given a list of dramas"""
     if not len(dramas):
@@ -164,8 +161,9 @@ def render_episodes(episodes):
 
 
 def run(content_config, unused_env, variables):
-    user_id = GetUserId()
+    drama_info = DramaInfo()
     n_items = content_config.get('n_items', DEFAULT_N_ITEMS)
+    user_id = GetUserId()
 
     def append_categories_to_quick_reply(m):
         m.add_quick_reply(Message.QuickReply(
