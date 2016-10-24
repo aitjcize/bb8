@@ -13,6 +13,25 @@ from bb8.backend.template import Render
 
 
 class TemplateUnittest(unittest.TestCase):
+    def test_arithmetic_operations(self):
+        variables = {'a': 1, 's': 'A'}
+
+        # Basic plus and minus
+        self.assertEquals(Render('{{a + 1}}', variables), '2')
+        self.assertEquals(Render('{{a + 1 + 3}}', variables), '5')
+        self.assertEquals(Render('{{a - 1}}', variables), '0')
+
+        # String
+        self.assertEquals(Render("{{s + ' dog'}}", variables), 'A dog')
+
+        # Conditional
+        self.assertEquals(Render("{{a > 0}}", variables), 'True')
+        self.assertEquals(Render("{{2 > 1}}", variables), 'True')
+        self.assertEquals(Render("{{2 < 1}}", variables), 'False')
+
+        self.assertEquals(Render("{{not 1}}", variables), 'False')
+        self.assertEquals(Render("{{not False}}", variables), 'True')
+
     def test_variable_indexing(self):
         variables = {'a': {'b': {'c': 3}}}
         self.assertEquals(Render('{{a.b.c}}', variables), '3')
@@ -53,7 +72,7 @@ class TemplateUnittest(unittest.TestCase):
 
     def test_if_else(self):
         variables = {
-            'a': {'b': 'test_value', 'c': 'test_value2'},
+            'a': {'b': 'test_value', 'c': 'test_value2', 'd': True},
             'settings': {'subscribe': True}
         }
         self.assertEquals(Render("{{a.c if a.b == 'test_value' else 'A'}}",
@@ -66,6 +85,16 @@ class TemplateUnittest(unittest.TestCase):
                                  variables), 'Yes')
         self.assertEquals(Render("{{'Yes' if settings.subscribe == True "
                                  "else 'No'}}", variables), 'Yes')
+
+        # Test value_expr
+        self.assertEquals(Render("{{a.c| if a.d else 'a'|upper}}",
+                                 variables), 'test_value2')
+
+        self.assertEquals(Render("{{a.c| if not a.d else 'a'|upper}}",
+                                 variables), 'A')
+
+    def test_invalid_token(self):
+        self.assertEquals(Render("{{a * 1}}", {'a': 1}), "{{a * 1}}")
 
 
 if __name__ == '__main__':

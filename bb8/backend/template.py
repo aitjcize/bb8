@@ -56,6 +56,12 @@
     values : values ',' value
            | value
 
+    values_expr : values_expr op values_expr
+                | values
+
+    filtered_value_expr : values_expr '|' filter
+                        | values_expr
+
     function_arg : string_literal
                  | integer
 
@@ -65,12 +71,8 @@
     filter : filter_name '(' function_args ')'
            | filter_name
 
-    condition_expr : value
-                   | value OP value
-
-    exprs : values
-          | values '|' filter
-          | values 'if' condition_expr 'else' values
+    exprs : filtered_value_expr
+          | filtered_value_expr 'if' value 'else' filtered_value_expr
 
 
     Copyright 2016 bb8 Authors
@@ -103,25 +105,33 @@ class Token(enum.Enum):
     LPAREN = 'LPAREN'
     RPAREN = 'RPAREN'
     PIPE = 'PIPE'
-    TRUE = 'True'
-    FALSE = 'False'
+    NOT = 'NOT'
+    TRUE = 'TRUE'
+    FALSE = 'FALSE'
+    PLUS = 'PLUS'
+    MINUS = 'MINUS'
     ID = 'ID'
     IF = 'IF'
     ELSE = 'ELSE'
     NUMBER = 'NUMBER'
 
 CONDITIONAL_TOKENS = [Token.EQUALS, Token.LT, Token.LE, Token.GT, Token.GE]
-VALUE_TOKENS = [Token.STRING_LITERAL, Token.NUMBER, Token.TRUE, Token.FALSE]
+VALUE_TOKENS = [Token.STRING_LITERAL, Token.NUMBER, Token.TRUE, Token.FALSE,
+                Token.NOT]
+ARITHMETIC_TOKENS = [Token.PLUS, Token.MINUS]
 VALUE_STARTING_TOKENS = VALUE_TOKENS + [Token.ID]
 
+BINARY_OP = CONDITIONAL_TOKENS + ARITHMETIC_TOKENS
+
 TokenResult = collections.namedtuple('TokenResult', ['type', 'value'])
+Register = collections.namedtuple('Register', ['value', 'inverted'])
 
 
 token_rules = [
     (Token.WHITESPACE, re.compile(r'\s+'), None),
     (Token.STRING_LITERAL, re.compile(r"'[^']*'"), lambda x: x[1:-1]),
-    (Token.COMMA, re.compile(r','), None),
     (Token.DOT, re.compile(r'\.'), None),
+    (Token.COMMA, re.compile(r','), None),
     (Token.SHARP, re.compile(r'#'), None),
     (Token.EQUALS, re.compile(r'=='), None),
     (Token.LT, re.compile(r'<'), None),
@@ -131,9 +141,12 @@ token_rules = [
     (Token.LPAREN, re.compile(r'\('), None),
     (Token.RPAREN, re.compile(r'\)'), None),
     (Token.PIPE, re.compile(r'\|'), None),
+    (Token.NUMBER, re.compile(r'-?[0-9]+'), int),
+    (Token.PLUS, re.compile(r'\+'), None),
+    (Token.MINUS, re.compile(r'-'), None),
     (Token.IF, re.compile(r'if'), None),
     (Token.ELSE, re.compile(r'else'), None),
-    (Token.NUMBER, re.compile(r'-?[0-9]+'), int),
+    (Token.NOT, re.compile(r'not'), None),
     (Token.TRUE, re.compile(r'True'), lambda unused_x: True),
     (Token.FALSE, re.compile(r'False'), lambda unused_x: False),
     (Token.ID, re.compile(r'[a-zA-Z_][a-zA-Z0-9_]*'), None),
@@ -149,6 +162,14 @@ def to_unicode(text):
     return text
 
 
+class ParserError(Exception):
+    pass
+
+
+class VMError(Exception):
+    pass
+
+
 def tokenize(template):
     """Tokenize the template into tokens.
 
@@ -156,6 +177,7 @@ def tokenize(template):
     buffer.
     """
     result = []
+    index = 0
     while template:
         for token, rule, convert in token_rules:
             m = rule.match(template)
@@ -166,13 +188,12 @@ def tokenize(template):
                     if convert:
                         value = convert(value)
                     result.append(TokenResult(token, value))
+                index += len(text)
                 template = template[len(text):]
                 break
+        else:
+            raise ParserError('Invalid token found at position %d' % index)
     return result
-
-
-class ParserError(Exception):
-    pass
 
 
 def peek(tokens):
@@ -186,12 +207,128 @@ class ParserContext(object):
         filters = filters or {}
         self.filters = dict(FILTERS, **filters)
         self.variables = variables
+        self.evaluate = True
         self.value = None
+        self.inverted = False
         self.func_name = None
         self.args = []
+        self.stack = []
+
+    def reset(self):
+        self.value = None
+        self.inverted = False
+        self.args = []
+        self.evaluate = True
+
+    def push_op(self, token):
+        """Push operation into the stack."""
+        self.stack.append(token)
+
+    def push(self):
+        """Push current value into the stack."""
+        self.stack.append(Register(self.value, self.inverted))
+        self.value = None
+        self.inverted = False
+
+    def pop(self):
+        """Pop value from stack."""
+        self.value, self.inverted = self.stack.pop()
+
+    def eval_bool(self):
+        return bool(self.value) and not self.inverted
+
+    def eval_attr(self, token):
+        if token.type != Token.ID:
+            raise ParserError('syntax error: expecting ID, got %s' % token)
+
+        if self.evaluate:
+            key = token.value
+            if self.value is None:
+                self.value = self.variables.get(key)
+                if self.value is None:
+                    # Variable does not exist, set evaluate to False
+                    self.evaluate = False
+            else:
+                if hasattr(self.value, key):
+                    self.value = getattr(self.value, key)
+                else:
+                    try:
+                        self.value = self.value[key]
+                    except (TypeError, KeyError):
+                        # Invalid attribute, result the result
+                        self.value = None
+                        self.evaluate = False
+
+    def eval_function(self):
+        try:
+            func = self.value
+            self.value = self.value(*self.args)
+        except Exception as e:
+            raise ParserError('Function `%s` execution error: %s' % (func, e))
+
+    def eval_filter(self):
+        if not self.evaluate:
+            return
+
+        filtr = self.filters.get(self.func_name)
+        if filtr is None:
+            raise ParserError('Filter `%s\' not found' % self.func_name)
+        try:
+            if self.args:
+                filtr = filtr(*self.args)
+            self.value = filtr(self.value)
+        except Exception as e:
+            logging.exception(e)
+            raise ParserError('Function `%s` execution error: %s' %
+                              (self.func_name, e))
+
+    def exec_op(self):
+        op = self.stack.pop()
+        if not isinstance(op, Token):
+            raise VMError('can not execute, epxecting op, got %s' % op)
+
+        arg2 = self.stack.pop()
+        arg1 = self.stack.pop()
+
+        arg1_val = arg1.value if not arg1.inverted else not arg1.value
+        arg2_val = arg2.value if not arg2.inverted else not arg2.value
+
+        try:
+            if op == Token.EQUALS:
+                result = arg1_val == arg2_val
+            elif op == Token.LT:
+                result = arg1_val < arg2_val
+            elif op == Token.LE:
+                result = arg1_val <= arg2_val
+            elif op == Token.GT:
+                result = arg1_val > arg2_val
+            elif op == Token.GE:
+                result = arg1_val >= arg2_val
+            elif op == Token.PLUS:
+                result = arg1_val + arg2_val
+            elif op == Token.MINUS:
+                result = arg1_val - arg2_val
+        except Exception as e:
+            raise VMError('Operation fail for %s: %e' % (op, e))
+
+        self.value = result
+        self.inverted = False
+
+    def as_unicode_value(self):
+        if self.inverted:
+            self.value = not self.value
+
+        if self.value is None:
+            return None
+        elif isinstance(self.value, str):
+            return unicode(self.value, 'utf8')
+        elif isinstance(self.value, unicode):
+            return self.value
+        else:
+            return unicode(str(self.value), 'utf8')
 
 
-def parse_function_args(context, tokens, evaluate=True):
+def parse_function_args(context, tokens):
     args = []
     context.args = []
     while tokens:
@@ -203,7 +340,7 @@ def parse_function_args(context, tokens, evaluate=True):
         elif token.type == Token.COMMA:
             pass
         elif token.type == Token.RPAREN:
-            if evaluate:
+            if context.evaluate:
                 context.args = args
             return tokens[1:]
         else:
@@ -212,10 +349,10 @@ def parse_function_args(context, tokens, evaluate=True):
         tokens = tokens[1:]
 
 
-def parse_index(context, tokens, evaluate=True):
+def parse_index(context, tokens):
     token = tokens[0]
     if token.type == Token.NUMBER:
-        if evaluate:
+        if context.evaluate:
             try:
                 context.value = context.value[token.value]
             except IndexError, e:
@@ -226,23 +363,7 @@ def parse_index(context, tokens, evaluate=True):
     return tokens[1:]
 
 
-def parse_filter(context, tokens, evaluate=True):
-    def call_filter():
-        if not evaluate:
-            return
-
-        filtr = context.filters.get(context.func_name)
-        if filtr is None:
-            raise ParserError('Filter `%s\' not found' % token.value)
-        try:
-            if context.args:
-                filtr = filtr(*context.args)
-            context.value = filtr(context.value)
-        except Exception as e:
-            logging.exception(e)
-            raise ParserError('Function `%s` execution error: %s' %
-                              (context.func_name, e))
-
+def parse_filter(context, tokens):
     context.args = []
     while tokens:
         token = tokens[0]
@@ -250,152 +371,150 @@ def parse_filter(context, tokens, evaluate=True):
             context.func_name = token.value
             next_token = peek(tokens)
             if not next_token or next_token.type != Token.LPAREN:
-                call_filter()
-                return tokens
+                context.eval_filter()
+                return tokens[1:]
         elif token.type == Token.LPAREN:
-            tokens = parse_function_args(context, tokens[1:], evaluate)
-            call_filter()
-            return tokens
+            tokens = parse_function_args(context, tokens[1:])
+            context.eval_filter()
+            return tokens[1:]
         else:
             return tokens
 
         tokens = tokens[1:]
 
 
-def parse_value(context, tokens, evaluate=True):
+def parse_value(context, tokens):
     context.value = None
 
-    prev_token = None
-    while tokens:  # pylint: disable=R0101
+    while tokens:
         token = tokens[0]
-        if token.type in VALUE_TOKENS:
-            if evaluate:
+        if token.type == Token.NOT:
+            if context.evaluate:
+                context.inverted = True
+            tokens = tokens[1:]
+        elif token.type in VALUE_TOKENS:
+            if context.evaluate:
                 context.value = token.value
             return tokens[1:]
         elif token.type == Token.ID:
-            if evaluate:
-                key = tokens[0].value
-                if context.value is None:
-                    context.value = context.variables.get(key)
-                    if context.value is None:
-                        # Variable does not exist, set evaluate to False
-                        evaluate = False
-                else:
-                    if hasattr(context.value, key):
-                        context.value = getattr(context.value, key)
-                    else:
-                        try:
-                            context.value = context.value[key]
-                        except (TypeError, KeyError):
-                            # Invalid attribute, result the result
-                            context.value = None
-                            evaluate = False
+            context.eval_attr(token)
+            tokens = tokens[1:]
         elif token.type == Token.LPAREN:
-            tokens = parse_function_args(context, tokens[1:], evaluate)
-            try:
-                context.value = context.value(*context.args)
-                continue
-            except Exception as e:
-                raise ParserError('Function `%s` execution error: %s' %
-                                  (prev_token.value, e))
+            tokens = parse_function_args(context, tokens[1:])
+            context.eval_function()
         elif token.type == Token.SHARP:
-            tokens = parse_index(context, tokens[1:], evaluate)
+            tokens = parse_index(context, tokens[1:])
         elif token.type == Token.DOT:
-            pass
+            context.eval_attr(tokens[1])
+            tokens = tokens[2:]
         else:
             return tokens
-
-        prev_token = token
-        tokens = tokens[1:]
 
     return tokens
 
 
-def parse_values(context, tokens, evaluate=True):
-    context.value = None
+def parse_values(context, tokens):
+    context.reset()
 
     result = None
     while tokens:
         token = tokens[0]
         if token.type in VALUE_STARTING_TOKENS:
-            tokens = parse_value(context, tokens, evaluate)
-            if context.value and evaluate:
+            tokens = parse_value(context, tokens)
+            if context.value and context.evaluate:
                 result = context.value
-                evaluate = False
+                context.evaluate = False
+            if result is None:
+                context.evaluate = True
             continue
         elif token.type == Token.COMMA:
             pass
         else:
             context.value = result
+            context.evaluate = True
             return tokens
 
         tokens = tokens[1:]
 
+    context.evaluate = True
+    return tokens
+
+
+def parse_values_expr(context, tokens):
+    while tokens:
+        token = tokens[0]
+        if token.type in VALUE_STARTING_TOKENS:
+            tokens = parse_values(context, tokens)
+        elif token.type == Token.NOT:
+            context.inverted = True
+            tokens = tokens[1:]
+        elif token.type in BINARY_OP:
+            op = token.type
+            context.push()
+            tokens = parse_values_expr(context, tokens[1:])
+            context.push()
+            context.push_op(op)
+            context.exec_op()
+        else:
+            return tokens
+    return tokens
+
+
+def parse_filtered_value_expr(context, tokens):
+    while tokens:
+        token = tokens[0]
+        if token.type in VALUE_STARTING_TOKENS:
+            tokens = parse_values_expr(context, tokens)
+        elif token.type == Token.PIPE:
+            tokens = parse_filter(context, tokens[1:])
+        else:
+            return tokens
     return tokens
 
 
 def parse_if_else(context, tokens):
-    true_value = context.value
-
+    context.push()
     tokens = parse_value(context, tokens)
-    left_value = context.value
 
     if not tokens:
         raise ParserError('syntax error: unexpected end of input when parsing '
                           'if else expression')
 
     token = tokens[0]
-    if token.type == Token.ELSE:
-        if bool(left_value):
-            tokens = parse_values(context, tokens[1:], evaluate=False)
-            context.value = true_value
-            return tokens
-
-        return parse_value(context, tokens[1:])
-    elif token.type in CONDITIONAL_TOKENS:
+    if token.type in CONDITIONAL_TOKENS:
+        context.push()  # arg1
         op = token.type
         tokens = parse_value(context, tokens[1:])
-        right_value = context.value
-        result = False
-        if op == Token.EQUALS:
-            result = left_value == right_value
-        elif op == Token.LT:
-            result = left_value < right_value
-        elif op == Token.LE:
-            result = left_value <= right_value
-        elif op == Token.GT:
-            result = left_value > right_value
-        elif op == Token.GE:
-            result = left_value >= right_value
+        context.push()  # arg2
+        context.push_op(op)  # op
+        context.exec_op()
 
-        if result:  # The result evaluates to True, return true_value
-            tokens = parse_values(context, tokens[1:], evaluate=False)
-            context.value = true_value
+    if not tokens:
+        raise ParserError('syntax error: unexpected end of input when parsing '
+                          'else clause')
+
+    token = tokens[0]
+    if token.type == Token.ELSE:
+        if context.eval_bool():
+            tokens = parse_filtered_value_expr(context, tokens[1:])
+            context.pop()  # True value
             return tokens
 
-        if tokens[0].type != Token.ELSE:
-            raise ParserError('syntax error: expecting ELSE, got %s',
-                              tokens[0].type)
-
-        return parse_values(context, tokens[1:])
+        context.pop()  # Drop the True value
+        return parse_filtered_value_expr(context, tokens[1:])
     else:
-        raise ParserError('syntax error: expecting boolean expression, '
-                          'got %s' % token)
+        raise ParserError('syntax error: expecting ELSE, got %s' % token)
 
 
 def parse_exprs(context, tokens):
     while tokens:
         token = tokens[0]
         if token.type in VALUE_STARTING_TOKENS:
-            tokens = parse_values(context, tokens)
-            continue
-        elif token.type == Token.PIPE:
-            tokens = parse_filter(context, tokens[1:])
+            tokens = parse_filtered_value_expr(context, tokens)
         elif token.type == Token.IF:
             tokens = parse_if_else(context, tokens[1:])
-            continue
-
-        tokens = tokens[1:]
+        else:
+            tokens = tokens[1:]
 
 
 def parse_root(context, tokens):
@@ -407,15 +526,7 @@ def parse(template, variables):
     context = ParserContext(variables)
     tokens = tokenize(template)
     parse_root(context, tokens)
-
-    if not context.value:
-        return None
-    elif isinstance(context.value, str):
-        return unicode(context.value, 'utf8')
-    elif isinstance(context.value, unicode):
-        return context.value
-    else:
-        return unicode(str(context.value), 'utf8')
+    return context.as_unicode_value()
 
 
 def Render(template, variables):
