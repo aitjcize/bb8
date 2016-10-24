@@ -365,6 +365,11 @@ class BB8(object):
         # Remove pb-python dir
         run('sudo rm -rf %s/pb-python' % proto_dir)
 
+    def compile_python_source(self):
+        for subdir in ['bb8', 'apps']:
+            run('python -OO -m compileall %s >/dev/null' %
+                os.path.join(BB8_SRC_ROOT, subdir))
+
     def build_client_package(self):
         run('cd %s; python setup.py sdist' % BB8_SRC_ROOT)
         run('rm -rf %s' % os.path.join(BB8_SRC_ROOT, 'bb8_client.egg-info'))
@@ -375,6 +380,7 @@ class BB8(object):
         self.copy_extra_source()
         self.build_client_package()
         self.compile_and_install_proto()
+        self.compile_python_source()
 
     def compile_resource(self, copy_credential=True):
         self.prepare_resource(copy_credential)
