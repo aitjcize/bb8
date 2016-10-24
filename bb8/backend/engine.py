@@ -124,7 +124,7 @@ class Engine(object):
                 return self.step(bot, user, user_input)
 
             track(TrackingInfo.Pageview(user.platform_user_ident,
-                                        '/%s' % node.name))
+                                        '/%s' % node.stable_id))
 
             # Shared global variables
             global_variables = {
