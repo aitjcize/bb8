@@ -27,7 +27,9 @@ class TemplateUnittest(unittest.TestCase):
         # Conditional
         self.assertEquals(Render("{{a > 0}}", variables), 'True')
         self.assertEquals(Render("{{2 > 1}}", variables), 'True')
+        self.assertEquals(Render("{{2 >= 1}}", variables), 'True')
         self.assertEquals(Render("{{2 < 1}}", variables), 'False')
+        self.assertEquals(Render("{{2 <= 1}}", variables), 'False')
 
         self.assertEquals(Render("{{not 1}}", variables), 'False')
         self.assertEquals(Render("{{not False}}", variables), 'True')

@@ -134,10 +134,10 @@ token_rules = [
     (Token.COMMA, re.compile(r','), None),
     (Token.SHARP, re.compile(r'#'), None),
     (Token.EQUALS, re.compile(r'=='), None),
-    (Token.LT, re.compile(r'<'), None),
-    (Token.GT, re.compile(r'>'), None),
     (Token.LE, re.compile(r'<='), None),
     (Token.GE, re.compile(r'>='), None),
+    (Token.LT, re.compile(r'<'), None),
+    (Token.GT, re.compile(r'>'), None),
     (Token.LPAREN, re.compile(r'\('), None),
     (Token.RPAREN, re.compile(r'\)'), None),
     (Token.PIPE, re.compile(r'\|'), None),
@@ -426,15 +426,12 @@ def parse_values(context, tokens):
                 context.evaluate = False
             if result is None:
                 context.evaluate = True
-            continue
         elif token.type == Token.COMMA:
-            pass
+            tokens = tokens[1:]
         else:
             context.value = result
             context.evaluate = True
             return tokens
-
-        tokens = tokens[1:]
 
     context.evaluate = True
     return tokens
@@ -445,9 +442,6 @@ def parse_values_expr(context, tokens):
         token = tokens[0]
         if token.type in VALUE_STARTING_TOKENS:
             tokens = parse_values(context, tokens)
-        elif token.type == Token.NOT:
-            context.inverted = True
-            tokens = tokens[1:]
         elif token.type in BINARY_OP:
             op = token.type
             context.push()
@@ -514,7 +508,8 @@ def parse_exprs(context, tokens):
         elif token.type == Token.IF:
             tokens = parse_if_else(context, tokens[1:])
         else:
-            tokens = tokens[1:]
+            raise ParserError('syntax error: expecting expression, got %s' %
+                              token)
 
 
 def parse_root(context, tokens):
