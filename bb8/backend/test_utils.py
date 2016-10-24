@@ -73,9 +73,11 @@ class BaseTestMixin(object):
         self.user_1 = User(platform_id=self.platform.id,
                            platform_user_ident='1153206858057166',
                            last_seen=datetime.datetime(2016, 6, 2, 12, 44, 56,
-                                                       tzinfo=pytz.utc)).add()
+                                                       tzinfo=pytz.utc),
+                           settings={'subscribe': True}).add()
         self.user_2 = User(platform_id=self.platform.id,
                            platform_user_ident='1318395614844436',
                            last_seen=datetime.datetime(2016, 6, 2, 12, 44, 56,
-                                                       tzinfo=pytz.utc)).add()
+                                                       tzinfo=pytz.utc),
+                           settings={'subscribe': True}).add()
         DatabaseManager.commit()
