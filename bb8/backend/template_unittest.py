@@ -27,7 +27,9 @@ class TemplateUnittest(unittest.TestCase):
         # Conditional
         self.assertEquals(Render("{{a > 0}}", variables), 'True')
         self.assertEquals(Render("{{2 > 1}}", variables), 'True')
+        self.assertEquals(Render("{{2 >= 1}}", variables), 'True')
         self.assertEquals(Render("{{2 < 1}}", variables), 'False')
+        self.assertEquals(Render("{{2 <= 1}}", variables), 'False')
 
         self.assertEquals(Render("{{not 1}}", variables), 'False')
         self.assertEquals(Render("{{not False}}", variables), 'True')
@@ -54,6 +56,9 @@ class TemplateUnittest(unittest.TestCase):
     def test_variable_function_call(self):
         variables = {'a': {'b': {'c': lambda x: {'d': x}}}}
         self.assertEquals(Render('{{a.b.c(4).d}}', variables), '4')
+
+        variables = {'a': {'b': {'c': lambda x, y: {'d': x + str(y)}}}}
+        self.assertEquals(Render("{{a.b.c('4', 5).d}}", variables), '45')
 
     def test_variable_result_indexing(self):
         variables = {'a': [1, 2, 3, 4, 5]}
