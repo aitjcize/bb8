@@ -13,6 +13,18 @@ const BotRecord = new Immutable.Record({
   staging: null,
 })
 
+const PlatformRecord = new Immutable.Record({
+  id: null,
+  bot_id: null,
+  name: null,
+  type_enum: null,
+  provider_ident: null,
+  config: null
+})
+
 export const Bot = new Schema('bots', BotRecord, { idAttribute: 'id' })
+export const Platform = new Schema('platforms', PlatformRecord, {
+  idAttribute: 'id'
+})
 
 export default Bot
