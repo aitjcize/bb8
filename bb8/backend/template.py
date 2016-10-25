@@ -66,7 +66,7 @@
     values : values ',' value
            | value
 
-    values_expr : values_expr op values_expr
+    values_expr : values_expr op values
                 | values
 
     filtered_value_expr : filtered_value_expr '|' filter
@@ -313,7 +313,7 @@ class ParserContext(object):
             elif op == Token.MINUS:
                 result = arg1_val - arg2_val
         except Exception as e:
-            raise VMError('Operation fail for %s: %e' % (op, e))
+            raise VMError('Operation fail for %s: %s' % (op, e))
 
         self.value = result
         self.inverted = False
@@ -471,7 +471,7 @@ def parse_values_expr(context, tokens):
         elif token.type in BINARY_OP:
             op = token.type
             context.push()
-            tokens = parse_values_expr(context, tokens[1:])
+            tokens = parse_values(context, tokens[1:])
             context.push()
             context.push_op(op)
             context.exec_op()

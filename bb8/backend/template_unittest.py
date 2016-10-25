@@ -63,6 +63,9 @@ class TemplateUnittest(unittest.TestCase):
         variables = {'a': {'b': {'c': lambda x, y: {'d': x + str(y)}}}}
         self.assertEquals(Render("{{a.b.c('4', 5).d}}", variables), '45')
 
+        variables = {'a': {'b': lambda: 5}}
+        self.assertEquals(Render("{{a.b() + 5}}", variables), '10')
+
     def test_variable_result_indexing(self):
         variables = {'a': [1, 2, 3, 4, 5]}
         self.assertEquals(Render('{{a#0}}', variables), '1')
@@ -99,6 +102,9 @@ class TemplateUnittest(unittest.TestCase):
                                  variables), 'Yes')
         self.assertEquals(Render("{{'Yes' if settings.subscribe == True "
                                  "else 'No'}}", variables), 'Yes')
+        self.assertEquals(Render("{{a.b + a.c if a.b + a.c == "
+                                 "'test_valuetest_value2' else 'A'}}",
+                                 variables), 'test_valuetest_value2')
 
         # Test value_expr
         self.assertEquals(Render("{{a.c|upper if a.d else 'a'|upper}}",
