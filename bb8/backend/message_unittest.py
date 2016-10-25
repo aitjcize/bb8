@@ -17,7 +17,7 @@ from flask import g
 from bb8 import app
 from bb8.backend.database import CollectedDatum, DatabaseManager
 from bb8.backend.message import (Message, TextPayload, LocationPayload,
-                                 IsVariable, Resolve, Render)
+                                 IsVariable, Resolve)
 from bb8.backend.test_utils import BaseTestMixin
 
 
@@ -57,25 +57,6 @@ class MessageUnittest(unittest.TestCase, BaseTestMixin):
             'node_id': '1'
         }
         self.assertEquals(LocationPayload((1, 1)), ans)
-
-    def test_Render(self):
-        # Basic rendering
-        variables = {'target': 'Isaac', 'name': 'bb8', 'age': 100}
-        text = Render('Hi {{target|upper}}, I am {{name}}. '
-                      'I am {{age|inc|str}} years old.', variables)
-        self.assertEquals(text, 'Hi ISAAC, I am bb8. I am 101 years old.')
-
-        # "One-of" var rendering
-        variables = {'target': {'name': 'Isaac'}}
-        text = Render('Hi {{name,target.name|upper}}', variables)
-        self.assertEquals(text, 'Hi ISAAC')
-
-        variables = {'name': 'Isaac'}
-        text = Render('Hi {{target.name,name|upper}}', variables)
-        self.assertEquals(text, 'Hi ISAAC')
-
-        text = Render('Hi {{name,target.name|upper}}', variables)
-        self.assertEquals(text, 'Hi ISAAC')
 
     def test_IsVariable(self):
         self.assertEquals(IsVariable("xx{{aaa}}"), False)
@@ -280,9 +261,8 @@ class MessageUnittest(unittest.TestCase, BaseTestMixin):
         self.assertEquals(m.as_dict()['text'], '3')
 
         # Test error
-        wrong_tmpl = "{{data('data')|some_filter}}"
-        m = Message(wrong_tmpl)
-        self.assertEquals(m.as_dict()['text'], wrong_tmpl)
+        with self.assertRaises(Exception):
+            Message("{{data('data')|some_filter}}")
 
         wrong_tmpl = "{{data('some_key').first}}"
         m = Message(wrong_tmpl)

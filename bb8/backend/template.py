@@ -49,9 +49,19 @@
 
     key : ID
 
-    value : value '.' key
-          | key '#' NUMBER
-          | key
+    function_arg : string_literal
+                 | number
+
+    function_args : function_args ',' function_arg
+                  | function_arg
+
+    base_value : base_value '.' key
+               | base_value '#' NUMBER
+               | key '(' function_args ')
+               | key
+
+    value : pure_value
+          | NOT pure_value
 
     values : values ',' value
            | value
@@ -59,14 +69,8 @@
     values_expr : values_expr op values_expr
                 | values
 
-    filtered_value_expr : values_expr '|' filter
+    filtered_value_expr : filtered_value_expr '|' filter
                         | values_expr
-
-    function_arg : string_literal
-                 | integer
-
-    function_args : function_args ',' function_arg
-                  | function_arg
 
     filter : filter_name '(' function_args ')'
            | filter_name
@@ -239,7 +243,7 @@ class ParserContext(object):
 
     def eval_attr(self, token):
         if token.type != Token.ID:
-            raise ParserError('syntax error: expecting ID, got %s' % token)
+            raise ParserError('SyntaxError: expecting ID, got %s' % str(token))
 
         if self.evaluate:
             key = token.value
@@ -285,7 +289,7 @@ class ParserContext(object):
     def exec_op(self):
         op = self.stack.pop()
         if not isinstance(op, Token):
-            raise VMError('can not execute, epxecting op, got %s' % op)
+            raise VMError('can not execute, epxecting op, got %s' % str(op))
 
         arg2 = self.stack.pop()
         arg1 = self.stack.pop()
@@ -355,79 +359,101 @@ def parse_index(context, tokens):
         if context.evaluate:
             try:
                 context.value = context.value[token.value]
-            except IndexError, e:
+            except Exception as e:
                 raise ParserError('Invalid index `%s\': %s' % (token.value, e))
     else:
-        raise ParserError('Invalid token `(%s, %s)\', expecting NUMBER' %
-                          token)
+        raise ParserError('Invalid token %s, expecting NUMBER' % str(token))
     return tokens[1:]
 
 
 def parse_filter(context, tokens):
     context.args = []
-    while tokens:
-        token = tokens[0]
-        if token.type == Token.ID:
-            context.func_name = token.value
-            next_token = peek(tokens)
-            if not next_token or next_token.type != Token.LPAREN:
-                context.eval_filter()
-                return tokens[1:]
-        elif token.type == Token.LPAREN:
-            tokens = parse_function_args(context, tokens[1:])
-            context.eval_filter()
-            return tokens[1:]
-        else:
-            return tokens
 
-        tokens = tokens[1:]
+    if tokens[0].type != Token.ID:
+        raise ParserError('Invalid token found %s, expecting ID' % tokens[0])
+
+    context.func_name = tokens[0].value
+    tokens = tokens[1:]
+    if not tokens or (tokens and tokens[0].type != Token.LPAREN):
+        context.eval_filter()
+        return tokens
+
+    if tokens[0].type == Token.LPAREN:
+        tokens = parse_function_args(context, tokens[1:])
+        context.eval_filter()
+        return tokens
+
+    return tokens
 
 
-def parse_value(context, tokens):
+def parse_base_value(context, tokens):
     context.value = None
 
+    value_parsed = False
     while tokens:
         token = tokens[0]
-        if token.type == Token.NOT:
-            if context.evaluate:
-                context.inverted = True
-            tokens = tokens[1:]
-        elif token.type in VALUE_TOKENS:
+        if token.type in VALUE_TOKENS:
             if context.evaluate:
                 context.value = token.value
             return tokens[1:]
         elif token.type == Token.ID:
+            if value_parsed:
+                raise ParserError('SyntaxError: expecting end of base_value '
+                                  'expression, got %s' % str(token))
             context.eval_attr(token)
             tokens = tokens[1:]
+            value_parsed = True
         elif token.type == Token.LPAREN:
             tokens = parse_function_args(context, tokens[1:])
             context.eval_function()
         elif token.type == Token.SHARP:
             tokens = parse_index(context, tokens[1:])
+            value_parsed = True
         elif token.type == Token.DOT:
             context.eval_attr(tokens[1])
             tokens = tokens[2:]
+            value_parsed = False
         else:
             return tokens
 
     return tokens
 
 
+def parse_value(context, tokens):
+    token = tokens[0]
+    if token.type == Token.NOT:
+        if context.evaluate:
+            context.inverted = True
+        tokens = tokens[1:]
+
+    if token.type in VALUE_STARTING_TOKENS:
+        return parse_base_value(context, tokens)
+
+    raise ParserError('SyntaxError: expect BASE_VALUE or NOT, '
+                      'got %s' % str(token))
+
+
 def parse_values(context, tokens):
     context.reset()
 
     result = None
+    new_value = True
     while tokens:
         token = tokens[0]
         if token.type in VALUE_STARTING_TOKENS:
+            if not new_value:
+                raise ParserError('SyntaxError: expecting COMMA, got %s' %
+                                  str(token))
             tokens = parse_value(context, tokens)
             if context.value and context.evaluate:
                 result = context.value
                 context.evaluate = False
             if result is None:
                 context.evaluate = True
+            new_value = False
         elif token.type == Token.COMMA:
             tokens = tokens[1:]
+            new_value = True
         else:
             context.value = result
             context.evaluate = True
@@ -455,49 +481,44 @@ def parse_values_expr(context, tokens):
 
 
 def parse_filtered_value_expr(context, tokens):
+    if not tokens:
+        raise ParserError('SyntaxError: unexpected and if intput when parsing '
+                          'filtered_value_expr')
+
+    if tokens[0].type not in VALUE_STARTING_TOKENS:
+        raise ParserError('SyntaxError: expecting value_expr, got %s' %
+                          str(tokens[0]))
+
+    tokens = parse_values_expr(context, tokens)
+
     while tokens:
-        token = tokens[0]
-        if token.type in VALUE_STARTING_TOKENS:
-            tokens = parse_values_expr(context, tokens)
-        elif token.type == Token.PIPE:
+        if tokens and tokens[0].type == Token.PIPE:
             tokens = parse_filter(context, tokens[1:])
         else:
-            return tokens
+            break
+
     return tokens
 
 
 def parse_if_else(context, tokens):
     context.push()
-    tokens = parse_value(context, tokens)
+    tokens = parse_values_expr(context, tokens)
 
     if not tokens:
-        raise ParserError('syntax error: unexpected end of input when parsing '
+        raise ParserError('SyntaxError: unexpected end of input when parsing '
                           'if else expression')
-
-    token = tokens[0]
-    if token.type in CONDITIONAL_TOKENS:
-        context.push()  # arg1
-        op = token.type
-        tokens = parse_value(context, tokens[1:])
-        context.push()  # arg2
-        context.push_op(op)  # op
-        context.exec_op()
-
-    if not tokens:
-        raise ParserError('syntax error: unexpected end of input when parsing '
-                          'else clause')
-
     token = tokens[0]
     if token.type == Token.ELSE:
+        tokens = tokens[1:]
         if context.eval_bool():
-            tokens = parse_filtered_value_expr(context, tokens[1:])
+            tokens = parse_filtered_value_expr(context, tokens)
             context.pop()  # True value
             return tokens
 
         context.pop()  # Drop the True value
-        return parse_filtered_value_expr(context, tokens[1:])
+        return parse_filtered_value_expr(context, tokens)
     else:
-        raise ParserError('syntax error: expecting ELSE, got %s' % token)
+        raise ParserError('SyntaxError: expecting ELSE, got %s' % str(token))
 
 
 def parse_exprs(context, tokens):
@@ -508,13 +529,12 @@ def parse_exprs(context, tokens):
         elif token.type == Token.IF:
             tokens = parse_if_else(context, tokens[1:])
         else:
-            raise ParserError('syntax error: expecting expression, got %s' %
-                              token)
+            raise ParserError('SyntaxError: expecting exprs, got %s' %
+                              str(token))
 
 
 def parse_root(context, tokens):
-    if tokens[0].type in VALUE_STARTING_TOKENS:
-        parse_exprs(context, tokens)
+    parse_exprs(context, tokens)
 
 
 def parse(template, variables):
@@ -530,10 +550,6 @@ def Render(template, variables):
         return None
 
     def replace(m):
-        ret = None
-        try:
-            ret = parse(m.group(1), variables)
-        except Exception as e:
-            logging.exception(e)
+        ret = parse(m.group(1), variables)
         return ret if ret else m.group(0)
     return HAS_VARIABLE_RE.sub(replace, to_unicode(template))

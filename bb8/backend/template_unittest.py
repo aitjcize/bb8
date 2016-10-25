@@ -9,7 +9,7 @@
 
 import unittest
 
-from bb8.backend.template import Render
+from bb8.backend.template import Render, ParserError
 
 
 class TemplateUnittest(unittest.TestCase):
@@ -53,6 +53,9 @@ class TemplateUnittest(unittest.TestCase):
         variables = {'a': 1, 'k': {'j': 'aaa'}}
         self.assertEquals(Render('{{h,j,k.j|upper}}', variables), 'AAA')
 
+        variables = {'a': 1, 'k': {'j': [{'h': 2}, 3]}}
+        self.assertEquals(Render("{{k.j#0.h}}", variables), '2')
+
     def test_variable_function_call(self):
         variables = {'a': {'b': {'c': lambda x: {'d': x}}}}
         self.assertEquals(Render('{{a.b.c(4).d}}', variables), '4')
@@ -73,7 +76,13 @@ class TemplateUnittest(unittest.TestCase):
         self.assertEquals(Render('{{a|upper}}', variables), 'TEST_VALUE')
 
         variables = {'a': {'b': 'test_value'}}
-        self.assertEquals(Render('{{a.b|truncat(4)}}', variables), 'test')
+        self.assertEquals(Render('{{a.b|truncat(4)|upper}}', variables),
+                          'TEST')
+
+        variables = {'target': 'Isaac', 'name': 'bb8', 'age': 100}
+        text = Render('Hi {{target|upper}}, I am {{name}}. '
+                      'I am {{age|inc|str}} years old.', variables)
+        self.assertEquals(text, 'Hi ISAAC, I am bb8. I am 101 years old.')
 
     def test_if_else(self):
         variables = {
@@ -92,14 +101,56 @@ class TemplateUnittest(unittest.TestCase):
                                  "else 'No'}}", variables), 'Yes')
 
         # Test value_expr
-        self.assertEquals(Render("{{a.c| if a.d else 'a'|upper}}",
-                                 variables), 'test_value2')
+        self.assertEquals(Render("{{a.c|upper if a.d else 'a'|upper}}",
+                                 variables), 'TEST_VALUE2')
 
-        self.assertEquals(Render("{{a.c| if not a.d else 'a'|upper}}",
+        self.assertEquals(Render("{{a.c|upper if not a.d else 'a'|upper}}",
                                  variables), 'A')
 
-    def test_invalid_token(self):
-        self.assertEquals(Render("{{a * 1}}", {'a': 1}), "{{a * 1}}")
+        self.assertEquals(Render("{{a.c|upper if 1 + 1 else 'a'|upper}}",
+                                 variables), 'TEST_VALUE2')
+
+        self.assertEquals(Render("{{a.c|upper if 1 - 1 else 'a'|upper}}",
+                                 variables), 'A')
+
+        self.assertEquals(Render("{{a.c|upper if 1 + 1 + 2 else 'a'|upper}}",
+                                 variables), 'TEST_VALUE2')
+
+    def test_invalid_syntax(self):
+        variables = {'a': {'b': 1}, 'c': [1, 2, 3]}
+
+        self.assertEquals(Render(None, variables), None)
+
+        with self.assertRaises(ParserError):
+            Render("{{a * 1}}", variables)
+
+        with self.assertRaises(ParserError):
+            Render("{{a not a}}", variables)
+
+        with self.assertRaises(ParserError):
+            Render("{{a.c#1a.b}}", variables)
+
+        with self.assertRaises(ParserError):
+            Render("{{else}}", variables)
+
+        with self.assertRaises(ParserError):
+            Render("{{a.b if a.b if}}", variables)
+
+        with self.assertRaises(ParserError):
+            Render("{{a.b if}}", variables)
+
+        with self.assertRaises(ParserError):
+            Render('{{a.b if a.b else}}', variables)
+
+        with self.assertRaises(ParserError):
+            Render('{{a.b if a.b else if}}', variables)
+
+        with self.assertRaises(ParserError):
+            Render('{{a.b|some_filter}}', variables)
+
+        with self.assertRaises(ParserError):
+            Render('{{a.b(1)}}',
+                   {'a': {'b': lambda x: x.none_exist}})
 
 
 if __name__ == '__main__':
