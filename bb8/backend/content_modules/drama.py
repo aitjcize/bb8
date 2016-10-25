@@ -125,11 +125,11 @@ def render_dramas(dramas):
                 'GET_HISTORY', {
                     'drama_id': d.id,
                     'from_episode': 1,
-                    'backward': False,
+                    'backward': True,
                 })))
         b.add_button(Message.Button(Message.ButtonType.ELEMENT_SHARE))
         m.add_bubble(b)
-    return [m]
+    return m
 
 
 def render_episodes(episodes):
@@ -167,6 +167,10 @@ def run(content_config, unused_env, variables):
 
     def append_categories_to_quick_reply(m):
         m.add_quick_reply(Message.QuickReply(
+            Message.QuickReplyType.TEXT, u'Running Man'))
+        m.add_quick_reply(Message.QuickReply(
+            Message.QuickReplyType.TEXT, u'The K2'))
+        m.add_quick_reply(Message.QuickReply(
             Message.QuickReplyType.TEXT, u'熱門韓劇'))
         m.add_quick_reply(Message.QuickReply(
             Message.QuickReplyType.TEXT, u'熱門日劇'))
@@ -183,7 +187,7 @@ def run(content_config, unused_env, variables):
 
         episodes = drama_info.get_history(drama_id=drama_id,
                                           from_episode=1,
-                                          backward=False)
+                                          backward=True)
         return ([Message(u'謝謝您的追蹤，'
                          u'我們會在有更新的時候通知您！'),
                  Message(u'在等待的同時，'
@@ -218,9 +222,13 @@ def run(content_config, unused_env, variables):
         query_term = Resolve(content_config['query_term'], variables)
         dramas = drama_info.search(user_id, query_term, n_items)
         if dramas:
-            return render_dramas(dramas)
+            m = render_dramas(dramas)
+            append_categories_to_quick_reply(m)
+            return [m]
         m = Message(u'找不到耶！你可以換個關鍵字或試試熱門的類別：')
         append_categories_to_quick_reply(m)
         return [m]
 
-    return render_dramas(drama_info.get_trending(user_id, country=country))
+    m = render_dramas(drama_info.get_trending(user_id, country=country))
+    append_categories_to_quick_reply(m)
+    return [m]
