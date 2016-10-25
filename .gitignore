@@ -1,5 +1,6 @@
 .*.swp
 *.pyc
+*.pyo
 .env
 node_modules
 npm-debug.log
