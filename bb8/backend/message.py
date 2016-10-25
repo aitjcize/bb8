@@ -20,7 +20,7 @@ from sqlalchemy import desc, func
 
 from bb8 import logger
 from bb8.backend import base_message, template
-from bb8.backend.database import CollectedDatum
+from bb8.backend.database import CollectedDatum, PlatformTypeEnum
 from bb8.backend.metadata import InputTransformation
 from bb8.backend.util import image_convert_url
 
@@ -189,10 +189,40 @@ base_message.Render = Render
 class Message(base_message.Message):
     """Wraps base_message.Message to provide extra function."""
 
+    limits = {
+        PlatformTypeEnum.Facebook: {
+            'text': 320,
+            'buttons_text': 320,
+            'buttons': 3,
+            'bubbles': 10,
+            'quick_replies': 10
+        },
+        PlatformTypeEnum.Line: {
+            'text': 160,
+            'buttons_text': 160,
+            'buttons': 3,
+            'bubbles': 5,
+            'quick_replies': 10
+        }
+    }
+
     NotificationType = base_message.Message.NotificationType
     ButtonType = base_message.Message.ButtonType
 
     class _Button(base_message.Message.Button):
+        limits = {
+            PlatformTypeEnum.Facebook: {
+                'title': 20,
+                'url': 500,
+                'payload': 1000,
+            },
+            PlatformTypeEnum.Line: {
+                'title': 20,
+                'url': 500,
+                'payload': 300,
+            }
+        }
+
         @classmethod
         def FromDict(cls, data, variables=None):
             """Construct Button object given a button dictionary."""
@@ -207,6 +237,15 @@ class Message(base_message.Message):
                        data.get('title'), data.get('url'), payload,
                        data.get('acceptable_inputs'), variables)
 
+        def apply_limits(self, platform_type):
+            limits = self.limits[platform_type]
+            if self.title:
+                self.title = self.title[:limits['title']]
+            if self.url:
+                self.url = self.url[:limits['url']]
+            if self.payload:
+                self.payload = self.payload[:limits['payload']]
+
         def register_mapping(self, key):
             if self.type == Message.ButtonType.POSTBACK:
                 acceptable_inputs = self.acceptable_inputs[:]
@@ -218,6 +257,31 @@ class Message(base_message.Message):
     base_message.Message.Button = _Button
 
     class _Bubble(base_message.Message.Bubble):
+        limits = {
+            PlatformTypeEnum.Facebook: {
+                'title': 80,
+                'subtitle': 80,
+                'buttons': 3,
+            },
+            PlatformTypeEnum.Line: {
+                'title': 160,
+                'subtitle': 40,
+                'buttons': 3,
+            }
+        }
+
+        def apply_limits(self, platform_type):
+            limits = self.limits[platform_type]
+            if self.title:
+                self.title = self.title[:limits['title']]
+            if self.subtitle:
+                self.subtitle = self.subtitle[:limits['subtitle']]
+
+            self.buttons = self.buttons[:limits['buttons']]
+
+            for button in self.buttons:
+                button.apply_limits(platform_type)
+
         def register_mapping(self, key):
             for idx, button in enumerate(self.buttons):
                 button.register_mapping(key + r'-' + str(idx + 1))
@@ -226,6 +290,20 @@ class Message(base_message.Message):
     base_message.Message.Bubble = _Bubble
 
     class _QuickReply(base_message.Message.QuickReply):
+        limits = {
+            PlatformTypeEnum.Facebook: {
+                'title': 20,
+                'payload': 1000
+            }
+        }
+
+        def apply_limits(self, platform_type):
+            limits = self.limits[platform_type]
+            if self.title:
+                self.title = self.title[:limits['title']]
+            if self.payload:
+                self.payload = self.payload[:limits['payload']]
+
         def register_mapping(self):
             if self.content_type == Message.QuickReplyType.TEXT:
                 acceptable_inputs = self.acceptable_inputs[:]
@@ -236,19 +314,34 @@ class Message(base_message.Message):
     # Patch Message.QuickReply
     base_message.Message.QuickReply = _QuickReply
 
+    def apply_limits(self, platform_type):
+        limits = self.limits[platform_type]
+        if self.text:
+            self.text = self.text[:limits['text']]
+        if self.buttons_text:
+            self.buttons_text = self.buttons_text[:limits['buttons_text']]
+
+        self.buttons = self.buttons[:limits['buttons']]
+        self.bubbles = self.bubbles[:limits['bubbles']]
+        self.quick_replies = self.quick_replies[:limits['quick_replies']]
+
+        for button in self.buttons:
+            button.apply_limits(platform_type)
+
+        for bubble in self.bubbles:
+            bubble.apply_limits(platform_type)
+
     def as_facebook_message(self):
         """Return message as Facebook message dictionary."""
+        self.apply_limits(PlatformTypeEnum.Facebook)
         return self.as_dict()
 
     def as_line_message(self):
         """Return message as Line message dictionary."""
-        MAX_BUTTONS = 3
-        MAX_BUBBLES = 5
-        MAX_TEXT_LEN = 160
-        MAX_TITLE_LEN = 40
+        self.apply_limits(PlatformTypeEnum.Line)
 
         if self.text:
-            return {'type': 'text', 'text': self.text[:MAX_TEXT_LEN]}
+            return {'type': 'text', 'text': self.text}
         elif self.image_url:
             return {
                 'type': 'image',
@@ -259,17 +352,17 @@ class Message(base_message.Message):
             }
         elif self.buttons:
             buttons = []
-            for but in self.buttons[:MAX_BUBBLES]:
+            for but in self.buttons:
                 if but.type == Message.ButtonType.WEB_URL:
                     buttons.append({
                         'type': 'uri',
-                        'label': but.title[:MAX_TITLE_LEN],
+                        'label': but.title,
                         'uri': but.url
                     })
                 elif but.type == Message.ButtonType.POSTBACK:
                     buttons.append({
                         'type': 'postback',
-                        'label': but.title[:MAX_TITLE_LEN],
+                        'label': but.title,
                         'data': but.payload
                     })
 
@@ -284,22 +377,22 @@ class Message(base_message.Message):
             }
         elif self.bubbles:
             columns = []
-            max_buttons = max([len(b.buttons[:MAX_BUTTONS])
+            max_buttons = max([len(b.buttons)
                                for b in self.bubbles])
 
-            for bubble in self.bubbles[:MAX_BUBBLES]:
+            for bubble in self.bubbles:
                 buttons = []
-                for but in bubble.buttons[:MAX_BUTTONS]:
+                for but in bubble.buttons:
                     if but.type == Message.ButtonType.WEB_URL:
                         buttons.append({
                             'type': 'uri',
-                            'label': but.title[:MAX_TITLE_LEN],
+                            'label': but.title,
                             'uri': but.url
                         })
                     elif but.type == Message.ButtonType.POSTBACK:
                         buttons.append({
                             'type': 'postback',
-                            'label': but.title[:MAX_TITLE_LEN],
+                            'label': but.title,
                             'data': but.payload
                         })
 
@@ -311,7 +404,7 @@ class Message(base_message.Message):
                     })
 
                 col = {
-                    'title': bubble.title[:MAX_TITLE_LEN],
+                    'title': bubble.title,
                     'text': bubble.subtitle if bubble.subtitle else ' ',
                     'actions': buttons
                 }

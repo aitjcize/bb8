@@ -35,11 +35,11 @@ class LineMessagingUnittest(unittest.TestCase):
         DatabaseManager.commit()
 
         config = {
-            "access_token": "iHRMgmp3zRLOc6kPCbPNMwEDHyFqLGSy0tyG3uZxnkNlhMKg"
-                            "8GVFqMGslcOkmgOAFLlBvvYuXmKF9odhXtsCm3tBxRcPryKr"
-                            "kOvzHBcBvS2zrVGiVmZGh5EBcqazgurYMwVSdgNSrhCm/qp6"
-                            "2aR7HAdB04t89/1O/w1cDnyilFU=",
-            "channel_secret": "335c901df3a1969ca28a48bf6ddcc333"
+            'access_token': 'iHRMgmp3zRLOc6kPCbPNMwEDHyFqLGSy0tyG3uZxnkNlhMKg'
+                            '8GVFqMGslcOkmgOAFLlBvvYuXmKF9odhXtsCm3tBxRcPryKr'
+                            'kOvzHBcBvS2zrVGiVmZGh5EBcqazgurYMwVSdgNSrhCm/qp6'
+                            '2aR7HAdB04t89/1O/w1cDnyilFU=',
+            'channel_secret': '335c901df3a1969ca28a48bf6ddcc333'
         }
         platform = Platform(bot_id=self.bot.id,
                             name=u'Line',

@@ -235,10 +235,8 @@ def run(unused_content_config, env, unused_variables):
     size = (500, 260)
     if env['platform_type'] == SupportedPlatform.Line:
         max_count = 2
-        max_text_len = 60
     else:
         max_count = 5
-        max_text_len = Message.MAX_TEXT_LEN
 
     address = u''   # str. The address user entered.
 
@@ -418,7 +416,7 @@ def run(unused_content_config, env, unused_variables):
                     s['移轉層次'].replace('層', '樓'),
                     s['總樓層數'].replace('層', '樓')),
                 StreetOnly(s),
-            ]).decode('utf-8')[:max_text_len]
+            ]).decode('utf-8')
 
             subtitle = ' '.join([
                 RocSlash(s['交易年月日']) + '成交',
@@ -435,7 +433,7 @@ def run(unused_content_config, env, unused_variables):
                 s['車位類別'],
                 s['主要用途'],
                 '備註: ' + s['備註'] if s['備註'] else '',
-            ]).decode('utf-8')[:max_text_len]
+            ]).decode('utf-8')
 
             i += 1
 

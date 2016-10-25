@@ -482,7 +482,7 @@ def parse_values_expr(context, tokens):
 
 def parse_filtered_value_expr(context, tokens):
     if not tokens:
-        raise ParserError('SyntaxError: unexpected and if intput when parsing '
+        raise ParserError('SyntaxError: unexpected and if input when parsing '
                           'filtered_value_expr')
 
     if tokens[0].type not in VALUE_STARTING_TOKENS:

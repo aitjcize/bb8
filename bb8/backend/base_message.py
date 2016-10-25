@@ -75,7 +75,7 @@ class Message(object):
     representation.
     """
 
-    MAX_TEXT_LEN = 320
+    MAX_BUBBLES = 10
 
     class NotificationType(enum.Enum):
         REGULAR = 'REGULAR'
@@ -187,7 +187,6 @@ class Message(object):
             return data
 
     class Bubble(object):
-        MAX_TITLE_LEN = 80
         MAX_BUTTONS = 3
 
         def __init__(self, title, item_url=None, image_url=None, subtitle=None,
@@ -198,12 +197,6 @@ class Message(object):
             self.image_url = Render(image_url, variables)
             self.subtitle = Render(subtitle, variables)
             self.buttons = buttons or []
-
-            # Truncat to limits
-            if self.title:
-                self.title = self.title[:self.MAX_TITLE_LEN]
-            if self.subtitle:
-                self.subtitle = self.subtitle[:self.MAX_TITLE_LEN]
 
         def __str__(self):
             return json.dumps(self.as_dict())
@@ -367,12 +360,6 @@ class Message(object):
         self.bubbles = []
         self.buttons = []
         self.quick_replies = []
-
-        # Truncat to limits
-        if self.text:
-            self.text = self.text[:self.MAX_TEXT_LEN]
-        if self.buttons_text:
-            self.buttons = self.buttons[:self.MAX_TEXT_LEN]
 
     def __str__(self):
         return json.dumps(self.as_dict())
@@ -560,7 +547,7 @@ class Message(object):
         self.buttons.append(button)
 
     def add_bubble(self, bubble):
-        if len(self.bubbles) == 10:
+        if len(self.bubbles) == self.MAX_BUBBLES:
             raise RuntimeError('maximum allowed bubbles reached')
 
         if not isinstance(bubble, Message.Bubble):
