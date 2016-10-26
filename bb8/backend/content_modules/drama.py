@@ -124,8 +124,8 @@ def render_dramas(dramas):
             payload=EventPayload(
                 'GET_HISTORY', {
                     'drama_id': d.id,
-                    'from_episode': 1,
-                    'backward': False,
+                    'from_episode': 0,
+                    'backward': True,
                 })))
         b.add_button(Message.Button(Message.ButtonType.ELEMENT_SHARE))
         m.add_bubble(b)
@@ -186,8 +186,8 @@ def run(content_config, unused_env, variables):
         drama_info.subscribe(user_id, drama_id)
 
         episodes = drama_info.get_history(drama_id=drama_id,
-                                          from_episode=1,
-                                          backward=False)
+                                          from_episode=0,
+                                          backward=True)
         return ([Message(u'謝謝您的追蹤，'
                          u'我們會在有更新的時候通知您！'),
                  Message(u'在等待的同時，'

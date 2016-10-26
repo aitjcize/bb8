@@ -98,14 +98,17 @@ class DramaInfo(object):
     @classmethod
     def GetHistory(cls, drama_id, from_episode, backward, count=5):
         with DatabaseSession():
-            order_by = (desc('serial_number')
-                        if backward else 'serial_number')
-            episodes = (
-                Episode.query().filter(
-                    Episode.drama_id == drama_id,
+            query = Episode.query().filter(Episode.drama_id == drama_id)
+
+            # from_episode == 0 indicates from the last epsidode
+            if from_episode > 0:
+                query = query.filter(
                     Episode.serial_number < from_episode if backward
-                    else Episode.serial_number >= from_episode,
-                ).order_by(order_by).limit(count))
+                    else Episode.serial_number >= from_episode)
+
+            episodes = query.order_by(
+                desc('serial_number') if backward else 'serial_number'
+            ).limit(count)
             return [to_proto_episode(episode) for episode in episodes]
 
 
