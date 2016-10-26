@@ -234,11 +234,12 @@ def run(unused_content_config, env, unused_variables):
     # output limit and map size
     size = (500, 260)
     if env['platform_type'] == SupportedPlatform.Line:
-        max_count = 2
+        max_count = 3
     else:
         max_count = 5
 
     address = u''   # str. The address user entered.
+    filters_str = u''  # str. The filter used this time.
 
     geocoder = GoogleMapsPlaceAPI(api_key=GOOGLE_STATIC_MAP_API_KEY)
 
@@ -359,7 +360,7 @@ def run(unused_content_config, env, unused_variables):
             return [Message(u'資料庫找不到，趕快回報給粉絲頁管理員，謝謝。')]
 
         if rules and rules.filters:
-            msgs.append(Message(u'篩選條件: %s' % ' '.join(rules.filters)))
+            filters_str = u'篩選條件: 「%s」。' % u'」「'.join(rules.filters)
 
         if not trans:
             msg = Message(u'對不起，找不到成交行情喔！試試別的地址或條件。')
@@ -376,7 +377,10 @@ def run(unused_content_config, env, unused_variables):
         lng = float(s['latlng'][1])
         main_map.add_marker((lat, lng), **style.next())
 
-    subtitle = u'搜尋結果僅供參考，詳細完整實價登錄資料，以內政部公佈為準。'
+    subtitle = (
+        filters_str +
+        u'搜尋結果僅供參考，詳細完整實價登錄資料，以內政部公佈為準。'
+    )
 
     msg = Message()
     b = Message.Bubble(u'%s附近的成交行情' % address,
@@ -401,39 +405,49 @@ def run(unused_content_config, env, unused_variables):
                 except ValueError:
                     return '--.--'
 
-            title = ' '.join([
-                '%d萬' % (int(s['總價元']) / 10000),
-                '(%s * %.2f坪 + %d萬)' % (
-                    UnitPrice(s),
-                    float(s['建物移轉總面積平方公尺']) /
-                    twrealprice_rule.M2_PER_PING,
-                    int(s['車位總價元']) / 10000),
-                '%s(%s)' % (
-                    s['建物型態'].split('(')[0],
-                    Age(s['建築完成年月']),
-                ),
-                '%s/共%s' % (
-                    s['移轉層次'].replace('層', '樓'),
-                    s['總樓層數'].replace('層', '樓')),
-                StreetOnly(s),
-            ]).decode('utf-8')
+            lines = [
+                ' '.join([
+                    '%d萬' % (int(s['總價元']) / 10000),
+                    '(%s * %.2f坪 + %d萬)' % (
+                        UnitPrice(s),
+                        float(s['建物移轉總面積平方公尺']) /
+                        twrealprice_rule.M2_PER_PING,
+                        int(s['車位總價元']) / 10000),
+                    '%s(%s)' % (
+                        s['建物型態'].split('(')[0],
+                        Age(s['建築完成年月']),
+                    ),
+                ]).decode('utf-8'),
+                ' '.join([
+                    '%s/共%s' % (
+                        s['移轉層次'].replace('層', '樓'),
+                        s['總樓層數'].replace('層', '樓')),
+                    StreetOnly(s),
+                ]).decode('utf-8'),
 
-            subtitle = ' '.join([
-                RocSlash(s['交易年月日']) + '成交',
-                '%s房%s廳%s衛' % (
-                    s['建物現況格局-房'],
-                    s['建物現況格局-廳'],
-                    s['建物現況格局-衛']),
-                '地坪%.2f' % (
-                    float(s['土地移轉總面積平方公尺']) /
-                    twrealprice_rule.M2_PER_PING),
-                '車位%.2f坪' % (
-                    float(s['車位移轉總面積平方公尺']) /
-                    twrealprice_rule.M2_PER_PING),
-                s['車位類別'],
-                s['主要用途'],
-                '備註: ' + s['備註'] if s['備註'] else '',
-            ]).decode('utf-8')
+                ' '.join([
+                    RocSlash(s['交易年月日']) + '成交',
+                    '%s房%s廳%s衛' % (
+                        s['建物現況格局-房'],
+                        s['建物現況格局-廳'],
+                        s['建物現況格局-衛']),
+                    '地坪%.2f' % (
+                        float(s['土地移轉總面積平方公尺']) /
+                        twrealprice_rule.M2_PER_PING),
+                    '車位%.2f坪' % (
+                        float(s['車位移轉總面積平方公尺']) /
+                        twrealprice_rule.M2_PER_PING),
+                    s['車位類別'],
+                    s['主要用途'],
+                    '備註: ' + s['備註'] if s['備註'] else '',
+                ]).decode('utf-8'),
+            ]
+            if env['platform_type'] == SupportedPlatform.Line:
+                title = lines[0]
+                subtitle = lines[1] + lines[2]
+            else:
+                title = lines[0] + lines[1]
+                subtitle = lines[2]
 
             i += 1
 
