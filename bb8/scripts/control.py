@@ -28,7 +28,6 @@ from bb8 import SRC_ROOT as BB8_SRC_ROOT
 from bb8 import config, util
 from bb8.backend import modules
 
-
 BB8_DATA_ROOT = '/var/lib/bb8'
 BB8_NETWORK = 'bb8_network'
 BB8_CLIENT_PACKAGE_NAME = 'bb8-client-9999.tar.gz'
@@ -314,6 +313,18 @@ class BB8(object):
                 '--net=%s ' % BB8_NETWORK +
                 '--net-alias=%s ' % redis_service +
                 '--name %s -d redis' % redis_service)
+        datadog_service = '%s.datadog' % self.BB8_SERVICE_PREFIX
+        instance = docker_get_instance(datadog_service)
+        if not instance:
+            run('docker run ' +
+                '--net=%s ' % BB8_NETWORK +
+                '--net-alias=%s ' % datadog_service +
+                '-v /var/run/docker.sock:/var/run/docker.sock ' +
+                '-v /proc/:/host/proc/:ro ' +
+                '-v /sys/fs/cgroup/:/host/sys/fs/cgroup:ro ' +
+                '-e API_KEY=%s ' % config.DATADOG_API_KEY +
+                '--name %s -d ' % datadog_service +
+                'datadog/docker-dd-agent:latest-alpine')
 
     @classmethod
     def get_app_dirs(cls):
