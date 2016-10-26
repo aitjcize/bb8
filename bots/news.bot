@@ -50,7 +50,7 @@
           "config": {
             "messages": [
               {
-                "text": "嗨 {{user.first_name}}，歡迎使用新聞小幫手，很高興為你服務。你是我服務過的第 {{statistic.user_count}} 位朋友"
+                "text": "嗨 {{user.first_name}}，歡迎使用新聞小幫手，很高興為你服務！"
               }
             ]
           }

@@ -45,7 +45,7 @@
           "config": {
             "messages": [
               {
-                "text": "嗨 {{user.first_name}}，歡迎使用 Ubike 小幫手，很高興為你服務。你是我服務過的第 {{statistic.user_count}} 位朋友"
+                "text": "嗨 {{user.first_name}}，歡迎使用 Ubike 小幫手，很高興為你服務！"
               },
               {
                 "text": "這是你第一次使用，請問你想看使用說明嗎？",

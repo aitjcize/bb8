@@ -49,7 +49,7 @@
           "config": {
             "messages": [
               {
-                "text": "嗨 {{user.first_name}}，我是「追劇吧」。你是第 {{statistic.user_count}} 個愛看劇的人！"
+                "text": "嗨 {{user.first_name}}，我是「追劇吧」追劇機器人！"
               }
             ]
           }
