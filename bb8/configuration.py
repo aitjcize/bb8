@@ -80,11 +80,6 @@ class Config(object):
 
     GCP_PROJECT = 'dotted-lexicon-133523'
 
-    # Credentials
-    GCLOUD_ACCESS_TOKEN = ('ya29.Ek6KAz2rZd2FoOri9ziJx9ohr4BCI-OMdPGrBnFZ-cuQ'
-                           'CIF45UhVw_cuMoD08diyk4xwqnrfRYMtAU1-mb1_Jd1qPJkcP'
-                           'hTkmDJ_hcyrlkg')
-
     class CeleryConfig(object):
         BROKER_URL = os.getenv('REDIS_URI', 'redis://localhost:6379/0')
         CELERY_IMPORTS = ('bb8.backend.messaging', 'bb8.backend.broadcast')

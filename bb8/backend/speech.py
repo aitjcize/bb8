@@ -13,7 +13,8 @@ import urllib2
 
 import requests
 
-from bb8 import config
+from oauth2client.client import GoogleCredentials
+
 
 GOOGLE_SPEECH_API_URL = ('https://speech.googleapis.com/v1beta1/'
                          'speech:syncrecognize')
@@ -43,6 +44,10 @@ def speech_to_text(url, language='en_US'):
     """Convert speech to text."""
     audio_data = convert_to_wav(url)
 
+    credentials = GoogleCredentials.get_application_default().create_scoped(
+        ['https://www.googleapis.com/auth/cloud-platform'])
+    access_token = credentials.get_access_token().access_token
+
     req = {
         'config': {
             'encoding': 'LINEAR16',
@@ -58,7 +63,7 @@ def speech_to_text(url, language='en_US'):
     response = requests.request(
         'POST',
         GOOGLE_SPEECH_API_URL,
-        headers={'Authorization': 'Bearer %s' % config.GCLOUD_ACCESS_TOKEN},
+        headers={'Authorization': 'Bearer %s' % access_token},
         json=req)
 
     if response.status_code != 200:
