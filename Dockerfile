@@ -5,6 +5,7 @@ RUN apt-get update && apt-get upgrade -y && \
         apt-get install -y apt-utils && \
         apt-get install -y \
                 curl \
+                ffmpeg \
                 git \
                 libffi-dev \
                 libjpeg-dev \

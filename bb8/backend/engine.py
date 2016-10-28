@@ -78,6 +78,7 @@ class Engine(object):
                                  sender_enum=SenderEnum.Human,
                                  msg=user_input).add()
 
+                user_input.parse_audio_to_text(user.locale)
                 user_input = user_input.RunInputTransformation()
 
             if user.session is None:

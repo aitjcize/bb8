@@ -14,6 +14,8 @@ import re
 from flask import g
 from sqlalchemy.ext.mutable import Mutable
 
+from bb8.backend.speech import speech_to_text
+
 
 class SessionRecord(Mutable):
     def __init__(self, node_id):
@@ -115,8 +117,9 @@ class UserInput(object):
         self.text = None
         self.sticker = None
         self.location = None
-        self.jump_node_id = None
         self.event = None
+        self.audio = None
+        self.jump_node_id = None
         self.raw_message = None
 
     @classmethod
@@ -209,7 +212,13 @@ class UserInput(object):
 
         for att in attachments:
             if att['type'] == 'location':
-                self.location = att.get('payload')
+                self.location = att['payload']
+            elif att['type'] == 'audio':
+                self.audio = att['payload']['url']
+
+    def parse_audio_to_text(self, locale=None):
+        if self.audio:
+            self.text = speech_to_text(self.audio, locale or 'zh_TW') or ''
 
     def parse_to_raw_message(self, message):
         for uneeded_key in ['mid', 'seq']:
