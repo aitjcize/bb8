@@ -15,7 +15,7 @@ import mock
 from bb8 import app
 from bb8.backend.database import DatabaseManager, Platform, User
 from bb8.backend.engine import Engine
-from bb8.backend.metadata import UserInput, InputTransformation
+from bb8.backend.message import UserInput, InputTransformation
 from bb8.backend.test_utils import reset_and_setup_bots
 
 

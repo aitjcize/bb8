@@ -17,7 +17,7 @@ from concurrent import futures
 
 from bb8 import config
 from bb8.backend.database import DatabaseSession, Bot, User
-from bb8.backend import messaging
+from bb8.backend import messaging_tasks
 from bb8.backend.message import Message
 from bb8.logging_utils import Logger
 from bb8.pb_modules import app_service_pb2  # pylint: disable=E0611
@@ -38,7 +38,7 @@ class MessagingServicer(app_service_pb2.MessagingServiceServicer):
         with DatabaseSession():
             messages_dict = cPickle.loads(request.messages_object)
             users = User.query().filter(User.id.in_(request.user_ids)).all()
-            messaging.push_message_from_dict_async(
+            messaging_tasks.push_message_from_dict_async(
                 users, messages_dict, request.eta, request.user_localtime)
 
         return app_service_pb2.Empty()
@@ -52,10 +52,10 @@ class MessagingServicer(app_service_pb2.MessagingServiceServicer):
             messages_dict = cPickle.loads(request.messages_object)
             if request.static:
                 msgs = [Message.FromDict(m, {}) for m in messages_dict]
-                messaging.broadcast_message_async(bot, msgs, request.eta)
+                messaging_tasks.broadcast_message_async(bot, msgs, request.eta)
             else:
                 users = User.get_by(bot_id=request.bot_id)
-                messaging.push_message_from_dict_async(
+                messaging_tasks.push_message_from_dict_async(
                     users, messages_dict, request.eta)
 
         return app_service_pb2.Empty()

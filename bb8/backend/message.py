@@ -19,13 +19,201 @@ from flask import g
 from sqlalchemy import desc, func
 
 from bb8 import logger
-from bb8.backend import base_message, template
+from bb8.backend import base_message, template, messaging
+from bb8.backend.speech import speech_to_text
 from bb8.backend.database import CollectedDatum, PlatformTypeEnum
-from bb8.backend.metadata import InputTransformation
 from bb8.backend.util import image_convert_url
 
 
 VARIABLE_RE = re.compile('^{{(.*?)}}$')
+
+
+class PostbackEvent(object):
+    """Event class representing a postback event."""
+    def __init__(self, event):
+        self.key = event['key']
+        self.value = event['value']
+
+
+class UserInput(object):
+    def __init__(self):
+        self.text = None
+        self.sticker = None
+        self.location = None
+        self.event = None
+        self.audio = None
+        self.jump_node_id = None
+        self.raw_message = None
+
+    @classmethod
+    def Text(cls, text):
+        u = UserInput()
+        u.text = text
+        return u
+
+    @classmethod
+    def Location(cls, coordinates, title='location'):
+        u = UserInput()
+        u.location = {
+            'title': title,
+            'coordinates': {
+                'lat': coordinates[0],
+                'long': coordinates[1]
+            }
+        }
+        return u
+
+    @classmethod
+    def Event(cls, key, value):
+        u = UserInput()
+        u.event = PostbackEvent({'key': key, 'value': value})
+        return u
+
+    @classmethod
+    def FromPayload(cls, payload):
+        u = UserInput()
+        try:
+            payload = json.loads(payload)
+        except Exception:
+            u.text = payload  # assume text when failed
+            return u
+
+        message = payload.get('message', None)
+        if message:
+            u.text = message.get('text')
+            u.parse_facebook_attachments(message.get('attachments'))
+
+        event = payload.get('event', None)
+        if event:
+            u.event = PostbackEvent(event)
+
+        u.jump_node_id = payload.get('node_id', 'Root')
+        return u
+
+    @classmethod
+    def FromFacebookMessage(cls, data):
+        u = UserInput()
+        message = data.get('message')
+        if message:
+            quick_reply = message.get('quick_reply')
+            if quick_reply:
+                return cls.FromPayload(quick_reply['payload'])
+
+            u.text = message.get('text')
+            u.parse_facebook_sticker(message)
+            u.parse_facebook_attachments(message.get('attachments'))
+            u.parse_to_raw_message(message)
+            return u
+
+        postback = data.get('postback')
+        if postback:
+            return cls.FromPayload(postback['payload'])
+
+        return None
+
+    def RunInputTransformation(self):
+        """Perform input transformation if there is one."""
+        try:
+            if self.text and g.user and g.user.session.input_transformation:
+                ret = InputTransformation.transform(
+                    self.text, g.user.session.input_transformation)
+                return ret if ret else self
+        except AttributeError:
+            pass
+
+        return self
+
+    def parse_facebook_sticker(self, message):
+        """Helper function for parsing facebook sticker."""
+        if 'sticker_id' in message:
+            self.sticker = str(message['sticker_id'])
+
+    def parse_facebook_attachments(self, attachments):
+        """Helper function for parsing facebook attachments."""
+        if not attachments:
+            return
+
+        for att in attachments:
+            if att['type'] == 'location':
+                self.location = att['payload']
+            elif att['type'] == 'audio':
+                self.audio = att['payload']
+
+    def parse_to_raw_message(self, message):
+        for uneeded_key in ['mid', 'seq']:
+            del message[uneeded_key]
+
+        attachments = message.get('attachments')
+        if attachments:
+            message['attachment'] = attachments[0]
+            del message['attachments']
+
+        self.raw_message = message
+
+    def ParseAudioAsText(self, user):
+        if self.audio and not self.text:
+            data = messaging.download_audio_as_data(user, self.audio)
+            self.text = speech_to_text(data, user.locale or 'zh_TW') or ''
+
+    @classmethod
+    def FromLineMessage(cls, entry):
+        message = entry.get('message')
+        if message:
+            u = UserInput()
+            if message['type'] == 'text':
+                u.text = message['text']
+            elif message['type'] == 'location':
+                u.location = {
+                    'title': message['title'],
+                    'coordinates': {
+                        'lat': message['latitude'],
+                        'long': message['longitude']
+                    }
+                }
+            elif message['type'] == 'audio':
+                u.audio = message['id']
+            else:
+                return None
+            return u
+
+        postback = entry.get('postback')
+        if postback:
+            return cls.FromPayload(postback['data'])
+
+    def jump(self):
+        return self.jump_node_id is not None
+
+    def disable_jump(self):
+        """Remove the jump node ID so the input does not indicate jumping."""
+        self.jump_node_id = None
+
+
+class InputTransformation(object):
+    @classmethod
+    def get(cls):
+        try:
+            _ = g.input_transformation
+        except AttributeError:
+            g.input_transformation = []
+
+        return g.input_transformation
+
+    @classmethod
+    def clear(cls):
+        g.input_transformation = []
+
+    @classmethod
+    def add_mapping(cls, rules, payload):
+        cls.get().append((rules, payload))
+
+    @classmethod
+    def transform(cls, text, transformations):
+        for rules, payload in transformations:
+            for rule in rules:
+                if re.search(rule, text):
+                    return UserInput.FromPayload(payload)
+
+        return None
 
 
 def IsVariable(text):
@@ -264,8 +452,8 @@ class Message(base_message.Message):
                 'buttons': 3,
             },
             PlatformTypeEnum.Line: {
-                'title': 160,
-                'subtitle': 40,
+                'title': 40,
+                'subtitle': 60,
                 'buttons': 3,
             }
         }

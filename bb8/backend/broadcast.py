@@ -14,7 +14,7 @@ from bb8 import celery, logger
 from bb8.backend.database import (Bot, Broadcast, BroadcastStatusEnum,
                                   DatabaseManager, DatabaseSession)
 from bb8.backend.message import Message
-from bb8.backend.messaging import broadcast_message_async
+from bb8.backend.messaging_tasks import broadcast_message_async
 
 import jsonschema
 

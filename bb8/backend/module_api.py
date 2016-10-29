@@ -21,7 +21,7 @@ from bb8.backend.database import CollectedDatum as _CollectedDatum
 # pylint: disable=W0611
 from bb8.backend.message import (Message, Render, Resolve, IsVariable,
                                  TextPayload, LocationPayload, EventPayload)
-from bb8.backend.messaging import broadcast_message_async
+from bb8.backend.messaging_tasks import broadcast_message_async
 from bb8.backend.metadata import ParseResult
 
 

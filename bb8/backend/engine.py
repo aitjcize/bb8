@@ -13,11 +13,13 @@ from flask import g
 
 from bb8 import config, logger
 from bb8.backend import messaging
+from bb8.backend.message import Message
 from bb8.tracking import track, TrackingInfo
 from bb8.backend.database import (Bot, DatabaseManager, Conversation,
                                   CollectedDatum, Node, SupportedPlatform,
                                   SenderEnum, User)
-from bb8.backend.metadata import ParseResult, InputTransformation
+from bb8.backend.metadata import ParseResult
+from bb8.backend.message import InputTransformation
 
 
 PASSTHROUGH_MODULE_ID = 'ai.compose.parser.core.passthrough'
@@ -36,8 +38,7 @@ class Engine(object):
         if isinstance(message, list):
             message = random.choice(message)
 
-        messaging.send_message(
-            user, messaging.Message(message, variables=variables))
+        messaging.send_message(user, Message(message, variables=variables))
 
     def insert_data(self, user, data):
         """Insert collected data into database."""
@@ -78,7 +79,8 @@ class Engine(object):
                                  sender_enum=SenderEnum.Human,
                                  msg=user_input).add()
 
-                user_input.parse_audio_to_text(user.locale)
+                # Parse audio as text if there are audio payload
+                user_input.ParseAudioAsText(user)
                 user_input = user_input.RunInputTransformation()
 
             if user.session is None:
