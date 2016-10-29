@@ -173,7 +173,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)thanks?", "謝", "感恩"]
+                  "params": ["(?i)thanks?", "謝", "感恩", "晴雯"]
                 },
                 "end_node_id": "Thanks",
                 "ack_message": ""
@@ -463,7 +463,7 @@
           "id": "ai.compose.content.core.text_message",
           "config": {
             "text": [
-              "感謝你的支持, 請幫我們的粉絲頁按讚喔! https://goo.gl/h1qcsp",
+              "感謝你的支持, 請幫我們的粉絲頁按讚喔! https://goo.gl/O58pTH",
               "你也可以輸入「建議 {內容}」來告訢我們可以改善的地方"
             ]
           }
