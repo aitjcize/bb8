@@ -82,7 +82,8 @@ class Config(object):
 
     class CeleryConfig(object):
         BROKER_URL = os.getenv('REDIS_URI', 'redis://localhost:6379/0')
-        CELERY_IMPORTS = ('bb8.backend.messaging', 'bb8.backend.broadcast')
+        CELERY_IMPORTS = ('bb8.backend.messaging', 'bb8.backend.broadcast',
+                          'bb8.backend.webhooks_tasks')
         CELERY_SEND_EVENTS = False
         CELERY_ACCEPT_CONTENT = ['pickle']
 
