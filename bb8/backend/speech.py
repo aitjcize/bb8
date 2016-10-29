@@ -7,9 +7,7 @@
 """
 
 import base64
-import contextlib
 import subprocess
-import urllib2
 
 import requests
 
@@ -18,31 +16,26 @@ from oauth2client.client import GoogleCredentials
 
 GOOGLE_SPEECH_API_URL = ('https://speech.googleapis.com/v1beta1/'
                          'speech:syncrecognize')
-TIMEOUT = 5
 
 
-def convert_to_wav(url):
+def convert_to_wav(data):
     """Convert given audio file to wav format.
 
     Args:
-        url: url to the audio file
+        data: raw audio file data
 
     Returns:
         Return converted audio content as python string.
     """
-
-    with contextlib.closing(urllib2.urlopen(url, timeout=TIMEOUT)) as f:
-        data = f.read()
-
     p = subprocess.Popen('ffmpeg -i - -f wav - 2>/dev/null', shell=True,
                          stdin=subprocess.PIPE, stdout=subprocess.PIPE)
     stdout, unused_stderr = p.communicate(data)
     return stdout
 
 
-def speech_to_text(url, language='en_US'):
+def speech_to_text(data, language='en_US'):
     """Convert speech to text."""
-    audio_data = convert_to_wav(url)
+    audio_data = convert_to_wav(data)
 
     credentials = GoogleCredentials.get_application_default().create_scoped(
         ['https://www.googleapis.com/auth/cloud-platform'])

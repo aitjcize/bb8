@@ -7,9 +7,9 @@
 """
 
 import json
-import requests
 
 import jsonschema
+import requests
 
 
 FACEBOOK_PROFILE_API_URL = 'https://graph.facebook.com/v2.6/%s'
@@ -208,3 +208,13 @@ def send_message(user, messages):
 def push_message(user, messages):
     """Push message to user proactively."""
     return send_message(user, messages)
+
+
+def download_audio_as_data(unused_user, audio_payload):
+    """Download audio file as data."""
+    response = requests.get(audio_payload['url'], stream=True)
+
+    if response.status_code != 200:
+        raise RuntimeError('HTTP %d: %s' % (response.status_code,
+                                            response.text))
+    return response.raw.read()

@@ -17,9 +17,9 @@ from bb8 import celery
 from bb8.backend.database import (DatabaseManager, User, Platform,
                                   PlatformTypeEnum)
 from bb8.backend.engine import Engine
+from bb8.backend.message import UserInput
 from bb8.backend.messaging import get_user_profile
 from bb8.backend.messaging_provider import line
-from bb8.backend.metadata import UserInput
 from bb8.backend.requestcontexttask import RequestContextTask
 
 from bb8.tracking import track, TrackingInfo, send_ga_track_info

@@ -12,7 +12,7 @@ import datetime
 
 from bb8.backend.database import DatabaseManager
 from bb8.backend.database import Bot, Platform, PlatformTypeEnum, User
-from bb8.backend.messaging import Message
+from bb8.backend.message import Message
 from bb8.backend.messaging_provider import facebook
 
 

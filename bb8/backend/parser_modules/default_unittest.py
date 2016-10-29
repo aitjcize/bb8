@@ -15,7 +15,7 @@ from flask import g
 
 from bb8 import app
 from bb8.backend.database import DatabaseManager
-from bb8.backend.metadata import UserInput
+from bb8.backend.message import UserInput
 from bb8.backend.parser_modules import default
 from bb8.backend.test_utils import BaseTestMixin
 

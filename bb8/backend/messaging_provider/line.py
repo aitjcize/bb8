@@ -14,6 +14,7 @@ from flask import g
 LINE_PROFILE_API_URL = 'https://api.line.me/v2/bot/profile/%s'
 LINE_MESSAGE_REPLY_API_URL = 'https://api.line.me/v2/bot/message/reply'
 LINE_MESSAGE_PUSH_API_URL = 'https://api.line.me/v2/bot/message/push'
+LINE_GET_CONTENT_API_URL = 'https://api.line.me/v2/bot/message/%s/content'
 
 
 def get_config_schema():
@@ -110,3 +111,20 @@ def push_message(user, messages):
     if response.status_code != 200:
         text = response.text.replace(u'\xa0', '\n')
         raise RuntimeError('HTTP %d: %s' % (response.status_code, text))
+
+
+def download_audio_as_data(user, audio_payload):
+    """Download audio file as data."""
+    headers = {
+        'Authorization': 'Bearer %s' % user.platform.config['access_token']
+    }
+
+    response = requests.get(
+        LINE_GET_CONTENT_API_URL % audio_payload,
+        headers=headers, stream=True)
+
+    if response.status_code != 200:
+        raise RuntimeError('HTTP %d: %s' % (response.status_code,
+                                            response.text))
+
+    return response.raw.read()
