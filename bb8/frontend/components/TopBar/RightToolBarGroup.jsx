@@ -12,7 +12,7 @@ import Popover from 'material-ui/Popover'
 import RaisedButton from 'material-ui/RaisedButton'
 import { ToolbarGroup } from 'material-ui/Toolbar'
 
-import actions from '../../actions'
+import { setActiveBot } from '../../actions'
 
 class RightToolbarGroup extends React.Component {
 
@@ -72,7 +72,7 @@ class RightToolbarGroup extends React.Component {
                .map(id =>
                  (<MenuItem
                    key={id}
-                   primaryText={data.get('entities').get('bots').get(id).get('name')}
+                   primaryText={data.get('entities').get('bots').get(id.toString()).get('name')}
                    onTouchTap={() => onSetActiveBot(id)}
                  />))
             }
@@ -94,7 +94,7 @@ class RightToolbarGroup extends React.Component {
 
 RightToolbarGroup.propTypes = {
   onSetActiveBot: React.PropTypes.func,
-  data: ImmutablePropTypes.map,
+  data: ImmutablePropTypes.record,
   activeId: React.PropTypes.number,
 }
 
@@ -105,7 +105,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   onSetActiveBot(id) {
-    dispatch(actions.setActiveBot(id))
+    dispatch(setActiveBot(id))
   },
 })
 

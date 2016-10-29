@@ -1,4 +1,5 @@
 import { normalize, arrayOf } from 'normalizr-immutable'
+import { camelizeKeys } from 'humps'
 
 import types from '../constants/ActionTypes'
 import { Bot } from '../constants/Schema'
@@ -6,7 +7,7 @@ import { Bot } from '../constants/Schema'
 import BotsReducer from './BotsReducer'
 
 
-const BOTS_LISTING = [
+const BOTS_LISTING = camelizeKeys([
   {
     id: 1,
     name: 'Bot 1',
@@ -29,9 +30,9 @@ const BOTS_LISTING = [
     settings: null,
     staging: null,
   }
-]
+])
 
-const BOTS = [
+const BOTS = camelizeKeys([
   {
     id: 1,
     name: 'Bot 1',
@@ -54,7 +55,7 @@ const BOTS = [
     settings: {},
     staging: null,
   }
-]
+])
 
 describe('Reducer for Bots', () => {
   it('should return the initial state', () => {
@@ -73,7 +74,9 @@ describe('Reducer for Bots', () => {
     expect(
       BotsReducer(undefined, {
         type: types.BOTS_LIST.SUCCESS,
-        payload: normalize(BOTS_LISTING, arrayOf(Bot)),
+        payload: normalize(BOTS_LISTING, arrayOf(Bot), {
+          useMapsForEntityObjects: true,
+        }),
       }).toJS()
     ).toEqual({
       active: -1,
@@ -94,11 +97,15 @@ describe('Reducer for Bots', () => {
       (() => {
         let state = BotsReducer(undefined, {
           type: types.BOTS_LIST.SUCCESS,
-          payload: normalize(BOTS_LISTING, arrayOf(Bot)),
+          payload: normalize(BOTS_LISTING, arrayOf(Bot), {
+            useMapsForEntityObjects: true,
+          }),
         })
         return BotsReducer(state, {
           type: types.BOTS_GET.SUCCESS,
-          payload: normalize(BOTS[0], Bot),
+          payload: normalize(BOTS[0], Bot, {
+            useMapsForEntityObjects: true,
+          }),
         }).toJS()
       })()
     ).toEqual({
@@ -119,7 +126,9 @@ describe('Reducer for Bots', () => {
     expect(
       BotsReducer(undefined, {
         type: types.BOTS_CREATE.SUCCESS,
-        payload: normalize(BOTS[0], Bot),
+        payload: normalize(BOTS[0], Bot, {
+          useMapsForEntityObjects: true,
+        }),
       }).toJS()
     ).toEqual({
       active: 1,
@@ -139,7 +148,9 @@ describe('Reducer for Bots', () => {
       (() => {
         let state = BotsReducer(undefined, {
           type: types.BOTS_LIST.SUCCESS,
-          payload: normalize(BOTS_LISTING, arrayOf(Bot)),
+          payload: normalize(BOTS_LISTING, arrayOf(Bot), {
+            useMapsForEntityObjects: true,
+          }),
         })
         return BotsReducer(state, {
           type: types.BOTS_DELETE.SUCCESS,
@@ -177,7 +188,9 @@ describe('Reducer for Bots', () => {
   it('should update the active id', () => {
     let state = BotsReducer(undefined, {
       type: types.BOTS_LIST.SUCCESS,
-      payload: normalize(BOTS_LISTING, arrayOf(Bot)),
+      payload: normalize(BOTS_LISTING, arrayOf(Bot), {
+        useMapsForEntityObjects: true,
+      }),
     })
     expect(
       BotsReducer(state, {

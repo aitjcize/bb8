@@ -1,11 +1,12 @@
 import { normalize, arrayOf } from 'normalizr-immutable'
+import { camelizeKeys } from 'humps'
 
 import types from '../constants/ActionTypes'
 import { Platform } from '../constants/Schema'
 
-import PlatformReducer from './PlatformReducer'
+import PlatformsReducer from './PlatformsReducer'
 
-const PLATFORMS_LISTING = [{
+const PLATFORMS_LISTING = camelizeKeys([{
   id: 1,
   bot_id: 1,
   name: 'test1',
@@ -26,36 +27,36 @@ const PLATFORMS_LISTING = [{
   type_enum: 'Facebook',
   provider_ident: '23456',
   config: null,
-}]
+}])
 
-const PLATFORMS = [{
-  id: 1,
+const PLATFORMS = camelizeKeys([{
+  id: 45,
   bot_id: 1,
   name: 'test1',
   type_enum: 'Facebook',
   provider_ident: '12345678',
-  config: 'config1',
+  config: {},
 }, {
   id: 2,
   bot_id: 1,
   name: 'test1',
   type_enum: 'Line',
   provider_ident: 'test1.composeai',
-  config: 'config1',
+  config: {},
 }, {
   id: 3,
   bot_id: null,
   name: 'test1',
   type_enum: 'Facebook',
   provider_ident: '23456',
-  config: 'config1',
-}]
+  config: {},
+}])
 
 
 describe('Reducer for platforms', () => {
   it('should return the initial state', () => {
     expect(
-      PlatformReducer(undefined, {}).toJS()
+      PlatformsReducer(undefined, {}).toJS()
     ).toEqual({
       result: [],
       entities: {},
@@ -64,9 +65,11 @@ describe('Reducer for platforms', () => {
 
   it('should return the state with list of platforms', () => {
     expect(
-      PlatformReducer(undefined, {
+      PlatformsReducer(undefined, {
         type: types.PLATFORMS_LIST.SUCCESS,
-        payload: normalize(PLATFORMS_LISTING, arrayOf(Platform)),
+        payload: normalize(PLATFORMS_LISTING, arrayOf(Platform), {
+          useMapsForEntityObjects: true
+        }),
       }).toJS()
     ).toEqual({
       result: [1, 2, 3],
@@ -83,20 +86,25 @@ describe('Reducer for platforms', () => {
   it('should populate the platform entities with returned platform info', () => {
     expect(
       (() => {
-        const state = PlatformReducer(undefined, {
+        const state = PlatformsReducer(undefined, {
           type: types.PLATFORMS_LIST.SUCCESS,
-          payload: normalize(PLATFORMS_LISTING, arrayOf(Platform)),
+          payload: normalize(PLATFORMS_LISTING, arrayOf(Platform), {
+            useMapsForEntityObjects: true,
+          }),
         })
-        return PlatformReducer(state, {
+        return PlatformsReducer(state, {
           type: types.PLATFORMS_GET.SUCCESS,
-          payload: normalize(PLATFORMS[0], Platform)
+          payload: normalize(PLATFORMS[0], Platform, {
+            useMapsForEntityObjects: true,
+          })
         }).toJS()
       })()
     ).toEqual({
       result: [1, 2, 3],
       entities: {
         platforms: {
-          1: PLATFORMS[0], 
+          45: PLATFORMS[0],
+          1: PLATFORMS_LISTING[0],
           2: PLATFORMS_LISTING[1],
           3: PLATFORMS_LISTING[2],
         }
@@ -107,13 +115,15 @@ describe('Reducer for platforms', () => {
   it('should remove the platform', () => {
     expect(
       (() => {
-        const state = PlatformReducer(undefined, {
+        const state = PlatformsReducer(undefined, {
           type: types.PLATFORMS_LIST.SUCCESS,
-          payload: normalize(PLATFORMS_LISTING, arrayOf(Platform)),
+          payload: normalize(PLATFORMS_LISTING, arrayOf(Platform), {
+            useMapsForEntityObjects: true,
+          }),
         })
-        return PlatformReducer(state, {
+        return PlatformsReducer(state, {
           type: types.PLATFORMS_DELETE.SUCCESS,
-          payload: 1, 
+          payload: 1,
         }).toJS()
       })()
     ).toEqual({
@@ -129,18 +139,19 @@ describe('Reducer for platforms', () => {
 
   it('should add the newly created platform', () => {
     expect(
-      PlatformReducer(undefined, {
+      PlatformsReducer(undefined, {
         type: types.PLATFORMS_CREATE.SUCCESS,
-        payload: normalize(PLATFORMS[0], Platform),
+        payload: normalize(PLATFORMS[0], Platform, {
+          useMapsForEntityObjects: true,
+        }),
       }).toJS()
     ).toEqual({
-      result: [1],
+      result: [45],
       entities: {
         platforms: {
-          1: PLATFORMS[0],
+          45: PLATFORMS[0],
         }
       }
     })
   })
-
 })

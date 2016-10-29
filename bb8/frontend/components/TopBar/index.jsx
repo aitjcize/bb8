@@ -44,7 +44,7 @@ class TopBar extends React.Component {
   }
 
   render() {
-    return (<Toolbar className="b-right-toolbar">
+    return (<Toolbar className="b-toolbar">
       <ToolbarGroup firstChild>
         <IconButton onTouchTap={this.handleToggle}>
           <NavigationMenu />
