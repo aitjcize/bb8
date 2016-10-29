@@ -4,9 +4,7 @@ import TextField from 'material-ui/TextField'
 import RaisedButton from 'material-ui/RaisedButton'
 import validator from 'validator'
 
-import actions from '../actions'
-
-const { startLogin } = actions
+import { startLogin } from '../actions'
 
 
 function validate(values) {

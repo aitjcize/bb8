@@ -1,6 +1,6 @@
-const AUTH_TOKEN = 'auth_token'
+export const AUTH_TOKEN = 'auth_token'
 
-const TIME_ZONES = [
+export const TIME_ZONES = [
   'Africa/Abidjan',
   'Africa/Accra',
   'Africa/Addis_Ababa',
@@ -552,5 +552,3 @@ const TIME_ZONES = [
   'US/Samoa',
   'UTC',
 ]
-
-export { AUTH_TOKEN, TIME_ZONES }
