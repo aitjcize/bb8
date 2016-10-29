@@ -9,33 +9,21 @@
 
 from __future__ import print_function
 
-import os
 import sys
 
-from flask_script import Server, Manager
+from flask_script import Manager
 
-from bb8 import config, app
-from bb8.api import request
+from bb8 import config, app, api
+from bb8.commands import database, server, shell
 
-from bb8.commands import shell
-from bb8.commands import database
-
-bb8_root = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
-context = (
-    os.path.join(bb8_root, 'certs/cert.pem'),
-    os.path.join(bb8_root, 'certs/key.pem')
-)
-
-server = Server(host='0.0.0.0', port=config.HTTP_PORT, ssl_context=context)
 
 manager = Manager(app)
-manager.add_command('runserver', server)
-
 shell.install_commands(manager)
+server.install_commands(manager)
 database.install_commands(manager)
 
 
-if __name__ == "__main__":
+def main():
     # Warn user about operating on a production database
     if 'deploy' in config.DATABASE:
         print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
@@ -49,3 +37,7 @@ if __name__ == "__main__":
 
     config.COMMIT_ON_APP_TEARDOWN = False
     manager.run()
+
+
+if __name__ == "__main__":
+    main()

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    bb8 Databse Managemnt
-    ~~~~~~~~~~~~~~~~~~~~~
+    bb8 Database Managemnt
+    ~~~~~~~~~~~~~~~~~~~~~~
 
     Copyright 2016 bb8 Authors
 """

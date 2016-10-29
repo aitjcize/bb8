@@ -167,8 +167,15 @@ def get_user_profile(platform, user_ident):
         })
 
     if response.status_code != 200:
-        raise RuntimeError('HTTP %d: %s' % (response.status_code,
-                                            response.text))
+        ret = {
+            'first_name': u'你好',
+            'last_name': u'',
+            'locale': 'zh_TW',
+            'timezone': 8,
+            'gender': 'Male'
+        }
+        return ret
+
     ret = response.json()
 
     # Some account does not have gender for some reason ... assume male

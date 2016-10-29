@@ -8,7 +8,8 @@
 
 from flask import g, jsonify, request
 
-from bb8 import app, logger, AppError
+from bb8 import app, logger
+from bb8.api.error import AppError
 from bb8.api.middlewares import login_required
 from bb8.backend.broadcast import BroadcastUnmodifiableError, parse_broadcast
 from bb8.backend.database import (DatabaseManager, Broadcast,

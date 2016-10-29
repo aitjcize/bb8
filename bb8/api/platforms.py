@@ -8,11 +8,12 @@
 
 from flask import g, jsonify, request
 
-from bb8 import app, logger, AppError
-from bb8.constant import HTTPStatus, CustomError
+from bb8 import app, logger
+from bb8.api.error import AppError
 from bb8.api.middlewares import login_required
 from bb8.backend.database import DatabaseManager, Platform
 from bb8.backend.platform_parser import parse_platform
+from bb8.constant import HTTPStatus, CustomError
 
 
 def get_account_platform_by_id(platform_id):
