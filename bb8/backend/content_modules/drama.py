@@ -98,7 +98,7 @@ class DramaInfo(object):
 def render_dramas(dramas):
     """Render cards given a list of dramas"""
     if not len(dramas):
-        return [Message(u'找不到你要的劇喔！')]
+        return Message(u'找不到你要的劇喔！')
 
     m = Message()
     for d in dramas:
