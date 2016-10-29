@@ -264,8 +264,8 @@ class Message(base_message.Message):
                 'buttons': 3,
             },
             PlatformTypeEnum.Line: {
-                'title': 160,
-                'subtitle': 40,
+                'title': 40,
+                'subtitle': 60,
                 'buttons': 3,
             }
         }
