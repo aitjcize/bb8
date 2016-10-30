@@ -57,13 +57,13 @@ class BroadcastAPIUnittest(unittest.TestCase):
         self.assertEquals('test-bot', data['name'])
         self.bot_ids.append(data['id'])
 
-    def create_broadcast(self, bot_id):
+    def create_broadcast(self, bot_id, eta=int(time.time())):
         # Test create broadcasts
         input_data = {
             'bot_id': bot_id,
             'name': 'New broadcast',
             'messages': [Message('Test message').as_dict()],
-            'scheduled_time': int(time.time()),
+            'scheduled_time': eta,
         }
 
         rv = self.app.post('/api/broadcasts', data=json.dumps(input_data),
@@ -154,6 +154,9 @@ class BroadcastAPIUnittest(unittest.TestCase):
         self.login(self.account2)
         rv = self.app.get('/api/broadcasts/%s' % self.broadcast_ids[1])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
+
+        # Test sending immediately (scheduled_time = 0)
+        self.create_broadcast(self.bot_ids[1], eta=0)
 
     def test_broadcast_update(self):
         # Test get all broadcasts

@@ -49,14 +49,15 @@ class MessagingServicer(app_service_pb2.MessagingServiceServicer):
             if not bot:
                 raise RuntimeError('Bot<%d> does not exist' % request.bot_id)
 
+            eta = None if request.eta == 0 else request.eta
             messages_dict = cPickle.loads(request.messages_object)
             if request.static:
                 msgs = [Message.FromDict(m, {}) for m in messages_dict]
-                messaging_tasks.broadcast_message_async(bot, msgs, request.eta)
+                messaging_tasks.broadcast_message_async(bot, msgs, eta)
             else:
                 users = User.get_by(bot_id=request.bot_id)
                 messaging_tasks.push_message_from_dict_async(
-                    users, messages_dict, request.eta)
+                    users, messages_dict, eta)
 
         return app_service_pb2.Empty()
 

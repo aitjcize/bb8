@@ -79,32 +79,39 @@ def _push_message_from_dict(users, messages_dict, eta=None,
 
 def push_message_from_dict_async(users, messages_dict, eta=None,
                                  user_localtime=False):
-    """Send messages to users from a list of dictionary."""
+    """Send messages to users from a list of dictionary.
+
+    Args:
+        eta: Unix timestamp
+    """
     _push_message_from_dict.apply_async((users, messages_dict, eta,
                                          user_localtime))
 
 
 @celery.task
-def _broadcast_message(bot, messages, eta=None):
+def _broadcast_message(bot, messages):
     """Broadcast message to bot users.
 
     This method should never be called directly. It should be always called
     asynchronously by broadcast_message_async().
     """
-    if eta:
-        eta = datetime.utcfromtimestamp(eta)
-
     with DatabaseSession():
         for user in bot.users:
             if not user.settings.get('subscribe', True):
                 continue
             try:
                 logger.info('Sending message to %s ...' % user)
-                push_message.apply_async((user, messages), eta=eta)
+                push_message.apply_async((user, messages))
             except Exception as e:
                 logger.exception(e)
 
 
 def broadcast_message_async(bot, messages, eta=None):
-    """Broadcast message to bot users."""
-    _broadcast_message.apply_async((bot, messages, eta))
+    """Broadcast message to bot users.
+
+    Args:
+        eta: Unix timestamp
+    """
+    if eta:
+        eta = datetime.fromtimestamp(eta)
+    _broadcast_message.apply_async((bot, messages), eta=eta)
