@@ -135,7 +135,7 @@ class MessageUnittest(unittest.TestCase, BaseTestMixin):
 
         transform_keys = reduce(lambda x, y: x + y,
                                 [x[0] for x in g.input_transformation], [])
-        self.assertTrue('quick_reply_1' in transform_keys)
+        self.assertTrue('^quick_reply_1$' in transform_keys)
         self.assertTrue('1' in transform_keys)
         self.assertTrue('3' in transform_keys)
 
@@ -306,8 +306,8 @@ class MessageUnittest(unittest.TestCase, BaseTestMixin):
         Message.FromDict(msg_dict)
         transform_keys = reduce(lambda x, y: x + y,
                                 [x[0] for x in g.input_transformation], [])
-        self.assertTrue('A' in transform_keys)
-        self.assertTrue('B' in transform_keys)
+        self.assertTrue('^A$' in transform_keys)
+        self.assertTrue('^B$' in transform_keys)
         self.assertFalse(None in transform_keys)
 
 

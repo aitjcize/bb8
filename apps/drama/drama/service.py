@@ -96,7 +96,7 @@ class DramaInfo(object):
             return [to_proto_drama(drama, user) for drama in dramas]
 
     @classmethod
-    def GetHistory(cls, drama_id, from_episode, backward, count=5):
+    def GetHistory(cls, drama_id, from_episode, count=5, backward=False):
         with DatabaseSession():
             query = Episode.query().filter(Episode.drama_id == drama_id)
 
@@ -110,6 +110,17 @@ class DramaInfo(object):
                 desc('serial_number') if backward else 'serial_number'
             ).limit(count)
             return [to_proto_episode(episode) for episode in episodes]
+
+    @classmethod
+    def GetEpisode(cls, drama_id, serial_number):
+        with DatabaseSession():
+            episode = Episode.get_by(drama_id=drama_id,
+                                     serial_number=serial_number,
+                                     single=True)
+            if episode is None:
+                # It means a gRPC function implementation failed.
+                raise RuntimeError('Not found')
+            return to_proto_episode(episode)
 
 
 class DramaInfoServicer(service_pb2.DramaInfoServicer):
@@ -137,7 +148,12 @@ class DramaInfoServicer(service_pb2.DramaInfoServicer):
     def GetHistory(self, request, unused_context):
         return service_pb2.Episodes(
             episodes=DramaInfo.GetHistory(
-                request.drama_id, request.from_episode, request.backward))
+                request.drama_id, request.from_episode, request.count,
+                request.backward))
+
+    def GetEpisode(self, request, unused_context):
+        return DramaInfo.GetEpisode(
+            request.drama_id, request.serial_number)
 
 
 def start_grpc_server(port):

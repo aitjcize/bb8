@@ -495,7 +495,7 @@ class Message(base_message.Message):
         def register_mapping(self):
             if self.content_type == Message.QuickReplyType.TEXT:
                 acceptable_inputs = self.acceptable_inputs[:]
-                acceptable_inputs.append(self.title)
+                acceptable_inputs.append('^%s$' % self.title)
                 InputTransformation.add_mapping(acceptable_inputs,
                                                 self.payload)
 

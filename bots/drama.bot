@@ -179,6 +179,14 @@
                 "ack_message": ""
               },
               {
+                "rule":{
+                  "type": "regexp",
+                  "params": ["(.+?)\\s*第(.+)集", "第?(.+)集"]
+                },
+                "end_node_id": "SearchEpisode",
+                "ack_message": ""
+              },
+              {
                 "rule": {
                   "type": "regexp",
                   "params": ["trending_kr", "韓", "(?i)kr", "(?i)korea"]
@@ -452,6 +460,18 @@
           "config": {
             "end_node_id": "Root",
             "ack_message": ""
+          }
+        }
+      },
+      "SearchEpisode": {
+        "name": "SearchEpisode",
+        "description": "Let user can select episode",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.content.third_party.drama",
+          "config": {
+            "mode": "search_episode",
+            "episode": "{{matches#2,matches#1,text}}"
           }
         }
       },
