@@ -1,4 +1,3 @@
-import Immutable from 'immutable'
 import types from '../constants/ActionTypes'
 
 import AccountsReducer from './AccountsReducer'
@@ -16,7 +15,7 @@ describe('Reducer for bots', () => {
   it('should return the initial state', () => {
     expect(
       AccountsReducer(undefined, {})
-    ).toEqual(Immutable.fromJS({}))
+    ).toEqual({})
   })
 
   it('should return the logined account', () => {
@@ -24,7 +23,7 @@ describe('Reducer for bots', () => {
       AccountsReducer(undefined, {
         type: types.ACCOUNTS_LOGIN.SUCCESS,
         payload: account
-      }).toJS()
+      })
     ).toEqual(account)
   })
 
@@ -33,22 +32,23 @@ describe('Reducer for bots', () => {
       AccountsReducer(undefined, {
         type: types.ACCOUNTS_LOGOUT.SUCCESS,
       })
-    ).toEqual(Immutable.fromJS({}))
+    ).toEqual({})
   })
 
   it('should merge the account info if account is not null', () => {
     expect(
       AccountsReducer(
-        Immutable.fromJS({
+        {
           id: 1,
           name: 'abcde',
           email: 'asdf@gmail.com',
-        }), {
+        },
+        {
           type: types.ACCOUNTS_GET_ME.SUCCESS,
           payload: {
             name: 'account1',
           },
-        }).toJS()
+        })
     ).toEqual({
         id: 1,
         name: 'account1',

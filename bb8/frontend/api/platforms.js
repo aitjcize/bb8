@@ -1,10 +1,10 @@
-import { normalize } from 'normalizr-immutable'
+import { normalize } from 'normalizr'
 
 import fetch from './util'
 import { Platform } from '../constants/Schema'
 
 function normPlatform(platform) {
-  return normalize(platform, Platform, { useMapsForEntityObjects: true })
+  return normalize(platform, Platform)
 }
 
 const platforms = {

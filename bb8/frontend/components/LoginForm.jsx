@@ -1,5 +1,6 @@
 import React from 'react'
-import { Field, reduxForm } from 'redux-form/immutable'
+import { Field, reduxForm } from 'redux-form'
+
 import TextField from 'material-ui/TextField'
 import RaisedButton from 'material-ui/RaisedButton'
 import validator from 'validator'
@@ -9,8 +10,8 @@ import { startLogin } from '../actions'
 
 function validate(values) {
   const errors = {}
-  const email = values.get('email')
-  const passwd = values.get('passwd')
+  const email = values.email
+  const passwd = values.passwd
   if (typeof email === 'string' && !validator.isEmail(email)) {
     errors.email = 'Please provide a valid email address'
   }
@@ -51,7 +52,7 @@ renderTextField.propTypes = {
 }
 
 function handleSubmit(value, dispatch) {
-  dispatch(startLogin(value.get('email'), value.get('passwd')))
+  dispatch(startLogin(value.email, value.passwd))
 }
 
 const LoginForm = props => (

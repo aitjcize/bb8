@@ -1,4 +1,4 @@
-import { normalize, arrayOf } from 'normalizr-immutable'
+import { normalize, arrayOf } from 'normalizr'
 import { camelizeKeys } from 'humps'
 
 import types from '../constants/ActionTypes'
@@ -60,13 +60,10 @@ const BOTS = camelizeKeys([
 describe('Reducer for Bots', () => {
   it('should return the initial state', () => {
     expect(
-      BotsReducer(undefined, {}).toJS()
+      BotsReducer(undefined, {})
     ).toEqual({
       active: -1,
-      listing: {
-        result: [],
-        entities: {},
-      }
+      ids: [],
     })
   })
 
@@ -74,21 +71,11 @@ describe('Reducer for Bots', () => {
     expect(
       BotsReducer(undefined, {
         type: types.BOTS_LIST.SUCCESS,
-        payload: normalize(BOTS_LISTING, arrayOf(Bot), {
-          useMapsForEntityObjects: true,
-        }),
-      }).toJS()
+        payload: normalize(BOTS_LISTING, arrayOf(Bot)),
+      })
     ).toEqual({
       active: -1,
-      listing: {
-        result: [1, 2],
-        entities: {
-          bots: {
-            1: BOTS_LISTING[0],
-            2: BOTS_LISTING[1]
-          }
-        }
-      }
+      ids: [1, 2],
     })
   })
 
@@ -97,28 +84,16 @@ describe('Reducer for Bots', () => {
       (() => {
         let state = BotsReducer(undefined, {
           type: types.BOTS_LIST.SUCCESS,
-          payload: normalize(BOTS_LISTING, arrayOf(Bot), {
-            useMapsForEntityObjects: true,
-          }),
+          payload: normalize(BOTS_LISTING, arrayOf(Bot)),
         })
         return BotsReducer(state, {
           type: types.BOTS_GET.SUCCESS,
-          payload: normalize(BOTS[0], Bot, {
-            useMapsForEntityObjects: true,
-          }),
-        }).toJS()
+          payload: normalize(BOTS[0], Bot),
+        })
       })()
     ).toEqual({
       active: 1,
-      listing: {
-        result: [1, 2],
-        entities: {
-          bots: {
-            1: BOTS[0],
-            2: BOTS_LISTING[1]
-          }
-        },
-      }
+      ids: [1, 2],
     })
   })
 
@@ -126,20 +101,11 @@ describe('Reducer for Bots', () => {
     expect(
       BotsReducer(undefined, {
         type: types.BOTS_CREATE.SUCCESS,
-        payload: normalize(BOTS[0], Bot, {
-          useMapsForEntityObjects: true,
-        }),
-      }).toJS()
+        payload: normalize(BOTS[0], Bot),
+      })
     ).toEqual({
       active: 1,
-      listing: {
-        result: [1],
-        entities: {
-          bots: {
-            1: BOTS[0],
-          }
-        }
-      }
+      ids: [1],
     })
   })
 
@@ -148,25 +114,16 @@ describe('Reducer for Bots', () => {
       (() => {
         let state = BotsReducer(undefined, {
           type: types.BOTS_LIST.SUCCESS,
-          payload: normalize(BOTS_LISTING, arrayOf(Bot), {
-            useMapsForEntityObjects: true,
-          }),
+          payload: normalize(BOTS_LISTING, arrayOf(Bot)),
         })
         return BotsReducer(state, {
           type: types.BOTS_DELETE.SUCCESS,
           payload: 1,
-        }).toJS()
+        })
       })()
     ).toEqual({
       active: -1,
-      listing: {
-        result: [2],
-        entities: {
-          bots: {
-            2: BOTS_LISTING[1]
-          }
-        }
-      }
+      ids: [2],
     })
   })
 
@@ -175,28 +132,26 @@ describe('Reducer for Bots', () => {
       BotsReducer(undefined, {
         type: types.BOTS_SET_ACTIVE,
         payload: 5,
-      }).toJS()
+      })
     ).toEqual({
       active: -1,
-      listing: {
-        result: [],
-        entities: {},
-      }
+      ids: [],
     })
   })
 
   it('should update the active id', () => {
     let state = BotsReducer(undefined, {
       type: types.BOTS_LIST.SUCCESS,
-      payload: normalize(BOTS_LISTING, arrayOf(Bot), {
-        useMapsForEntityObjects: true,
-      }),
+      payload: normalize(BOTS_LISTING, arrayOf(Bot)),
     })
     expect(
       BotsReducer(state, {
         type: types.BOTS_SET_ACTIVE,
         payload: 1,
-      }).toJS()
-    ).toEqual(state.set('active', 1).toJS())
+      })
+    ).toEqual({
+      active: 1,
+      ids: [1, 2],
+    })
   })
 })

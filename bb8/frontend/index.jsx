@@ -41,11 +41,7 @@ const {
 injectTapEventPlugin()
 
 // Configure middleware and store
-const logger = createLogger({
-  stateTransformer(state) {
-    return state.toJS()
-  },
-})
+const logger = createLogger()
 
 const sagaMiddleware = createSagaMiddleware()
 const store = createStore(
@@ -55,11 +51,7 @@ const store = createStore(
 )
 sagaMiddleware.run(rootSaga)
 
-syncHistoryWithStore(hashHistory, store, {
-  selectLocationState(state) {
-    return state.get('routing').toJS()
-  },
-})
+syncHistoryWithStore(hashHistory, store)
 
 const muiTheme = getMuiTheme()
 muiTheme.toolbar.backgroundColor = muiTheme.appBar.color

@@ -1,4 +1,4 @@
-import { normalize, arrayOf } from 'normalizr-immutable'
+import { normalize, arrayOf } from 'normalizr'
 import { camelizeKeys } from 'humps'
 
 import types from '../constants/ActionTypes'
@@ -56,10 +56,9 @@ const PLATFORMS = camelizeKeys([{
 describe('Reducer for platforms', () => {
   it('should return the initial state', () => {
     expect(
-      PlatformsReducer(undefined, {}).toJS()
+      PlatformsReducer(undefined, {})
     ).toEqual({
-      result: [],
-      entities: {},
+      ids: [],
     })
   })
 
@@ -67,19 +66,10 @@ describe('Reducer for platforms', () => {
     expect(
       PlatformsReducer(undefined, {
         type: types.PLATFORMS_LIST.SUCCESS,
-        payload: normalize(PLATFORMS_LISTING, arrayOf(Platform), {
-          useMapsForEntityObjects: true
-        }),
-      }).toJS()
+        payload: normalize(PLATFORMS_LISTING, arrayOf(Platform)),
+      })
     ).toEqual({
-      result: [1, 2, 3],
-      entities: {
-        platforms: {
-          1: PLATFORMS_LISTING[0],
-          2: PLATFORMS_LISTING[1],
-          3: PLATFORMS_LISTING[2],
-        }
-      }
+      ids: [1, 2, 3],
     })
   })
 
@@ -88,27 +78,15 @@ describe('Reducer for platforms', () => {
       (() => {
         const state = PlatformsReducer(undefined, {
           type: types.PLATFORMS_LIST.SUCCESS,
-          payload: normalize(PLATFORMS_LISTING, arrayOf(Platform), {
-            useMapsForEntityObjects: true,
-          }),
+          payload: normalize(PLATFORMS_LISTING, arrayOf(Platform)),
         })
         return PlatformsReducer(state, {
           type: types.PLATFORMS_GET.SUCCESS,
-          payload: normalize(PLATFORMS[0], Platform, {
-            useMapsForEntityObjects: true,
-          })
-        }).toJS()
+          payload: normalize(PLATFORMS[0], Platform), 
+        })
       })()
     ).toEqual({
-      result: [1, 2, 3],
-      entities: {
-        platforms: {
-          45: PLATFORMS[0],
-          1: PLATFORMS_LISTING[0],
-          2: PLATFORMS_LISTING[1],
-          3: PLATFORMS_LISTING[2],
-        }
-      }
+      ids: [1, 2, 3, 45],
     })
   })
 
@@ -117,23 +95,15 @@ describe('Reducer for platforms', () => {
       (() => {
         const state = PlatformsReducer(undefined, {
           type: types.PLATFORMS_LIST.SUCCESS,
-          payload: normalize(PLATFORMS_LISTING, arrayOf(Platform), {
-            useMapsForEntityObjects: true,
-          }),
+          payload: normalize(PLATFORMS_LISTING, arrayOf(Platform)), 
         })
         return PlatformsReducer(state, {
           type: types.PLATFORMS_DELETE.SUCCESS,
           payload: 1,
-        }).toJS()
+        })
       })()
     ).toEqual({
-      result: [2, 3],
-      entities: {
-        platforms: {
-          2: PLATFORMS_LISTING[1],
-          3: PLATFORMS_LISTING[2],
-        }
-      }
+      ids: [2, 3],
     })
   })
 
@@ -141,17 +111,10 @@ describe('Reducer for platforms', () => {
     expect(
       PlatformsReducer(undefined, {
         type: types.PLATFORMS_CREATE.SUCCESS,
-        payload: normalize(PLATFORMS[0], Platform, {
-          useMapsForEntityObjects: true,
-        }),
-      }).toJS()
+        payload: normalize(PLATFORMS[0], Platform),
+      })
     ).toEqual({
-      result: [45],
-      entities: {
-        platforms: {
-          45: PLATFORMS[0],
-        }
-      }
+      ids: [45],
     })
   })
 })

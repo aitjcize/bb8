@@ -4,7 +4,6 @@ import { connect } from 'react-redux'
 import ContentAdd from 'material-ui/svg-icons/content/add'
 import IconButton from 'material-ui/IconButton'
 import IconMenu from 'material-ui/IconMenu'
-import ImmutablePropTypes from 'react-immutable-proptypes'
 import Menu from 'material-ui/Menu'
 import MenuItem from 'material-ui/MenuItem'
 import NavigationExpandMoreIcon from 'material-ui/svg-icons/navigation/expand-more'
@@ -30,9 +29,7 @@ class RightToolbarGroup extends React.Component {
     // This prevents ghost click.
     event.preventDefault()
 
-    const { data } = this.props
-
-    if (data && data.size) {
+    if (this.props.ids.length) {
       this.setState({
         open: true,
         anchorEl: event.currentTarget,
@@ -50,14 +47,14 @@ class RightToolbarGroup extends React.Component {
   }
 
   render() {
-    const { data, activeId, onSetActiveBot } = this.props
-    const length = data.get('result').size
+    const { ids, activeId, onSetActiveBot } = this.props
+    const length = ids.length
     return (
       <ToolbarGroup>
         <RaisedButton
           primary
           onTouchTap={this.handleTouchTap}
-          label={activeId === -1 ? 'Add a bot' : data.get('entities').get('bots').get(activeId).get('name')}
+          label={activeId === -1 ? 'Add a bot' : this.props.data[activeId].name}
         />
         <Popover
           open={this.state.open}
@@ -68,11 +65,10 @@ class RightToolbarGroup extends React.Component {
         >
           <Menu>
             {length === 0 ? null :
-             data.get('result')
-               .map(id =>
+               ids.map(id =>
                  (<MenuItem
                    key={id}
-                   primaryText={data.get('entities').get('bots').get(id.toString()).get('name')}
+                   primaryText={this.props.data[id].name}
                    onTouchTap={() => onSetActiveBot(id)}
                  />))
             }
@@ -94,13 +90,20 @@ class RightToolbarGroup extends React.Component {
 
 RightToolbarGroup.propTypes = {
   onSetActiveBot: React.PropTypes.func,
-  data: ImmutablePropTypes.record,
+  ids: React.PropTypes.arrayOf(React.PropTypes.number),
+  data: React.PropTypes.objectOf(React.PropTypes.shape({
+    name: React.PropTypes.string,
+  })),
   activeId: React.PropTypes.number,
 }
 
 const mapStateToProps = state => ({
-  data: state.get('bots').get('listing'),
-  activeId: state.get('bots').get('active'),
+  data: state.bots.ids.reduce((obj, id) =>
+    Object.assign(obj, {
+      [id]: state.entities.bots[id],
+    }), {}),
+  ids: state.bots.ids,
+  activeId: state.bots.active,
 })
 
 const mapDispatchToProps = dispatch => ({
