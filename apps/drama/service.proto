@@ -8,6 +8,7 @@ service DramaInfo {
   rpc Search (SearchRequest) returns (Dramas) {}
   rpc Trending (TrendingRequest) returns (Dramas) {}
   rpc GetHistory (HistoryRequest) returns (Episodes) {}
+  rpc GetEpisode (GetEpisodeRequest) returns (Episode) {}
 }
 
 message Empty {}
@@ -64,5 +65,11 @@ message TrendingRequest {
 message HistoryRequest {
   uint32 drama_id = 1;
   uint32 from_episode = 2;
-  bool backward = 3;
+  uint32 count = 3;
+  bool backward = 4;
+}
+
+message GetEpisodeRequest {
+  uint32 drama_id = 1;
+  uint32 serial_number = 2;
 }

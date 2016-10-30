@@ -2,7 +2,6 @@
 """
     Drama Subscription Service
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Drama module
 
     Copyright 2016 bb8 Authors
 """
@@ -10,9 +9,11 @@
 
 import grpc
 
+from bb8.backend.content_modules.lib.mandarin_parsing_utils import (
+    mandarin_to_arabic_numbers)
 from bb8.backend.module_api import (CacheImage, Message, EventPayload,
                                     GetgRPCService, GetUserId,
-                                    SupportedPlatform, Resolve)
+                                    SupportedPlatform, Resolve, Memory)
 
 
 GRPC_TIMEOUT = 5
@@ -47,6 +48,7 @@ def schema():
                     'unsubscribe',
                     'search',
                     'get_history',
+                    'search_episode',
                 ]
             },
         }
@@ -86,13 +88,21 @@ class DramaInfo(object):
                 user_id=user_id, term=term, count=count
             ), GRPC_TIMEOUT).dramas
 
-    def get_history(self, drama_id, from_episode, backward):
+    def get_history(self, drama_id, from_episode, count=7, backward=False):
         return self._stub.GetHistory(
             self._pb2_module.HistoryRequest(
                 drama_id=drama_id,
                 from_episode=from_episode,
+                count=count,
                 backward=backward
             ), GRPC_TIMEOUT).episodes
+
+    def get_episode(self, drama_id, serial_number):
+        return self._stub.GetEpisode(
+            self._pb2_module.GetEpisodeRequest(
+                drama_id=drama_id,
+                serial_number=serial_number
+            ), GRPC_TIMEOUT)
 
 
 def render_dramas(dramas):
@@ -222,12 +232,32 @@ def run(content_config, unused_env, variables):
         query_term = Resolve(content_config['query_term'], variables)
         dramas = drama_info.search(user_id, query_term, n_items)
         if dramas:
+            if len(dramas) == 1:
+                Memory.Set('last_query_drama_id', dramas[0].id)
             m = render_dramas(dramas)
             append_categories_to_quick_reply(m)
             return [m]
         m = Message(u'找不到耶！你可以換個關鍵字或試試熱門的類別：')
         append_categories_to_quick_reply(m)
         return [m]
+
+    if content_config['mode'] == 'search_episode':
+        if len(variables['matches']) == 3:
+            dramas = drama_info.search(user_id, variables['matches'][1], 1)
+            if dramas:
+                Memory.Set('last_query_drama_id', dramas[0].id)
+
+        drama_id = Memory.Get('last_query_drama_id')
+        if drama_id:
+            try:
+                serial_number = mandarin_to_arabic_numbers(
+                    Resolve(content_config['episode'], variables))
+                episode = drama_info.get_episode(drama_id, serial_number)
+            except Exception:
+                return [Message('沒有這一集喔')]
+            return render_episodes([episode])
+        else:
+            return [Message('請先告訴我你要查的劇名')]
 
     m = render_dramas(drama_info.get_trending(user_id, country=country))
     append_categories_to_quick_reply(m)
