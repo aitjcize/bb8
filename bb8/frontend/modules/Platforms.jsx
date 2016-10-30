@@ -7,7 +7,6 @@ import RaisedButton from 'material-ui/RaisedButton'
 import FlatButton from 'material-ui/FlatButton'
 import FloatingActionButton from 'material-ui/FloatingActionButton'
 import ContentAdd from 'material-ui/svg-icons/content/add'
-import ImmutablePropTypes from 'react-immutable-proptypes'
 
 import LineLogo from '../assets/line_logo.png'
 import FBLogo from '../assets/facebook_logo.png'
@@ -17,7 +16,7 @@ import PlatformForm from '../components/PlatformForm'
 
 const DeployStatus = (props) => {
   const { platform, activeBotId } = props
-  const botId = platform.get('bot_id')
+  const botId = platform.botId
 
   let statusComponent
 
@@ -36,7 +35,7 @@ const DeployStatus = (props) => {
 
 DeployStatus.propTypes = {
   activeBotId: React.PropTypes.number,
-  platform: ImmutablePropTypes.record,
+  platform: React.PropTypes.shape({}),
 }
 
 const EmptyPlatformsPageComponent = () => (
@@ -51,12 +50,14 @@ const PlatformCard = props => (
     <div className="b-platform-card__body">
       <img
         className="b-platform-card__logo"
-        src={props.platform.get('typeEnum') === 'Facebook' ?
+        src={props.platform.typeEnum === 'Facebook' ?
              FBLogo : LineLogo}
         alt="facebook logo"
       />
       <div className="b-platform-card__info">
-        <span className="b-platform-card__name"> {props.platform.get('name')} </span>
+        <span className="b-platform-card__name">
+          {props.platform.name}
+        </span>
       </div>
       <DeployStatus {...props} />
     </div>
@@ -68,7 +69,10 @@ const PlatformCard = props => (
 )
 
 PlatformCard.propTypes = {
-  platform: ImmutablePropTypes.record,
+  platform: React.PropTypes.shape({
+    name: React.PropTypes.string,
+    typeEnum: React.PropTypes.string,
+  }),
   handleOpen: React.PropTypes.func,
   handleEdit: React.PropTypes.func,
 }
@@ -128,14 +132,13 @@ class Platforms extends React.Component {
 
     return (
       <div>
-        { this.props.platforms.get('result').size === 0 ? <EmptyPlatformsPageComponent /> :
-          this.props.platforms.get('result').map((id) => {
-            const plat = this.props.platforms.getIn(
-                ['entities', 'platforms', id.toString()])
+        { this.props.platformIds.length === 0 ? <EmptyPlatformsPageComponent /> :
+          this.props.platformIds.map((id) => {
+            const plat = this.props.platforms[id]
             return (
               <PlatformCard
                 key={id}
-                handleEdit={() => this.handleOpenDrawer(plat.toJS())}
+                handleEdit={() => this.handleOpenDrawer(plat)}
                 handleOpen={() => this.handleOpenDialog(id)}
                 platform={plat}
               />)
@@ -174,13 +177,20 @@ class Platforms extends React.Component {
 }
 
 Platforms.propTypes = {
-  platforms: ImmutablePropTypes.record,
+  platformIds: React.PropTypes.arrayOf(React.PropTypes.number),
+  platforms: React.PropTypes.objectOf(React.PropTypes.shape({
+
+  })),
   onDelPlatform: React.PropTypes.func,
 }
 
 const mapStateToProps = state => ({
-  activeBotId: state.get('bots').get('active'),
-  platforms: state.get('platforms'),
+  activeBotId: state.bots.active,
+  platforms: state.platforms.ids.reduce((obj, id) =>
+    Object.assign(obj, {
+      [id]: state.entities.platforms[id],
+    }), {}),
+  platformIds: state.platforms.ids,
 })
 
 const mapDispatchToProps = dispatch => ({

@@ -1,7 +1,6 @@
-import Immutable from 'immutable'
-import { Schema } from 'normalizr-immutable'
+import { Schema } from 'normalizr'
 
-const BotRecord = new Immutable.Record({
+const BotRecord = {
   id: null,
   name: null,
   description: null,
@@ -11,16 +10,16 @@ const BotRecord = new Immutable.Record({
   gaId: null,
   settings: null,
   staging: null,
-})
+}
 
-const PlatformRecord = new Immutable.Record({
+const PlatformRecord = {
   id: null,
   botId: null,
   name: null,
   typeEnum: null,
   providerIdent: null,
   config: null,
-})
+}
 
 export const Bot = new Schema('bots', BotRecord, { idAttribute: 'id' })
 export const Platform = new Schema('platforms', PlatformRecord, {
