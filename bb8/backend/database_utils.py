@@ -90,7 +90,7 @@ class DatabaseManager(object):
             raise RuntimeError('DATABASE_URI not set')
         cls.engine = create_engine(cls.database_uri, echo=False,
                                    encoding='utf-8', pool_size=cls.pool_size,
-                                   pool_recycle=3600 * 8)
+                                   pool_recycle=3600)
 
     @classmethod
     def create_all_tables(cls):
