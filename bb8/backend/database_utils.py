@@ -33,7 +33,7 @@ class DatabaseManager(object):
     database_uri = None
     engine = None
     db = None
-    pool_size = 8
+    pool_size = 64
 
     @classmethod
     def set_database_uri(cls, database_uri):
