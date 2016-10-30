@@ -19,6 +19,11 @@ from bb8.backend.database import DatabaseSession, User
 from bb8.backend.message import Message
 
 
+def _get_account_timezone_offset(account):
+    return int(pytz.timezone(account.timezone).localize(
+        datetime.now()).strftime('%z')) / 100
+
+
 @celery.task
 def push_message(user, messages):
     with DatabaseSession():
@@ -43,9 +48,8 @@ def _push_message_from_dict(users, messages_dict, eta=None,
                 base_eta = datetime.utcfromtimestamp(eta)
                 user = users[0]
                 user.refresh()
-                tz = user.platform.account.timezone
-                account_tz_offset = int(pytz.timezone(tz).localize(
-                    datetime.now()).strftime('%z')) / 100
+                account_tz_offset = _get_account_timezone_offset(
+                    user.platform.account)
 
             user_count = User.count()
 
@@ -87,14 +91,16 @@ def _broadcast_message(bot, messages, eta=None):
     This method should never be called directly. It should be always called
     asynchronously by broadcast_message_async().
     """
+    if eta:
+        eta = datetime.utcfromtimestamp(eta)
+
     with DatabaseSession():
         for user in bot.users:
             if not user.settings.get('subscribe', True):
                 continue
             try:
                 logger.info('Sending message to %s ...' % user)
-                push_message.apply_async((user, messages),
-                                         eta=datetime.utcfromtimestamp(eta))
+                push_message.apply_async((user, messages), eta=eta)
             except Exception as e:
                 logger.exception(e)
 
