@@ -181,7 +181,7 @@
               {
                 "rule":{
                   "type": "regexp",
-                  "params": ["(.+?)\\s*第(.+)集", "第?(.+)集"]
+                  "params": ["(.+?)\\s*第\\s*(.+?)\\s*集", "第?\\s*(.+?)\\s*集"]
                 },
                 "end_node_id": "SearchEpisode",
                 "ack_message": ""

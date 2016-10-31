@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-    Mandarin Parsing Utilities
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Numbers Parsing Utilities
+    ~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Copyright 2016 bb8 Authors
 """
-
 
 NUMBER_DICT = {
     u'零': 0, u'一': 1, u'二': 2, u'三': 3, u'四': 4, u'五': 5, u'六': 6,
@@ -17,17 +16,17 @@ NUMBER_DICT = {
 }
 
 
-def mandarin_to_arabic_numbers(number_char):
-    """Convert Mandarin numbers to arabic numbers."""
-    if isinstance(number_char, str):
+def convert_to_arabic_numbers(number_char):
+    """Convert various types of numbers representation to arabic numbers."""
+    if not isinstance(number_char, unicode):
         number_char = unicode(number_char, 'utf8')
 
-    count = 0
     digit = 0
     tmp = 0
-    while count < len(number_char):
-        tmp_char = number_char[count]
-        tmp_number = NUMBER_DICT.get(tmp_char, None)
+    for orig_char in number_char:
+        tmp_number = NUMBER_DICT.get(orig_char, None)
+        if tmp_number is None:
+            raise RuntimeError('Got invalid mandarin')
         if tmp_number >= 10:
             if tmp == 0:
                 tmp = 1
@@ -35,6 +34,5 @@ def mandarin_to_arabic_numbers(number_char):
             tmp = 0
         elif tmp_number is not None:
             tmp = tmp * 10 + tmp_number
-        count += 1
     digit = digit + tmp
     return digit

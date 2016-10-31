@@ -9,8 +9,8 @@
 
 import grpc
 
-from bb8.backend.content_modules.lib.mandarin_parsing_utils import (
-    mandarin_to_arabic_numbers)
+from bb8.backend.content_modules.lib.numbers_parsing_utils import (
+    convert_to_arabic_numbers)
 from bb8.backend.module_api import (CacheImage, Message, EventPayload,
                                     GetgRPCService, GetUserId,
                                     SupportedPlatform, Resolve, Memory)
@@ -250,8 +250,12 @@ def run(content_config, unused_env, variables):
         drama_id = Memory.Get('last_query_drama_id')
         if drama_id:
             try:
-                serial_number = mandarin_to_arabic_numbers(
-                    Resolve(content_config['episode'], variables))
+                try:
+                    serial_number = int(Resolve(content_config['episode'],
+                                                variables))
+                except ValueError:
+                    serial_number = convert_to_arabic_numbers(
+                        Resolve(content_config['episode'], variables))
                 episode = drama_info.get_episode(drama_id, serial_number)
             except Exception:
                 return [Message('沒有這一集喔')]
