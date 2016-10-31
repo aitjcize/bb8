@@ -189,7 +189,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["trending_kr", "韓", "(?i)kr", "(?i)korea"]
+                  "params": ["trending_kr", "韓", "(?i)korea"]
                 },
                 "end_node_id": "TrendingKR",
                 "ack_message": "您好，以下為您送上現在最熱門的韓劇"
@@ -197,7 +197,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["trending_jp", "日", "(?i)jp", "(?i)japan"]
+                  "params": ["trending_jp", "日", "(?i)japan"]
                 },
                 "end_node_id": "TrendingJP",
                 "ack_message": "您好，以下為您送上現在最熱門的日劇"
@@ -205,7 +205,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["trending_tw", "臺", "台", "(?i)tw", "(?i)taiwan"]
+                  "params": ["trending_tw", "臺", "台", "(?i)taiwan"]
                 },
                 "end_node_id": "TrendingTW",
                 "ack_message": "您好，以下為您送上現在最熱門的台劇"
@@ -213,7 +213,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["trending_cn", "陸劇", "中國", "(?i)china", "(?i)ch"]
+                  "params": ["trending_cn", "陸劇", "中國", "(?i)china"]
                 },
                 "end_node_id": "TrendingCN",
                 "ack_message": "您好，以下為您送上現在最熱門的陸劇"
