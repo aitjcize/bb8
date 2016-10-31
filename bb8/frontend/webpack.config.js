@@ -67,9 +67,6 @@ const defaultConfig = {
           'process.env.BB8_DEPLOY': process.env.BB8_DEPLOY,
           'process.env.HTTP_PORT': process.env.HTTP_PORT,
     }),
-    new webpack.ProvidePlugin({
-      React: 'react',
-    }),
     new HtmlWebpackPlugin({
       inject: false,
       title: 'Compose.ai',

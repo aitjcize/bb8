@@ -1,34 +1,32 @@
-import { normalize } from 'normalizr'
+import { normalize, arrayOf } from 'normalizr'
 
 import fetch from './util'
 import { Platform } from '../constants/Schema'
 
-function normPlatform(platform) {
-  return normalize(platform, Platform)
-}
-
 const platforms = {
   getPlatforms() {
     return fetch('GET', '/api/platforms', {})
-      .then(response => ({ response }))
-      .catch(error => ({ error }))
-  },
-
-  createPlatform(platform) {
-    return fetch('POST', '/api/platforms', platform)
-      .then(response => ({ response: normPlatform(response) }))
+      .then(response => ({
+        response: normalize(response.platforms, arrayOf(Platform)),
+      }))
       .catch(error => ({ error }))
   },
 
   getPlatform(platformId) {
     return fetch('GET', `/api/platforms/${platformId}`, {})
-      .then(response => ({ response }))
+      .then(response => ({ response: normalize(response, Platform) }))
+      .catch(error => ({ error }))
+  },
+
+  createPlatform(platform) {
+    return fetch('POST', '/api/platforms', platform)
+      .then(response => ({ response: normalize(response, Platform) }))
       .catch(error => ({ error }))
   },
 
   updatePlatform(platformId, platform) {
     return fetch('PUT', `/api/platforms/${platformId}`, platform)
-      .then(response => ({ response: normPlatform(response) }))
+      .then(response => ({ response: normalize(response, Platform) }))
       .catch(error => ({ error }))
   },
 

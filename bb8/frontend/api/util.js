@@ -24,12 +24,16 @@ export default function (method, path, body) {
   if (store.has(AUTH_TOKEN)) {
     headers['X-COMPOSEAI-AUTH'] = `Bearer ${store.get(AUTH_TOKEN)}`
   }
-  return fetch(path, {
+
+  const config = {
     method,
     headers,
-    body: JSON.stringify(decamelizeKeys(body)),
-  })
-  .then(checkStatus)
-  .then(response => response.json())
-  .then(json => camelizeKeys(json))
+  }
+  if (method === 'POST' || method === 'PUT') {
+    config.body = JSON.stringify(decamelizeKeys(body))
+  }
+  return fetch(path, config)
+    .then(checkStatus)
+    .then(response => response.json())
+    .then(json => camelizeKeys(json))
 }

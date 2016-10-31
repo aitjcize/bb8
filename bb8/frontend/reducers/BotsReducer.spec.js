@@ -29,7 +29,7 @@ const BOTS_LISTING = camelizeKeys([
     ga_id: null,
     settings: null,
     staging: null,
-  }
+  },
 ])
 
 const BOTS = camelizeKeys([
@@ -54,7 +54,7 @@ const BOTS = camelizeKeys([
     ga_id: '',
     settings: {},
     staging: null,
-  }
+  },
 ])
 
 describe('Reducer for Bots', () => {

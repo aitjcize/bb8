@@ -55,7 +55,7 @@ export function* fetchPlatforms() {
     if (error) {
       yield put({ type: types.PLATFORMS_LIST.ERROR })
     } else {
-      yield put({ type: types.PLATFORMS_LIST.SUCCESS, payload: response.platforms })
+      yield put({ type: types.PLATFORMS_LIST.SUCCESS, payload: response })
     }
   }
 }
