@@ -193,6 +193,7 @@ def run(content_config, unused_env, variables):
     if content_config['mode'] == 'subscribe':
         event = variables['event']
         drama_id = event.value['drama_id']
+        Memory.Set('last_query_drama_id', drama_id)
         drama_info.subscribe(user_id, drama_id)
 
         episodes = drama_info.get_history(drama_id=drama_id,
@@ -214,6 +215,7 @@ def run(content_config, unused_env, variables):
     if content_config['mode'] == 'get_history':
         event = variables['event']
         drama_id = event.value['drama_id']
+        Memory.Set('last_query_drama_id', drama_id)
         from_episode = event.value['from_episode']
         backward = event.value['backward']
         episodes = drama_info.get_history(drama_id=drama_id,
