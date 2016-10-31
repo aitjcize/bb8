@@ -11,11 +11,11 @@ from bb8.backend.module_api import Message, SupportedPlatform
 
 def get_module_info():
     return {
-        'id': 'ai.compose.content.core.text_message',
+        'id': 'ai.compose.content.test.text_message',
         'name': 'Text message',
         'description': 'Show text-only message',
         'supported_platform': SupportedPlatform.All,
-        'module_name': 'text_message',
+        'module_name': 'test.text_message',
         'ui_module_name': 'text_message',
     }
 

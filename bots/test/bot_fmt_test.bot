@@ -12,7 +12,7 @@
         "description": "Start",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.test.text_message",
           "config": {
             "text": "In Start"
           }
@@ -30,7 +30,7 @@
         "description": "Root",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.test.text_message",
           "config": {
             "text": "In Root"
           }
@@ -72,7 +72,7 @@
         "description": "NodeA",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.test.text_message",
           "config": {
             "text": "In A"
           }
@@ -114,7 +114,7 @@
         "description": "NodeB",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.test.text_message",
           "config": {
             "text": "In B"
           }
@@ -140,7 +140,7 @@
         "description": "NodeC",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.test.text_message",
           "config": {
             "text": "In C"
           }
@@ -166,7 +166,7 @@
         "description": "NodeD",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.test.text_message",
           "config": {
             "text": "In D"
           }
@@ -192,7 +192,7 @@
         "description": "NodeE",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.test.text_message",
           "config": {
             "text": "In E"
           }

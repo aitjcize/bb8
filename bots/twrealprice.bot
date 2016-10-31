@@ -290,11 +290,15 @@
         "description": "Thank user",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.core.generic_message",
           "config": {
-            "text": [
-              "感謝你的支持, 如果覺得實用，可以幫我們宣傳喔！",
-              "你也可以輸入「建議」來告訢我們可以改善的地方。"
+            "messages": [
+              {
+                "text": "感謝你的支持, 如果覺得實用，可以幫我們宣傳喔！"
+              },
+              {
+                "text": "你也可以輸入「建議」來告訢我們可以改善的地方。"
+              }
             ]
           }
         }
@@ -304,9 +308,13 @@
         "description": "Feedback without content, guide user to input feedback",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.core.generic_message",
           "config": {
-            "text": "你覺得我們可以怎麼樣改善呢？"
+            "messages": [
+              {
+                "text": "你覺得我們可以怎麼樣改善呢？"
+              }
+            ]
           }
         },
         "parser_module": {
