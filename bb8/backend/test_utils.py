@@ -18,7 +18,7 @@ from bb8.backend.platform_parser import (get_platform_filename,
                                          parse_platform_from_file)
 from bb8.backend.database import (DatabaseManager, Bot, User, Platform,
                                   PlatformTypeEnum)
-from bb8.backend.module_registration import register_all_modules
+from bb8.backend.modules import register_all_modules
 
 
 def reset_and_setup_bots(bot_names):

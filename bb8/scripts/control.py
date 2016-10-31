@@ -25,8 +25,8 @@ import colorlog
 import jsonschema
 
 from bb8 import SRC_ROOT as BB8_SRC_ROOT
-from bb8 import config
-from bb8 import util
+from bb8 import config, util
+from bb8.backend import modules
 
 
 BB8_DATA_ROOT = '/var/lib/bb8'
@@ -365,7 +365,14 @@ class BB8(object):
         # Remove pb-python dir
         run('sudo rm -rf %s/pb-python' % proto_dir)
 
+    def compile_static_frontend_resource(self):
+        modules.compile_module_infos(
+            os.path.join(BB8_SRC_ROOT, 'bb8', 'frontend', 'constants',
+                         'ModuleInfos.json'))
+
     def compile_python_source(self):
+        if not config.DEPLOY:
+            return
         for subdir in ['bb8', 'apps']:
             run('python -OO -m compileall %s >/dev/null' %
                 os.path.join(BB8_SRC_ROOT, subdir))
@@ -380,6 +387,7 @@ class BB8(object):
         self.copy_extra_source()
         self.build_client_package()
         self.compile_and_install_proto()
+        self.compile_static_frontend_resource()
         self.compile_python_source()
 
     def compile_resource(self, copy_credential=True):

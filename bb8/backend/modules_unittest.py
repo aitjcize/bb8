@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-    Unittest for testing module registration
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Unittest for Modules
+    ~~~~~~~~~~~~~~~~~~~~
 
     Copyright 2016 bb8 Authors
 """
@@ -10,15 +10,15 @@
 import unittest
 
 from bb8 import app
-from bb8.backend import module_registration
+from bb8.backend import modules
 
 
 class ModuleRegistrationUnittest(unittest.TestCase):
     def test_register_content_modules(self):
-        module_registration.register_content_modules()
+        modules.register_content_modules()
 
     def test_register_parser_modules(self):
-        module_registration.register_parser_modules()
+        modules.register_parser_modules()
 
 
 if __name__ == '__main__':
