@@ -9,7 +9,7 @@
 from flask_script import Command
 
 from bb8.backend import bot_parser
-from bb8.backend import module_registration
+from bb8.backend import modules
 from bb8.backend import platform_parser
 from bb8.backend.database import DatabaseManager, DatabaseSession
 
@@ -19,7 +19,7 @@ class ResetCommand(Command):
     def run(self):  # pylint: disable=E0202
         with DatabaseSession():
             DatabaseManager.reset()
-            module_registration.register_all_modules()
+            modules.register_all_modules()
             platform_parser.build_all_platforms()
             bot_parser.build_all_bots()
 
@@ -29,7 +29,7 @@ class ResetForDevCommand(Command):
     def run(self):  # pylint: disable=E0202
         with DatabaseSession():
             DatabaseManager.reset()
-            module_registration.register_all_modules()
+            modules.register_all_modules()
             platform_parser.build_all_platforms(include_dev=True)
             bot_parser.build_all_bots()
 
@@ -38,7 +38,7 @@ class RegisterModulesCommand(Command):
     """Register all bot modules"""
     def run(self):  # pylint: disable=E0202
         with DatabaseSession():
-            module_registration.register_all_modules()
+            modules.register_all_modules()
 
 
 class GeneratePlatformsCommand(Command):

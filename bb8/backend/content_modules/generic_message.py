@@ -45,6 +45,10 @@ def schema():
                         }
                     }
                 }]
+            },
+            'quick_replies': {
+                'type': 'array',
+                'items': {'$ref': '#/definitions/quick_reply'}
             }
         },
         'definitions': {
@@ -73,7 +77,7 @@ def run(content_config, env, variables):
         }
     }
     """
-    messages = content_config.get('messages', None)
+    messages = content_config.get('messages')
     msgs = []
 
     if not isinstance(messages, list):
@@ -82,4 +86,8 @@ def run(content_config, env, variables):
 
     for message in messages:
         msgs.append(Message.FromDict(message, variables))
+
+    for quick_reply in content_config.get('quick_replies', []):
+        msgs[-1].add_quick_reply(Message.QuickReply.FromDict(quick_reply))
+
     return msgs

@@ -18,7 +18,7 @@ from bb8.api.test_utils import BearerAuthTestClient
 from bb8.backend.database import (DatabaseManager, Account, Broadcast,
                                   BroadcastStatusEnum)
 from bb8.backend.message import Message
-from bb8.backend.module_registration import register_all_modules
+from bb8.backend.modules import register_all_modules
 from bb8.constant import HTTPStatus, CustomError
 
 

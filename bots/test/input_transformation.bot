@@ -15,7 +15,7 @@
         "description": "Start",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.test.text_message",
           "config": {
             "text": "In Start"
           }

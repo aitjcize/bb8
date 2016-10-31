@@ -68,9 +68,13 @@
         "description": "Prompt user for subscription preference",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.core.generic_message",
           "config": {
-            "text": "你想要訂閱不定期的新聞通知嗎？(每日最多一則)",
+            "messages": [
+              {
+                "text": "你想要訂閱不定期的新聞通知嗎？(每日最多一則)"
+              }
+            ],
             "quick_replies": [
               {
                 "content_type": "text",
@@ -335,9 +339,13 @@
         "description": "search with out term, prompt for term",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.core.generic_message",
           "config": {
-            "text": "你想要找什麼樣的主題呢？"
+            "messages": [
+              {
+                "text": "你想要找什麼樣的主題呢？"
+              }
+            ]
           }
         },
         "parser_module": {
@@ -362,11 +370,15 @@
         "description": "Thank user",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.core.generic_message",
           "config": {
-            "text": [
-              "感謝你的支持, 請幫我們的粉絲頁按讚喔! https://goo.gl/OPcdus",
-              "你也可以輸入「建議 {內容}」來告訢我們可以改善的地方"
+            "messages": [
+              {
+                "text": "感謝你的支持, 請幫我們的粉絲頁按讚喔! https://goo.gl/OPcdus"
+              },
+              {
+                "text": "你也可以輸入「建議 {內容}」來告訢我們可以改善的地方"
+              }
             ]
           }
         }
@@ -376,9 +388,13 @@
         "description": "Feedback without content, guide user to input feedback",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.core.generic_message",
           "config": {
-            "text": "你覺得我們可以怎麼樣改善呢？"
+            "messages": [
+              {
+                "text": "你覺得我們可以怎麼樣改善呢？"
+              }
+            ]
           }
         },
         "parser_module": {
@@ -403,9 +419,13 @@
         "description": "PromptEnableNotification",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.core.generic_message",
           "config": {
-            "text": "您目前「沒有訂閱」新聞小幫手，你想要訂閱嗎？",
+            "messages": [
+              {
+                "text": "您目前「沒有訂閱」新聞小幫手，你想要訂閱嗎？"
+              }
+            ],
             "quick_replies": [
               {
                 "content_type": "text",
@@ -433,9 +453,13 @@
         "description": "PromptDisableNotification",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.core.generic_message",
           "config": {
-            "text": "您目前已「訂閱」新聞小幫手，你想要取消嗎？",
+            "messages": [
+              {
+                "text": "您目前已「訂閱」新聞小幫手，你想要取消嗎？"
+              }
+            ],
             "quick_replies": [
               {
                 "content_type": "text",
