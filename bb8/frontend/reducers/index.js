@@ -1,13 +1,32 @@
-import { routerReducer as routing } from 'react-router-redux';
-import { combineReducers } from 'redux';
+import { reducer as form } from 'redux-form'
+import { combineReducers } from 'redux'
+import { routerReducer } from 'react-router-redux'
+import merge from 'lodash/merge'
 
-const entities = () => (
-  {}
-);
+import AccountsReducer from './AccountsReducer'
+import BotsReducer from './BotsReducer'
+import PlatformsReducer from './PlatformsReducer'
+
+const initialEntities = {
+  bots: {},
+  platforms: {},
+}
+
+// Updates an entity cache in response to any action with response.entities.
+const entities = (state = initialEntities, action) => {
+  if (action.payload && action.payload.entities) {
+    return merge({}, state, action.payload.entities)
+  }
+  return state
+}
 
 const rootReducer = combineReducers({
+  form,
   entities,
-  routing,
-});
+  bots: BotsReducer,
+  platforms: PlatformsReducer,
+  account: AccountsReducer,
+  routing: routerReducer,
+})
 
-export default rootReducer;
+export default rootReducer

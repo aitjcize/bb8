@@ -1,3 +1,85 @@
 body {
   background-color: white;
+  margin: 0;
+}
+
+.b-logo {
+  width: 50%;
+  margin-left: 25%;
+}
+
+.b-login-card {
+  width: 50%;
+  margin: 0 auto;
+}
+
+.b-login-card__container {
+  width: 50%;
+  margin: 0 auto;
+  margin-top: 3em;
+  padding-top: 2em;
+  text-align: center;
+
+  .b-login-card__title {
+    font-size: 2em;
+  }
+
+  .b-login-card__logo {
+    width: 50%;
+    margin: 0 auto;
+    display: block;
+  }
+
+  .b-login-card__button {
+    width: 50%;
+    margin: 2em auto;
+  }
+
+  .b-login-card__bottom {
+    padding: 3em 0;
+  }
+}
+
+.b-platform-card {
+  width: 50%;
+  margin: 1.5em auto;
+  padding: 1em;
+
+  &__body {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__logo {
+    width: 5em;
+    height: 5em;
+  }
+
+  &__info {
+    flex-grow: 5;
+  }
+
+  &__name {
+    margin-left: 2em;
+  }
+
+  &__status {
+    &--active {
+      color: green;
+    }
+
+    &--occupied {
+      color: red;
+    }
+  }
+}
+
+.b-add-platform-btn {
+  position: fixed;
+  right: 10%;
+  bottom: 10%;
+}
+
+.b-toolbar {
+  z-index: 200;
 }

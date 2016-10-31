@@ -1,10 +1,10 @@
-const path = require('path');
-const webpack = require('webpack');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require('path')
+const webpack = require('webpack')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
-const isDebug = global.DEBUG === false ? false : !process.argv.includes('--release');
-const isVerbose = process.argv.includes('--verbose') || process.argv.includes('-v');
+const isDebug = global.DEBUG === false ? false : !process.argv.includes('--release')
+const isVerbose = process.argv.includes('--verbose') || process.argv.includes('-v')
 
 const defaultConfig = {
   context: __dirname,
@@ -12,6 +12,12 @@ const defaultConfig = {
     port: '8080',
     contentBase: './build',
     inline: true,
+    proxy: {
+      '/': {
+        target: 'https://localhost:' + process.env.HTTP_PORT,
+        secure: false
+      }
+    },
   },
   entry: {
     app: './index',
@@ -36,15 +42,16 @@ const defaultConfig = {
         loader: 'babel',
         query: {
           presets: ['es2015', 'react'],
+          plugins: ["transform-class-properties"],
         },
       },
       {
-        test: /\.(eot|svg)$/,
-        loader: 'url?limit=100000',
+        test: /\.(eot|svg|png)$/,
+        loader: 'url-loader?limit=200000',
       },
       {
         test: /\.scss$/,
-        loader: ExtractTextPlugin.extract('style-loader', 'css-loader')
+        loader: ExtractTextPlugin.extract(['css-loader', 'sass-loader'])
       },
       {
         test: /.*\.html$/,
@@ -56,6 +63,10 @@ const defaultConfig = {
     require('autoprefixer')(),
   ],
   plugins: [
+    new webpack.DefinePlugin({
+          'process.env.BB8_DEPLOY': process.env.BB8_DEPLOY,
+          'process.env.HTTP_PORT': process.env.HTTP_PORT,
+    }),
     new webpack.ProvidePlugin({
       React: 'react',
     }),
@@ -72,8 +83,8 @@ const defaultConfig = {
         'https://fonts.googleapis.com/css?family=Roboto',
       ],
     }),
-    new ExtractTextPlugin('[name].[hash].css')
+    new ExtractTextPlugin('[name].[hash].css'),
   ],
-};
+}
 
-module.exports = defaultConfig;
+module.exports = defaultConfig

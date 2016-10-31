@@ -1,19 +1,17 @@
-import React from 'react';
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import FlatButton from 'material-ui/FlatButton';
+import React from 'react'
 
-const App = () => (
+import TopBar from '../components/TopBar'
+
+const App = props => (
   <div>
-    Hello, Compose.ai!
-    Here is a demo of material ui buttons:
-    <MuiThemeProvider>
-      <div>
-        <FlatButton label="Default" />
-        <FlatButton label="Primary" primary />
-        <FlatButton label="Secondary" secondary />
-        <FlatButton label="Disabled" disabled />
-      </div>
-    </MuiThemeProvider>
-  </div>);
+    <TopBar />
+    Hello compose.ai!
+    {props.children}
+  </div>
+)
 
-export default App;
+App.propTypes = {
+  children: React.PropTypes.node,
+}
+
+export default App
