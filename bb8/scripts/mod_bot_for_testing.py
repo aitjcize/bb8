@@ -32,7 +32,9 @@ def mod_bot_for_testing(bot, platform):
     bots_dir = os.path.join(project_root, 'bots')
     platforms_dir = os.path.join(project_root, 'platforms', 'dev')
 
-    bot = bot.rstrip('.bot')
+    ext = '.bot'
+    if bot.endswith(ext):
+        bot = bot[:-len(ext)]
     bot_file = os.path.join(bots_dir, '%s.bot' % bot)
     platform = platform.rstrip('.platform')
     platform_file = os.path.join(platforms_dir, '%s.platform' % platform)
