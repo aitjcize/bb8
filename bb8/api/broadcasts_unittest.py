@@ -102,7 +102,7 @@ class BroadcastAPIUnittest(unittest.TestCase):
         self.create_broadcast(self.bot_ids[0])
 
         # Test get all broadcasts
-        rv = self.app.get('/api/broadcasts')
+        rv = self.app.get('/api/bots/%d/broadcasts' % self.bot_ids[0])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.assertEquals(len(data['broadcasts']), 2)
@@ -160,7 +160,7 @@ class BroadcastAPIUnittest(unittest.TestCase):
 
     def test_broadcast_update(self):
         # Test get all broadcasts
-        rv = self.app.get('/api/broadcasts')
+        rv = self.app.get('/api/bots/%d/broadcasts' % self.bot_ids[0])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
 
@@ -211,7 +211,7 @@ class BroadcastAPIUnittest(unittest.TestCase):
 
     def test_broadcast_deletion(self):
         # Test get all broadcasts
-        rv = self.app.get('/api/broadcasts')
+        rv = self.app.get('/api/bots/%d/broadcasts' % self.bot_ids[0])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
 
@@ -238,7 +238,7 @@ class BroadcastAPIUnittest(unittest.TestCase):
         data = json.loads(rv.data)
 
         # Make sure we don't have any broadcasts left
-        rv = self.app.get('/api/broadcasts')
+        rv = self.app.get('/api/bots/%d/broadcasts' % self.bot_ids[0])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.assertEquals(len(data['broadcasts']), 0)

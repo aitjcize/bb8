@@ -27,11 +27,12 @@ def get_account_broadcast_by_id(broadcast_id):
     return broadcast
 
 
-@app.route('/api/broadcasts', methods=['GET'])
+@app.route('/api/bots/<int:bot_id>/broadcasts', methods=['GET'])
 @login_required
-def list_broadcasts():
+def list_broadcasts(bot_id):
     """List all broadcasts."""
-    return jsonify(broadcasts=[b.to_json() for b in g.account.broadcasts])
+    broadcasts = Broadcast.get_by(bot_id=bot_id, account_id=g.account.id)
+    return jsonify(broadcasts=[b.to_json() for b in broadcasts])
 
 
 @app.route('/api/broadcasts', methods=['POST'])
