@@ -21,8 +21,19 @@ const PlatformRecord = {
   config: null,
 }
 
+const BroadcastRecord = {
+  id: null,
+  name: null,
+  scheduledTime: null,
+  status: null,
+  messages: null,
+}
+
 export const Bot = new Schema('bots', BotRecord, { idAttribute: 'id' })
 export const Platform = new Schema('platforms', PlatformRecord, {
+  idAttribute: 'id',
+})
+export const Broadcast = new Schema('broadcasts', BroadcastRecord, {
   idAttribute: 'id',
 })
 

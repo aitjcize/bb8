@@ -7,9 +7,36 @@ import { normalize, arrayOf } from 'normalizr'
 import merge from 'lodash/merge'
 
 import types from './constants/ActionTypes'
-import { Bot, Platform } from './constants/Schema'
+import { Bot, Broadcast, Platform } from './constants/Schema'
 import BotsReducer from './reducers/BotsReducer'
+import BroadcastsReducer from './reducers/BroadcastsReducer'
 import PlatformsReducer from './reducers/PlatformsReducer'
+
+const BROADCASTS_LISTING = camelizeKeys([
+  {
+    id: 1,
+    name: 'Bot 1',
+    description: 'Bot 1',
+    interaction_timeout: null,
+    admin_interaction_timeout: null,
+    session_timeout: null,
+    ga_id: null,
+    settings: null,
+    staging: null,
+  },
+  {
+    id: 2,
+    name: 'Bot 2',
+    description: 'Bot 2',
+    interaction_timeout: null,
+    admin_interaction_timeout: null,
+    session_timeout: null,
+    ga_id: null,
+    settings: null,
+    staging: null,
+  },
+])
+
 
 const BOTS_LISTING = camelizeKeys([
   {
@@ -63,6 +90,7 @@ const initialState = {
   entities: merge({},
     normalize(BOTS_LISTING, arrayOf(Bot)).entities,
     normalize(PLATFORMS_LISTING, arrayOf(Platform)).entities,
+    normalize(BROADCASTS_LISTING, arrayOf(Broadcast)).entities,
   ),
   bots: BotsReducer(undefined, {
     type: types.BOTS_LIST.SUCCESS,
@@ -71,6 +99,10 @@ const initialState = {
   platforms: PlatformsReducer(undefined, {
     type: types.PLATFORMS_LIST.SUCCESS,
     payload: normalize(PLATFORMS_LISTING, arrayOf(Platform)),
+  }),
+  broadcasts: BroadcastsReducer(undefined, {
+    type: types.BROADCASTS_LIST.SUCCESS,
+    payload: normalize(BROADCASTS_LISTING, arrayOf(Broadcast)),
   }),
 }
 
