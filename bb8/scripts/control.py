@@ -86,9 +86,19 @@ def create_dir_if_not_exists(path, sudo=False):
 
 
 def docker_get_instance(name):
-    return get_output(
-        'docker ps -a --format "{{.Names}}" | grep "%s"; true' %
+    """Get docker instance with name.
+
+    Returns: A tuple (instance_name, running).
+    """
+    result = get_output(
+        'docker ps -a --format "{{.Names}},{{.Status}}" | grep "%s"; true' %
         name).strip()
+    if not result:
+        return '', False
+
+    name, status_text = result.split(',')
+    running = True if 'Up' in status_text else False
+    return name, running
 
 
 def hostname_env_switch():
@@ -189,13 +199,13 @@ class App(object):
         self.start_container(force, bind)
 
     def stop(self):
-        instance = docker_get_instance(self._image_name)
+        instance, unused_running = docker_get_instance(self._image_name)
         if instance:
             run('docker rm -f %s' % instance, True)
 
     def shell(self, command=None):
-        instance = docker_get_instance(self._image_name)
-        if not instance:
+        instance, running = docker_get_instance(self._image_name)
+        if not instance or not running:
             logger.error('App `%s\' not running', self._image_name)
             return
         s = subprocess.Popen('docker exec -it %s %s' %
@@ -212,20 +222,22 @@ class App(object):
 
         app_version_hash = get_dir_hash(self._app_dir)
         container_name = '%s.%s' % (self._image_name, app_version_hash)
-        instance = docker_get_instance(self._image_name)
+        instance, running = docker_get_instance(self._image_name)
 
-        m = re.match(r'^%s\.(.*?)$' % self._image_name, instance)
-        if m:
-            running_version_hash = m.group(1)
-            if running_version_hash == app_version_hash:
-                logger.warn('%s: no change since last deploy.', self._app_name)
+        if running:
+            m = re.match(r'^%s\.(.*?)$' % self._image_name, instance)
+            if m:
+                version_hash = m.group(1)
+                if version_hash == app_version_hash:
+                    logger.warn('%s: no change since last deploy.',
+                                self._app_name)
 
-                if force:
-                    logger.warn('%s: force deploy requested, continuing '
-                                'deployment ...', self._app_name)
-                else:
-                    logger.warn('%s: skip deployment.', self._app_name)
-                    return
+                    if force:
+                        logger.warn('%s: force deploy requested, continuing '
+                                    'deployment ...', self._app_name)
+                    else:
+                        logger.warn('%s: skip deployment.', self._app_name)
+                        return
 
         app_state_dir = os.path.join(BB8_DATA_ROOT, 'apps', self._app_name)
         volumes = []
@@ -277,7 +289,7 @@ class App(object):
             ' -d %s' % self._image_name)
 
     def logs(self):
-        instance = docker_get_instance(self._image_name)
+        instance, unused_running = docker_get_instance(self._image_name)
         if instance:
             run('docker logs %s' % instance)
 
@@ -294,7 +306,9 @@ class BB8(object):
 
     def start_services(self):
         redis_service = '%s.redis' % self.BB8_SERVICE_PREFIX
-        instance = docker_get_instance(redis_service)
+        instance, running = docker_get_instance(redis_service)
+        if instance and not running:
+            run('docker rm -f %s' % redis_service)
         if not instance:
             run('docker run ' +
                 '--net=%s ' % BB8_NETWORK +
@@ -436,7 +450,7 @@ class BB8(object):
         self.start_container(force)
 
     def stop(self):
-        instance = docker_get_instance(self.BB8_CONTAINER_NAME)
+        instance, unused_running = docker_get_instance(self.BB8_CONTAINER_NAME)
         if instance:
             logging.info('Waiting for celery workers to stop...')
             self.shell('kill -TERM $(cat %s)' % BB8_CELERY_PID_FILE)
@@ -450,8 +464,8 @@ class BB8(object):
             app.stop()
 
     def shell(self, command=None):
-        instance = docker_get_instance(self.BB8_CONTAINER_NAME)
-        if not instance:
+        instance, running = docker_get_instance(self.BB8_CONTAINER_NAME)
+        if not instance or not running:
             logger.error('Main container `%s\' not running',
                          self.BB8_CONTAINER_NAME)
             return
@@ -471,21 +485,22 @@ class BB8(object):
         create_dir_if_not_exists(os.path.join(BB8_DATA_ROOT, 'log'), sudo=True)
 
         version_hash = self.get_git_version_hash()
-        instance = docker_get_instance(self.BB8_CONTAINER_NAME)
+        instance, running = docker_get_instance(self.BB8_CONTAINER_NAME)
         new_container_name = '%s.%s' % (self.BB8_CONTAINER_NAME, version_hash)
 
-        m = re.match(r'^%s\.(.*?)$' % self.BB8_CONTAINER_NAME, instance)
-        if m:
-            running_version_hash = m.group(1)
-            if running_version_hash == version_hash:
-                logger.warn('BB8: no change since last deploy.')
+        if running:
+            m = re.match(r'^%s\.(.*?)$' % self.BB8_CONTAINER_NAME, instance)
+            if m:
+                version_hash = m.group(1)
+                if version_hash == version_hash:
+                    logger.warn('BB8: no change since last deploy.')
 
-                if force:
-                    logger.warn('BB8: force deploy requested, '
-                                'continuing deployment ...')
-                else:
-                    logger.warn('BB8: skip deployment.')
-                    sys.exit(1)
+                    if force:
+                        logger.warn('BB8: force deploy requested, '
+                                    'continuing deployment ...')
+                    else:
+                        logger.warn('BB8: skip deployment.')
+                        sys.exit(1)
 
         run('docker build -t %s %s' % (self.BB8_IMAGE_NAME, BB8_SRC_ROOT))
 
@@ -506,7 +521,7 @@ class BB8(object):
             ' -d {0}'.format(self.BB8_IMAGE_NAME))
 
     def logs(self):
-        instance = docker_get_instance(self.BB8_CONTAINER_NAME)
+        instance, unused_running = docker_get_instance(self.BB8_CONTAINER_NAME)
         if instance:
             run('docker logs %s' % instance)
 
