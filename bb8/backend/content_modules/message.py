@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    Send generic messages
-    ~~~~~~~~~~~~~~~~~~~~~
+    Send messages
+    ~~~~~~~~~~~~~
 
     Copyright 2016 bb8 Authors
 """
@@ -11,12 +11,12 @@ from bb8.backend.module_api import Message, SupportedPlatform
 
 def get_module_info():
     return {
-        'id': 'ai.compose.content.core.generic_message',
-        'name': 'Generic message',
-        'description': 'Show generic message',
+        'id': 'ai.compose.content.core.message',
+        'name': 'message',
+        'description': 'Send messages',
         'supported_platform': SupportedPlatform.All,
-        'module_name': 'generic_message',
-        'ui_module_name': 'generic_message',
+        'module_name': 'message',
+        'ui_module_name': 'message',
     }
 
 

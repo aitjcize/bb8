@@ -31,7 +31,7 @@
         "description": "Great user",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.generic_message",
+          "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
               {
@@ -86,7 +86,7 @@
         "description": "Give context about the demo",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.content.core.generic_message",
+          "id": "ai.compose.content.core.message",
           "config": {
             "messages": {
               "Facebook": [
@@ -131,7 +131,7 @@
         "description": "Root node, show usage",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.generic_message",
+          "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
               {
@@ -290,7 +290,7 @@
         "description": "Thank user",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.content.core.generic_message",
+          "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
               {
@@ -308,7 +308,7 @@
         "description": "Feedback without content, guide user to input feedback",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.generic_message",
+          "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
               {

@@ -45,7 +45,7 @@
         "description": "Greet user",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.content.core.generic_message",
+          "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
               {
@@ -67,7 +67,7 @@
         "description": "User enable/disable notification",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.generic_message",
+          "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
               {
@@ -291,7 +291,7 @@
         "description": "search without term, prompt for term",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.generic_message",
+          "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
               {
@@ -416,7 +416,7 @@
         "description": "PromptEnableNotification",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.generic_message",
+          "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
               {
@@ -450,7 +450,7 @@
         "description": "PromptDisableNotification",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.generic_message",
+          "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
               {
@@ -496,7 +496,7 @@
         "description": "Thank user",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.content.core.generic_message",
+          "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
               {
@@ -514,7 +514,7 @@
         "description": "About",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.content.core.generic_message",
+          "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
               {

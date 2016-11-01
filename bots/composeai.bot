@@ -30,7 +30,7 @@
         "description": "Great user",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.content.core.generic_message",
+          "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
               {

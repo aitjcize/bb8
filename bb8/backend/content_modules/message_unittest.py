@@ -9,7 +9,7 @@
 
 import unittest
 
-from bb8.backend.content_modules import generic_message
+from bb8.backend.content_modules import message
 from bb8.backend.module_api import SupportedPlatform
 
 
@@ -50,7 +50,7 @@ class GenericMessageUnittest(unittest.TestCase):
         env = {
             'platform_type': SupportedPlatform.Facebook
         }
-        msgs = generic_message.run(content_config, env, {})
+        msgs = message.run(content_config, env, {})
         self.assertEquals(msgs[0].as_dict()['text'], 'text')
         payload = msgs[1].as_dict()['attachment']['payload']
         self.assertEquals(payload['text'], 'A')
@@ -67,7 +67,7 @@ class GenericMessageUnittest(unittest.TestCase):
         env = {
             'platform_type': SupportedPlatform.Line
         }
-        msgs = generic_message.run(content_config, env, {})
+        msgs = message.run(content_config, env, {})
         self.assertEquals(msgs[0].as_dict()['text'], 'text')
         payload = msgs[1].as_dict()['attachment']['payload']
         self.assertEquals(payload['text'], 'A')
