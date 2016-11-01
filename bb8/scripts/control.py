@@ -422,14 +422,15 @@ class BB8(object):
     def setup_network(self):
         run('docker network create %s' % BB8_NETWORK, True)
 
-    def start(self, force=False):
+    def start(self, force=False, main_only=False):
         self.prepare_resource()
         self.setup_network()
         self.start_services()
 
-        for app_dir in self._app_dirs:
-            app = App(app_dir)
-            app.start(force)
+        if not main_only:
+            for app_dir in self._app_dirs:
+                app = App(app_dir)
+                app.start(force)
 
         print('=' * 20, 'Starting BB8 main container', '=' * 20)
         self.start_container(force)
@@ -521,6 +522,8 @@ def main():
 
     root_parser.add_argument('-a', '--app', dest='app', default=None,
                              help='operate on specific app')
+    root_parser.add_argument('-m', '--main', dest='main', action='store_true',
+                             default=False, help='operate on specific app')
 
     # start sub-command
     start_parser = subparsers.add_parser('start', help='start bb8')
@@ -584,13 +587,18 @@ def main():
         app = App(app_dir)
 
     if args.which == 'start':
-        if app:
+        if not app and args.bind:
+            logger.warn('bind option only works with single app, ignored')
+
+        if args.main:
+            bb8.start(args.force, main_only=True)
+        elif app:
             app.start(args.force, args.bind)
         else:
-            if args.bind:
-                logger.warn('bind option only works with single app, ignored')
             bb8.start(args.force)
     elif args.which == 'stop':
+        if args.main:
+            bb8.stop()
         if app:
             app.stop()
         else:
