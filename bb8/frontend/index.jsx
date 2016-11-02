@@ -53,7 +53,14 @@ sagaMiddleware.run(rootSaga)
 
 syncHistoryWithStore(hashHistory, store)
 
-const muiTheme = getMuiTheme()
+const THEME = {
+  palette: {
+    primary1Color: '#3AD8BD',
+    accent1Color: '#FFBA48',
+  },
+}
+
+const muiTheme = getMuiTheme(THEME)
 muiTheme.toolbar.backgroundColor = muiTheme.appBar.color
 
 
