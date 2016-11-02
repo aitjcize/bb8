@@ -1,9 +1,8 @@
-import 'whatwg-fetch'
+import 'isomorphic-fetch'
 import store from 'store2'
 import { camelizeKeys, decamelizeKeys } from 'humps'
 
 import { AUTH_TOKEN } from '../constants'
-
 
 // make the fetch reject on non 2xx status
 function checkStatus(response) {
@@ -16,7 +15,10 @@ function checkStatus(response) {
 }
 
 
-export default function (method, path, body) {
+export default function (method, path, body, shouldDecamelize = true) {
+  const normedPath = process.env.NODE_ENV === 'test' ?
+    `http://localhost:${process.env.HTTP_PORT}${path}` : path
+
   const headers = {
     Accept: 'application/json',
     'Content-Type': 'application/json',
@@ -29,10 +31,12 @@ export default function (method, path, body) {
     method,
     headers,
   }
-  if (method === 'POST' || method === 'PUT') {
-    config.body = JSON.stringify(decamelizeKeys(body))
+
+  if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+    config.body = JSON.stringify(
+      shouldDecamelize ? decamelizeKeys(body) : body)
   }
-  return fetch(path, config)
+  return fetch(normedPath, config)
     .then(checkStatus)
     .then(response => response.json())
     .then(json => camelizeKeys(json))
