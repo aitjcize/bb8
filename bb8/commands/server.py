@@ -8,7 +8,7 @@
 
 import os
 
-from flask_script import Server
+from flask_script import Server, Option
 
 from bb8 import config
 
@@ -26,7 +26,19 @@ class TestServer(Server):
         super(TestServer, self).__init__(
             host='0.0.0.0', port=config.HTTP_PORT, ssl_context=context)
 
+    def get_options(self):
+        options = super(TestServer, self).get_options()
+        options += (Option('--no-ssl', '-S', dest='ssl', action='store_false',
+                           default=True, help='disable SSL'),)
+        return options
+
     def __call__(self, *args, **kwargs):
+        if 'ssl' in kwargs:
+            use_ssl = kwargs['ssl']
+            del kwargs['ssl']
+
+            if not use_ssl:
+                del self.server_options['ssl_context']
         super(TestServer, self).__call__(*args, **kwargs)
 
 

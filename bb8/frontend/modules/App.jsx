@@ -5,7 +5,6 @@ import TopBar from '../components/TopBar'
 const App = props => (
   <div>
     <TopBar />
-    Hello compose.ai!
     {props.children}
   </div>
 )

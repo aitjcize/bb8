@@ -52,7 +52,7 @@ class RightToolbarGroup extends React.Component {
     return (
       <ToolbarGroup>
         <RaisedButton
-          primary
+          secondary
           onTouchTap={this.handleTouchTap}
           label={activeId === -1 ? 'Add a bot' : this.props.data[activeId].name}
         />
@@ -77,10 +77,16 @@ class RightToolbarGroup extends React.Component {
         </Popover>
         <IconMenu
           iconButtonElement={
-            <IconButton touch>
+            <IconButton
+              touch
+              style={{ width: '56px', height: '56px' }}
+              iconStyle={{ color: 'white' }}
+            >
               <NavigationExpandMoreIcon />
             </IconButton>
           }
+          anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
+          targetOrigin={{ horizontal: 'left', vertical: 'top' }}
         >
           <MenuItem primaryText="My Account" />
         </IconMenu>
