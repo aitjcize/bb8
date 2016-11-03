@@ -6,6 +6,7 @@
     Copyright 2016 bb8 Authors
 """
 
+import logging
 import time
 
 from datetime import datetime
@@ -66,10 +67,7 @@ class DatabaseManager(object):
     @classmethod
     def disconnect(cls, commit=True):
         if commit:
-            try:
-                cls.db().commit()
-            except InvalidRequestError:
-                cls.db().rollback()
+            cls.db().commit()
         cls.db().close()
         cls.db.remove()
 
@@ -118,7 +116,11 @@ class DatabaseManager(object):
 
     @classmethod
     def commit(cls):
-        cls.db().commit()
+        try:
+            cls.db().commit()
+        except InvalidRequestError as e:
+            cls.db().rollback()
+            logging.exception(e)
 
     @classmethod
     def flush(cls):
