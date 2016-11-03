@@ -60,7 +60,7 @@ def broadcast_task(broadcast_id):
             return broadcast_task(broadcast_id)
 
         # Do the actually broadcast
-        bot = Bot.get_by(id=broadcast.id, account_id=broadcast.account_id,
+        bot = Bot.get_by(id=broadcast.bot_id, account_id=broadcast.account_id,
                          single=True)
 
         # Bot may have been deleted
