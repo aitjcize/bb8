@@ -526,6 +526,8 @@ class Rules(object):
             slope=1.0, scale=1.0))
         rules.Add(Days(
             weight=700, tran_key='交易年月日',
-            accept_words=[u'最近成交價', u'最近成交', u'最近']))
+            accept_words=[
+                u'最近成交價', u'最近成交', u'最新成交',
+                u'最近', u'最新']))
 
         return rules
