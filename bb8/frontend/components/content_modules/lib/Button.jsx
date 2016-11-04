@@ -20,9 +20,10 @@ class Button extends React.Component {
 
     this.toJSON = this.toJSON.bind(this)
     this.fromJSON = this.fromJSON.bind(this)
+    this.clearState = this.clearState.bind(this)
 
     this.clearState()
-    this.config_anchorEl = undefined
+    this.configAnchorEl = undefined
   }
 
   clearState() {
@@ -141,7 +142,7 @@ class Button extends React.Component {
       configPopover = (
         <Popover
           open={this.state.urlEditorOpen}
-          anchorEl={this.config_anchorEl}
+          anchorEl={this.configAnchorEl}
           anchorOrigin={{ horizontal: 'middle', vertical: 'center' }}
           targetOrigin={{ horizontal: 'left', vertical: 'top' }}
           onRequestClose={() => {
@@ -170,7 +171,7 @@ class Button extends React.Component {
       configPopover = (
         <Popover
           open={this.state.payloadEditorOpen}
-          anchorEl={this.config_anchorEl}
+          anchorEl={this.configAnchorEl}
           anchorOrigin={{ horizontal: 'middle', vertical: 'center' }}
           targetOrigin={{ horizontal: 'left', vertical: 'top' }}
           onRequestClose={() => {
@@ -286,7 +287,7 @@ class Button extends React.Component {
           }}
           ref={(x) => {
             if (x) {
-              this.config_anchorEl = x.refs.container.refs.enhancedButton
+              this.configAnchorEl = x.refs.container.refs.enhancedButton
             }
           }}
           disabled={this.state.type === 'element_share'}

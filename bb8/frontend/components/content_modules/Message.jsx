@@ -1,5 +1,5 @@
 import React from 'react'
-import Lodash from 'lodash'
+import uniqueId from 'lodash/uniqueId'
 
 import { Validator } from 'jsonschema'
 
@@ -43,7 +43,7 @@ class Message extends React.Component {
     if (this.state.messageInfos.length < 3) {
       this.setState(prevState => (
         { messageInfos: prevState.messageInfos.concat(
-          [{ id: Lodash.uniqueId('messages'), type }]) }
+          [{ id: uniqueId('messages'), type }]) }
       ))
     }
   }
@@ -67,7 +67,7 @@ class Message extends React.Component {
     const idMsg = {}
     const messageInfos = []
     for (const msg of msgs.messages) {
-      const id = Lodash.uniqueId('messages')
+      const id = uniqueId('messages')
       idMsg[id] = msg
       let type = 'TextCardMessage'
       if (msg.attachment) {
