@@ -80,6 +80,11 @@ class Config(object):
 
     GCP_PROJECT = 'dotted-lexicon-133523'
 
+    # Datadog
+    DATADOG_API_KEY = '5443ec4b9da5f217eef3f035df22a62c'
+    DATADOG_APP_KEY = '7003bcefefe66024a1830488ab11b359eade0b92',
+    DATADOG_HOST = scoped_name('bb8.service.datadog')
+
     class CeleryConfig(object):
         BROKER_URL = os.getenv('REDIS_URI', 'redis://localhost:6379/0')
         CELERY_IMPORTS = (

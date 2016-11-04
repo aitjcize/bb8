@@ -13,7 +13,7 @@ import hmac
 
 from flask import g, request
 
-from bb8 import celery
+from bb8 import celery, statsd
 from bb8.backend.database import (DatabaseManager, User, Platform,
                                   PlatformTypeEnum)
 from bb8.backend.engine import Engine
@@ -41,80 +41,84 @@ def add_user(platform, sender):
 
 @celery.task(base=RequestContextTask)
 def facebook_webhook_task():
-    engine = Engine()
+    statsd.increment('facebook_webhook_task.count')
+    with statsd.timed('facebook_webhook_task.duration'):
+        engine = Engine()
 
-    for entry in request.json.get('entry', []):
-        page_id = entry['id']
-        platform = Platform.get_by(type_enum=PlatformTypeEnum.Facebook,
-                                   provider_ident=page_id, single=True)
-        if platform is None:
-            raise RuntimeError('no associate bot found for Facebook '
-                               'Platform with page_id = %s' % page_id)
+        for entry in request.json.get('entry', []):
+            page_id = entry['id']
+            platform = Platform.get_by(type_enum=PlatformTypeEnum.Facebook,
+                                       provider_ident=page_id, single=True)
+            if platform is None:
+                raise RuntimeError('no associate bot found for Facebook '
+                                   'Platform with page_id = %s' % page_id)
 
-        bot = platform.bot
-        g.ga_id = bot.ga_id
+            bot = platform.bot
+            g.ga_id = bot.ga_id
 
-        for messaging in entry['messaging']:
-            msg = messaging.get('message', None)
-            sender = messaging['sender']['id']
-            recipient = messaging['recipient']['id']
-            user_input = UserInput.FromFacebookMessage(messaging)
+            for messaging in entry['messaging']:
+                msg = messaging.get('message', None)
+                sender = messaging['sender']['id']
+                recipient = messaging['recipient']['id']
+                user_input = UserInput.FromFacebookMessage(messaging)
 
-            if msg and msg.get('is_echo'):
-                # Ignore message sent by ourself
-                if msg.get('app_id', None):
-                    continue
-                user = User.get_by(platform_id=platform.id,
-                                   platform_user_ident=recipient,
-                                   single=True)
-                engine.process_admin_reply(bot, user, user_input)
-            else:
-                user = User.get_by(platform_id=platform.id,
-                                   platform_user_ident=sender,
-                                   eager=['platform'], single=True)
-                if not user:
-                    user = add_user(platform, sender)
+                if msg and msg.get('is_echo'):
+                    # Ignore message sent by ourself
+                    if msg.get('app_id', None):
+                        continue
+                    user = User.get_by(platform_id=platform.id,
+                                       platform_user_ident=recipient,
+                                       single=True)
+                    engine.process_admin_reply(bot, user, user_input)
+                else:
+                    user = User.get_by(platform_id=platform.id,
+                                       platform_user_ident=sender,
+                                       eager=['platform'], single=True)
+                    if not user:
+                        user = add_user(platform, sender)
 
-                if user_input:
-                    engine.step(bot, user, user_input)
+                    if user_input:
+                        engine.step(bot, user, user_input)
 
-    send_ga_track_info()
+        send_ga_track_info()
 
 
 @celery.task(base=RequestContextTask)
 def line_webhook_task(provider_ident):
-    engine = Engine()
+    statsd.increment('line_webhook_task.count')
+    with statsd.timed('line_webhook_task.duration'):
+        engine = Engine()
 
-    for entry in request.json.get('events', []):
-        if entry['source']['type'] != 'user':
-            raise RuntimeError('line_receive: only user source is support '
-                               'for now')
+        for entry in request.json.get('events', []):
+            if entry['source']['type'] != 'user':
+                raise RuntimeError('line_receive: only user source is support '
+                                   'for now')
 
-        sender = entry['source']['userId']
-        platform = Platform.get_by(provider_ident=provider_ident,
-                                   single=True)
-        if platform is None:
-            raise RuntimeError('no associate bot found for Line '
-                               'Platform with ident = %s' % provider_ident)
-        digest = hmac.new(str(platform.config['channel_secret']),
-                          request.data, hashlib.sha256).digest()
-        signature = base64.b64encode(digest)
+            sender = entry['source']['userId']
+            platform = Platform.get_by(provider_ident=provider_ident,
+                                       single=True)
+            if platform is None:
+                raise RuntimeError('no associate bot found for Line '
+                                   'Platform with ident = %s' % provider_ident)
+            digest = hmac.new(str(platform.config['channel_secret']),
+                              request.data, hashlib.sha256).digest()
+            signature = base64.b64encode(digest)
 
-        if signature != request.headers['X-Line-Signature']:
-            raise RuntimeError('line_receive: failed to verify message')
+            if signature != request.headers['X-Line-Signature']:
+                raise RuntimeError('line_receive: failed to verify message')
 
-        bot = platform.bot
+            bot = platform.bot
 
-        user = User.get_by(platform_id=platform.id,
-                           platform_user_ident=sender, single=True)
-        if not user:
-            user = add_user(platform, sender)
+            user = User.get_by(platform_id=platform.id,
+                               platform_user_ident=sender, single=True)
+            if not user:
+                user = add_user(platform, sender)
 
-        user_input = UserInput.FromLineMessage(entry)
-        if user_input:
-            g.line_reply_token = entry['replyToken']
-            g.line_messages = []
-            engine.step(bot, user, user_input)
-            line.flush_message(platform)
+            user_input = UserInput.FromLineMessage(entry)
+            if user_input:
+                g.line_reply_token = entry['replyToken']
+                g.line_messages = []
+                engine.step(bot, user, user_input)
+                line.flush_message(platform)
 
-    send_ga_track_info()
+        send_ga_track_info()

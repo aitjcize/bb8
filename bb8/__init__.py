@@ -14,6 +14,8 @@ from celery import Celery
 from bb8 import configuration
 from bb8.logging_utils import Logger
 
+import datadog
+
 
 SRC_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
 
@@ -33,3 +35,11 @@ celery = Celery()
 celery.config_from_object(config.CeleryConfig)
 
 logger = Logger(os.path.join(config.LOG_DIR, config.LOG_FILE))
+
+datadog.initialize(
+    api_key=config.DATADOG_API_KEY,
+    app_key=config.DATADOG_APP_KEY,
+    statsd_host=config.DATADOG_HOST
+)
+
+statsd = datadog.statsd
