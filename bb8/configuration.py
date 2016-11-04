@@ -129,5 +129,8 @@ class DeployConfig(DevelopmentConfig):
         'drama':    'bb8.app.drama',
     }
 
+    # Datadog
+    DATADOG_HOST = 'bb8.service.datadog'
+
     class CeleryConfig(DevelopmentConfig.CeleryConfig):
         BROKER_URL = 'redis://bb8.service.redis:6379/0'
