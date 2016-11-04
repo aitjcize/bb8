@@ -121,7 +121,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["^搜尋$", "^找$", "^search$"]
+                  "params": ["^搜尋$", "^找$", "^search$", "^有沒有$", "^我想(?:要|看)$"]
                 },
                 "end_node_id": "PromptSearchTerm",
                 "ack_message": ""
@@ -129,7 +129,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["搜尋 ?(.*)$", "^找 (.*)$", "search ?(.*)$"],
+                  "params": ["搜尋 ?(.*)$", "^找 (.*)$", "search ?(.*)$", "有沒有\\s*(.*)$", "^我想(?:要|看)\\s*(.*)$"],
                   "collect_as": {
                     "key": "query_term",
                     "value": "{{matches#1}}"
