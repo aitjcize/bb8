@@ -313,8 +313,11 @@ class BB8(object):
                 '--net=%s ' % BB8_NETWORK +
                 '--net-alias=%s ' % redis_service +
                 '--name %s -d redis' % redis_service)
+
         datadog_service = '%s.datadog' % self.BB8_SERVICE_PREFIX
-        instance = docker_get_instance(datadog_service)
+        instance, running = docker_get_instance(datadog_service)
+        if instance and not running:
+            run('docker rm -f %s' % datadog_service)
         if not instance:
             run('docker run ' +
                 '--net=%s ' % BB8_NETWORK +
