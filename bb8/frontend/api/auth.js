@@ -8,6 +8,13 @@ const auth = {
     .then(response => ({ response }))
     .catch(error => ({ error }))
   },
+  signup(email, passwd, timezone) {
+    return fetch('POST', '/api/email_register', {
+      email, passwd, timezone,
+    })
+    .then(response => ({ response }))
+    .catch(error => ({ error }))
+  },
 }
 
 export default auth

@@ -64,11 +64,8 @@ const defaultConfig = {
   ],
   plugins: [
     new webpack.DefinePlugin({
-          'process.env.BB8_DEPLOY': process.env.BB8_DEPLOY,
-          'process.env.HTTP_PORT': process.env.HTTP_PORT,
-    }),
-    new webpack.ProvidePlugin({
-      React: 'react',
+      'process.env.BB8_DEPLOY': process.env.BB8_DEPLOY,
+      'process.env.HTTP_PORT': process.env.HTTP_PORT,
     }),
     new HtmlWebpackPlugin({
       inject: false,

@@ -11,7 +11,7 @@ import ContentAdd from 'material-ui/svg-icons/content/add'
 import LineLogo from '../assets/line_logo.png'
 import FBLogo from '../assets/facebook_logo.png'
 
-import { delPlatform } from '../actions'
+import { getPlatforms, delPlatform } from '../actions'
 import PlatformForm from '../components/PlatformForm'
 
 const DeployStatus = (props) => {
@@ -92,6 +92,10 @@ class Platforms extends React.Component {
       rightDrawerOpen: false,
       editingPlatform: { config: {} },
     }
+  }
+
+  componentWillMount() {
+    this.props.getPlatforms()
   }
 
   handleOpenDialog(id) {
@@ -178,9 +182,8 @@ class Platforms extends React.Component {
 
 Platforms.propTypes = {
   platformIds: React.PropTypes.arrayOf(React.PropTypes.number),
-  platforms: React.PropTypes.objectOf(React.PropTypes.shape({
-
-  })),
+  platforms: React.PropTypes.objectOf(React.PropTypes.shape({})),
+  getPlatforms: React.PropTypes.func,
   onDelPlatform: React.PropTypes.func,
 }
 
@@ -194,6 +197,9 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
+  getPlatforms() {
+    dispatch(getPlatforms())
+  },
   onDelPlatform(id) {
     dispatch(delPlatform(id))
   },

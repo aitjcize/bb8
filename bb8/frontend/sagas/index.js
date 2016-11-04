@@ -5,6 +5,8 @@ import types from '../constants/ActionTypes'
 import api from '../api'
 import { AUTH_TOKEN } from '../constants'
 
+/* Authorization Sagas */
+
 export function* logoutSaga() {
   while (true) {
     yield take(types.ACCOUNTS_LOGOUT)
@@ -32,7 +34,9 @@ export function* loginSaga() {
   }
 }
 
-export function* fetchBots() {
+/* Bots Sagas */
+
+export function* fetchBotsSaga() {
   while (true) {
     yield take(types.BOTS_LIST.REQUEST)
 
@@ -41,12 +45,14 @@ export function* fetchBots() {
     if (error) {
       yield put({ type: types.BOTS_LIST.ERROR })
     } else {
-      yield put({ type: types.BOTS_LIST.SUCCESS, payload: response.bots })
+      yield put({ type: types.BOTS_LIST.SUCCESS, payload: response })
     }
   }
 }
 
-export function* fetchPlatforms() {
+/* Platform Sagas */
+
+export function* fetchPlatformsSaga() {
   while (true) {
     yield take(types.PLATFORMS_LIST.REQUEST)
 
@@ -55,12 +61,12 @@ export function* fetchPlatforms() {
     if (error) {
       yield put({ type: types.PLATFORMS_LIST.ERROR })
     } else {
-      yield put({ type: types.PLATFORMS_LIST.SUCCESS, payload: response.platforms })
+      yield put({ type: types.PLATFORMS_LIST.SUCCESS, payload: response })
     }
   }
 }
 
-export function* createPlatform() {
+export function* createPlatformSaga() {
   while (true) {
     const { payload } = yield take(types.PLATFORMS_CREATE.REQUEST)
 
@@ -77,7 +83,7 @@ export function* createPlatform() {
   }
 }
 
-export function* updatePlatform() {
+export function* updatePlatformSaga() {
   while (true) {
     const { payload: { platformId, platform } } = yield take(types.PLATFORMS_UPDATE.REQUEST)
 
@@ -86,13 +92,15 @@ export function* updatePlatform() {
     if (error) {
       yield put({ type: types.PLATFORMS_UPDATE.ERROR })
     } else {
-      yield put({ type: types.PLATFORMS_UPDATE.SUCCESS, payload: response })
+      yield put({
+        type: types.PLATFORMS_UPDATE.SUCCESS,
+        payload: response,
+      })
     }
   }
 }
 
-
-export function* deletePlatform() {
+export function* deletePlatformSaga() {
   while (true) {
     const { payload } = yield take(types.PLATFORMS_DELETE.REQUEST)
     const platformId = payload
@@ -107,12 +115,96 @@ export function* deletePlatform() {
   }
 }
 
+/* Broadcast Sagas */
+
+export function* fetchBroadcastsSaga() {
+  while (true) {
+    yield take(types.BROADCASTS_LIST.REQUEST)
+
+    const { response, error } = yield call(api.getAllBroadcasts)
+
+    if (error) {
+      yield put({ type: types.BROADCASTS_LIST.ERROR })
+    } else {
+      yield put({
+        type: types.BROADCASTS_LIST.SUCCESS,
+        payload: response,
+      })
+    }
+  }
+}
+
+export function* createBroadcastSaga() {
+  while (true) {
+    const { payload } = yield take(types.BROADCASTS_CREATE.REQUEST)
+
+    const { response, error } = yield call(api.createBroadcast, payload)
+
+    if (error) {
+      yield put({ type: types.BROADCASTS_CREATE.ERROR })
+    } else {
+      yield put({
+        type: types.BROADCASTS_CREATE.SUCCESS,
+        payload: response,
+      })
+    }
+  }
+}
+
+export function* updateBroadcastSaga() {
+  while (true) {
+    const { payload: { broadcastId, broadcast } }
+      = yield take(types.BROADCASTS_UPDATE.REQUEST)
+
+    const { response, error } = yield call(api.updateBroadcast, broadcastId, broadcast)
+
+    if (error) {
+      yield put({ type: types.BROADCASTS_UPDATE.ERROR })
+    } else {
+      yield put({
+        type: types.BROADCASTS_UPDATE.SUCCESS,
+        payload: response,
+      })
+    }
+  }
+}
+
+export function* deleteBroadcastSaga() {
+  while (true) {
+    const { payload } = yield take(types.BROADCASTS_DELETE.REQUEST)
+    const broadcastId = payload
+
+    const { response, error } =
+      yield call(api.deleteBroadcast, broadcastId)
+
+    if (error) {
+      yield put({ type: types.BROADCASTS_DELETE.ERROR })
+    } else {
+      yield put({
+        type: types.BROADCASTS_DELETE.SUCCESS,
+        payload: response,
+      })
+    }
+  }
+}
+
 export default function* root() {
+  /* Authorization Saga */
   yield fork(loginSaga)
   yield fork(logoutSaga)
-  yield fork(fetchBots)
-  yield fork(fetchPlatforms)
-  yield fork(createPlatform)
-  yield fork(updatePlatform)
-  yield fork(deletePlatform)
+
+  /* Bots Saga */
+  yield fork(fetchBotsSaga)
+
+  /* Platform Saga */
+  yield fork(fetchPlatformsSaga)
+  yield fork(createPlatformSaga)
+  yield fork(updatePlatformSaga)
+  yield fork(deletePlatformSaga)
+
+  /* Broadcast Sagas */
+  yield fork(fetchBroadcastsSaga)
+  yield fork(createBroadcastSaga)
+  yield fork(updateBroadcastSaga)
+  yield fork(deleteBroadcastSaga)
 }

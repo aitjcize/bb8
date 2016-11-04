@@ -5,6 +5,7 @@ import merge from 'lodash/merge'
 
 import AccountsReducer from './AccountsReducer'
 import BotsReducer from './BotsReducer'
+import BroadcastsReducer from './BroadcastsReducer'
 import PlatformsReducer from './PlatformsReducer'
 
 const initialEntities = {
@@ -24,6 +25,7 @@ const rootReducer = combineReducers({
   form,
   entities,
   bots: BotsReducer,
+  broadcasts: BroadcastsReducer,
   platforms: PlatformsReducer,
   account: AccountsReducer,
   routing: routerReducer,

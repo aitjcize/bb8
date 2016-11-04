@@ -19,6 +19,11 @@ export const setActiveBot = botId => ({
 
 // Platform action creators
 
+export const getPlatforms = () => ({
+  type: types.PLATFORMS_LIST.REQUEST,
+  payload: null,
+})
+
 export const createPlatform = platform => ({
   type: types.PLATFORMS_CREATE.REQUEST,
   payload: platform,

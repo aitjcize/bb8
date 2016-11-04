@@ -42,9 +42,11 @@ start-celery:
 	@celery -A bb8.celery worker --loglevel=info --concurrency 4
 
 frontend-test:
+	@manage reset_for_dev
 	@cd bb8/frontend && \
 	 npm run test && \
 	 npm run build
+	@manage reset
 
 test: setup-database setup-redis compile-resource-no-cred frontend-test
 	@export BB8_TEST=true; \
