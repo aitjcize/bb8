@@ -6,6 +6,7 @@
     Copyright 2016 bb8 Authors
 """
 
+import logging
 import requests
 
 from flask import g
@@ -15,6 +16,9 @@ LINE_PROFILE_API_URL = 'https://api.line.me/v2/bot/profile/%s'
 LINE_MESSAGE_REPLY_API_URL = 'https://api.line.me/v2/bot/message/reply'
 LINE_MESSAGE_PUSH_API_URL = 'https://api.line.me/v2/bot/message/push'
 LINE_GET_CONTENT_API_URL = 'https://api.line.me/v2/bot/message/%s/content'
+
+
+LOG = logging.getLogger(__file__)
 
 
 def get_config_schema():
@@ -67,7 +71,12 @@ def get_user_profile(platform, user_ident):
 
 def send_message(unused_user, messages):
     """Send message to the platform."""
-    g.line_messages += messages  # pylint: disable=E1101
+    # pylint: disable=E1101
+    if len(g.line_messages) < 5:
+        g.line_messages += messages
+    else:
+        LOG.warning('line.send_message: maxinum number of messages(5) '
+                    'reached, ignoring new messages!')
 
 
 def flush_message(platform):
