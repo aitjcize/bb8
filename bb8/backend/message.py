@@ -118,8 +118,11 @@ class UserInput(object):
                 ret = InputTransformation.transform(
                     self.text, g.user.session.input_transformation)
                 return ret if ret else self
-        except AttributeError:
-            pass
+        except Exception as e:
+            # We shouldn't block user if input transformation fail (possibly
+            # due to invalid regular expression). Log the failure for
+            # analysis.
+            logger.exception(e)
 
         return self
 
