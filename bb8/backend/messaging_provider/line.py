@@ -11,6 +11,8 @@ import requests
 
 from flask import g
 
+from bb8.backend.util import to_unicode
+
 
 LINE_PROFILE_API_URL = 'https://api.line.me/v2/bot/profile/%s'
 LINE_MESSAGE_REPLY_API_URL = 'https://api.line.me/v2/bot/message/reply'
@@ -60,7 +62,7 @@ def get_user_profile(platform, user_ident):
 
     api_ret = response.json()
     ret = {
-        'first_name': api_ret['displayName'],
+        'first_name': to_unicode(api_ret['displayName']),
         'last_name': u'',
         'locale': 'zh_TW',
         'timezone': 8,
