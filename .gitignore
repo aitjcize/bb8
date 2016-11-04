@@ -2,8 +2,6 @@
 *.pyc
 *.pyo
 .env
-node_modules
-npm-debug.log
 htmlcov
 .coverage
 states
