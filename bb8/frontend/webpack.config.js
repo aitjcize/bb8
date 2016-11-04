@@ -33,7 +33,11 @@ const defaultConfig = {
   },
   module: {
     preLoaders: [
-        { test: /\.jsx?$/, loader: 'eslint', exclude: /node_modules/ },
+        {
+          test: /\.jsx?$/,
+          loader: 'eslint',
+          exclude: /node_modules/
+        },
     ],
     loaders: [
       {
@@ -57,6 +61,10 @@ const defaultConfig = {
         test: /.*\.html$/,
         loader: 'file?name=[name].[ext]',
       },
+      {
+        test: /\.json$/,
+        loader: 'json',
+      }
     ],
   },
   postcss: [
