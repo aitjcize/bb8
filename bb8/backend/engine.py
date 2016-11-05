@@ -72,6 +72,11 @@ class Engine(object):
         try:  # pylint: disable=R0101
             now = datetime.datetime.now()
 
+            if user.session is None:
+                if user_input:
+                    user_input.disable_jump()
+                user.goto(Bot.START_STABLE_ID)
+
             g.user = user
             if user_input:
                 if config.STORE_CONVERSATION:
@@ -82,11 +87,6 @@ class Engine(object):
                 # Parse audio as text if there are audio payload
                 user_input.ParseAudioAsText(user)
                 user_input = user_input.RunInputTransformation()
-
-            if user.session is None:
-                if user_input:
-                    user_input.disable_jump()
-                user.goto(Bot.START_STABLE_ID)
 
             # If there was admin interaction, and admin_interaction_timeout
             # haven't reached yet, do not run engine.
