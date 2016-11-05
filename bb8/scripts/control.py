@@ -505,8 +505,8 @@ class BB8(object):
         if running:
             m = re.match(r'^%s\.(.*?)$' % self.BB8_CONTAINER_NAME, instance)
             if m:
-                version_hash = m.group(1)
-                if version_hash == version_hash:
+                old_version_hash = m.group(1)
+                if version_hash == old_version_hash:
                     logger.warn('BB8: no change since last deploy.')
 
                     if force:
