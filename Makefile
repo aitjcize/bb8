@@ -100,8 +100,10 @@ cloud-sql:
 	sudo $(CURDIR)/bin/cloud_sql_proxy -dir=$(CLOUD_SQL_DIR) &
 
 cleanup-docker:
-	@docker rm -v $(docker ps -a -q -f status=exited) 2>/dev/null || true
-	@docker rmi $(docker images -f "dangling=true" -q) 2>/dev/null || true
+	@docker rm $(docker ps --all --quiet --filter status=exited --no-trunc)
+	@docker volume rm $(docker volume ls --quiet --filter dangling=true)
+	@docker rmi $(docker images --quiet --filter="dangling=true" --no-trunc)
+
 
 clean:
 	find bb8 bb8_client apps -name '*_pb2.py' -exec rm -f {} \;
