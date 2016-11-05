@@ -34,7 +34,7 @@ from concurrent import futures
 import service_pb2  # pylint: disable=E0401
 
 
-_GRPC_MAX_WORKERS = 10
+_GRPC_MAX_WORKERS = 8
 
 
 class WeatherAPIParser(object):
@@ -311,7 +311,7 @@ if __name__ == '__main__':
     parser.add_argument('--interval',
                         type=int,
                         dest='interval',
-                        default=30,
+                        default=120,
                         help='The interval to fetch youbike data (second)')
     args = parser.parse_args()
 
