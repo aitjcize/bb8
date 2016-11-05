@@ -108,6 +108,7 @@ def line_webhook_task(provider_ident):
                 raise RuntimeError('line_receive: failed to verify message')
 
             bot = platform.bot
+            g.ga_id = bot.ga_id
 
             user = User.get_by(platform_id=platform.id,
                                platform_user_ident=sender, single=True)
