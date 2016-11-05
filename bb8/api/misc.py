@@ -58,6 +58,10 @@ def cache_image():
 
     response = requests.get(url, stream=True)
 
+    # If the request failed, ignore and just redirect user to it.
+    if response.status_code != 200:
+        return redirect(url)
+
     with tempfile.NamedTemporaryFile(delete=False) as fio:
         shutil.copyfileobj(response.raw, fio)
 
