@@ -13,7 +13,7 @@ import hmac
 
 from flask import g, request
 
-from bb8 import celery, statsd
+from bb8 import celery, config, statsd
 from bb8.backend.database import (DatabaseManager, User, Platform,
                                   PlatformTypeEnum)
 from bb8.backend.engine import Engine
@@ -41,8 +41,7 @@ def add_user(platform, sender):
 
 @celery.task(base=RequestContextTask)
 def facebook_webhook_task():
-    statsd.increment('facebook_webhook_task.count')
-    with statsd.timed('facebook_webhook_task.duration'):
+    with statsd.timed('facebook_webhook_task', tags=[config.ENV_TAG]):
         engine = Engine()
 
         for entry in request.json.get('entry', []):
@@ -80,13 +79,13 @@ def facebook_webhook_task():
                     if user_input:
                         engine.step(bot, user, user_input)
 
-        send_ga_track_info()
+    # Don't measure the time of the GA call
+    send_ga_track_info()
 
 
 @celery.task(base=RequestContextTask)
 def line_webhook_task(provider_ident):
-    statsd.increment('line_webhook_task.count')
-    with statsd.timed('line_webhook_task.duration'):
+    with statsd.timed('line_webhook_task', tags=[config.ENV_TAG]):
         engine = Engine()
 
         for entry in request.json.get('events', []):
@@ -122,4 +121,5 @@ def line_webhook_task(provider_ident):
                 engine.step(bot, user, user_input)
                 line.flush_message(platform)
 
-        send_ga_track_info()
+    # Don't measure the time of the GA call
+    send_ga_track_info()
