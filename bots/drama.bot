@@ -113,7 +113,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["notification_settings"]
+                  "params": ["notification_settings", "通知設定"]
                 },
                 "end_node_id": "{{'PromptDisableNotification' if settings.subscribe else 'PromptEnableNotification'}}",
                 "ack_message": ""
