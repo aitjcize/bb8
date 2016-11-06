@@ -70,9 +70,7 @@ def get_output(command):
 
 def get_dir_hash(path):
     """Generate a hash representing a given directory."""
-    dir_hash = get_output(
-        'cd %s; find . -type f -exec sha1sum {} \\; | sha1sum' % path)
-    return dir_hash[:6]
+    return get_output('git log -n 1 --pretty=format:%%h %s' % path)
 
 
 def create_dir_if_not_exists(path, sudo=False):
