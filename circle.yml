@@ -13,6 +13,7 @@ machine:
 dependencies:
   pre:
     - cd bb8/frontend && npm install
+    - pip install --upgrade pip
     - cat $(find -name requirements.txt) | sort | uniq | pip install -r /dev/stdin
 
 ## Customize test commands
