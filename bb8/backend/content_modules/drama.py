@@ -177,9 +177,9 @@ def run(content_config, unused_env, variables):
 
     def append_categories_to_quick_reply(m):
         m.add_quick_reply(Message.QuickReply(
-            Message.QuickReplyType.TEXT, u'Running Man'))
+            Message.QuickReplyType.TEXT, u'荼蘼'))
         m.add_quick_reply(Message.QuickReply(
-            Message.QuickReplyType.TEXT, u'The K2'))
+            Message.QuickReplyType.TEXT, u'The K2 第十集'))
         m.add_quick_reply(Message.QuickReply(
             Message.QuickReplyType.TEXT, u'熱門韓劇'))
         m.add_quick_reply(Message.QuickReply(
@@ -188,6 +188,8 @@ def run(content_config, unused_env, variables):
             Message.QuickReplyType.TEXT, u'熱門台劇'))
         m.add_quick_reply(Message.QuickReply(
             Message.QuickReplyType.TEXT, u'熱門陸劇'))
+        m.add_quick_reply(Message.QuickReply(
+            Message.QuickReplyType.TEXT, u'通知設定'))
         return [m]
 
     if content_config['mode'] == 'subscribe':
