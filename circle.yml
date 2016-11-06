@@ -11,6 +11,9 @@ machine:
     version: 6.7.0
 
 dependencies:
+  cache_directories:
+    - ~/bb8/bb8/frontend/node_modules
+
   pre:
     - cd bb8/frontend && npm install
     - pip install --upgrade pip
