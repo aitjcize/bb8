@@ -34,6 +34,7 @@ def add_user(platform, sender):
                 **profile_info).add()
     DatabaseManager.commit()
 
+    statsd.gauge('users', User.count(), tags=[config.ENV_TAG])
     track(TrackingInfo.Event(sender, '%s.User' % platform.type_enum.value,
                              'Add', profile_info['first_name']))
     return user
