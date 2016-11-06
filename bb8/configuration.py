@@ -87,14 +87,15 @@ class Config(object):
     ENV_TAG = 'dev'
 
     class CeleryConfig(object):
-        BROKER_URL = os.getenv('REDIS_URI', 'redis://localhost:6379/0')
-        CELERY_IMPORTS = (
+        broker_url = os.getenv('REDIS_URI', 'redis://localhost:6379/0')
+        imports = (
             'bb8.backend.broadcast',
             'bb8.backend.messaging_tasks',
             'bb8.backend.webhooks_tasks',
         )
-        CELERY_SEND_EVENTS = False
-        CELERY_ACCEPT_CONTENT = ['pickle']
+        send_events = False
+        accept_content = ['pickle']
+        task_serializer = 'pickle'
 
 
 class DevelopmentConfig(Config):
@@ -135,4 +136,4 @@ class DeployConfig(DevelopmentConfig):
     ENV_TAG = 'prod'
 
     class CeleryConfig(DevelopmentConfig.CeleryConfig):
-        BROKER_URL = 'redis://bb8.service.redis:6379/0'
+        broker_url = 'redis://bb8.service.redis:6379/0'
