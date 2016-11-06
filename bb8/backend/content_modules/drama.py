@@ -167,6 +167,20 @@ def render_episodes(episodes):
                     'backward': True,
                 })))
         m.add_bubble(b)
+
+    m.add_quick_reply(Message.QuickReply(
+        Message.QuickReplyType.TEXT, u'第1集'))
+    m.add_quick_reply(Message.QuickReply(
+        Message.QuickReplyType.TEXT, u'熱門韓劇'))
+    m.add_quick_reply(Message.QuickReply(
+        Message.QuickReplyType.TEXT, u'熱門日劇'))
+    m.add_quick_reply(Message.QuickReply(
+        Message.QuickReplyType.TEXT, u'熱門台劇'))
+    m.add_quick_reply(Message.QuickReply(
+        Message.QuickReplyType.TEXT, u'熱門陸劇'))
+    m.add_quick_reply(Message.QuickReply(
+        Message.QuickReplyType.TEXT, u'通知設定'))
+
     return [m]
 
 
