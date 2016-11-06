@@ -18,6 +18,7 @@ dependencies:
     - cd bb8/frontend && npm install
     - pip install --upgrade pip
     - cat $(find -name requirements.txt) | sort | uniq | pip install -r /dev/stdin
+    - source bin/env.sh && make compile-resource-no-cred
 
 ## Customize test commands
 test:

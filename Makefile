@@ -48,7 +48,7 @@ frontend-test:
 	 npm run build
 	@manage reset
 
-test: setup-database setup-redis compile-resource-no-cred frontend-test
+test: setup-database setup-redis frontend-test
 	@export BB8_TEST=true; \
 	 for test in $(UNITTESTS); do \
 	   if echo $$test | grep '^apps'; then \
@@ -62,7 +62,7 @@ test: setup-database setup-redis compile-resource-no-cred frontend-test
 	 done
 	@manage reset_for_dev
 
-coverage: setup-database setup-redis compile-resource-no-cred frontend-test
+coverage: setup-database setup-redis frontend-test
 	@export BB8_TEST=true; \
 	 for test in $(UNITTESTS); do \
 	   if echo $$test | grep '^apps'; then \
@@ -80,7 +80,7 @@ coverage: setup-database setup-redis compile-resource-no-cred frontend-test
 	@coverage combine .coverage_*
 	@coverage html --include=bb8/*
 
-lint: compile-resource-no-cred
+lint:
 	@cd bb8/frontend && npm run lint:css
 	@pep8 $(LINT_FILES)
 	@pylint $(LINT_OPTIONS) $(LINT_FILES)
