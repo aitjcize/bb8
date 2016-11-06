@@ -45,7 +45,9 @@ def store_conversation(user, message, sender_enum=SenderEnum.User):
                      timestamp=message['timestamp']).add()
 
 
-@celery.task(base=RequestContextTask)
+# Type check is diabled (typing=False) because RequestContextTask piggyback
+# request arguments through kwargs.
+@celery.task(base=RequestContextTask, typing=False)
 def facebook_webhook_task():
     with statsd.timed('facebook_webhook_task', tags=[config.ENV_TAG]):
         engine = Engine()
@@ -96,7 +98,9 @@ def facebook_webhook_task():
     send_ga_track_info()
 
 
-@celery.task(base=RequestContextTask)
+# Type check is diabled (typing=False) because RequestContextTask piggyback
+# request arguments through kwargs.
+@celery.task(base=RequestContextTask, typing=False)
 def line_webhook_task(provider_ident):
     with statsd.timed('line_webhook_task', tags=[config.ENV_TAG]):
         engine = Engine()
