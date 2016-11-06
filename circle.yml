@@ -1,9 +1,6 @@
 ## Customize the test machine
 machine:
 
-  pre:
-    - nvm install v6.7.0 && nvm use v6.7.0 && nvm alias default v6.7.0
-
   timezone:
     Asia/Taipei
 
@@ -13,6 +10,9 @@ machine:
 
   services:
     - docker
+
+  node:
+    version: 6.7.0
 
 dependencies:
   pre:
