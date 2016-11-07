@@ -44,6 +44,11 @@ class Bubble extends React.Component {
     }
     this.buttons = {}
     this.idBut = {}
+
+    this.defaultProps = {
+      disableShare: false,
+      readOnly: false,
+    }
   }
 
   onAddClicked() {
@@ -141,101 +146,109 @@ class Bubble extends React.Component {
             }}
           />
         </CardMedia>
-        <FloatingActionButton
-          mini
-          onClick={(e) => {
-            this.setState({
-              imageUrlEditorOpen: true,
-              imageUrlEditorAnchorEl: e.currentTarget,
-            })
-          }}
-          style={{
-            position: 'absolute',
-            right: '0.2em',
-            top: '6.9em',
-          }}
-        >
-          <FileUpload />
-        </FloatingActionButton>
-        <Popover
-          open={this.state.imageUrlEditorOpen}
-          anchorEl={this.state.imageUrlEditorAnchorEl}
-          anchorOrigin={{ horizontal: 'middle', vertical: 'center' }}
-          targetOrigin={{ horizontal: 'left', vertical: 'top' }}
-          onRequestClose={() => {
-            if (this.validateUrl()) {
+        {!this.props.readOnly &&
+        <div>
+          <FloatingActionButton
+            mini
+            onClick={(e) => {
               this.setState({
-                imageUrlEditorOpen: false,
+                imageUrlEditorOpen: true,
+                imageUrlEditorAnchorEl: e.currentTarget,
               })
-            }
-          }}
-        >
-          <TextField
-            hintText="Enter image URL ..."
-            errorText={this.state.imageUrlEditorError}
-            value={this.state.imageUrl}
-            onChange={(e) => { this.setState({ imageUrl: e.target.value }) }}
-            onKeyPress={(e) => {
-              if (e.nativeEvent.code === 'Enter') {
-                if (this.validateUrl()) {
-                  this.setState({ imageUrlEditorOpen: false })
-                }
+            }}
+            style={{
+              position: 'absolute',
+              right: '0.2em',
+              top: '6.9em',
+            }}
+          >
+            <FileUpload />
+          </FloatingActionButton>
+          <Popover
+            open={this.state.imageUrlEditorOpen}
+            anchorEl={this.state.imageUrlEditorAnchorEl}
+            anchorOrigin={{ horizontal: 'middle', vertical: 'center' }}
+            targetOrigin={{ horizontal: 'left', vertical: 'top' }}
+            onRequestClose={() => {
+              if (this.validateUrl()) {
+                this.setState({
+                  imageUrlEditorOpen: false,
+                })
               }
             }}
-            style={{ margin: '0.125em 0.5em' }}
-          />
-        </Popover>
-        <FloatingActionButton
-          mini
-          onClick={(e) => {
-            this.setState({
-              itemUrlEditorOpen: true,
-              itemUrlEditorAnchorEl: e.currentTarget,
-            })
-          }}
-          style={{
-            position: 'absolute',
-            right: '2.875em',
-            top: '6.9em',
-          }}
-        >
-          <ContentLink />
-        </FloatingActionButton>
-        <Popover
-          open={this.state.itemUrlEditorOpen}
-          anchorEl={this.state.itemUrlEditorAnchorEl}
-          anchorOrigin={{ horizontal: 'middle', vertical: 'center' }}
-          targetOrigin={{ horizontal: 'left', vertical: 'top' }}
-          onRequestClose={() => {
-            if (this.validateUrl()) {
-              this.setState({
-                itemUrlEditorOpen: false,
-              })
-            }
-          }}
-        >
-          <TextField
-            hintText="URL when image is clicked"
-            errorText={this.state.itemUrlEditorError}
-            value={this.state.itemUrl}
-            onChange={(e) => { this.setState({ itemUrl: e.target.value }) }}
-            onKeyPress={(e) => {
-              if (e.nativeEvent.code === 'Enter') {
-                if (this.validateUrl()) {
-                  this.setState({ itemUrlEditorOpen: false })
+          >
+            <TextField
+              hintText="Enter image URL ..."
+              errorText={this.state.imageUrlEditorError}
+              value={this.state.imageUrl}
+              onChange={(e) => { this.setState({ imageUrl: e.target.value }) }}
+              onKeyPress={(e) => {
+                if (e.nativeEvent.code === 'Enter') {
+                  if (this.validateUrl()) {
+                    this.setState({ imageUrlEditorOpen: false })
+                  }
                 }
+              }}
+              style={{ margin: '0.125em 0.5em' }}
+            />
+          </Popover>
+          <FloatingActionButton
+            mini
+            onClick={(e) => {
+              this.setState({
+                itemUrlEditorOpen: true,
+                itemUrlEditorAnchorEl: e.currentTarget,
+              })
+            }}
+            style={{
+              position: 'absolute',
+              right: '2.875em',
+              top: '6.9em',
+            }}
+          >
+            <ContentLink />
+          </FloatingActionButton>
+          <Popover
+            open={this.state.itemUrlEditorOpen}
+            anchorEl={this.state.itemUrlEditorAnchorEl}
+            anchorOrigin={{ horizontal: 'middle', vertical: 'center' }}
+            targetOrigin={{ horizontal: 'left', vertical: 'top' }}
+            onRequestClose={() => {
+              if (this.validateUrl()) {
+                this.setState({
+                  itemUrlEditorOpen: false,
+                })
               }
             }}
-            style={{ margin: '0.125em 0.5em' }}
-          />
-        </Popover>
+          >
+            <TextField
+              hintText="URL when image is clicked"
+              errorText={this.state.itemUrlEditorError}
+              value={this.state.itemUrl}
+              onChange={(e) => { this.setState({ itemUrl: e.target.value }) }}
+              onKeyPress={(e) => {
+                if (e.nativeEvent.code === 'Enter') {
+                  if (this.validateUrl()) {
+                    this.setState({ itemUrlEditorOpen: false })
+                  }
+                }
+              }}
+              style={{ margin: '0.125em 0.5em' }}
+            />
+          </Popover>
+        </div>
+        }
         <CardText>
           <TextField
             hintText="Title"
             value={this.state.title}
             underlineShow={false}
             fullWidth
-            onChange={(e) => { this.setState({ title: e.target.value }) }}
+            onChange={(e) => {
+              if (!this.props.readOnly) {
+                this.setState({ title: e.target.value })
+              }
+            }}
             style={{ height: '2em' }}
             hintStyle={{ bottom: '0.25em' }}
             inputStyle={{ fontWeight: '700' }}
@@ -245,7 +258,11 @@ class Bubble extends React.Component {
             value={this.state.subtitle}
             underlineShow={false}
             fullWidth
-            onChange={(e) => { this.setState({ subtitle: e.target.value }) }}
+            onChange={(e) => {
+              if (!this.props.readOnly) {
+                this.setState({ subtitle: e.target.value })
+              }
+            }}
             style={{ height: '1.75em' }}
             hintStyle={{ bottom: '0.125em', fontSize: '80%' }}
             inputStyle={{ fontSize: '80%', color: 'grey' }}
@@ -267,9 +284,10 @@ class Bubble extends React.Component {
                 }}
               >
                 <Button
+                  readOnly={this.props.readOnly}
                   ref={(b) => { this.loadFromJSON(b, id) }}
                 />
-                {this.state.hoverIndex === index &&
+                {!this.props.readOnly && this.state.hoverIndex === index &&
                 <FloatingActionButton
                   mini
                   secondary
@@ -283,7 +301,7 @@ class Bubble extends React.Component {
               </div>
             ))
             }
-            {showAddButton && (
+            {!this.props.readOnly && showAddButton && (
             <ListItem
               primaryText="Add a button"
               onClick={this.onAddClicked}
@@ -298,6 +316,7 @@ class Bubble extends React.Component {
 
 Bubble.propTypes = {
   editorWidth: React.PropTypes.string.isRequired,
+  readOnly: React.PropTypes.bool,
 }
 
 export default Bubble

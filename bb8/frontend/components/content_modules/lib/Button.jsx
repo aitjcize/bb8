@@ -24,6 +24,11 @@ class Button extends React.Component {
 
     this.clearState()
     this.configAnchorEl = undefined
+
+    this.defaultProps = {
+      disableShare: false,
+      readOnly: false,
+    }
   }
 
   clearState() {
@@ -97,7 +102,7 @@ class Button extends React.Component {
   }
 
   render() {
-    if (this.state.titleEditing) {
+    if (!this.props.readOnly && this.state.titleEditing) {
       return (
         <div>
           <TextField
@@ -209,92 +214,96 @@ class Button extends React.Component {
           primaryText={this.state.title}
           innerDivStyle={{ textAlign: 'center' }}
           onClick={() => {
-            if (this.state.type !== 'element_share') {
+            if (!this.props.readOnly && this.state.type !== 'element_share') {
               this.setState({ titleEditing: true })
             }
           }}
         />
-        <FloatingActionButton
-          mini
-          onClick={(e) => {
-            this.setState({
-              typeMenuOpen: true,
-              typeAnchorEl: e.currentTarget,
-            })
-          }}
-          style={{ position: 'absolute', right: '2.875em', top: '0.2em' }}
-        >
-          {typeButton}
-        </FloatingActionButton>
-        <Popover
-          open={this.state.typeMenuOpen}
-          anchorEl={this.state.typeAnchorEl}
-          anchorOrigin={{ horizontal: 'middle', vertical: 'center' }}
-          targetOrigin={{ horizontal: 'left', vertical: 'top' }}
-          onRequestClose={() => { this.setState({ typeMenuOpen: false }) }}
-        >
-          <Menu>
-            <MenuItem
-              primaryText="Link"
-              checked={this.state.type === 'web_url'}
-              insetChildren
-              onClick={() => {
-                this.setState({
-                  type: 'web_url',
-                  typeMenuOpen: false,
-                  urlEditorOpen: true,
-                })
-              }}
-            />
-            <MenuItem
-              primaryText="Action"
-              checked={this.state.type === 'postback'}
-              insetChildren
-              onClick={() => {
-                this.setState({
-                  type: 'postback',
-                  typeMenuOpen: false,
-                  payloadEditorOpen: true,
-                })
-              }}
-            />
-            {!this.props.disableShare &&
-            <MenuItem
-              primaryText="Share"
-              checked={this.state.type === 'element_share'}
-              insetChildren
-              onClick={() => {
-                this.setState({
-                  title: 'Share',
-                  type: 'element_share',
-                  typeMenuOpen: false,
-                })
-              }}
-            />
-            }
-          </Menu>
-        </Popover>
+        {!this.props.readOnly &&
+        <div>
+          <FloatingActionButton
+            mini
+            onClick={(e) => {
+              this.setState({
+                typeMenuOpen: true,
+                typeAnchorEl: e.currentTarget,
+              })
+            }}
+            style={{ position: 'absolute', right: '2.875em', top: '0.2em' }}
+          >
+            {typeButton}
+          </FloatingActionButton>
+          <Popover
+            open={this.state.typeMenuOpen}
+            anchorEl={this.state.typeAnchorEl}
+            anchorOrigin={{ horizontal: 'middle', vertical: 'center' }}
+            targetOrigin={{ horizontal: 'left', vertical: 'top' }}
+            onRequestClose={() => { this.setState({ typeMenuOpen: false }) }}
+          >
+            <Menu>
+              <MenuItem
+                primaryText="Link"
+                checked={this.state.type === 'web_url'}
+                insetChildren
+                onClick={() => {
+                  this.setState({
+                    type: 'web_url',
+                    typeMenuOpen: false,
+                    urlEditorOpen: true,
+                  })
+                }}
+              />
+              <MenuItem
+                primaryText="Action"
+                checked={this.state.type === 'postback'}
+                insetChildren
+                onClick={() => {
+                  this.setState({
+                    type: 'postback',
+                    typeMenuOpen: false,
+                    payloadEditorOpen: true,
+                  })
+                }}
+              />
+              {!this.props.disableShare &&
+              <MenuItem
+                primaryText="Share"
+                checked={this.state.type === 'element_share'}
+                insetChildren
+                onClick={() => {
+                  this.setState({
+                    title: 'Share',
+                    type: 'element_share',
+                    typeMenuOpen: false,
+                  })
+                }}
+              />
+              }
+            </Menu>
+          </Popover>
 
-        <FloatingActionButton
-          mini
-          style={{ position: 'absolute', right: '0.2em', top: '0.2em' }}
-          onClick={() => {
-            if (this.state.type === 'web_url') {
-              this.setState({ urlEditorOpen: true })
-            } else if (this.state.type === 'postback') {
-              this.setState({ payloadEditorOpen: true })
-            }
-          }}
-          ref={(x) => {
-            if (x) {
-              this.configAnchorEl = x.refs.container.refs.enhancedButton
-            }
-          }}
-          disabled={this.state.type === 'element_share'}
-        >
-          <ActionSettings />
-        </FloatingActionButton>
-        {configPopover}
+          <FloatingActionButton
+            mini
+            style={{ position: 'absolute', right: '0.2em', top: '0.2em' }}
+            onClick={() => {
+              if (this.state.type === 'web_url') {
+                this.setState({ urlEditorOpen: true })
+              } else if (this.state.type === 'postback') {
+                this.setState({ payloadEditorOpen: true })
+              }
+            }}
+            ref={(x) => {
+              if (x) {
+                this.configAnchorEl = x.refs.container.refs.enhancedButton
+              }
+            }}
+            disabled={this.state.type === 'element_share'}
+          >
+            <ActionSettings />
+          </FloatingActionButton>
+          {configPopover}
+        </div>
+        }
       </div>
     )
   }
@@ -302,6 +311,7 @@ class Button extends React.Component {
 
 Button.propTypes = {
   disableShare: React.PropTypes.bool,
+  readOnly: React.PropTypes.bool,
 }
 
 export default Button

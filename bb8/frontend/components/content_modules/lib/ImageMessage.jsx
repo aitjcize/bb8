@@ -8,7 +8,15 @@ class ImageMessage extends React.Component {
   constructor(props) {
     super(props)
 
+    this.toJSON = this.toJSON.bind(this)
+    this.fromJSON = this.fromJSON.bind(this)
+
     this.state = { url: 'http://i.imgur.com/4loi6PJ.jpg' }
+
+    this.defaultProps = {
+      editorWidth: '18.75em',
+      readOnly: false,
+    }
   }
 
   valid() {
@@ -41,7 +49,11 @@ class ImageMessage extends React.Component {
           <TextField
             floatingLabelText="Image URL"
             value={this.state.url}
-            onChange={(e) => { this.setState({ url: e.target.value }) }}
+            onChange={(e) => {
+              if (!this.props.readOnly) {
+                this.setState({ url: e.target.value })
+              }
+            }}
           />
         </CardText>
       </Card>
@@ -51,6 +63,7 @@ class ImageMessage extends React.Component {
 
 ImageMessage.propTypes = {
   editorWidth: React.PropTypes.string.isRequired,
+  readOnly: React.PropTypes.bool,
 }
 
 

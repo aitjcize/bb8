@@ -37,6 +37,12 @@ class Message extends React.Component {
     }
     this.messages = {}
     this.idMsg = {}
+
+    this.defaultProps = {
+      maxMessages: 3,
+      editorWidth: '18.75em',
+      readOnly: false,
+    }
   }
 
   onAddClicked(type) {
@@ -71,7 +77,7 @@ class Message extends React.Component {
       idMsg[id] = msg
       let type = 'TextCardMessage'
       if (msg.attachment) {
-        if (msg.attachment.payload.template_type === 'image') {
+        if (msg.attachment.type === 'image') {
           type = 'ImageMessage'
         } else if (msg.attachment.payload.template_type === 'generic') {
           type = 'CarouselMessage'
@@ -116,6 +122,7 @@ class Message extends React.Component {
             messageContent = (
               <TextCardMessage
                 editorWidth={this.props.editorWidth}
+                readOnly={this.props.readOnly}
                 ref={(m) => { this.loadFromJSON(m, info.id) }}
               />
             )
@@ -123,6 +130,7 @@ class Message extends React.Component {
             messageContent = (
               <ImageMessage
                 editorWidth={this.props.editorWidth}
+                readOnly={this.props.readOnly}
                 ref={(m) => { this.loadFromJSON(m, info.id) }}
               />
             )
@@ -130,6 +138,7 @@ class Message extends React.Component {
             messageContent = (
               <CarouselMessage
                 editorWidth={this.props.editorWidth}
+                readOnly={this.props.readOnly}
                 ref={(m) => { this.loadFromJSON(m, info.id) }}
               />
             )
@@ -149,15 +158,16 @@ class Message extends React.Component {
               }}
             >
               {messageContent}
-              {this.state.hoverIndex === index &&
-              <FloatingActionButton
-                mini
-                secondary
-                onClick={() => { this.onRemoveClicked(info.id) }}
-                style={{ position: 'absolute', left: -20, top: -20 }}
-              >
-                <ActionDelete />
-              </FloatingActionButton>
+              {!this.props.readOnly &&
+               this.state.hoverIndex === index &&
+               <FloatingActionButton
+                 mini
+                 secondary
+                 onClick={() => { this.onRemoveClicked(info.id) }}
+                 style={{ position: 'absolute', left: -20, top: -20 }}
+               >
+                 <ActionDelete />
+               </FloatingActionButton>
               }
             </div>
           )
@@ -202,6 +212,7 @@ class Message extends React.Component {
 Message.propTypes = {
   maxMessages: React.PropTypes.number.isRequired,
   editorWidth: React.PropTypes.string.isRequired,
+  readOnly: React.PropTypes.bool,
 }
 
 export default Message

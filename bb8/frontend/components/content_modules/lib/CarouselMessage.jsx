@@ -25,6 +25,10 @@ class CarouselMessage extends React.Component {
     this.bubbles = {}
     this.maxBubbles = 7
     this.idBub = {}
+    this.defaultProps = {
+      editorWidth: '18.75em',
+      readOnly: false,
+    }
   }
 
   onAddClicked() {
@@ -117,23 +121,25 @@ class CarouselMessage extends React.Component {
           >
             <Bubble
               editorWidth={this.props.editorWidth}
+              readOnly={this.props.readOnly}
               ref={(b) => { this.loadFromJSON(b, id) }}
             />
-            {((index !== 0 || this.state.bubbleIds.length > 1) &&
-              this.state.hoverIndex === index) &&
-              <FloatingActionButton
-                mini
-                secondary
-                onClick={() => { this.onRemoveClicked(id) }}
-                style={{ position: 'absolute', right: '0.625em', top: '0.2em' }}
-              >
-                <ActionDelete />
-              </FloatingActionButton>
+            {!this.props.readOnly &&
+             ((index !== 0 || this.state.bubbleIds.length > 1) &&
+             this.state.hoverIndex === index) &&
+             <FloatingActionButton
+               mini
+               secondary
+               onClick={() => { this.onRemoveClicked(id) }}
+               style={{ position: 'absolute', right: '0.625em', top: '0.2em' }}
+             >
+               <ActionDelete />
+             </FloatingActionButton>
             }
           </div>
         ))
         }
-        {showAddButton && (
+        {!this.props.readOnly && showAddButton &&
         <Card
           style={{
             width: '5em',
@@ -164,7 +170,7 @@ class CarouselMessage extends React.Component {
             </FloatingActionButton>
           </div>
         </Card>
-        )}
+        }
       </div>
     )
   }
@@ -174,6 +180,7 @@ class CarouselMessage extends React.Component {
 CarouselMessage.propTypes = {
   maxWidth: React.PropTypes.string,
   editorWidth: React.PropTypes.string.isRequired,
+  readOnly: React.PropTypes.bool,
 }
 
 export default CarouselMessage

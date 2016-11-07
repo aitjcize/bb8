@@ -27,6 +27,11 @@ class TextCardMessage extends React.Component {
     }
     this.buttons = {}
     this.idBut = {}
+
+    this.defaultProps = {
+      editorWidth: '18.75em',
+      readOnly: false,
+    }
   }
 
   onAddClicked() {
@@ -108,7 +113,11 @@ class TextCardMessage extends React.Component {
             underlineShow={false}
             fullWidth
             multiLine
-            onChange={(e) => { this.setState({ text: e.target.value }) }}
+            onChange={(e) => {
+              if (!this.props.readOnly) {
+                this.setState({ text: e.target.value })
+              }
+            }}
             inputStyle={{ fontWeight: '600' }}
           />
         </CardText>
@@ -129,9 +138,10 @@ class TextCardMessage extends React.Component {
               >
                 <Button
                   disableShare
+                  readOnly={this.props.readOnly}
                   ref={(b) => { this.loadFromJSON(b, id) }}
                 />
-                {this.state.hoverIndex === index &&
+                {!this.props.readOnly && this.state.hoverIndex === index &&
                 <FloatingActionButton
                   mini
                   secondary
@@ -145,7 +155,7 @@ class TextCardMessage extends React.Component {
               </div>
             ))
             }
-            {showAddButton && (
+            {!this.props.readOnly && showAddButton && (
             <ListItem
               primaryText="Add a button"
               onClick={this.onAddClicked}
@@ -160,6 +170,7 @@ class TextCardMessage extends React.Component {
 
 TextCardMessage.propTypes = {
   editorWidth: React.PropTypes.string.isRequired,
+  readOnly: React.PropTypes.bool,
 }
 
 
