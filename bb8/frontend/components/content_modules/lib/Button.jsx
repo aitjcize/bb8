@@ -104,7 +104,7 @@ class Button extends React.Component {
             hintText="Button title"
             value={this.state.title}
             underlineShow={false}
-            style={{ marginLeft: '16px' }}
+            style={{ marginLeft: '1em' }}
             inputStyle={{ textAlign: 'center' }}
             hintStyle={{ left: '35%' }}
             onChange={(e) => {
@@ -155,7 +155,7 @@ class Button extends React.Component {
             hintText="Enter URL ..."
             errorText={this.state.urlEditorError}
             value={this.state.url}
-            style={{ margin: '2px 7px' }}
+            style={{ margin: '0.125em 0.5em' }}
             onChange={(e) => { this.setState({ url: e.target.value }) }}
             onKeyPress={(e) => {
               if (e.nativeEvent.code === 'Enter') {
@@ -222,7 +222,7 @@ class Button extends React.Component {
               typeAnchorEl: e.currentTarget,
             })
           }}
-          style={{ position: 'absolute', right: '46px', top: '3px' }}
+          style={{ position: 'absolute', right: '2.875em', top: '0.2em' }}
         >
           {typeButton}
         </FloatingActionButton>
@@ -277,7 +277,7 @@ class Button extends React.Component {
 
         <FloatingActionButton
           mini
-          style={{ position: 'absolute', right: '3px', top: '3px' }}
+          style={{ position: 'absolute', right: '0.2em', top: '0.2em' }}
           onClick={() => {
             if (this.state.type === 'web_url') {
               this.setState({ urlEditorOpen: true })

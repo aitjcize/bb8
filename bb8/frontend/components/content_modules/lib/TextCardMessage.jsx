@@ -136,7 +136,7 @@ class TextCardMessage extends React.Component {
                   mini
                   secondary
                   onClick={() => { this.onRemoveClicked(id) }}
-                  style={{ position: 'absolute', left: '0px', top: '3px' }}
+                  style={{ position: 'absolute', left: '0em', top: '0.2em' }}
                 >
                   <ActionDelete />
                 </FloatingActionButton>

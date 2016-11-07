@@ -128,7 +128,7 @@ class Bubble extends React.Component {
         <CardMedia
           style={{
             width: '100%',
-            height: '156px',
+            height: '9.75em',
             overflow: 'hidden',
           }}
         >
@@ -151,8 +151,8 @@ class Bubble extends React.Component {
           }}
           style={{
             position: 'absolute',
-            right: '3px',
-            top: '110px',
+            right: '0.2em',
+            top: '6.9em',
           }}
         >
           <FileUpload />
@@ -182,7 +182,7 @@ class Bubble extends React.Component {
                 }
               }
             }}
-            style={{ margin: '2px 7px' }}
+            style={{ margin: '0.125em 0.5em' }}
           />
         </Popover>
         <FloatingActionButton
@@ -195,8 +195,8 @@ class Bubble extends React.Component {
           }}
           style={{
             position: 'absolute',
-            right: '46px',
-            top: '110px',
+            right: '2.875em',
+            top: '6.9em',
           }}
         >
           <ContentLink />
@@ -226,7 +226,7 @@ class Bubble extends React.Component {
                 }
               }
             }}
-            style={{ margin: '2px 7px' }}
+            style={{ margin: '0.125em 0.5em' }}
           />
         </Popover>
         <CardText>
@@ -236,8 +236,8 @@ class Bubble extends React.Component {
             underlineShow={false}
             fullWidth
             onChange={(e) => { this.setState({ title: e.target.value }) }}
-            style={{ height: '32px' }}
-            hintStyle={{ bottom: '4px' }}
+            style={{ height: '2em' }}
+            hintStyle={{ bottom: '0.25em' }}
             inputStyle={{ fontWeight: '700' }}
           />
           <TextField
@@ -246,8 +246,8 @@ class Bubble extends React.Component {
             underlineShow={false}
             fullWidth
             onChange={(e) => { this.setState({ subtitle: e.target.value }) }}
-            style={{ height: '28px' }}
-            hintStyle={{ bottom: '2px', fontSize: '80%' }}
+            style={{ height: '1.75em' }}
+            hintStyle={{ bottom: '0.125em', fontSize: '80%' }}
             inputStyle={{ fontSize: '80%', color: 'grey' }}
           />
         </CardText>
@@ -274,7 +274,7 @@ class Bubble extends React.Component {
                   mini
                   secondary
                   onClick={() => { this.onRemoveClicked(id) }}
-                  style={{ position: 'absolute', left: '0px', top: '3px' }}
+                  style={{ position: 'absolute', left: '0em', top: '0.2em' }}
                 >
                   <ActionDelete />
                 </FloatingActionButton>

@@ -91,8 +91,8 @@ class CarouselMessage extends React.Component {
     return (
       <div
         style={{
-          maxHeight: '450px',
-          minHeight: '354px',
+          maxHeight: '28.125em',
+          minHeight: '22.125em',
           height: '100%',
           maxWidth: this.props.maxWidth,
           overflowX: 'auto',
@@ -109,7 +109,7 @@ class CarouselMessage extends React.Component {
               position: 'relative',
               display: 'inline-block',
               verticalAlign: 'top',
-              margin: '3px',
+              margin: '0.2em',
               whiteSpace: 'normal',
             }}
             onMouseEnter={() => { this.setState({ hoverIndex: index }) }}
@@ -125,7 +125,7 @@ class CarouselMessage extends React.Component {
                 mini
                 secondary
                 onClick={() => { this.onRemoveClicked(id) }}
-                style={{ position: 'absolute', right: '10px', top: '3px' }}
+                style={{ position: 'absolute', right: '0.625em', top: '0.2em' }}
               >
                 <ActionDelete />
               </FloatingActionButton>
@@ -136,13 +136,13 @@ class CarouselMessage extends React.Component {
         {showAddButton && (
         <Card
           style={{
-            width: '80px',
+            width: '5em',
             height: '100%',
-            minHeight: '296px',
+            minHeight: '18.5em',
             position: 'relative',
             display: 'inline-block',
             verticalAlign: 'top',
-            margin: '3px',
+            margin: '0.2em',
           }}
         >
           <div
@@ -151,8 +151,8 @@ class CarouselMessage extends React.Component {
               verticalAlign: 'middle',
               horizontalAlign: 'center',
               display: 'inline-block',
-              top: 'calc(50% - 20px)',
-              left: '20px',
+              top: 'calc(50% - 1.25em)',
+              left: '1.25em',
             }}
           >
             <FloatingActionButton

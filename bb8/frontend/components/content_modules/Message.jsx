@@ -144,7 +144,7 @@ class Message extends React.Component {
                 this.setState({ hoverIndex: undefined })
               }}
               style={{
-                margin: '23px',
+                margin: '1.4em',
                 position: 'relative',
               }}
             >
@@ -154,7 +154,7 @@ class Message extends React.Component {
                 mini
                 secondary
                 onClick={() => { this.onRemoveClicked(info.id) }}
-                style={{ position: 'absolute', left: '-20px', top: '-20px' }}
+                style={{ position: 'absolute', left: -20, top: -20 }}
               >
                 <ActionDelete />
               </FloatingActionButton>
@@ -164,7 +164,7 @@ class Message extends React.Component {
         })
         }
         {showAddButton &&
-        <Card style={{ width: this.props.editorWidth, margin: '23px' }}>
+        <Card style={{ width: this.props.editorWidth, margin: '1.4em' }}>
           <CardHeader
             title="Add a new message"
             style={{ fontWeight: '900' }}
