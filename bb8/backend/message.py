@@ -481,6 +481,37 @@ class Message(base_message.Message):
     # Patch Message.Bubble
     base_message.Message.Bubble = _Bubble
 
+    class _ListItem(base_message.Message.ListItem):
+        limits = {
+            PlatformTypeEnum.Facebook: {
+                'title': 80,
+                'subtitle': 80,
+                'image_url': 500,
+            },
+            PlatformTypeEnum.Line: {
+                'title': 40,
+                'subtitle': 60,
+                'image_url': 500,
+            }
+        }
+
+        def apply_limits(self, platform_type):
+            limits = self.limits[platform_type]
+            if self.title:
+                self.title = self.title[:limits['title']]
+            if self.subtitle:
+                self.subtitle = self.subtitle[:limits['subtitle']]
+            if self.image_url:
+                self.image_url = self.image_url[:limits['image_url']]
+
+            self.default_action.apply_limits(platform_type)
+
+            for button in self.buttons:
+                button.apply_limits(platform_type)
+
+    # Patch Message.ListItem
+    base_message.Message.ListItem = _ListItem
+
     class _QuickReply(base_message.Message.QuickReply):
         limits = {
             PlatformTypeEnum.Facebook: {
@@ -542,7 +573,7 @@ class Message(base_message.Message):
                 'previewImageUrl':
                     image_convert_url(self.image_url, (240, 240))
             }
-        elif self.buttons:
+        elif self.buttons_text:
             buttons = []
             for but in self.buttons:
                 if but.type == Message.ButtonType.WEB_URL:
@@ -615,8 +646,46 @@ class Message(base_message.Message):
                     'columns': columns
                 }
             }
+        elif self.list_items:
+            msgs = []
+            for list_item in self.list_items:
+                buttons = []
+                but = list_item.button
+                if but:
+                    if but.type == Message.ButtonType.WEB_URL:
+                        buttons.append({
+                            'type': 'uri',
+                            'label': but.title,
+                            'uri': but.url
+                        })
+                    elif but.type == Message.ButtonType.POSTBACK:
+                        buttons.append({
+                            'type': 'postback',
+                            'label': but.title,
+                            'data': but.payload
+                        })
 
-        return {}
+                col = {
+                    'title': list_item.title,
+                    'text': list_item.subtitle if list_item.subtitle else ' ',
+                    'actions': buttons
+                }
+
+                if list_item.image_url:
+                    col['thumbnailImageUrl'] = image_convert_url(
+                        list_item.image_url, (1024, 1024))
+
+                msgs.append({
+                    'type': 'template',
+                    'altText': 'carousel',
+                    'template': {
+                        'type': 'carousel',
+                        'columns': [col]
+                    }
+                })
+            return msgs
+
+        return []
 
     @classmethod
     def FromDict(cls, data, variables=None):

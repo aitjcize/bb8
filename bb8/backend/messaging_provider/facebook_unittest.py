@@ -71,6 +71,27 @@ class FacebookMessagingUnittest(unittest.TestCase):
                                     '17', url='http://www.17.media/'))
         facebook.send_message(self.user, [m])
 
+        # Test list template message
+        m = Message(top_element_style=Message.ListTopElementStyle.LARGE)
+        l = Message.ListItem('Google', 'google.com',
+                             'http://i.imgur.com/1QfaG1u.png')
+        l.set_default_action(Message.Button(Message.ButtonType.WEB_URL,
+                                            url='http://www.google.com'))
+        l.set_button(Message.Button(Message.ButtonType.WEB_URL,
+                                    title='Goto Google',
+                                    url='http://www.google.com/'))
+        m.add_list_item(l)
+        l = Message.ListItem('17', 'http://www.17.media/',
+                             'http://i.imgur.com/4loi6PJ.jpg')
+        l.set_button(Message.Button(Message.ButtonType.WEB_URL,
+                                    title='Goto 17',
+                                    url='http://www.17.media/'))
+        m.add_list_item(l)
+        m.add_button(Message.Button(Message.ButtonType.WEB_URL,
+                                    '17', url='http://www.17.media/'))
+
+        facebook.send_message(self.user, [m])
+
         # Test generic template message
         m = Message()
         bubble = Message.Bubble('Generic template test',

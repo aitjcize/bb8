@@ -87,14 +87,22 @@ def flush_message(platform):
         'Authorization': 'Bearer %s' % platform.config['access_token']
     }
 
+    messages = []
+    # pylint: disable=E1101
+    for m in g.line_messages:
+        msg = m.as_line_message()
+        if isinstance(msg, list):
+            messages += msg
+        else:
+            messages.append(msg)
+
     response = requests.request(
         'POST',
         LINE_MESSAGE_REPLY_API_URL,
         headers=headers,
         json={
             'replyToken': g.line_reply_token,
-            # pylint: disable=E1101
-            'messages': [m.as_line_message() for m in g.line_messages]
+            'messages': messages
         }
     )
 
@@ -109,13 +117,21 @@ def push_message(user, messages):
         'Authorization': 'Bearer %s' % user.platform.config['access_token']
     }
 
+    msgs = []
+    for m in messages:
+        msg = m.as_line_message()
+        if isinstance(msg, list):
+            msgs += msg
+        else:
+            msgs.append(msg)
+
     response = requests.request(
         'POST',
         LINE_MESSAGE_PUSH_API_URL,
         headers=headers,
         json={
             'to': user.platform_user_ident,
-            'messages': [m.as_line_message() for m in messages]
+            'messages': msgs
         }
     )
 
