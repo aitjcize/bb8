@@ -14,6 +14,12 @@ import storage from 'store2'
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
+import {
+  tealA400,
+  tealA700,
+  teal50,
+  grey600,
+} from 'material-ui/styles/colors'
 
 import { AUTH_TOKEN } from './constants'
 import rootSaga from './sagas'
@@ -55,14 +61,18 @@ syncHistoryWithStore(hashHistory, store)
 
 const THEME = {
   palette: {
-    primary1Color: '#3AD8BD',
-    accent1Color: '#FFBA48',
+    primary1Color: tealA400,
+    accent1Color: tealA700,
+    accent2Color: teal50,
+    textColor: grey600,
+  },
+  toolbar: {
+    height: '4em',
+    backgroundColor: tealA400,
   },
 }
 
 const muiTheme = getMuiTheme(THEME)
-muiTheme.toolbar.backgroundColor = muiTheme.appBar.color
-
 
 function authRequired(nextState, replace) {
   if (!storage.has(AUTH_TOKEN)) {
