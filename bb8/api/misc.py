@@ -16,13 +16,15 @@ import urlparse
 from cStringIO import StringIO
 
 import requests
-from flask import redirect, request, make_response
+from flask import g, redirect, request, make_response
 from PIL import Image
 from gcloud import storage
 
 from bb8 import app, config
-from bb8.constant import HTTPStatus, CustomError
 from bb8.api.error import AppError
+from bb8.backend.database import Bot
+from bb8.constant import HTTPStatus, CustomError
+from bb8.tracking import track, TrackingInfo
 
 
 ALLOWED_HOSTS = ['dramaq.biz', 'www.dramaq.biz', 'showq.biz', 'www.showq.biz']
@@ -30,6 +32,7 @@ ALLOWED_HOSTS = ['dramaq.biz', 'www.dramaq.biz', 'showq.biz', 'www.showq.biz']
 
 @app.route('/api/util/cache_image', methods=['GET'])
 def cache_image():
+    """Cache the image and return the cached URL."""
     gs_client = storage.Client(project=config.GCP_PROJECT)
     bucket = gs_client.get_bucket('cached-pictures')
     url = request.args['url']
@@ -117,3 +120,35 @@ def image_convert_url():
     response.headers['content-type'] = 'image/jpeg'
 
     return response
+
+
+@app.route('/redirect/<int:bot_id>/<platform_user_ident>')
+def redirect_track_url(bot_id, platform_user_ident):
+    """Handler for tracking URL
+
+    This handler allow us to track 'web_url' button clicks by embedding the
+    tracking info in the url parameters and sending to GA.
+    """
+    url = request.args.get('url', None)
+    if not url:
+        raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
+                       CustomError.ERR_WRONG_PARAM,
+                       'No URL specified')
+
+    path = request.args.get('path', None)
+    if not path:
+        raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
+                       CustomError.ERR_WRONG_PARAM,
+                       'No path specified')
+
+    try:
+        ret = Bot.query(Bot.ga_id).filter_by(id=bot_id).one()
+    except Exception:
+        raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
+                       CustomError.ERR_WRONG_PARAM,
+                       'Internal Error')
+
+    g.ga_id = ret[0]
+    track(TrackingInfo.Pageview(platform_user_ident, '/Redirect/%s' % path))
+
+    return redirect(url)

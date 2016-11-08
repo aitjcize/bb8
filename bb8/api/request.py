@@ -8,6 +8,7 @@
 
 from bb8 import app, config
 from bb8.backend.database import DatabaseManager
+from bb8.tracking import send_ga_track_info
 
 
 @app.before_request
@@ -20,3 +21,5 @@ def before_request():
 def teardown_appcontext(unused_exc):
     """Closes the database at the end of the request."""
     DatabaseManager.disconnect(commit=config.COMMIT_ON_APP_TEARDOWN)
+
+    send_ga_track_info()

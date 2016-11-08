@@ -17,7 +17,7 @@ from bb8.backend.message import Message
 from bb8.tracking import track, TrackingInfo
 from bb8.backend.database import (Bot, DatabaseManager, Conversation,
                                   CollectedDatum, Node, SupportedPlatform,
-                                  SenderEnum, User)
+                                  SenderEnum)
 from bb8.backend.metadata import ParseResult
 from bb8.backend.message import InputTransformation
 
@@ -131,10 +131,8 @@ class Engine(object):
 
             # Shared global variables
             global_variables = {
-                'statistic': {
-                    'user_count': User.count_by(platform_id=user.platform.id)
-                },
-                'user': user.to_json()
+                'user': user.to_json(),
+                'bot_id': bot.id
             }
 
             if not user.session.message_sent:

@@ -15,7 +15,7 @@ from flask import g
 
 from bb8 import app, logger, celery
 from bb8.backend import messaging
-from bb8.backend.database import DatabaseSession, User
+from bb8.backend.database import DatabaseSession
 from bb8.backend.message import Message
 
 
@@ -44,14 +44,15 @@ def _push_message_from_dict(users, messages_dict, eta=None,
 
     with app.test_request_context():
         with DatabaseSession():
+            user = users[0]
+            user.refresh()
+
             if eta:
                 base_eta = datetime.utcfromtimestamp(eta)
-                user = users[0]
-                user.refresh()
                 account_tz_offset = _get_account_timezone_offset(
                     user.platform.account)
 
-            user_count = User.count()
+            bot_id = user.platform.bot.id
 
             for user in users:
                 if not user.settings.get('subscribe', True):
@@ -68,10 +69,8 @@ def _push_message_from_dict(users, messages_dict, eta=None,
                 user.refresh()
                 g.user = user
                 variables = {
-                    'statistic': {
-                        'user_count': user_count
-                    },
-                    'user': user.to_json()
+                    'user': user.to_json(),
+                    'bot_id': bot_id
                 }
                 msgs = [Message.FromDict(m, variables) for m in messages_dict]
                 push_message.apply_async((user, msgs), eta=eta)

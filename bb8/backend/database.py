@@ -205,7 +205,7 @@ class User(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     __tablename__ = 'user'
 
     __json_public__ = ['first_name', 'last_name', 'locale', 'gender',
-                       'timezone']
+                       'timezone', 'platform_user_ident']
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     platform_id = Column(ForeignKey('platform.id'), nullable=False)
