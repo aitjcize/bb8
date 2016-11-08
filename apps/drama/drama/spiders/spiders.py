@@ -17,7 +17,7 @@ from scrapy.spiders import CrawlSpider
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
 
 from bb8_client.app_api import (CacheImage, EventPayload, Message,
-                                MessagingService)
+                                MessagingService, TrackedURL)
 
 from drama import config
 from drama.database import Drama, Episode, DramaCountryEnum, DatabaseManager
@@ -127,9 +127,10 @@ class DramaSpider(CrawlSpider):
                                    subtitle=drama.description,
                                    item_url=link)
 
-                b.add_button(Message.Button(Message.ButtonType.WEB_URL,
-                                            u'帶我去看',
-                                            url=link))
+                b.add_button(
+                    Message.Button(Message.ButtonType.WEB_URL,
+                                   u'帶我去看',
+                                   url=TrackedURL(link, 'WatchButton/Push')))
                 b.add_button(
                     Message.Button(Message.ButtonType.POSTBACK,
                                    u'我想看前幾集',

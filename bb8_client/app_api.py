@@ -60,5 +60,13 @@ class MessagingService(object):
 
 
 def CacheImage(link):
+    """Wrap the image specified by *link* and return the cached URL."""
     return 'https://{0}:{1}/api/util/cache_image?url={2}'.format(
         config.HOSTNAME, config.HTTP_PORT, link)
+
+
+def TrackedURL(link, path_name):
+    """Wraps given *link* with in tracking API."""
+    return ('https://%s:%s/redirect/{{bot_id}}/'
+            '{{user.platform_user_ident}}?path=%s&url=%s' %
+            (config.HOSTNAME, config.HTTP_PORT, path_name, link))

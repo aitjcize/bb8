@@ -13,7 +13,8 @@ from bb8.backend.content_modules.lib.numbers_parsing_utils import (
     convert_to_arabic_numbers)
 from bb8.backend.module_api import (CacheImage, Message, EventPayload,
                                     GetgRPCService, GetUserId,
-                                    SupportedPlatform, Resolve, Memory)
+                                    SupportedPlatform, Resolve, Memory,
+                                    TrackedURL)
 
 
 GRPC_TIMEOUT = 5
@@ -142,7 +143,7 @@ def render_dramas(dramas):
     return m
 
 
-def render_episodes(episodes):
+def render_episodes(episodes, variables):
     """Render cards given a list of episodes"""
     if not len(episodes):
         return [Message(u'沒有更多的集數可以看囉 :(')]
@@ -156,7 +157,8 @@ def render_episodes(episodes):
         b.add_button(Message.Button(
             Message.ButtonType.WEB_URL,
             u'帶我去看',
-            url=ep.link))
+            url=TrackedURL(ep.link, 'WatchButton'),
+            variables=variables))
         b.add_button(Message.Button(
             Message.ButtonType.POSTBACK,
             u'我想看前幾集',
@@ -219,7 +221,7 @@ def run(content_config, unused_env, variables):
                          u'我們會在有更新的時候通知您！'),
                  Message(u'在等待的同時，'
                          u'您可以先看看之前的集數喲！')] +
-                render_episodes(episodes))
+                render_episodes(episodes, variables))
 
     if content_config['mode'] == 'unsubscribe':
         event = variables['event']
@@ -238,7 +240,7 @@ def run(content_config, unused_env, variables):
                                           from_episode=from_episode,
                                           backward=backward)
 
-        return render_episodes(episodes)
+        return render_episodes(episodes, variables)
 
     if content_config['mode'] == 'prompt':
         m = Message(u'你比較喜歡以下的什麼劇呢？')
@@ -277,7 +279,7 @@ def run(content_config, unused_env, variables):
                 episode = drama_info.get_episode(drama_id, serial_number)
             except Exception:
                 return [Message('沒有這一集喔')]
-            return render_episodes([episode])
+            return render_episodes([episode], variables)
         else:
             return [Message('請先告訴我你要查的劇名')]
 
