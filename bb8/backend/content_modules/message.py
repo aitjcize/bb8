@@ -54,6 +54,7 @@ def schema():
         'definitions': {
             'button': Message.Button.schema(),
             'bubble': Message.Bubble.schema(),
+            'list_item': Message.ListItem.schema(),
             'quick_reply': Message.QuickReply.schema()
         }
     }
