@@ -43,3 +43,4 @@ class CustomError(object):
     ERR_WRONG_PASSWD = 105
     ERR_WRONG_PARAM = 106
     ERR_INVALID_URL = 107
+    ERR_DUPLICATE_ENTRY = 108

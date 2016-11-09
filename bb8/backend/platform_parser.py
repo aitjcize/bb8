@@ -14,11 +14,17 @@ import os
 
 import jsonschema
 
+from sqlalchemy.exc import IntegrityError
+
 import bb8
 from bb8 import logger
 from bb8.backend.database import (DatabaseManager, Bot, Platform,
                                   PlatformTypeEnum)
 from bb8.backend.messaging import get_messaging_provider
+
+
+class DuplicateEntryError(Exception):
+    pass
 
 
 def get_platforms_dir():
@@ -87,7 +93,12 @@ def parse_platform(platform_json, to_platform_id=None, source='platform_json'):
                     platform_json['name'], source)
         platform = Platform(**platform_json).add()
 
-    DatabaseManager.flush()
+    try:
+        DatabaseManager.flush()
+    except IntegrityError:
+        DatabaseManager.rollback()
+        raise DuplicateEntryError()
+
     return platform
 
 
