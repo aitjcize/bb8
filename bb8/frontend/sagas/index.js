@@ -24,7 +24,7 @@ export function* loginSaga() {
       yield call(api.login, email, passwd)
 
     if (error) {
-      yield put({ type: types.ACCOUNTS_LOGIN.ERROR })
+      yield put({ type: types.ACCOUNTS_LOGIN.ERROR, payload: error })
       hashHistory.push('/login')
     } else {
       storage.set(AUTH_TOKEN, response.authToken)
@@ -43,7 +43,7 @@ export function* fetchBotsSaga() {
     const { response, error } = yield call(api.getAllBots)
 
     if (error) {
-      yield put({ type: types.BOTS_LIST.ERROR })
+      yield put({ type: types.BOTS_LIST.ERROR, payload: error })
     } else {
       yield put({ type: types.BOTS_LIST.SUCCESS, payload: response })
     }
@@ -59,7 +59,7 @@ export function* fetchPlatformsSaga() {
     const { response, error } = yield call(api.getPlatforms)
 
     if (error) {
-      yield put({ type: types.PLATFORMS_LIST.ERROR })
+      yield put({ type: types.PLATFORMS_LIST.ERROR, payload: error })
     } else {
       yield put({ type: types.PLATFORMS_LIST.SUCCESS, payload: response })
     }
@@ -73,7 +73,7 @@ export function* createPlatformSaga() {
     const { response, error } = yield call(api.createPlatform, payload)
 
     if (error) {
-      yield put({ type: types.PLATFORMS_CREATE.ERROR })
+      yield put({ type: types.PLATFORMS_CREATE.ERROR, payload: error })
     } else {
       yield put({
         type: types.PLATFORMS_CREATE.SUCCESS,
@@ -90,7 +90,7 @@ export function* updatePlatformSaga() {
     const { response, error } = yield call(api.updatePlatform, platformId, platform)
 
     if (error) {
-      yield put({ type: types.PLATFORMS_UPDATE.ERROR })
+      yield put({ type: types.PLATFORMS_UPDATE.ERROR, payload: error })
     } else {
       yield put({
         type: types.PLATFORMS_UPDATE.SUCCESS,
@@ -108,7 +108,7 @@ export function* deletePlatformSaga() {
     const { error } = yield call(api.deletePlatform, platformId)
 
     if (error) {
-      yield put({ type: types.PLATFORMS_DELETE.ERROR })
+      yield put({ type: types.PLATFORMS_DELETE.ERROR, payload: error })
     } else {
       yield put({ type: types.PLATFORMS_DELETE.SUCCESS, payload: platformId })
     }
@@ -124,7 +124,7 @@ export function* fetchBroadcastsSaga() {
     const { response, error } = yield call(api.getAllBroadcasts, payload)
 
     if (error) {
-      yield put({ type: types.BROADCASTS_LIST.ERROR })
+      yield put({ type: types.BROADCASTS_LIST.ERROR, payload: error })
     } else {
       yield put({
         type: types.BROADCASTS_LIST.SUCCESS,
@@ -140,7 +140,7 @@ export function* createBroadcastSaga() {
 
     const { response, error } = yield call(api.createBroadcast, payload)
     if (error) {
-      yield put({ type: types.BROADCASTS_CREATE.ERROR })
+      yield put({ type: types.BROADCASTS_CREATE.ERROR, payload: error })
     } else {
       yield put({
         type: types.BROADCASTS_CREATE.SUCCESS,
@@ -158,7 +158,7 @@ export function* updateBroadcastSaga() {
     const { response, error } = yield call(api.updateBroadcast, broadcastId, broadcast)
 
     if (error) {
-      yield put({ type: types.BROADCASTS_UPDATE.ERROR, error })
+      yield put({ type: types.BROADCASTS_UPDATE.ERROR, payload: error })
     } else {
       yield put({
         type: types.BROADCASTS_UPDATE.SUCCESS,
@@ -177,7 +177,7 @@ export function* deleteBroadcastSaga() {
       yield call(api.deleteBroadcast, broadcastId)
 
     if (error) {
-      yield put({ type: types.BROADCASTS_DELETE.ERROR })
+      yield put({ type: types.BROADCASTS_DELETE.ERROR, payload: error })
     } else {
       yield put({
         type: types.BROADCASTS_DELETE.SUCCESS,
