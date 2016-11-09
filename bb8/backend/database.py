@@ -170,7 +170,15 @@ class Bot(DeclarativeBase, ModelMixin, JSONSerializableMixin):
 
     @property
     def users(self):
-        platform_ids = [p.id for p in Platform.get_by(bot_id=self.id)]
+        # Don't broadcast to the deployed platforms if we are not in
+        # deployment. This prevent us from accidentally broadcast to real
+        # users.
+        if config.DEPLOY:
+            platform_ids = [p.id for p in Platform.get_by(bot_id=self.id)]
+        else:
+            platform_ids = [p.id for p in
+                            Platform.get_by(bot_id=self.id, deployed=False)]
+
         if not platform_ids:  # No associated platform
             return []
         return User.query().filter(User.platform_id.in_(platform_ids)).all()
