@@ -112,6 +112,18 @@ class MessageUnittest(unittest.TestCase, BaseTestMixin):
         jsonschema.validate(b.as_dict(), Message.Bubble.schema())
         self.assertEquals(b, b.FromDict(b.as_dict()))
 
+    def test_ListItem(self):
+        l = Message.ListItem('title', 'subtitle', 'http://test.com/image_url')
+        jsonschema.validate(l.as_dict(), Message.ListItem.schema())
+        self.assertEquals(l, l.FromDict(l.as_dict()))
+
+        l.set_default_action(Message.Button(Message.ButtonType.WEB_URL, 'test',
+                                            url='http://test.com'))
+        l.set_button(Message.Button(Message.ButtonType.WEB_URL, 'test',
+                                    url='http://test.com'))
+        jsonschema.validate(l.as_dict(), Message.ListItem.schema())
+        self.assertEquals(l, l.FromDict(l.as_dict()))
+
     def test_QuickReply(self):
         q1 = Message.QuickReply(Message.QuickReplyType.TEXT, 'quick_reply_1',
                                 acceptable_inputs=['1', '2'])
@@ -157,7 +169,7 @@ class MessageUnittest(unittest.TestCase, BaseTestMixin):
         jsonschema.validate(m.as_dict(), Message.schema())
         self.assertEquals(m, m.FromDict(m.as_dict()))
 
-        # Button message
+        # Buttons message
         m = Message(buttons_text='question')
         m.add_button(but1)
         m.add_button(but2)
@@ -168,6 +180,20 @@ class MessageUnittest(unittest.TestCase, BaseTestMixin):
                                 [x[0] for x in g.input_transformation], [])
         self.assertTrue('^1$' not in transform_keys)
         self.assertTrue('^2$' in transform_keys)
+
+        # List message
+        l = Message.ListItem('title', 'subtitle', 'http://test.com/image_url')
+        l.set_button(Message.Button(Message.ButtonType.WEB_URL, 'test',
+                                    url='http://test.com'))
+        m = Message(top_element_style=Message.ListTopElementStyle.COMPACT)
+        m.add_list_item(l)
+
+        with self.assertRaises(jsonschema.ValidationError):
+            # Need at least two list items
+            jsonschema.validate(m.as_dict(), Message.schema())
+
+        m.add_list_item(l)
+        jsonschema.validate(m.as_dict(), Message.schema())
 
         # Generic message
         g.input_transformation = []
