@@ -119,9 +119,9 @@ export function* deletePlatformSaga() {
 
 export function* fetchBroadcastsSaga() {
   while (true) {
-    yield take(types.BROADCASTS_LIST.REQUEST)
+    const { payload } = yield take(types.BROADCASTS_LIST.REQUEST)
 
-    const { response, error } = yield call(api.getAllBroadcasts)
+    const { response, error } = yield call(api.getAllBroadcasts, payload)
 
     if (error) {
       yield put({ type: types.BROADCASTS_LIST.ERROR })
@@ -139,7 +139,6 @@ export function* createBroadcastSaga() {
     const { payload } = yield take(types.BROADCASTS_CREATE.REQUEST)
 
     const { response, error } = yield call(api.createBroadcast, payload)
-
     if (error) {
       yield put({ type: types.BROADCASTS_CREATE.ERROR })
     } else {
@@ -159,7 +158,7 @@ export function* updateBroadcastSaga() {
     const { response, error } = yield call(api.updateBroadcast, broadcastId, broadcast)
 
     if (error) {
-      yield put({ type: types.BROADCASTS_UPDATE.ERROR })
+      yield put({ type: types.BROADCASTS_UPDATE.ERROR, error })
     } else {
       yield put({
         type: types.BROADCASTS_UPDATE.SUCCESS,
@@ -174,7 +173,7 @@ export function* deleteBroadcastSaga() {
     const { payload } = yield take(types.BROADCASTS_DELETE.REQUEST)
     const broadcastId = payload
 
-    const { response, error } =
+    const { error } =
       yield call(api.deleteBroadcast, broadcastId)
 
     if (error) {
@@ -182,7 +181,7 @@ export function* deleteBroadcastSaga() {
     } else {
       yield put({
         type: types.BROADCASTS_DELETE.SUCCESS,
-        payload: response,
+        payload: broadcastId,
       })
     }
   }

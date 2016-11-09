@@ -63,6 +63,7 @@ class BotPickerListItem extends React.Component {
 BotPickerListItem.propTypes = {
   onSetActiveBot: React.PropTypes.func,
   data: React.PropTypes.objectOf(React.PropTypes.shape({
+    // eslint-disable-next-line react/no-unused-prop-types
     name: React.PropTypes.string,
   })),
   isActive: React.PropTypes.bool,
