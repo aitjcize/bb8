@@ -1,47 +1,42 @@
 {
-  "platforms": [
-    {
-      "type_enum": "Facebook",
-      "deployed": false,
-      "provider_ident": "facebook_page_id_simple",
-      "config": {
-        "access_token": "access_token"
-      }
-    }
-  ],
+  "platforms": {
+    "Facebook": "bb8.test.platform",
+    "Facebook2": "bb8.test2.platform"
+  },
   "bot": {
     "name": "simple",
     "description": "test simple graph",
     "interaction_timeout": 120,
     "admin_interaction_timeout": -1,
     "session_timeout": 864000,
+    "settings": {},
     "nodes": {
       "Start": {
-        "name": "start",
-        "description": "start",
+        "name": "Start",
+        "description": "Start",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.test.text_message",
           "config": {
-            "text": "In start"
+            "text": "In Start"
           }
         },
         "parser_module": {
           "id": "ai.compose.parser.core.passthrough",
           "config": {
             "end_node_id": "Root",
-            "ack_message": "Goto root"
+            "ack_message": "Goto Root"
           }
         }
       },
       "Root": {
-        "name": "root",
-        "description": "root",
+        "name": "Root",
+        "description": "Root",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.test.text_message",
           "config": {
-            "text": "In root"
+            "text": "In Root"
           }
         },
         "parser_module": {
@@ -81,7 +76,7 @@
         "description": "NodeA",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.test.text_message",
           "config": {
             "text": "In A"
           }
@@ -123,7 +118,7 @@
         "description": "NodeB",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.test.text_message",
           "config": {
             "text": "In B"
           }
@@ -149,7 +144,7 @@
         "description": "NodeC",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.test.text_message",
           "config": {
             "text": "In C"
           }
@@ -175,7 +170,7 @@
         "description": "NodeD",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.test.text_message",
           "config": {
             "text": "In D"
           }
@@ -201,7 +196,7 @@
         "description": "NodeE",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.test.text_message",
           "config": {
             "text": "In E"
           }

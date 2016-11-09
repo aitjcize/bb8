@@ -20,6 +20,9 @@ spider_configs = {
             'http://www.dramaq.biz/cn/',
             'http://www.dramaq.biz/jp/',
         ),
+        'custom_settings': {
+            'DEPTH_LIMIT': 1
+        },
         'rules': (
             Rule(LinkExtractor(
                 deny=(r'.*\.php$'),

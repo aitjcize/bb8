@@ -1,27 +1,21 @@
 {
-  "platforms": [
-    {
-      "type_enum": "Facebook",
-      "deployed": false,
-      "provider_ident": "facebook_page_id_postback",
-      "config": {
-        "access_token": "access_token"
-      }
-    }
-  ],
+  "platforms": {
+    "Facebook": "bb8.test.platform"
+  },
   "bot": {
     "name": "Postback",
     "description": "test Postback",
     "interaction_timeout": 120,
     "admin_interaction_timeout": -1,
     "session_timeout": 864000,
+    "settings": {},
     "nodes": {
       "Start": {
         "name": "Start",
         "description": "Start",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.test.text_message",
           "config": {
             "text": "In Start"
           }
@@ -39,7 +33,7 @@
         "description": "Root",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.test.text_message",
           "config": {
             "text": "In Root"
           }
@@ -81,12 +75,12 @@
                 },
                 "end_node_id": "Show",
                 "ack_message": "Goto Show"
-              },
-              {
-                "end_node_id": "Root",
-                "ack_message": "Goto Root"
               }
-            ]
+            ],
+            "on_error": {
+              "end_node_id": "Root",
+              "ack_message": "Goto Root"
+            }
           }
         }
       },

@@ -31,16 +31,18 @@ class MessagingService(object):
     def Ping(self):
         self._stub.Ping(app_service_pb2.Empty(), self._timeout)
 
-    def Send(self, user_ids, msgs):
+    def Push(self, user_ids, msgs, eta=None, user_localtime=False):
         try:
             serialized_message = [m.as_dict() for m in msgs]
         except Exception as e:
             raise RuntimeError('Failed to serialize message: %s' % e)
 
-        self._stub.Send(
-            app_service_pb2.SendRequest(
+        self._stub.Push(
+            app_service_pb2.PushRequest(
                 user_ids=user_ids,
-                messages_object=cPickle.dumps(serialized_message)),
+                messages_object=cPickle.dumps(serialized_message),
+                eta=eta,
+                user_localtime=user_localtime),
             self._timeout)
 
     def Broadcast(self, bot_id, msgs, static=True):
@@ -55,3 +57,16 @@ class MessagingService(object):
                 messages_object=cPickle.dumps(serialized_message),
                 static=static),
             self._timeout)
+
+
+def CacheImage(link):
+    """Wrap the image specified by *link* and return the cached URL."""
+    return 'https://{0}:{1}/api/util/cache_image?url={2}'.format(
+        config.HOSTNAME, config.HTTP_PORT, link)
+
+
+def TrackedURL(link, path_name):
+    """Wraps given *link* with in tracking API."""
+    return ('https://%s:%s/redirect/{{bot_id}}/'
+            '{{user.platform_user_ident}}?path=%s&url=%s' %
+            (config.HOSTNAME, config.HTTP_PORT, path_name, link))

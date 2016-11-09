@@ -1,0 +1,10 @@
+{
+  "name": "全台實價登錄網站",
+  "type_enum": "Line",
+  "deployed": true,
+  "provider_ident": "twrealprice",
+  "config": {
+    "access_token": "c76/YI+sM13wbO4XskcYTz/08gDHt9h3ICDkM9nKRemPu0hRcNRpJtB57Bv5x0auwvN/C/MtDjyLcozbkM1fubKUWWGIxAU018HQw6BKQRqDgrmRnPV1b77QMnrzUQLyhRSmuJGWh2jBnHZ+EvoIOQdB04t89/1O/w1cDnyilFU=",
+    "channel_secret": "0bf9c20ef7c2bac0045161ece864ddb6"
+  }
+}

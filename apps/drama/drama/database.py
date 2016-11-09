@@ -61,7 +61,8 @@ class Drama(DeclarativeBase, ModelMixin):
     episodes = relationship('Episode', backref='drama')
 
     def __repr__(self):
-        return u'<%s(\'%s\')>' % (type(self).__name__, self.name)
+        return '<%s(\'%s\', \'%s\')>' % (type(self).__name__, self.id,
+                                         self.name.encode('utf8'))
 
 
 class Episode(DeclarativeBase, ModelMixin):

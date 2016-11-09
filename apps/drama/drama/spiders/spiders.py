@@ -16,10 +16,14 @@ from scrapy.exceptions import DropItem
 from scrapy.spiders import CrawlSpider
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
 
-from bb8_client.app_api import EventPayload, Message, MessagingService
+from bb8_client.app_api import (CacheImage, EventPayload, Message,
+                                MessagingService, TrackedURL)
 
+from drama import config
 from drama.database import Drama, Episode, DramaCountryEnum, DatabaseManager
 
+
+# Global MessagingService API endpoint
 message_service = MessagingService()
 
 
@@ -60,8 +64,7 @@ class DramaSpider(CrawlSpider):
             image=urlparse.urljoin(
                 base,
                 extract_xpath(response, '//div[@id="top"]//img/@src')),
-            country=DramaCountryEnum(country),
-            order=None,
+            country=DramaCountryEnum(country)
         )
 
     def parse_drama(self, response):
@@ -76,6 +79,10 @@ class DramaSpider(CrawlSpider):
             drama = Drama.get_by(name=meta['name'], single=True)
             if not drama:
                 raise RuntimeError(u'Should not be here! name=' + meta['name'])
+
+            # Update Drama info
+            Drama.get_by(name=meta['name'], return_query=True).update(meta)
+            DatabaseManager.commit()
 
         hrefs = response.xpath('//div[@id="main"]//li/a/@href').extract()
         for idx, link in enumerate(hrefs):
@@ -112,15 +119,18 @@ class DramaSpider(CrawlSpider):
                 drama.episodes.append(ep)
                 DatabaseManager.commit()
 
+                image_url = (CacheImage(drama.image) if drama.image else
+                             config.DEFAULT_DRAMA_IMAGE)
                 b = Message.Bubble((drama.name +
                                     u'第 %d 集' % ep.serial_number),
-                                   image_url=drama.image,
+                                   image_url=image_url,
                                    subtitle=drama.description,
                                    item_url=link)
 
-                b.add_button(Message.Button(Message.ButtonType.WEB_URL,
-                                            u'帶我去看',
-                                            url=link))
+                b.add_button(
+                    Message.Button(Message.ButtonType.WEB_URL,
+                                   u'帶我去看',
+                                   url=TrackedURL(link, 'WatchButton/Push')))
                 b.add_button(
                     Message.Button(Message.ButtonType.POSTBACK,
                                    u'我想看前幾集',
@@ -128,7 +138,10 @@ class DramaSpider(CrawlSpider):
                                        'GET_HISTORY', {
                                            'drama_id': drama.id,
                                            'from_episode': serial_number,
+                                           'backward': True,
                                        })))
+                b.add_button(Message.Button(
+                    Message.ButtonType.ELEMENT_SHARE))
                 msg.add_bubble(b)
                 bubble_count += 1
 
@@ -137,9 +150,10 @@ class DramaSpider(CrawlSpider):
 
         # TODO(kevin): figure out a way to group
         # the notification of the same drama
-        if bubble_count > 0:
-            message_service.Send(
-                [u.id for u in drama.users],
+        user_ids = [u.id for u in drama.users]
+        if bubble_count > 0 and user_ids:
+            message_service.Push(
+                user_ids,
                 [Message(u'您訂閱的戲劇%s'
                          u'有新的一集囉！快來看！' % drama.name), msg])
 

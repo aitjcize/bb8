@@ -19,20 +19,21 @@ import os
 import re
 import subprocess
 import sys
+import time
 
 import colorlog
 import jsonschema
 
-from bb8 import config
+from bb8 import SRC_ROOT as BB8_SRC_ROOT
+from bb8 import config, util
+from bb8.backend import modules
 
-
-BB8_SRC_ROOT = os.path.normpath(os.path.join(
-    os.path.abspath(os.path.dirname(os.path.realpath(__file__))),
-    '..', '..'))
 BB8_DATA_ROOT = '/var/lib/bb8'
 BB8_NETWORK = 'bb8_network'
 BB8_CLIENT_PACKAGE_NAME = 'bb8-client-9999.tar.gz'
 BB8_CREDENTIALS_DIR = '/etc/bb8/'
+BB8_CELERY_PID_FILE = '/var/lib/bb8/celery.pid'
+BB8_CELERY_SHUTDOWN_WAIT_SECS = 10
 
 
 logger = logging.getLogger('bb8ctl')
@@ -53,12 +54,6 @@ def scoped_name(name):
             '%s.%s' % (os.getenv('BB8_SCOPE', 'nobody'), name))
 
 
-def get_manifest_schema():
-    """Return the schema of app manifest."""
-    with open(os.path.join(BB8_SRC_ROOT, 'apps', 'schema.app.json')) as f:
-        return json.load(f)
-
-
 def run(command, allow_error=False):
     """Simple wrapper for executing shell command."""
     try:
@@ -75,9 +70,7 @@ def get_output(command):
 
 def get_dir_hash(path):
     """Generate a hash representing a given directory."""
-    dir_hash = get_output(
-        'cd %s; find . -type f -exec sha1sum {} \\; | sha1sum' % path)
-    return dir_hash[:6]
+    return get_output('git log -n 1 --pretty=format:%%h %s' % path)
 
 
 def create_dir_if_not_exists(path, sudo=False):
@@ -90,9 +83,19 @@ def create_dir_if_not_exists(path, sudo=False):
 
 
 def docker_get_instance(name):
-    return get_output(
-        'docker ps -a --format "{{.Names}}" | grep "%s"; true' %
+    """Get docker instance with name.
+
+    Returns: A tuple (instance_name, running).
+    """
+    result = get_output(
+        'docker ps -a --format "{{.Names}},{{.Status}}" | grep "%s"; true' %
         name).strip()
+    if not result:
+        return '', False
+
+    name, status_text = result.split(',')
+    running = True if 'Up' in status_text else False
+    return name, running
 
 
 def hostname_env_switch():
@@ -122,7 +125,7 @@ class App(object):
     """App class representing an BB8 third-party app."""
 
     BB8_APP_PREFIX = scoped_name('bb8.app')
-    SCHEMA = get_manifest_schema()
+    SCHEMA = util.get_schema('app')
 
     VOLUME_PRIVILEGE_WHITELIST = ['system', 'content', 'drama']
 
@@ -193,13 +196,13 @@ class App(object):
         self.start_container(force, bind)
 
     def stop(self):
-        instance = docker_get_instance(self._image_name)
+        instance, unused_running = docker_get_instance(self._image_name)
         if instance:
             run('docker rm -f %s' % instance, True)
 
     def shell(self, command=None):
-        instance = docker_get_instance(self._image_name)
-        if not instance:
+        instance, running = docker_get_instance(self._image_name)
+        if not instance or not running:
             logger.error('App `%s\' not running', self._image_name)
             return
         s = subprocess.Popen('docker exec -it %s %s' %
@@ -216,20 +219,22 @@ class App(object):
 
         app_version_hash = get_dir_hash(self._app_dir)
         container_name = '%s.%s' % (self._image_name, app_version_hash)
-        instance = docker_get_instance(self._image_name)
+        instance, running = docker_get_instance(self._image_name)
 
-        m = re.match(r'^%s\.(.*?)$' % self._image_name, instance)
-        if m:
-            running_version_hash = m.group(1)
-            if running_version_hash == app_version_hash:
-                logger.warn('%s: no change since last deploy.', self._app_name)
+        if running:
+            m = re.match(r'^%s\.(.*?)$' % self._image_name, instance)
+            if m:
+                version_hash = m.group(1)
+                if version_hash == app_version_hash:
+                    logger.warn('%s: no change since last deploy.',
+                                self._app_name)
 
-                if force:
-                    logger.warn('%s: force deploy requested, continuing '
-                                'deployment ...', self._app_name)
-                else:
-                    logger.warn('%s: skip deployment.', self._app_name)
-                    return
+                    if force:
+                        logger.warn('%s: force deploy requested, continuing '
+                                    'deployment ...', self._app_name)
+                    else:
+                        logger.warn('%s: skip deployment.', self._app_name)
+                        return
 
         app_state_dir = os.path.join(BB8_DATA_ROOT, 'apps', self._app_name)
         volumes = []
@@ -272,6 +277,7 @@ class App(object):
             ' -m {0}'.format(self.get_memory_limit()) +
             ' -e BB8_SCOPE={0}'.format(os.getenv('BB8_SCOPE', 'nobody')) +
             ' -e BB8_DEPLOY={0}'.format(str(config.DEPLOY).lower()) +
+            ' -e BB8_HTTP_PORT={0}'.format(config.HTTP_PORT) +
             (' -p {0}:9999'.format(os.getenv('APP_RPC_PORT', 9999))
              if bind else ' ') +
             database_env_switch() +
@@ -280,7 +286,7 @@ class App(object):
             ' -d %s' % self._image_name)
 
     def logs(self):
-        instance = docker_get_instance(self._image_name)
+        instance, unused_running = docker_get_instance(self._image_name)
         if instance:
             run('docker logs %s' % instance)
 
@@ -297,12 +303,29 @@ class BB8(object):
 
     def start_services(self):
         redis_service = '%s.redis' % self.BB8_SERVICE_PREFIX
-        instance = docker_get_instance(redis_service)
+        instance, running = docker_get_instance(redis_service)
+        if instance and not running:
+            run('docker rm -f %s' % redis_service)
         if not instance:
             run('docker run ' +
                 '--net=%s ' % BB8_NETWORK +
                 '--net-alias=%s ' % redis_service +
                 '--name %s -d redis' % redis_service)
+
+        datadog_service = '%s.datadog' % self.BB8_SERVICE_PREFIX
+        instance, running = docker_get_instance(datadog_service)
+        if instance and not running:
+            run('docker rm -f %s' % datadog_service)
+        if not instance:
+            run('docker run ' +
+                '--net=%s ' % BB8_NETWORK +
+                '--net-alias=%s ' % datadog_service +
+                '-v /var/run/docker.sock:/var/run/docker.sock ' +
+                '-v /proc/:/host/proc/:ro ' +
+                '-v /sys/fs/cgroup/:/host/sys/fs/cgroup:ro ' +
+                '-e API_KEY=%s ' % config.DATADOG_API_KEY +
+                '--name %s -d ' % datadog_service +
+                'datadog/docker-dd-agent:latest-alpine')
 
     @classmethod
     def get_app_dirs(cls):
@@ -337,7 +360,8 @@ class BB8(object):
 
     def copy_extra_source(self):
         """Copy extra source required by client module."""
-        LIST = ['base_message.py', 'database_utils.py', 'query_filters.py']
+        LIST = ['base_message.py', 'database_utils.py', 'template.py',
+                'template_filters.py']
         for filename in LIST:
             run('ln -f %s %s' %
                 (os.path.join(BB8_SRC_ROOT, 'bb8', 'backend', filename),
@@ -367,6 +391,18 @@ class BB8(object):
         # Remove pb-python dir
         run('sudo rm -rf %s/pb-python' % proto_dir)
 
+    def compile_static_frontend_resource(self):
+        modules.compile_module_infos(
+            os.path.join(BB8_SRC_ROOT, 'bb8', 'frontend', 'constants',
+                         'ModuleInfos.json'))
+
+    def compile_python_source(self):
+        if not config.DEPLOY:
+            return
+        for subdir in ['bb8', 'apps']:
+            run('python -OO -m compileall %s >/dev/null' %
+                os.path.join(BB8_SRC_ROOT, subdir))
+
     def build_client_package(self):
         run('cd %s; python setup.py sdist' % BB8_SRC_ROOT)
         run('rm -rf %s' % os.path.join(BB8_SRC_ROOT, 'bb8_client.egg-info'))
@@ -377,6 +413,8 @@ class BB8(object):
         self.copy_extra_source()
         self.build_client_package()
         self.compile_and_install_proto()
+        self.compile_static_frontend_resource()
+        self.compile_python_source()
 
     def compile_resource(self, copy_credential=True):
         self.prepare_resource(copy_credential)
@@ -385,33 +423,61 @@ class BB8(object):
             app = App(app_dir)
             app.compile_and_install_service_proto()
 
+    def install_misc_resource(self):
+        RESOURCE_DEF = os.path.join(BB8_SRC_ROOT, 'conf', 'misc-resource.json')
+
+        with open(RESOURCE_DEF, 'r') as f:
+            resource_def = json.load(f)
+
+        schema_def = util.get_schema('misc-resource')
+        try:
+            jsonschema.validate(resource_def, schema_def)
+        except jsonschema.exceptions.ValidationError as e:
+            raise RuntimeError('Fail to validate misc-resource definition: '
+                               '%s' % e)
+
+        # gsutil maybe under /root/google-cloud-sdk/bin/ if installed via pip
+        os.environ['PATH'] = os.getenv('PATH') + ':/root/google-cloud-sdk/bin'
+
+        # Copy module-resource
+        for module, res_list in resource_def['module-resource'].iteritems():
+            logger.info('Installing resource for %s ...', module)
+            for resource in res_list:
+                run('gsutil cp %s %s' % (resource['source'], resource['dest']))
+
     def setup_network(self):
         run('docker network create %s' % BB8_NETWORK, True)
 
-    def start(self, force=False):
+    def start(self, force=False, main_only=False):
         self.prepare_resource()
         self.setup_network()
         self.start_services()
 
-        for app_dir in self._app_dirs:
-            app = App(app_dir)
-            app.start(force)
+        if not main_only:
+            for app_dir in self._app_dirs:
+                app = App(app_dir)
+                app.start(force)
 
         print('=' * 20, 'Starting BB8 main container', '=' * 20)
         self.start_container(force)
 
     def stop(self):
-        instance = docker_get_instance(self.BB8_CONTAINER_NAME)
+        instance, unused_running = docker_get_instance(self.BB8_CONTAINER_NAME)
         if instance:
+            logging.info('Waiting for celery workers to stop...')
+            self.shell('kill -TERM $(cat %s)' % BB8_CELERY_PID_FILE)
+            time.sleep(BB8_CELERY_SHUTDOWN_WAIT_SECS)
             run('docker rm -f %s' % instance, True)
 
+    def stop_all(self):
+        self.stop()
         for app_dir in self._app_dirs:
             app = App(app_dir)
             app.stop()
 
     def shell(self, command=None):
-        instance = docker_get_instance(self.BB8_CONTAINER_NAME)
-        if not instance:
+        instance, running = docker_get_instance(self.BB8_CONTAINER_NAME)
+        if not instance or not running:
             logger.error('Main container `%s\' not running',
                          self.BB8_CONTAINER_NAME)
             return
@@ -431,27 +497,26 @@ class BB8(object):
         create_dir_if_not_exists(os.path.join(BB8_DATA_ROOT, 'log'), sudo=True)
 
         version_hash = self.get_git_version_hash()
-        instance = docker_get_instance(self.BB8_CONTAINER_NAME)
+        instance, running = docker_get_instance(self.BB8_CONTAINER_NAME)
         new_container_name = '%s.%s' % (self.BB8_CONTAINER_NAME, version_hash)
 
-        m = re.match(r'^%s\.(.*?)$' % self.BB8_CONTAINER_NAME, instance)
-        if m:
-            running_version_hash = m.group(1)
-            if running_version_hash == version_hash:
-                logger.warn('BB8: no change since last deploy.')
+        if running:
+            m = re.match(r'^%s\.(.*?)$' % self.BB8_CONTAINER_NAME, instance)
+            if m:
+                old_version_hash = m.group(1)
+                if version_hash == old_version_hash:
+                    logger.warn('BB8: no change since last deploy.')
 
-                if force:
-                    logger.warn('BB8: force deploy requested, '
-                                'continuing deployment ...')
-                else:
-                    logger.warn('BB8: skip deployment.')
-                    sys.exit(1)
+                    if force:
+                        logger.warn('BB8: force deploy requested, '
+                                    'continuing deployment ...')
+                    else:
+                        logger.warn('BB8: skip deployment.')
+                        sys.exit(1)
 
         run('docker build -t %s %s' % (self.BB8_IMAGE_NAME, BB8_SRC_ROOT))
 
-        if instance:
-            run('docker rm -f %s' % instance, True)
-
+        self.stop()
         run('docker run'
             ' --name={0} '.format(new_container_name) +
             ' --net={0}'.format(BB8_NETWORK) +
@@ -468,7 +533,7 @@ class BB8(object):
             ' -d {0}'.format(self.BB8_IMAGE_NAME))
 
     def logs(self):
-        instance = docker_get_instance(self.BB8_CONTAINER_NAME)
+        instance, unused_running = docker_get_instance(self.BB8_CONTAINER_NAME)
         if instance:
             run('docker logs %s' % instance)
 
@@ -484,6 +549,8 @@ def main():
 
     root_parser.add_argument('-a', '--app', dest='app', default=None,
                              help='operate on specific app')
+    root_parser.add_argument('-m', '--main', dest='main', action='store_true',
+                             default=False, help='operate on specific app')
 
     # start sub-command
     start_parser = subparsers.add_parser('start', help='start bb8')
@@ -523,6 +590,11 @@ def main():
                                          help='Skip copy credential step')
     compile_resource_parser.set_defaults(which='compile-resource')
 
+    # install-misc-resource sub-command
+    install_misc_resource_parser = subparsers.add_parser(
+        'install-misc-resource', help='install misc resource')
+    install_misc_resource_parser.set_defaults(which='install-misc-resource')
+
     # We want to pass the rest of arguments after shell command directly to the
     # function without parsing it.
     try:
@@ -542,17 +614,22 @@ def main():
         app = App(app_dir)
 
     if args.which == 'start':
-        if app:
+        if not app and args.bind:
+            logger.warn('bind option only works with single app, ignored')
+
+        if args.main:
+            bb8.start(args.force, main_only=True)
+        elif app:
             app.start(args.force, args.bind)
         else:
-            if args.bind:
-                logger.warn('bind option only works with single app, ignored')
             bb8.start(args.force)
     elif args.which == 'stop':
+        if args.main:
+            bb8.stop()
         if app:
             app.stop()
         else:
-            bb8.stop()
+            bb8.stop_all()
     elif args.which == 'logs':
         if app:
             app.logs()
@@ -568,6 +645,8 @@ def main():
         bb8.status()
     elif args.which == 'compile-resource':
         bb8.compile_resource(not args.no_copy_credential)
+    elif args.which == 'install-misc-resource':
+        bb8.install_misc_resource()
     else:
         raise RuntimeError('invalid sub-command')
 

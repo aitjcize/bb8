@@ -80,9 +80,19 @@ class Config(object):
 
     GCP_PROJECT = 'dotted-lexicon-133523'
 
+    # Datadog
+    DATADOG_API_KEY = '5443ec4b9da5f217eef3f035df22a62c'
+    DATADOG_APP_KEY = '7003bcefefe66024a1830488ab11b359eade0b92',
+    DATADOG_HOST = scoped_name('bb8.service.datadog')
+    ENV_TAG = 'dev'
+
     class CeleryConfig(object):
         BROKER_URL = os.getenv('REDIS_URI', 'redis://localhost:6379/0')
-        CELERY_IMPORTS = ('bb8.backend.messaging',)
+        CELERY_IMPORTS = (
+            'bb8.backend.broadcast',
+            'bb8.backend.messaging_tasks',
+            'bb8.backend.webhooks_tasks',
+        )
         CELERY_SEND_EVENTS = False
         CELERY_ACCEPT_CONTENT = ['pickle']
 
@@ -119,6 +129,10 @@ class DeployConfig(DevelopmentConfig):
         'content':  'bb8.app.content',
         'drama':    'bb8.app.drama',
     }
+
+    # Datadog
+    DATADOG_HOST = 'bb8.service.datadog'
+    ENV_TAG = 'prod'
 
     class CeleryConfig(DevelopmentConfig.CeleryConfig):
         BROKER_URL = 'redis://bb8.service.redis:6379/0'

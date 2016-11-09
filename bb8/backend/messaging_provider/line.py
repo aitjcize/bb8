@@ -6,12 +6,21 @@
     Copyright 2016 bb8 Authors
 """
 
+import logging
 import requests
 
 from flask import g
 
+from bb8.backend.util import to_unicode
 
+
+LINE_PROFILE_API_URL = 'https://api.line.me/v2/bot/profile/%s'
 LINE_MESSAGE_REPLY_API_URL = 'https://api.line.me/v2/bot/message/reply'
+LINE_MESSAGE_PUSH_API_URL = 'https://api.line.me/v2/bot/message/push'
+LINE_GET_CONTENT_API_URL = 'https://api.line.me/v2/bot/message/%s/content'
+
+
+LOG = logging.getLogger(__file__)
 
 
 def get_config_schema():
@@ -26,15 +35,34 @@ def get_config_schema():
     }
 
 
-def apply_config(unused_config):
-    """Apply config to platform."""
+def get_settings_schema():
+    """Get settings schema."""
+    return {}
+
+
+def apply_settings(unused_config, unused_settings):
+    """Apply settings to platform."""
     pass
 
 
-def get_user_profile(unused_platform, unused_user_ident):
+def get_user_profile(platform, user_ident):
     """Get user profile information."""
+    headers = {
+        'Authorization': 'Bearer %s' % platform.config['access_token']
+    }
+
+    response = requests.request(
+        'GET',
+        LINE_PROFILE_API_URL % user_ident,
+        headers=headers)
+
+    if response.status_code != 200:
+        raise RuntimeError('HTTP %d: %s' % (response.status_code,
+                                            response.text))
+
+    api_ret = response.json()
     ret = {
-        'first_name': u'你好',
+        'first_name': to_unicode(api_ret['displayName']),
         'last_name': u'',
         'locale': 'zh_TW',
         'timezone': 8,
@@ -45,7 +73,12 @@ def get_user_profile(unused_platform, unused_user_ident):
 
 def send_message(unused_user, messages):
     """Send message to the platform."""
-    g.line_messages += messages
+    # pylint: disable=E1101
+    if len(g.line_messages) < 5:
+        g.line_messages += messages
+    else:
+        LOG.warning('line.send_message: maxinum number of messages(5) '
+                    'reached, ignoring new messages!')
 
 
 def flush_message(platform):
@@ -54,16 +87,71 @@ def flush_message(platform):
         'Authorization': 'Bearer %s' % platform.config['access_token']
     }
 
+    messages = []
+    # pylint: disable=E1101
+    for m in g.line_messages:
+        msg = m.as_line_message()
+        if isinstance(msg, list):
+            messages += msg
+        else:
+            messages.append(msg)
+
     response = requests.request(
         'POST',
         LINE_MESSAGE_REPLY_API_URL,
         headers=headers,
         json={
             'replyToken': g.line_reply_token,
-            'messages': [m.as_line_message() for m in g.line_messages]
+            'messages': messages
         }
     )
 
     if response.status_code != 200:
         text = response.text.replace(u'\xa0', '\n')
         raise RuntimeError('HTTP %d: %s' % (response.status_code, text))
+
+
+def push_message(user, messages):
+    """Push message to user proactively."""
+    headers = {
+        'Authorization': 'Bearer %s' % user.platform.config['access_token']
+    }
+
+    msgs = []
+    for m in messages:
+        msg = m.as_line_message()
+        if isinstance(msg, list):
+            msgs += msg
+        else:
+            msgs.append(msg)
+
+    response = requests.request(
+        'POST',
+        LINE_MESSAGE_PUSH_API_URL,
+        headers=headers,
+        json={
+            'to': user.platform_user_ident,
+            'messages': msgs
+        }
+    )
+
+    if response.status_code != 200:
+        text = response.text.replace(u'\xa0', '\n')
+        raise RuntimeError('HTTP %d: %s' % (response.status_code, text))
+
+
+def download_audio_as_data(user, audio_payload):
+    """Download audio file as data."""
+    headers = {
+        'Authorization': 'Bearer %s' % user.platform.config['access_token']
+    }
+
+    response = requests.get(
+        LINE_GET_CONTENT_API_URL % audio_payload,
+        headers=headers, stream=True)
+
+    if response.status_code != 200:
+        raise RuntimeError('HTTP %d: %s' % (response.status_code,
+                                            response.text))
+
+    return response.raw.read()

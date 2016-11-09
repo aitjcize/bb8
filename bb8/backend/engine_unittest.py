@@ -13,9 +13,9 @@ import datetime
 import mock
 
 from bb8 import app
-from bb8.backend.database import DatabaseManager, Node, Platform, User
+from bb8.backend.database import DatabaseManager, Platform, User
 from bb8.backend.engine import Engine
-from bb8.backend.metadata import UserInput, InputTransformation
+from bb8.backend.message import UserInput, InputTransformation
 from bb8.backend.test_utils import reset_and_setup_bots
 
 
@@ -35,8 +35,7 @@ class EngineUnittest(unittest.TestCase):
     def setup_prerequisite(self, bot_file):
         InputTransformation.clear()
         self.bot = reset_and_setup_bots([bot_file])[0]
-        self.user = User(bot_id=self.bot.id,
-                         platform_id=Platform.get_by(id=1, single=True).id,
+        self.user = User(platform_id=Platform.get_by(id=1, single=True).id,
                          platform_user_ident='blablabla',
                          last_seen=datetime.datetime.now()).add()
 
@@ -57,7 +56,7 @@ class EngineUnittest(unittest.TestCase):
         engine = Engine()
 
         engine.step(self.bot, self.user)  # start display
-        self.assertEquals(self.user.session.node_id, Node.get_pk_id('root'))
+        self.assertEquals(self.user.session.node_id, 'Root')
 
         # We should now be in root node
         engine.step(self.bot, self.user)  # root display
@@ -65,45 +64,45 @@ class EngineUnittest(unittest.TestCase):
 
         # Try global gotoA command
         engine.step(self.bot, self.user, UserInput.Text('gotoA'))
-        self.assertEquals(self.user.session.node_id, Node.get_pk_id('nodeA'))
+        self.assertEquals(self.user.session.node_id, 'NodeA')
         self.assertEquals(self.user.session.message_sent, True)
         self.assertEquals(self.send_message_mock.called, True)
 
         # Try error path: go back to current node
         engine.step(self.bot, self.user, UserInput.Text('error'))
         self.assertEquals(self.user.session.message_sent, True)
-        self.assertEquals(self.user.session.node_id, Node.get_pk_id('nodeA'))
+        self.assertEquals(self.user.session.node_id, 'NodeA')
 
         # Try normal path
         engine.step(self.bot, self.user, UserInput.Text('gotoB'))
-        self.assertEquals(self.user.session.node_id, Node.get_pk_id('nodeB'))
+        self.assertEquals(self.user.session.node_id, 'NodeB')
 
         # Another normal path try
         engine.step(self.bot, self.user, UserInput.Text('gotoC'))
-        self.assertEquals(self.user.session.node_id, Node.get_pk_id('nodeC'))
+        self.assertEquals(self.user.session.node_id, 'NodeC')
 
         # Try global command
         engine.step(self.bot, self.user, UserInput.Text('help'))
-        self.assertEquals(self.user.session.node_id, Node.get_pk_id('root'))
+        self.assertEquals(self.user.session.node_id, 'Root')
         self.assertEquals(self.user.session.message_sent, True)
 
         # Try invalid global command in root_node_id
         engine.step(self.bot, self.user, UserInput.Text('blablabla'))
-        self.assertEquals(self.user.session.node_id, Node.get_pk_id('root'))
+        self.assertEquals(self.user.session.node_id, 'Root')
         self.assertEquals(self.user.session.message_sent, True)
 
         # Try global gotoA command
         engine.step(self.bot, self.user, UserInput.Text('gotoA'))
-        self.assertEquals(self.user.session.node_id, Node.get_pk_id('nodeA'))
+        self.assertEquals(self.user.session.node_id, 'NodeA')
         self.assertEquals(self.user.session.message_sent, True)
 
         # Try global gotoD command
         engine.step(self.bot, self.user, UserInput.Text('gotoD'))
-        self.assertEquals(self.user.session.node_id, Node.get_pk_id('nodeD'))
+        self.assertEquals(self.user.session.node_id, 'NodeD')
 
         engine.step(self.bot, self.user, UserInput.Text('gotoE'))
         self.assertEquals(self.user.session.message_sent, True)
-        self.assertEquals(self.user.session.node_id, Node.get_pk_id('root'))
+        self.assertEquals(self.user.session.node_id, 'Root')
 
     def test_postback(self):
         self.setup_prerequisite('test/postback.bot')
@@ -111,7 +110,7 @@ class EngineUnittest(unittest.TestCase):
         engine = Engine()
 
         engine.step(self.bot, self.user)  # start display
-        self.assertEquals(self.user.session.node_id, Node.get_pk_id('Root'))
+        self.assertEquals(self.user.session.node_id, 'Root')
 
         # We should now be in root node
         engine.step(self.bot, self.user)  # root display
@@ -127,20 +126,22 @@ class EngineUnittest(unittest.TestCase):
         # Try postback
         engine.step(self.bot, self.user,
                     UserInput.FromFacebookMessage(postback))
-        self.assertEquals(self.user.session.node_id, Node.get_pk_id('Show'))
+        self.assertEquals(self.user.session.node_id, 'Show')
         self.assertEquals(self.user.session.message_sent, True)
 
         sent_msg = self.send_message_mock.call_args[0][1][0]
         self.assertEquals(sent_msg.as_dict()['text'], 'PAYLOAD_TEXT')
 
-        # Use global postback command to goto postback node
+        # Goto back to root node
+        engine.step(self.bot, self.user, None)
+
+        # Goto postback node
         engine.step(self.bot, self.user, UserInput.Text('postback'))
-        self.assertEquals(self.user.session.node_id,
-                          Node.get_pk_id('Postback'))
+        self.assertEquals(self.user.session.node_id, 'Postback')
         self.assertEquals(self.user.session.message_sent, True)
 
         engine.step(self.bot, self.user, UserInput.Text('TEXT'))
-        self.assertEquals(self.user.session.node_id, Node.get_pk_id('Show'))
+        self.assertEquals(self.user.session.node_id, 'Show')
         self.assertEquals(self.user.session.message_sent, True)
 
         sent_msg = self.send_message_mock.call_args[0][1][0]
@@ -157,7 +158,7 @@ class EngineUnittest(unittest.TestCase):
         engine = Engine()
 
         engine.step(self.bot, self.user)  # start display
-        self.assertEquals(self.user.session.node_id, Node.get_pk_id('Root'))
+        self.assertEquals(self.user.session.node_id, 'Root')
 
         # We should now be in root node
         engine.step(self.bot, self.user)  # root display
@@ -165,29 +166,29 @@ class EngineUnittest(unittest.TestCase):
 
         # Button title should work
         engine.step(self.bot, self.user, UserInput.Text('option 1'))
-        self.assertEquals(self.user.session.node_id, Node.get_pk_id('Option1'))
+        self.assertEquals(self.user.session.node_id, 'Option1')
         self.assertEquals(self.user.session.message_sent, True)
         sent_msg = self.send_message_mock.call_args[0][1][0]
         self.assertEquals(sent_msg.as_dict()['text'], 'payload1')
 
         # Back to root
         engine.step(self.bot, self.user)
-        self.assertEquals(self.user.session.node_id, Node.get_pk_id('Root'))
+        self.assertEquals(self.user.session.node_id, 'Root')
 
         # acceptable_inputs should work
         engine.step(self.bot, self.user, UserInput.Text('D'))
-        self.assertEquals(self.user.session.node_id, Node.get_pk_id('Option2'))
+        self.assertEquals(self.user.session.node_id, 'Option2')
         self.assertEquals(self.user.session.message_sent, True)
         sent_msg = self.send_message_mock.call_args[0][1][0]
         self.assertEquals(sent_msg.as_dict()['text'], 'payload2')
 
         # Back to root
         engine.step(self.bot, self.user)
-        self.assertEquals(self.user.session.node_id, Node.get_pk_id('Root'))
+        self.assertEquals(self.user.session.node_id, 'Root')
 
         # numbers should work
         engine.step(self.bot, self.user, UserInput.Text('1'))
-        self.assertEquals(self.user.session.node_id, Node.get_pk_id('Option1'))
+        self.assertEquals(self.user.session.node_id, 'Option1')
         self.assertEquals(self.user.session.message_sent, True)
 
     def test_memory_settings(self):
@@ -196,7 +197,7 @@ class EngineUnittest(unittest.TestCase):
         engine = Engine()
 
         engine.step(self.bot, self.user)  # start display
-        self.assertEquals(self.user.session.node_id, Node.get_pk_id('Root'))
+        self.assertEquals(self.user.session.node_id, 'Root')
 
         # We should now be in root node
         engine.step(self.bot, self.user)  # root display
@@ -210,13 +211,12 @@ class EngineUnittest(unittest.TestCase):
 
         # Goto memory_clear
         engine.step(self.bot, self.user)
-        self.assertEquals(self.user.session.node_id,
-                          Node.get_pk_id('MemoryClear'))
+        self.assertEquals(self.user.session.node_id, 'MemoryClear')
         self.assertEquals(len(self.user.memory), 0)
 
         # Now in root
         engine.step(self.bot, self.user)
-        self.assertEquals(self.user.session.node_id, Node.get_pk_id('Root'))
+        self.assertEquals(self.user.session.node_id, 'Root')
 
         engine.step(self.bot, self.user, UserInput.Text('settings_set'))
         engine.step(self.bot, self.user)
@@ -226,8 +226,7 @@ class EngineUnittest(unittest.TestCase):
 
         # Goto settings_clear
         engine.step(self.bot, self.user)
-        self.assertEquals(self.user.session.node_id,
-                          Node.get_pk_id('SettingsClear'))
+        self.assertEquals(self.user.session.node_id, 'SettingsClear')
         self.assertEquals(len(self.user.settings), 1)
         self.assertNotEqual(self.user.settings.get('subscribe', None), None)
 

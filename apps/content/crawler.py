@@ -35,8 +35,13 @@ def crawl():
         process.crawl(RSSSpider, **spider_configs['yahoo_rss'])
         process.start()
         process.stop()
+    except Exception:
+        logger.exception('Crawler: exception, skipped')
+    else:
+        logger.info('Crawler: finished gracefully')
 
-        logger.info('Crawler: extracting keywords')
+    try:
+        logger.info('KeywordsCrawler: extracting keywords')
         with DatabaseSession():
             kws = keywords.extract_keywords_ct()
             for kw, related in kws.iteritems():
@@ -45,9 +50,9 @@ def crawl():
                     for r in related:
                         Keyword(parent_id=k.id, name=r).commit_unique()
     except Exception:
-        logger.exception('Crawler: exception, skipped')
+        logger.exception('KeywordsCrawler: exception, skipped')
     else:
-        logger.info('Crawler: finished gracefully')
+        logger.info('KeywordsCrawler: finished gracefully')
 
 
 def main(args):

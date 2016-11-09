@@ -12,13 +12,16 @@ from datetime import datetime, timedelta
 
 from flask import g
 
+from sqlalchemy import desc
+
 from bb8 import config
 # pylint: disable=W0611
 from bb8.backend.database import PlatformTypeEnum, SupportedPlatform
+from bb8.backend.database import CollectedDatum as _CollectedDatum
 # pylint: disable=W0611
 from bb8.backend.message import (Message, Render, Resolve, IsVariable,
                                  TextPayload, LocationPayload, EventPayload)
-from bb8.backend.messaging import broadcast_message_async
+from bb8.backend.messaging_tasks import broadcast_message_async
 from bb8.backend.metadata import ParseResult
 
 
@@ -61,6 +64,19 @@ def GetgRPCService(name):
     return module, (hostname, config.APP_GRPC_SERVICE_PORT)
 
 
+def CacheImage(link):
+    """Wrap the image specified by *link* and return the cached URL."""
+    return 'https://{0}:{1}/api/util/cache_image?url={2}'.format(
+        config.HOSTNAME, config.HTTP_PORT, link)
+
+
+def TrackedURL(link, path_name):
+    """Wraps given link with in tracking API."""
+    return ('https://%s:%s/redirect/{{bot_id}}/'
+            '{{user.platform_user_ident}}?path=%s&url=%s' %
+            (config.HOSTNAME, config.HTTP_PORT, path_name, link))
+
+
 class Memory(object):
     """API wrapper for User.memory dictionary."""
     @classmethod
@@ -93,3 +109,37 @@ class Settings(object):
         """Clear all non-protected fields."""
         g.user.settings = dict((f, g.user.settings[f])
                                for f in cls.__protected_fields__)
+
+
+class CollectedData(object):
+    """API for getting user collected data."""
+    _MAX_RETURN_RESULTS = 100
+
+    @classmethod
+    def GetLast(cls, key, default=None):
+        """Get the last collected result given *key*."""
+        result = _CollectedDatum.get_by(
+            query=[_CollectedDatum.value], user_id=g.user.id, key=key,
+            order_by=[desc('created_at')],
+            single=True)
+        return result[0] if result else default
+
+    @classmethod
+    def Get(cls, key, limit=1, offset=0):
+        """Get *limit* result starting from *offset* given *key*.
+
+        The max number of results is constraint to _MAX_RETURN_RESULTS.
+        """
+        if limit > cls._MAX_RETURN_RESULTS:
+            limit = cls._MAX_RETURN_RESULTS
+
+        result = _CollectedDatum.get_by(
+            query=[_CollectedDatum.value], user_id=g.user.id,
+            key=key, order_by=[desc('created_at')],
+            offset=offset, limit=limit)
+        return [x[0] for x in result] if result else []
+
+    @classmethod
+    def Count(cls, key):
+        """Get number of entries."""
+        return _CollectedDatum.count_by(user_id=g.user.id, key=key)

@@ -17,7 +17,7 @@ from concurrent import futures
 
 from bb8 import config
 from bb8.backend.database import DatabaseSession, Bot, User
-from bb8.backend import messaging
+from bb8.backend import messaging_tasks
 from bb8.backend.message import Message
 from bb8.logging_utils import Logger
 from bb8.pb_modules import app_service_pb2  # pylint: disable=E0611
@@ -34,11 +34,12 @@ class MessagingServicer(app_service_pb2.MessagingServiceServicer):
     def Ping(self, unused_request, unused_context):
         return app_service_pb2.Empty()
 
-    def Send(self, request, context):
+    def Push(self, request, context):
         with DatabaseSession():
             messages_dict = cPickle.loads(request.messages_object)
             users = User.query().filter(User.id.in_(request.user_ids)).all()
-            messaging.send_message_from_dict_async(users, messages_dict)
+            messaging_tasks.push_message_from_dict_async(
+                users, messages_dict, request.eta, request.user_localtime)
 
         return app_service_pb2.Empty()
 
@@ -48,13 +49,15 @@ class MessagingServicer(app_service_pb2.MessagingServiceServicer):
             if not bot:
                 raise RuntimeError('Bot<%d> does not exist' % request.bot_id)
 
+            eta = None if request.eta == 0 else request.eta
             messages_dict = cPickle.loads(request.messages_object)
             if request.static:
                 msgs = [Message.FromDict(m, {}) for m in messages_dict]
-                messaging.broadcast_message_async(bot, msgs)
+                messaging_tasks.broadcast_message_async(bot, msgs, eta)
             else:
                 users = User.get_by(bot_id=request.bot_id)
-                messaging.send_message_from_dict_async(users, messages_dict)
+                messaging_tasks.push_message_from_dict_async(
+                    users, messages_dict, eta)
 
         return app_service_pb2.Empty()
 

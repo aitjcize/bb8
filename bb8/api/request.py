@@ -6,12 +6,9 @@
     Copyright 2016 bb8 Authors
 """
 
-from bb8 import app, config, logger
+from bb8 import app, config
 from bb8.backend.database import DatabaseManager
 from bb8.tracking import send_ga_track_info
-
-# Register request handlers
-from bb8.api import webhooks, third_party, misc  # pylint: disable=W0611
 
 
 @app.before_request
@@ -25,7 +22,4 @@ def teardown_appcontext(unused_exc):
     """Closes the database at the end of the request."""
     DatabaseManager.disconnect(commit=config.COMMIT_ON_APP_TEARDOWN)
 
-    try:
-        send_ga_track_info()
-    except Exception as e:
-        logger.exception(e)
+    send_ga_track_info()

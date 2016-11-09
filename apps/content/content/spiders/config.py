@@ -31,8 +31,20 @@ spider_configs = {
             'content': '//div[@class="yom-mod yom-art-content "]'
                        '/div[@class="bd"]',
             'description': '',
-            'images': ('//div[@class="yom-mod yom-art-content "]'
-                       '//img', '@src', '@alt'),
+            'images': [
+                ('//div[@class="yom-mod yom-art-content "]'
+                 '//img', '@src', '@alt'),
+                ('//div[contains(@class, "image")]'
+                 '//img[re:test(@src, "^http")]', '@src', '@alt'),
+                ('//div[@class="yom-mod yom-art-content "]'
+                 '//img[contains(@class, "editorial")]', '@src', '@alt'),
+                ('//div[contains(@class, "yog-wrap yom-art-bd")]'
+                 '//div[contains(@class, "yog-col yog-5u")]'
+                 '//div[contains(@class, "bd")]'
+                 '//li[contains(@class,"photo first")]'
+                 '//a[*]//img[re:test(@style,"^background-image")]/@style',
+                 '@src', '@alt')
+            ],
             'author': '',
             'source': 'yahoo_rss',
         },
@@ -66,8 +78,6 @@ spider_configs = {
                  '//img[re:test(@src, "^http")]', '@src', '@alt'),
                 ('//div[contains(@class, "article-wrapper")]'
                  '/article//img[re:test(@src, "^http")]', '@src', '@alt'),
-                ('//div[contains(@class, "image")]'
-                 '//img[re:test(@src, "^http")]', '@src', '@alt')
             ],
             'author': '',
             'publish_time': '',

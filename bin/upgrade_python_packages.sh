@@ -13,11 +13,6 @@ upgrade_packages() {
   source $tmpdir/bin/activate
   pip install $(cat $requirements | cut -f 1 -d '=') --upgrade
 
-  # We want pre-release version of SQLAlchemy
-  if grep SQLAlchemy $requirements; then
-    pip install --pre --upgrade SQLAlchemy
-  fi
-
   pip freeze | grep -v 'pkg-resources' > $requirements
   deactivate
 }

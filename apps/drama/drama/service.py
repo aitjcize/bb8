@@ -17,22 +17,24 @@ from concurrent import futures
 from sqlalchemy import desc
 
 import service_pb2  # pylint: disable=E0401
+
+from drama import config
 from drama.database import (DatabaseManager, DatabaseSession, Drama,
                             Episode, DramaCountryEnum, User)
 
-from drama import config
 
 _SECS_IN_A_DAY = 86400
 
 
-def to_proto_drama(drama):
+def to_proto_drama(drama, user):
     return service_pb2.Drama(
         id=drama.id,
         link=drama.link,
         name=drama.name,
-        description=drama.name,
-        image_url=drama.image,
+        description=drama.description,
+        image_url=drama.image or config.DEFAULT_DRAMA_IMAGE,
         country=drama.country.value,
+        subscribed=drama in user.subscribed_dramas
     )
 
 
@@ -41,7 +43,7 @@ def to_proto_episode(episode):
         link=episode.link,
         drama_id=episode.drama.id,
         drama_name=episode.drama.name,
-        image_url=episode.drama.image,
+        image_url=episode.drama.image or config.DEFAULT_DRAMA_IMAGE,
         description=episode.drama.description,
         serial_number=episode.serial_number,
     )
@@ -57,8 +59,20 @@ class DramaInfo(object):
             DatabaseManager.commit()
 
     @classmethod
-    def Search(cls, unused_user_id, term, count=10):
+    def Unsubscribe(cls, user_id, drama_id):
         with DatabaseSession():
+            user = User.get_or_create(id=user_id)
+            drama = Drama.get_by(id=drama_id, single=True)
+            try:
+                user.subscribed_dramas.remove(drama)
+            except Exception:
+                pass
+            DatabaseManager.commit()
+
+    @classmethod
+    def Search(cls, user_id, term, count=10):
+        with DatabaseSession():
+            user = User.get_or_create(id=user_id)
             dramas = Drama.query().filter(
                 Drama.name.like(unicode('%' + term + '%'))
             ).order_by(
@@ -66,11 +80,12 @@ class DramaInfo(object):
                 Drama.order == None,  # noqa
                 'order', desc('updated_at'),
             ).limit(count)
-            return [to_proto_drama(drama) for drama in dramas]
+            return [to_proto_drama(drama, user) for drama in dramas]
 
     @classmethod
-    def Trending(cls, unused_user_id, country, count=10):
+    def Trending(cls, user_id, country, count=10):
         with DatabaseSession():
+            user = User.get_or_create(id=user_id)
             dramas = Drama.query().filter(
                 Drama.country == DramaCountryEnum(country)
             ).order_by(
@@ -78,20 +93,34 @@ class DramaInfo(object):
                 Drama.order == None,  # noqa
                 'order', desc('updated_at'),
             ).limit(count)
-            return [to_proto_drama(drama) for drama in dramas]
+            return [to_proto_drama(drama, user) for drama in dramas]
 
     @classmethod
-    def GetHistory(cls, drama_id, from_episode, backward, count=5):
+    def GetHistory(cls, drama_id, from_episode, count=5, backward=False):
         with DatabaseSession():
-            order_by = (desc('serial_number')
-                        if backward else 'serial_number')
-            episodes = (
-                Episode.query().filter(
-                    Episode.drama_id == drama_id,
+            query = Episode.query().filter(Episode.drama_id == drama_id)
+
+            # from_episode == 0 indicates from the last epsidode
+            if from_episode > 0:
+                query = query.filter(
                     Episode.serial_number < from_episode if backward
-                    else Episode.serial_number >= from_episode,
-                ).order_by(order_by).limit(count))
+                    else Episode.serial_number >= from_episode)
+
+            episodes = query.order_by(
+                desc('serial_number') if backward else 'serial_number'
+            ).limit(count)
             return [to_proto_episode(episode) for episode in episodes]
+
+    @classmethod
+    def GetEpisode(cls, drama_id, serial_number):
+        with DatabaseSession():
+            episode = Episode.get_by(drama_id=drama_id,
+                                     serial_number=serial_number,
+                                     single=True)
+            if episode is None:
+                # It means a gRPC function implementation failed.
+                raise RuntimeError('Not found')
+            return to_proto_episode(episode)
 
 
 class DramaInfoServicer(service_pb2.DramaInfoServicer):
@@ -112,10 +141,19 @@ class DramaInfoServicer(service_pb2.DramaInfoServicer):
         DramaInfo.Subscribe(request.user_id, request.drama_id)
         return service_pb2.Empty()
 
+    def Unsubscribe(self, request, unused_context):
+        DramaInfo.Unsubscribe(request.user_id, request.drama_id)
+        return service_pb2.Empty()
+
     def GetHistory(self, request, unused_context):
         return service_pb2.Episodes(
             episodes=DramaInfo.GetHistory(
-                request.drama_id, request.from_episode, request.backward))
+                request.drama_id, request.from_episode, request.count,
+                request.backward))
+
+    def GetEpisode(self, request, unused_context):
+        return DramaInfo.GetEpisode(
+            request.drama_id, request.serial_number)
 
 
 def start_grpc_server(port):

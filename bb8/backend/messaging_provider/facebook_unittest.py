@@ -12,7 +12,7 @@ import datetime
 
 from bb8.backend.database import DatabaseManager
 from bb8.backend.database import Bot, Platform, PlatformTypeEnum, User
-from bb8.backend.messaging import Message
+from bb8.backend.message import Message
 from bb8.backend.messaging_provider import facebook
 
 
@@ -39,14 +39,14 @@ class FacebookMessagingUnittest(unittest.TestCase):
                             '7aAlcNEHQ3AZBIx0ZBfFLh95TlJWlLrYetzm9owKNR8Qju8'
                             'HF6qra20ZC6HqNXwGpaP74knlNvQJqUmwZDZD'
         }
-        platform = Platform(bot_id=self.bot.id,
+        platform = Platform(name=u'Test Platform',
+                            bot_id=self.bot.id,
                             type_enum=PlatformTypeEnum.Facebook,
                             provider_ident='1155924351125985',
                             config=config).add()
         DatabaseManager.commit()
 
-        self.user = User(bot_id=self.bot.id,
-                         platform_id=platform.id,
+        self.user = User(platform_id=platform.id,
                          platform_user_ident='1153206858057166',
                          last_seen=datetime.datetime.now()).add()
 
@@ -69,6 +69,27 @@ class FacebookMessagingUnittest(unittest.TestCase):
                                     'Google', url='http://www.google.com/'))
         m.add_button(Message.Button(Message.ButtonType.WEB_URL,
                                     '17', url='http://www.17.media/'))
+        facebook.send_message(self.user, [m])
+
+        # Test list template message
+        m = Message(top_element_style=Message.ListTopElementStyle.LARGE)
+        l = Message.ListItem('Google', 'google.com',
+                             'http://i.imgur.com/1QfaG1u.png')
+        l.set_default_action(Message.Button(Message.ButtonType.WEB_URL,
+                                            url='http://www.google.com'))
+        l.set_button(Message.Button(Message.ButtonType.WEB_URL,
+                                    title='Goto Google',
+                                    url='http://www.google.com/'))
+        m.add_list_item(l)
+        l = Message.ListItem('17', 'http://www.17.media/',
+                             'http://i.imgur.com/4loi6PJ.jpg')
+        l.set_button(Message.Button(Message.ButtonType.WEB_URL,
+                                    title='Goto 17',
+                                    url='http://www.17.media/'))
+        m.add_list_item(l)
+        m.add_button(Message.Button(Message.ButtonType.WEB_URL,
+                                    '17', url='http://www.17.media/'))
+
         facebook.send_message(self.user, [m])
 
         # Test generic template message

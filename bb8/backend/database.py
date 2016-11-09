@@ -18,7 +18,9 @@ from passlib.hash import bcrypt  # pylint: disable=E0611
 from flask import Flask  # pylint: disable=C0411,C0413
 
 from sqlalchemy import (Boolean, Column, DateTime, Enum, ForeignKey, Integer,
-                        PickleType, Table, Text, String, Unicode, UnicodeText)
+                        PickleType, Table, Text, String, Unicode, UnicodeText,
+                        func)
+from sqlalchemy.exc import IntegrityError, InvalidRequestError
 from sqlalchemy.orm import relationship, deferred
 from sqlalchemy.schema import UniqueConstraint
 from sqlalchemy.ext.mutable import MutableDict
@@ -30,13 +32,12 @@ from bb8.backend.database_utils import (DeclarativeBase, DatabaseManager,
                                         DatabaseSession, ModelMixin,
                                         JSONSerializableMixin)
 from bb8.backend.metadata import SessionRecord
-from bb8.error import AppError
 from bb8.constant import HTTPStatus, CustomError
 
 
 # Configure database
 DatabaseManager.set_database_uri(config.DATABASE)
-DatabaseManager.set_pool_size(config.N_THREADS)
+DatabaseManager.set_pool_size(config.N_THREADS * 2)
 
 
 class AppContext(object):
@@ -59,19 +60,22 @@ class AppContext(object):
 
 class Account(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     __tablename__ = 'account'
+    __table_args__ = (UniqueConstraint('email'),)
 
-    __json_public__ = ['name', 'username', 'email']
+    __json_public__ = ['name', 'email', 'email_verified', 'timezone']
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(Unicode(256), nullable=False, default=u'')
-    username = Column(String(256), nullable=False)
     email = Column(String(256), nullable=False)
     email_verified = Column(Boolean, nullable=False, default=False)
     passwd = Column(String(256), nullable=False)
+    timezone = Column(String(32), nullable=False, default='UTC')
 
-    bots = relationship('Bot', secondary='account_bot')
+    bots = relationship('Bot')
+    platforms = relationship('Platform')
+    broadcasts = relationship('Broadcast')
     feeds = relationship('Feed', lazy='dynamic')
-    oauth_infos = relationship('OAuthInfo', back_populates="account")
+    oauth_infos = relationship('OAuthInfo', back_populates='account')
 
     def set_passwd(self, passwd):
         self.passwd = bcrypt.encrypt(passwd)
@@ -97,9 +101,7 @@ class Account(DeclarativeBase, ModelMixin, JSONSerializableMixin):
         try:
             payload = jwt.decode(token, config.JWT_SECRET)
         except (jwt.DecodeError, jwt.ExpiredSignature):
-            raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
-                           CustomError.ERR_UNAUTHENTICATED,
-                           'The token %s is invalid' % token)
+            raise RuntimeError('auth token is invalid')
         return cls.get_by(id=payload['sub'], single=True)
 
 
@@ -129,16 +131,20 @@ class PlatformTypeEnum(enum.Enum):
 class Bot(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     __tablename__ = 'bot'
 
-    __json_public__ = ['id', 'name', 'description', 'platforms']
+    __json_public__ = ['id', 'name', 'description']
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(Unicode(256), nullable=False)
-    description = Column(UnicodeText, nullable=False)
+    account_id = Column(Integer, ForeignKey('account.id'), nullable=True)
+    name = Column(Unicode(64), nullable=False)
+    description = deferred(Column(Unicode(512), nullable=False))
     interaction_timeout = Column(Integer, nullable=False, default=120)
     admin_interaction_timeout = Column(Integer, nullable=False, default=180)
     session_timeout = Column(Integer, nullable=False, default=86400)
     ga_id = Column(Unicode(32), nullable=True)
+    settings = Column(PickleType, nullable=True)
+    staging = deferred(Column(PickleType, nullable=True))
 
+    bot_defs = relationship('BotDef')
     nodes = relationship('Node')
     platforms = relationship('Platform')
 
@@ -147,23 +153,47 @@ class Bot(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     ROOT_STABLE_ID = 'Root'
     START_STABLE_ID = 'Start'
 
+    def __repr__(self):
+        return '<%s(\'%s\', \'%s\')>' % (type(self).__name__, self.id,
+                                         self.name.encode('utf8'))
+
+    @property
+    def detail_fields(self):
+        return [
+            'interaction_timeout',
+            'admin_interaction_timeout',
+            'session_timeout',
+            'ga_id',
+            'settings',
+            'staging'
+        ]
+
+    @property
+    def users(self):
+        platform_ids = [p.id for p in Platform.get_by(bot_id=self.id)]
+        if not platform_ids:  # No associated platform
+            return []
+        return User.query().filter(User.platform_id.in_(platform_ids)).all()
+
     @property
     def root_node(self):
         return Node.get_by(bot_id=self.id, stable_id=Bot.ROOT_STABLE_ID,
                            single=True)
 
     def delete(self):
-        self.delete_all_node_and_links()
-        self.delete_all_platforms()
+        Node.delete_by(bot_id=self.id)
+        BotDef.delete_by(bot_id=self.id)
+        self.remove_platform_reference()
         super(Bot, self).delete()
 
-    def delete_all_node_and_links(self):
+    def delete_all_nodes(self):
         """Delete all associated node and links of this bot."""
         Node.delete_by(bot_id=self.id)
 
-    def delete_all_platforms(self):
-        """Delete all associated platform of this bot."""
-        Platform.delete_by(bot_id=self.id)
+    def remove_platform_reference(self):
+        """Remove all associated platform reference of this bot."""
+        Platform.get_by(bot_id=self.id, return_query=True).update(
+            {'bot_id': None})
 
 
 class GenderEnum(enum.Enum):
@@ -175,10 +205,9 @@ class User(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     __tablename__ = 'user'
 
     __json_public__ = ['first_name', 'last_name', 'locale', 'gender',
-                       'timezone']
+                       'timezone', 'platform_user_ident']
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    bot_id = Column(ForeignKey('bot.id'), nullable=False)
     platform_id = Column(ForeignKey('platform.id'), nullable=False)
     platform_user_ident = Column(String(128), nullable=False)
     last_seen = Column(DateTime, nullable=False)
@@ -199,23 +228,17 @@ class User(DeclarativeBase, ModelMixin, JSONSerializableMixin):
                       default={'subscribe': False})
 
     platform = relationship('Platform')
-    colleted_data = relationship('ColletedDatum')
+    colleted_data = relationship('CollectedDatum')
 
     def delete(self):
         Conversation.delete_by(user_id=self.id)
-        ColletedDatum.delete_by(user_id=self.id)
+        CollectedDatum.delete_by(user_id=self.id)
         super(User, self).delete()
 
     def goto(self, stable_id):
         """Goto a node."""
-        result = Node.get_by(query=Node.id, stable_id=str(stable_id),
-                             bot_id=self.bot_id, single=True)
-        # Goto Root if stable_id does not indicate a valid node
-        if result is None:
-            return self.goto(Bot.ROOT_STABLE_ID)
-
         sess = self.session
-        self.session = SessionRecord(result[0])
+        self.session = SessionRecord(stable_id)
         if sess:
             self.session.input_transformation = sess.input_transformation
 
@@ -228,7 +251,7 @@ class Node(DeclarativeBase, ModelMixin):
     stable_id = Column(String(128), nullable=False)
     bot_id = Column(ForeignKey('bot.id'), nullable=False)
     name = Column(Unicode(128), nullable=False)
-    description = Column(UnicodeText, nullable=True)
+    description = deferred(Column(UnicodeText, nullable=True))
     expect_input = Column(Boolean, nullable=False)
     content_module_id = Column(ForeignKey('content_module.id'), nullable=False)
     content_config = Column(PickleType, nullable=False)
@@ -239,27 +262,68 @@ class Node(DeclarativeBase, ModelMixin):
     content_module = relationship('ContentModule')
     parser_module = relationship('ParserModule')
 
-    @classmethod
-    def get_pk_id(cls, stable_id):
-        return Node.get_by(query=cls.id, stable_id=stable_id, single=True)[0]
+    def __repr__(self):
+        return '<%s(\'%s\', \'%s\')>' % (type(self).__name__, self.id,
+                                         self.stable_id)
 
 
-class Platform(DeclarativeBase, ModelMixin):
+class Platform(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     __tablename__ = 'platform'
     __table_args__ = (UniqueConstraint('provider_ident'),)
 
+    __json_public__ = ['id', 'bot_id', 'name', 'type_enum', 'provider_ident']
+
     id = Column(Integer, primary_key=True, autoincrement=True)
-    bot_id = Column(ForeignKey('bot.id'), nullable=False)
+    account_id = Column(Integer, ForeignKey('account.id'), nullable=True)
+    bot_id = Column(ForeignKey('bot.id'), nullable=True)
+    name = Column(Unicode(128), nullable=False)
+    deployed = Column(Boolean, nullable=False, default=True)
     type_enum = Column(Enum(PlatformTypeEnum), nullable=False)
     provider_ident = Column(String(128), nullable=False)
     config = Column(PickleType, nullable=False)
 
+    account = relationship('Account')
     bot = relationship('Bot')
+
+    def __repr__(self):
+        return '<%s(\'%s\', \'%s\')>' % (type(self).__name__, self.id,
+                                         self.name.encode('utf8'))
 
     def delete(self):
         for user in User.get_by(platform_id=self.id):
             user.delete()
         super(Platform, self).delete()
+
+    @classmethod
+    def schema(cls):
+        return {
+            'type': 'object',
+            'required': [
+                'name',
+                'deployed',
+                'type_enum',
+                'provider_ident',
+                'config'
+            ],
+            'properties': {
+                'bot_id': {
+                    'type': ['null', 'integer'],
+                },
+                'name': {
+                    'type': 'string',
+                    'maxLength': 128
+                },
+                'deployed': {'type': 'boolean'},
+                'type_enum': {
+                    'enum': ['Facebook', 'Line']
+                },
+                'provider_ident': {
+                    'type': 'string',
+                    'maxLength': 128
+                },
+                'config': {'type': 'object'}
+            }
+        }
 
 
 class SupportedPlatform(enum.Enum):
@@ -307,7 +371,7 @@ class ParserModule(DeclarativeBase, ModelMixin):
             '%s.%s' % (self.PARSER_MODULES, name))
 
 
-class ColletedDatum(DeclarativeBase, ModelMixin):
+class CollectedDatum(DeclarativeBase, ModelMixin):
     __tablename__ = 'collected_data'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -343,12 +407,88 @@ class Event(DeclarativeBase, ModelMixin):
     event_value = Column(PickleType, nullable=False)
 
 
-class Broadcast(DeclarativeBase, ModelMixin):
+class BroadcastStatusEnum(enum.Enum):
+    QUEUED = 'Queued'
+    SENDING = 'Sending'
+    SENT = 'Sent'
+    CANCELED = 'Canceled'
+
+
+class Broadcast(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     __tablename__ = 'broadcast'
 
+    __json_public__ = ['id', 'bot_id', 'name', 'scheduled_time', 'status']
+
     id = Column(Integer, primary_key=True, autoincrement=True)
-    message = Column(PickleType, nullable=False)
-    scheduled_time = Column(DateTime, nullable=False)
+    account_id = Column(ForeignKey('account.id'), nullable=False)
+    bot_id = Column(ForeignKey('bot.id'), nullable=False)
+    name = Column(Unicode(64), nullable=False)
+    messages = Column(PickleType, nullable=False)
+    scheduled_time = Column(DateTime, nullable=True)
+    status = Column(Enum(BroadcastStatusEnum), nullable=False,
+                    default=BroadcastStatusEnum.QUEUED)
+
+    account = relationship('Account')
+
+    @classmethod
+    def schema(cls):
+        return {
+            'type': 'object',
+            'required': [
+                'account_id',
+                'bot_id',
+                'name',
+                'messages',
+                'scheduled_time',
+            ],
+            'properties': {
+                'account_id': {'type': 'integer'},
+                'bot_id': {'type': 'integer'},
+                'name': {
+                    'type': 'string',
+                    'maxLength': 64
+                },
+                'messages': {
+                    'type': 'array',
+                    'item': {'type': 'object'}
+                },
+                'scheduled_time': {'type': 'integer'},
+                'status': {'enum': ['Canceled']}
+            }
+        }
+
+
+class BotDef(DeclarativeBase, ModelMixin, JSONSerializableMixin):
+    __tablename__ = 'bot_def'
+    __table_args__ = (UniqueConstraint('bot_id', 'version'),)
+
+    __json_public__ = ['id', 'bot_id', 'version', 'note']
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    bot_id = Column(ForeignKey('bot.id'), nullable=False)
+    version = Column(Integer, nullable=False)
+    bot_json = deferred(Column(PickleType, nullable=False))
+    note = Column(Unicode(64), nullable=True)
+
+    @classmethod
+    def add_version(cls, bot_id, bot_json, note=None):
+        bot_def = None
+        for unused_i in range(3):  # Retry for three times
+            try:
+                max_version = cls.query(func.max(cls.version)).filter_by(
+                    bot_id=bot_id).one()[0]
+                if max_version is None:
+                    version = 1
+                else:
+                    version = max_version + 1
+                bot_def = BotDef(bot_id=bot_id, version=version,
+                                 bot_json=bot_json, note=note).add()
+                DatabaseManager.flush()
+            except (InvalidRequestError, IntegrityError):
+                DatabaseManager.rollback()
+            else:
+                break
+        return bot_def
 
 
 class FeedEnum(enum.Enum):
@@ -384,13 +524,6 @@ class PublicFeed(DeclarativeBase, ModelMixin):
     type = Column(Enum(FeedEnum), nullable=False)
     title = Column(Unicode(128), nullable=False)
     image_url = Column(String(256), nullable=False)
-
-
-t_account_bot = Table(
-    'account_bot', DeclarativeBase.metadata,
-    Column('account_id', ForeignKey('account.id'), nullable=False),
-    Column('bot_id', ForeignKey('bot.id'), nullable=False)
-)
 
 
 t_bot_node = Table(

@@ -61,6 +61,6 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Crawler')
-    parser.add_argument('--interval', type=int, dest='interval', default=1800,
+    parser.add_argument('--interval', type=int, dest='interval', default=3600,
                         help='The interval in seoncds between crawler run')
     main(parser.parse_args())

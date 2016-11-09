@@ -14,10 +14,10 @@ import mock
 from bb8.backend.database import DatabaseManager
 from bb8.backend import messaging
 from bb8.backend.message import Message
-from bb8.backend.test_utils import BaseMessagingMixin
+from bb8.backend.test_utils import BaseTestMixin
 
 
-class MessagingUnittest(unittest.TestCase, BaseMessagingMixin):
+class MessagingUnittest(unittest.TestCase, BaseTestMixin):
     def setUp(self):
         DatabaseManager.connect()
         self.setup_prerequisite()

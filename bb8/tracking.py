@@ -77,7 +77,7 @@ def send_ga_track_info():
     """Send tracking info to GA."""
     tracking = get_tracking()
 
-    if not enable_tracking():
+    if not enable_tracking() or not tracking:
         return
 
     base = u'v=1&tid=%s' % g.ga_id

@@ -37,7 +37,7 @@ def schema():
                 'type': 'array',
                 'items': {
                     'type': 'object',
-                    'required': ['ack_message'],
+                    'required': ['rule', 'ack_message'],
                     'additionalProperties': False,
                     'properties': {
                         'rule': {
@@ -169,13 +169,12 @@ def run(parser_config, user_input, as_root):
     collect = {}
 
     for link in parser_config['links']:
-        if 'rule' not in link:
-            continue
-
         r_type = link['rule']['type']
 
         def ret(link, variables, collect):
             end_node_id = link.get('end_node_id', None)
+            if end_node_id:
+                end_node_id = Render(end_node_id, variables)
             ack_msg = link.get('ack_message', None)
             return ParseResult(end_node_id, ack_msg, variables, collect)
 
@@ -221,6 +220,24 @@ def run(parser_config, user_input, as_root):
         elif r_type == 'event' and user_input.event:
             for param in link['rule']['params']:
                 if re.search(param, user_input.event.key):
+                    new_vars = {
+                        'key': user_input.event.key,
+                        'value': user_input.event.value
+                    }
+                    if memory_set:
+                        value = memory_set.get('value', '{{text}}')
+                        if (isinstance(value, unicode) or
+                                isinstance(value, str)):
+                            value = Render(value, new_vars)
+                        Memory.Set(memory_set['key'], value)
+
+                    if settings_set:
+                        value = settings_set.get('value', '{{text}}')
+                        if (isinstance(value, unicode) or
+                                isinstance(value, str)):
+                            value = Render(value, new_vars)
+                        Settings.Set(settings_set['key'], value)
+
                     return ret(link, {'event': user_input.event}, {})
         elif r_type == 'sticker' and user_input.sticker:
             for param in link['rule']['params']:
@@ -228,7 +245,7 @@ def run(parser_config, user_input, as_root):
                     return ret(link, {'sticker': user_input.sticker}, {})
 
     if as_root:
-        return ParseResult()
+        return ParseResult(errored=True)
 
     on_error = parser_config.get('on_error')
     if on_error:
@@ -238,12 +255,13 @@ def run(parser_config, user_input, as_root):
             collect[collect_as['key']] = Render(value,
                                                 {'text': user_input.text})
 
-        return ParseResult(on_error['end_node_id'],
+        variables = {'text': user_input.text}
+        return ParseResult(Render(on_error['end_node_id'], variables),
                            on_error.get('ack_message'),
-                           {'text': user_input.text}, collect)
+                           variables, collect, errored=True)
 
-    return ParseResult('$error', 'Invalid input, please re-enter',
-                       {'text': user_input.text}, collect)
+    return ParseResult(None, 'Invalid input, please re-enter',
+                       {'text': user_input.text}, collect, errored=True)
 
 
 def get_linkages(parser_config):

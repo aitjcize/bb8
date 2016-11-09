@@ -1,0 +1,11 @@
+{
+  "module-resource": {
+    "ai.compose.content.third_party.twrealprice": [
+      {
+        "description": "twrealprice content module database",
+        "source": "gs://bb8-app-resource/ai.compose.content.third_party.twrealprice/twrealprice.db",
+        "dest": "/var/lib/bb8/apps/twrealprice/resource/twrealprice.db"
+      }
+    ]
+  }
+}

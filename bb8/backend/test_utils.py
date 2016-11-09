@@ -13,10 +13,12 @@ import subprocess
 
 import pytz
 
-from bb8.backend.bot_parser import get_bot_filename, parse_bot
+from bb8.backend.bot_parser import get_bot_filename, parse_bot_from_file
+from bb8.backend.platform_parser import (get_platform_filename,
+                                         parse_platform_from_file)
 from bb8.backend.database import (DatabaseManager, Bot, User, Platform,
                                   PlatformTypeEnum)
-from bb8.backend.module_registration import register_all_modules
+from bb8.backend.modules import register_all_modules
 
 
 def reset_and_setup_bots(bot_names):
@@ -25,11 +27,14 @@ def reset_and_setup_bots(bot_names):
     Args:
         bot_names: a list of bot names to setup
     """
-    DatabaseManager.reset()
     bots = []
+    DatabaseManager.reset()
     register_all_modules()
+    for platform_name in ['dev/bb8.test.platform', 'dev/bb8.test2.platform']:
+        parse_platform_from_file(get_platform_filename(platform_name))
+
     for bot_name in bot_names:
-        bots.append(parse_bot(get_bot_filename(bot_name)))
+        bots.append(parse_bot_from_file(get_bot_filename(bot_name)))
     return bots
 
 
@@ -42,7 +47,7 @@ def stop_celery_worker():
     subprocess.call('pkill -9 -f celery', shell=True)
 
 
-class BaseMessagingMixin(object):
+class BaseTestMixin(object):
     """A mixin for setting up prerequisite for messaging related unittests."""
     def setup_prerequisite(self):
         DatabaseManager.reset()
@@ -58,20 +63,21 @@ class BaseMessagingMixin(object):
                             'HF6qra20ZC6HqNXwGpaP74knlNvQJqUmwZDZD'
         }
 
-        self.platform = Platform(bot_id=self.bot.id,
+        self.platform = Platform(name=u'Test platform',
+                                 bot_id=self.bot.id,
                                  type_enum=PlatformTypeEnum.Facebook,
                                  provider_ident='1155924351125985',
                                  config=config).add()
         DatabaseManager.flush()
 
-        self.user_1 = User(bot_id=self.bot.id,
-                           platform_id=self.platform.id,
+        self.user_1 = User(platform_id=self.platform.id,
                            platform_user_ident='1153206858057166',
                            last_seen=datetime.datetime(2016, 6, 2, 12, 44, 56,
-                                                       tzinfo=pytz.utc)).add()
-        self.user_2 = User(bot_id=self.bot.id,
-                           platform_id=self.platform.id,
+                                                       tzinfo=pytz.utc),
+                           settings={'subscribe': True}).add()
+        self.user_2 = User(platform_id=self.platform.id,
                            platform_user_ident='1318395614844436',
                            last_seen=datetime.datetime(2016, 6, 2, 12, 44, 56,
-                                                       tzinfo=pytz.utc)).add()
+                                                       tzinfo=pytz.utc),
+                           settings={'subscribe': True}).add()
         DatabaseManager.commit()

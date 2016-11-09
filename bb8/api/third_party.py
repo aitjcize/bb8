@@ -15,8 +15,8 @@ from bb8 import app
 from bb8.backend.content_modules.youbike import GOOGLE_STATIC_MAP_API_KEY
 
 
-@app.route('/third_party/youbike/render_map')
-def redirect_url():
+@app.route('/api/third_party/youbike/render_map')
+def redirect_render_map():
     """Workaround facebooks 'bug', wher it remove multiple value with same key.
     We use facebook to pass the arguments, then request render from Google on
     behalf of it."""

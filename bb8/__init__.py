@@ -8,12 +8,16 @@
 
 import os
 
-from flask import Flask, jsonify
+from flask import Flask
 from celery import Celery
 
 from bb8 import configuration
 from bb8.logging_utils import Logger
-from bb8.error import AppError
+
+import datadog
+
+
+SRC_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
 
 config = None
 
@@ -32,9 +36,10 @@ celery.config_from_object(config.CeleryConfig)
 
 logger = Logger(os.path.join(config.LOG_DIR, config.LOG_FILE))
 
+datadog.initialize(
+    api_key=config.DATADOG_API_KEY,
+    app_key=config.DATADOG_APP_KEY,
+    statsd_host=config.DATADOG_HOST
+)
 
-def on_app_error(e):
-    logger.error(str(e))
-    return jsonify(message=e.message, error_code=e.error_code), e.status_code
-
-app.errorhandler(AppError)(on_app_error)
+statsd = datadog.statsd

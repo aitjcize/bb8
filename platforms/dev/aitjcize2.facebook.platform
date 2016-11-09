@@ -1,0 +1,9 @@
+{
+  "name": "AppleBot",
+  "type_enum": "Facebook",
+  "deployed": false,
+  "provider_ident": "1854018554820901",
+  "config": {
+    "access_token": "EAAP0okfsZCVkBAKpRZCiVEOfGWWFmGCR7ivZAUFx6wWvfE3PHPF68eKkdMKZAvEUF6iVGa7NxjpDxdNMws5OsGljotMcqGxpWjurxuLZBlwXtKDI5SD6qC9iDdsqWFvRCPWmiIMxbKl6stwBBLkMXPcEDTZAgt9Dy0mZAFzZCIG86gZDZD"
+  }
+}

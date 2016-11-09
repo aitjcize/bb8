@@ -4,19 +4,25 @@ machine:
   timezone:
     Asia/Taipei
 
-  python:
-    version:
-      2.7.11
-
   services:
     - docker
 
+  node:
+    version: 6.7.0
+
 dependencies:
+  cache_directories:
+    - ~/bb8/bb8/frontend/node_modules
+
   pre:
+    - cd bb8/frontend && npm install
+    - pip install --upgrade pip
     - cat $(find -name requirements.txt) | sort | uniq | pip install -r /dev/stdin
+    - source bin/env.sh && make compile-resource-no-cred
 
 ## Customize test commands
 test:
   override:
     - source bin/env.sh && make lint
-    - source bin/env.sh && make coverage && mv htmlcov/* $CIRCLE_ARTIFACTS/
+    - source bin/env.sh && make coverage && mv htmlcov/* $CIRCLE_ARTIFACTS/:
+        timeout: 1200

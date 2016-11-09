@@ -1,46 +1,8 @@
 {
-  "platforms": [
-    {
-      "type_enum": "Facebook",
-      "deployed": true,
-      "provider_ident": "687078918112948",
-      "config": {
-        "access_token": "EAAZAi0GnycPEBAOZBJZBRqUR8XvLaLxuwviPaXUPoAqD33susbR51vGjYJK40O97ZBTPUApqhBGhYqJnZCCaCLvDoydnP7hi8p4X1zucNAF6NzAtCKmWLjApWdKAGKTRql7qGYss0NZAe3qCJhmZAwERlmZBKjvLS8jKmU0xUlZB2iQZDZD",
-        "get_start_button": {"message": {"text": "Hi"}},
-        "persistent_menu": [
-          {
-            "type": "postback",
-            "title": "熱門新聞",
-            "payload": {"message": {"text": "trending"}}
-          },
-          {
-            "type": "postback",
-            "title": "使用說明",
-            "payload": {"message": {"text": "tutorial"}}
-          },
-          {
-            "type": "postback",
-            "title": "留言",
-            "payload": {"message": {"text": "feedback"}}
-          },
-          {
-            "type": "web_url",
-            "title": "Compose.ai 官方網站",
-            "url": "http://compose.ai"
-          }
-        ]
-      }
-    },
-    {
-      "type_enum": "Line",
-      "deployed": true,
-      "provider_ident": "news.composeai",
-      "config": {
-        "access_token": "FQxvp9j+KqPaCt9Gtr3jhC1XoYFjB/plnymZUjn7f5ZcQtROjgl7hUid94Jip0LyS2KGChvfO/4mGrPpQ+Urh0Cl/S+1F8hA9Y7iaZMH2QcR19BKd2EcM9VS4QdLokA2e6Rz6OQBxah4XXEJNf9SigdB04t89/1O/w1cDnyilFU=",
-        "channel_secret": "cdc88eb98b7eb10b4a48fa5c90ca32f3"
-      }
-    }
-  ],
+  "platforms": {
+    "Facebook": "687078918112948",
+    "Line": "news.composeai"
+  },
   "bot": {
     "name": "News",
     "description": "News",
@@ -48,17 +10,47 @@
     "session_timeout": 0,
     "admin_interaction_timeout": 10,
     "ga_id": "UA-79887532-3",
+    "settings": {
+      "get_start_button": {"message": {"text": "Hi"}},
+      "persistent_menu": [
+        {
+          "type": "postback",
+          "title": "熱門新聞",
+          "payload": {"message": {"text": "trending"}}
+        },
+        {
+          "type": "postback",
+          "title": "使用說明",
+          "payload": {"message": {"text": "tutorial"}}
+        },
+        {
+          "type": "postback",
+          "title": "通知設定",
+          "payload": {"message": {"text": "notification_settings"}}
+        },
+        {
+          "type": "postback",
+          "title": "留言",
+          "payload": {"message": {"text": "feedback"}}
+        },
+        {
+          "type": "web_url",
+          "title": "Compose.ai 官方網站",
+          "url": "http://compose.ai"
+        }
+      ]
+    },
     "nodes": {
       "Start": {
         "name": "Greet",
         "description": "Greet user",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.content.core.generic_message",
+          "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
               {
-                "text": "嗨 {{user.first_name}}，歡迎使用新聞小幫手，很高興為你服務。你是我服務過的第 {{statistic.user_count}} 位朋友"
+                "text": "嗨 {{user.first_name}}，歡迎使用新聞小幫手，很高興為你服務！"
               }
             ]
           }
@@ -76,22 +68,23 @@
         "description": "Prompt user for subscription preference",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.generic_message",
+          "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
               {
-                "text": "你想要訂閱不定期的新聞通知嗎？(每日最多一則)",
-                "quick_replies": [
-                  {
-                    "content_type": "text",
-                    "title": "好",
-                    "payload": {"message": {"text": "訂閱"}}
-                  },
-                  {
-                    "content_type": "text",
-                    "title": "不用了"
-                  }
-                ]
+                "text": "你想要訂閱不定期的新聞通知嗎？(每日最多一則)"
+              }
+            ],
+            "quick_replies": [
+              {
+                "content_type": "text",
+                "title": "好",
+                "payload": {"message": {"text": "訂閱"}},
+                "acceptable_inputs": ["要", "(?i)ok","(?i)yes"]
+              },
+              {
+                "content_type": "text",
+                "title": "不用了"
               }
             ]
           }
@@ -118,6 +111,14 @@
           "id": "ai.compose.parser.core.default",
           "config": {
             "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["notification_settings"]
+                },
+                "end_node_id": "{{'PromptDisableNotification' if settings.subscribe else 'PromptEnableNotification'}}",
+                "ack_message": ""
+              },
               {
                 "rule": {
                   "type": "regexp",
@@ -228,7 +229,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["取消訂閱", "停止訂閱", "unsubscribe"],
+                  "params": ["(關掉|關閉|停止|取消)訂閱", "unsubscribe"],
                   "settings_set": {
                     "key": "subscribe",
                     "value": false
@@ -242,7 +243,7 @@
                   "type": "regexp",
                   "params": ["^建議$", "^feedback$", "意見", "留言"]
                 },
-                "end_node_id": "Reedback",
+                "end_node_id": "Feedback",
                 "ack_message": ""
               },
               {
@@ -262,10 +263,6 @@
                   "params": ["(?i)thanks?", "謝謝", "感恩"]
                 },
                 "end_node_id": "Thanks",
-                "ack_message": ""
-              },
-              {
-                "end_node_id": "SearchNews",
                 "ack_message": ""
               }
             ],
@@ -342,9 +339,13 @@
         "description": "search with out term, prompt for term",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.core.message",
           "config": {
-            "text": "你想要找什麼樣的主題呢？"
+            "messages": [
+              {
+                "text": "你想要找什麼樣的主題呢？"
+              }
+            ]
           }
         },
         "parser_module": {
@@ -369,23 +370,31 @@
         "description": "Thank user",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.core.message",
           "config": {
-            "text": [
-              "感謝你的支持, 請幫我們的粉絲頁按讚喔! https://goo.gl/OPcdus",
-              "你也可以輸入「建議 {內容}」來告訢我們可以改善的地方"
+            "messages": [
+              {
+                "text": "感謝你的支持, 請幫我們的粉絲頁按讚喔! https://goo.gl/OPcdus"
+              },
+              {
+                "text": "你也可以輸入「建議 {內容}」來告訢我們可以改善的地方"
+              }
             ]
           }
         }
       },
-      "Reedback": {
+      "Feedback": {
         "name": "Feedback",
         "description": "Feedback without content, guide user to input feedback",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.core.message",
           "config": {
-            "text": "你覺得我們可以怎麼樣改善呢？"
+            "messages": [
+              {
+                "text": "你覺得我們可以怎麼樣改善呢？"
+              }
+            ]
           }
         },
         "parser_module": {
@@ -405,12 +414,80 @@
           }
         }
       },
+      "PromptEnableNotification": {
+        "name": "PromptEnableNotification",
+        "description": "PromptEnableNotification",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "您目前「沒有訂閱」新聞小幫手，你想要訂閱嗎？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "content_type": "text",
+                "title": "訂閱",
+                "payload": {"message": {"text": "subscribe"}},
+                "acceptable_inputs": ["好", "要", "(?i)ok","(?i)yes"]
+              },
+              {
+                "content_type": "text",
+                "title": "放棄設定"
+              }
+            ]
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.passthrough",
+          "config": {
+            "end_node_id": "Root",
+            "ack_message": ""
+          }
+        }
+      },
+      "PromptDisableNotification": {
+        "name": "PromptDisableNotification",
+        "description": "PromptDisableNotification",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "您目前已「訂閱」新聞小幫手，你想要取消嗎？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "content_type": "text",
+                "title": "取消訂閱",
+                "payload": {"message": {"text": "unsubscribe"}},
+                "acceptable_inputs": ["好", "要", "(?i)ok","(?i)yes"]
+              },
+              {
+                "content_type": "text",
+                "title": "放棄設定"
+              }
+            ]
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.passthrough",
+          "config": {
+            "end_node_id": "Root",
+            "ack_message": ""
+          }
+        }
+      },
       "Help": {
         "name": "Help",
         "description": "",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.content.core.generic_message",
+          "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
                 {

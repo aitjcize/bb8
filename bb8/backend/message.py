@@ -19,15 +19,205 @@ from flask import g
 from sqlalchemy import desc, func
 
 from bb8 import logger
-from bb8.backend import base_message
-from bb8.backend.database import ColletedDatum
-from bb8.backend.metadata import InputTransformation
-from bb8.backend.query_filters import FILTERS
+from bb8.backend import base_message, template, messaging
+from bb8.backend.speech import speech_to_text
+from bb8.backend.database import CollectedDatum, PlatformTypeEnum
 from bb8.backend.util import image_convert_url
 
 
 VARIABLE_RE = re.compile('^{{(.*?)}}$')
-HAS_VARIABLE_RE = base_message.HAS_VARIABLE_RE
+
+
+class PostbackEvent(object):
+    """Event class representing a postback event."""
+    def __init__(self, event):
+        self.key = event['key']
+        self.value = event['value']
+
+
+class UserInput(object):
+    def __init__(self):
+        self.text = None
+        self.sticker = None
+        self.location = None
+        self.event = None
+        self.audio = None
+        self.jump_node_id = None
+        self.raw_message = None
+
+    @classmethod
+    def Text(cls, text):
+        u = UserInput()
+        u.text = text
+        return u
+
+    @classmethod
+    def Location(cls, coordinates, title='location'):
+        u = UserInput()
+        u.location = {
+            'title': title,
+            'coordinates': {
+                'lat': coordinates[0],
+                'long': coordinates[1]
+            }
+        }
+        return u
+
+    @classmethod
+    def Event(cls, key, value):
+        u = UserInput()
+        u.event = PostbackEvent({'key': key, 'value': value})
+        return u
+
+    @classmethod
+    def FromPayload(cls, payload):
+        u = UserInput()
+        try:
+            payload = json.loads(payload)
+        except Exception:
+            u.text = payload  # assume text when failed
+            return u
+
+        message = payload.get('message', None)
+        if message:
+            u.text = message.get('text')
+            u.parse_facebook_attachments(message.get('attachments'))
+
+        event = payload.get('event', None)
+        if event:
+            u.event = PostbackEvent(event)
+
+        u.jump_node_id = payload.get('node_id', 'Root')
+        return u
+
+    @classmethod
+    def FromFacebookMessage(cls, data):
+        u = UserInput()
+        message = data.get('message')
+        if message:
+            quick_reply = message.get('quick_reply')
+            if quick_reply:
+                return cls.FromPayload(quick_reply['payload'])
+
+            u.text = message.get('text')
+            u.parse_facebook_sticker(message)
+            u.parse_facebook_attachments(message.get('attachments'))
+            u.parse_to_raw_message(message)
+            return u
+
+        postback = data.get('postback')
+        if postback:
+            return cls.FromPayload(postback['payload'])
+
+        return None
+
+    def RunInputTransformation(self):
+        """Perform input transformation if there is one."""
+        try:
+            if (self.text and g.user and g.user.session and
+                    g.user.session.input_transformation):
+                ret = InputTransformation.transform(
+                    self.text, g.user.session.input_transformation)
+                return ret if ret else self
+        except Exception as e:
+            # We shouldn't block user if input transformation fail (possibly
+            # due to invalid regular expression). Log the failure for
+            # analysis.
+            logger.exception(e)
+
+        return self
+
+    def parse_facebook_sticker(self, message):
+        """Helper function for parsing facebook sticker."""
+        if 'sticker_id' in message:
+            self.sticker = str(message['sticker_id'])
+
+    def parse_facebook_attachments(self, attachments):
+        """Helper function for parsing facebook attachments."""
+        if not attachments:
+            return
+
+        for att in attachments:
+            if att['type'] == 'location':
+                self.location = att['payload']
+            elif att['type'] == 'audio':
+                self.audio = att['payload']
+
+    def parse_to_raw_message(self, message):
+        for uneeded_key in ['mid', 'seq']:
+            del message[uneeded_key]
+
+        attachments = message.get('attachments')
+        if attachments:
+            message['attachment'] = attachments[0]
+            del message['attachments']
+
+        self.raw_message = message
+
+    def ParseAudioAsText(self, user):
+        if self.audio and not self.text:
+            data = messaging.download_audio_as_data(user, self.audio)
+            self.text = speech_to_text(data, user.locale or 'zh_TW') or ''
+
+    @classmethod
+    def FromLineMessage(cls, entry):
+        message = entry.get('message')
+        if message:
+            u = UserInput()
+            if message['type'] == 'text':
+                u.text = message['text']
+            elif message['type'] == 'location':
+                u.location = {
+                    'title': message['title'],
+                    'coordinates': {
+                        'lat': message['latitude'],
+                        'long': message['longitude']
+                    }
+                }
+            elif message['type'] == 'audio':
+                u.audio = message['id']
+            else:
+                return None
+            return u
+
+        postback = entry.get('postback')
+        if postback:
+            return cls.FromPayload(postback['data'])
+
+    def jump(self):
+        return self.jump_node_id is not None
+
+    def disable_jump(self):
+        """Remove the jump node ID so the input does not indicate jumping."""
+        self.jump_node_id = None
+
+
+class InputTransformation(object):
+    @classmethod
+    def get(cls):
+        try:
+            _ = g.input_transformation
+        except AttributeError:
+            g.input_transformation = []
+
+        return g.input_transformation
+
+    @classmethod
+    def clear(cls):
+        g.input_transformation = []
+
+    @classmethod
+    def add_mapping(cls, rules, payload):
+        cls.get().append((rules, payload))
+
+    @classmethod
+    def transform(cls, text, transformations):
+        for rules, payload in transformations:
+            for rule in rules:
+                if re.search(rule, text):
+                    return UserInput.FromPayload(payload)
+
+        return None
 
 
 def IsVariable(text):
@@ -68,104 +258,79 @@ def Resolve(obj, variables):
     return obj
 
 
-def parse_query(expr):
-    """Parse query expression."""
-    parts = expr.split('|')
-    query = parts[0]
-    filters = parts[1:]
+class DataQuery(object):
+    def __init__(self, key):
+        self.key = key
+        self.fallback_value = ''
+        self.query = CollectedDatum.query(
+            CollectedDatum.value, CollectedDatum.created_at).filter_by(
+                key=key, user_id=g.user.id)
 
-    m = re.match(r'^q(all)?\.([^.]*)$', query)
-    if not m:
-        return expr
+    @property
+    def one(self):
+        result = self.query.limit(1).first()
+        return result[0] if result else self.fallback_value
 
-    key = m.group(2)
-    q = ColletedDatum.query(ColletedDatum.value, ColletedDatum.created_at)
-    q = q.filter_by(key=key)
+    @property
+    def first(self):
+        return self.one
 
-    if m.group(1) is None:  # q.
-        q = q.filter_by(user_id=g.user.id)
+    @property
+    def count(self):
+        return self.query.count()
 
-    # Parse query filter
-    result = None
-    try:
-        for f in filters[:]:
-            filters = filters[1:]
-            if f == 'one' or f == 'first':
-                result = q.first()
-                result = result.value if result else None
-                break
-            m = re.match(r'get\((\d+)\)', f)
-            if m:
-                result = q.offset(int(m.group(1))).limit(1).first()
-                result = result.value if result else None
-                break
-            m = re.match(r'lru\((\d+)\)', f)
-            if m:
-                result = ColletedDatum.query(
-                    ColletedDatum.value,
-                    func.max(ColletedDatum.created_at).label('latest')
-                ).filter_by(
-                    key=key,
-                    user_id=g.user.id
-                ).group_by(
-                    ColletedDatum.value
-                ).order_by(
-                    desc('latest')
-                ).offset(int(m.group(1))).limit(1).first()
-                result = result.value if result else None
-                break
-            if f == 'last':
-                result = q.order_by(ColletedDatum.created_at.desc()).first()
-                result = result.value if result else None
-                break
-            elif f == 'count':
-                result = q.count()
-                break
-            elif f == 'uniq':
-                q = q.distinct(ColletedDatum.value)
-            else:
-                m = re.match(r'order_by\(\'(.*)\'\)', f)
-                if m:
-                    field = m.group(1)
-                    if field.startswith('-'):
-                        q = q.order_by(desc(field[1:]))
-                    else:
-                        q = q.order_by(field)
-    except Exception as e:
-        logger.exception(e)
-        return None
+    @property
+    def last(self):
+        result = self.query.order_by(CollectedDatum.created_at.desc()).limit(
+            1).first()
+        return result[0] if result else self.fallback_value
 
-    if result is None:
-        if filters:
-            m = re.match(r'fallback\(\'(.*)\'\)', filters[0])
-            if m:
-                return m.group(1)
-        return None
+    def get(self, index):
+        result = self.query.offset(index).limit(1).first()
+        return result[0] if result else self.fallback_value
 
-    # Parse transform filter
-    for f in filters:
-        if f in FILTERS:
-            result = FILTERS[f](result)
+    def lru(self, index):
+        result = CollectedDatum.query(
+            CollectedDatum.value,
+            func.max(CollectedDatum.created_at).label('latest')
+        ).filter_by(
+            key=self.key,
+            user_id=g.user.id
+        ).group_by(
+            CollectedDatum.value
+        ).order_by(
+            desc('latest')
+        ).offset(index).limit(1).first()
+        return result[0] if result else self.fallback_value
 
-    if not isinstance(result, str) and not isinstance(result, unicode):
-        result = str(result)
+    def fallback(self, fallback):
+        self.fallback_value = fallback
+        return self
 
-    return result
-
-
-def Render(template, variables):
-    """Render template with variables."""
-    if template is None:
-        return None
-
-    def replace(m):
-        expr = m.group(1)
-        if re.match(r'^q(all)?\.', expr):  # Query expression
-            ret = parse_query(expr)
+    def order_by(self, field):
+        if field.startswith('-'):
+            self.query = self.query.order_by(desc(field[1:]))
         else:
-            ret = base_message.parse_variable(expr, variables)
-        return ret if ret is not None else m.group(0)
-    return HAS_VARIABLE_RE.sub(replace, base_message.to_unicode(template))
+            self.query = self.query.order_by(field)
+        return self
+
+    def uniq(self):
+        self.query = self.query.distinct(CollectedDatum.value)
+        return self
+
+
+def Render(tmpl, variables):
+    """Render template with variables."""
+
+    # Inject user settings and memory access
+    if hasattr(g, 'user'):
+        variables['settings'] = g.user.settings
+        variables['memory'] = g.user.memory
+
+    # Inject data query object
+    variables['data'] = DataQuery
+
+    return template.Render(tmpl, variables)
 
 
 def TextPayload(text, send_to_current_node=True):
@@ -216,10 +381,40 @@ base_message.Render = Render
 class Message(base_message.Message):
     """Wraps base_message.Message to provide extra function."""
 
+    limits = {
+        PlatformTypeEnum.Facebook: {
+            'text': 320,
+            'buttons_text': 320,
+            'buttons': 3,
+            'bubbles': 10,
+            'quick_replies': 10
+        },
+        PlatformTypeEnum.Line: {
+            'text': 160,
+            'buttons_text': 160,
+            'buttons': 3,
+            'bubbles': 5,
+            'quick_replies': 10
+        }
+    }
+
     NotificationType = base_message.Message.NotificationType
     ButtonType = base_message.Message.ButtonType
 
     class _Button(base_message.Message.Button):
+        limits = {
+            PlatformTypeEnum.Facebook: {
+                'title': 20,
+                'url': 500,
+                'payload': 1000,
+            },
+            PlatformTypeEnum.Line: {
+                'title': 20,
+                'url': 500,
+                'payload': 300,
+            }
+        }
+
         @classmethod
         def FromDict(cls, data, variables=None):
             """Construct Button object given a button dictionary."""
@@ -234,6 +429,15 @@ class Message(base_message.Message):
                        data.get('title'), data.get('url'), payload,
                        data.get('acceptable_inputs'), variables)
 
+        def apply_limits(self, platform_type):
+            limits = self.limits[platform_type]
+            if self.title:
+                self.title = self.title[:limits['title']]
+            if self.url:
+                self.url = self.url[:limits['url']]
+            if self.payload:
+                self.payload = self.payload[:limits['payload']]
+
         def register_mapping(self, key):
             if self.type == Message.ButtonType.POSTBACK:
                 acceptable_inputs = self.acceptable_inputs[:]
@@ -245,6 +449,31 @@ class Message(base_message.Message):
     base_message.Message.Button = _Button
 
     class _Bubble(base_message.Message.Bubble):
+        limits = {
+            PlatformTypeEnum.Facebook: {
+                'title': 80,
+                'subtitle': 80,
+                'buttons': 3,
+            },
+            PlatformTypeEnum.Line: {
+                'title': 40,
+                'subtitle': 60,
+                'buttons': 3,
+            }
+        }
+
+        def apply_limits(self, platform_type):
+            limits = self.limits[platform_type]
+            if self.title:
+                self.title = self.title[:limits['title']]
+            if self.subtitle:
+                self.subtitle = self.subtitle[:limits['subtitle']]
+
+            self.buttons = self.buttons[:limits['buttons']]
+
+            for button in self.buttons:
+                button.apply_limits(platform_type)
+
         def register_mapping(self, key):
             for idx, button in enumerate(self.buttons):
                 button.register_mapping(key + r'-' + str(idx + 1))
@@ -252,30 +481,90 @@ class Message(base_message.Message):
     # Patch Message.Bubble
     base_message.Message.Bubble = _Bubble
 
+    class _ListItem(base_message.Message.ListItem):
+        limits = {
+            PlatformTypeEnum.Facebook: {
+                'title': 80,
+                'subtitle': 80,
+                'image_url': 500,
+            },
+            PlatformTypeEnum.Line: {
+                'title': 40,
+                'subtitle': 60,
+                'image_url': 500,
+            }
+        }
+
+        def apply_limits(self, platform_type):
+            limits = self.limits[platform_type]
+            if self.title:
+                self.title = self.title[:limits['title']]
+            if self.subtitle:
+                self.subtitle = self.subtitle[:limits['subtitle']]
+            if self.image_url:
+                self.image_url = self.image_url[:limits['image_url']]
+
+            self.default_action.apply_limits(platform_type)
+
+            for button in self.buttons:
+                button.apply_limits(platform_type)
+
+    # Patch Message.ListItem
+    base_message.Message.ListItem = _ListItem
+
     class _QuickReply(base_message.Message.QuickReply):
+        limits = {
+            PlatformTypeEnum.Facebook: {
+                'title': 20,
+                'payload': 1000
+            }
+        }
+
+        def apply_limits(self, platform_type):
+            limits = self.limits[platform_type]
+            if self.title:
+                self.title = self.title[:limits['title']]
+            if self.payload:
+                self.payload = self.payload[:limits['payload']]
+
         def register_mapping(self):
-            if self.acceptable_inputs:
+            if self.content_type == Message.QuickReplyType.TEXT:
                 acceptable_inputs = self.acceptable_inputs[:]
-                acceptable_inputs.append(self.title)
+                acceptable_inputs.append('^%s$' % self.title)
                 InputTransformation.add_mapping(acceptable_inputs,
                                                 self.payload)
 
     # Patch Message.QuickReply
     base_message.Message.QuickReply = _QuickReply
 
+    def apply_limits(self, platform_type):
+        limits = self.limits[platform_type]
+        if self.text:
+            self.text = self.text[:limits['text']]
+        if self.buttons_text:
+            self.buttons_text = self.buttons_text[:limits['buttons_text']]
+
+        self.buttons = self.buttons[:limits['buttons']]
+        self.bubbles = self.bubbles[:limits['bubbles']]
+        self.quick_replies = self.quick_replies[:limits['quick_replies']]
+
+        for button in self.buttons:
+            button.apply_limits(platform_type)
+
+        for bubble in self.bubbles:
+            bubble.apply_limits(platform_type)
+
     def as_facebook_message(self):
         """Return message as Facebook message dictionary."""
+        self.apply_limits(PlatformTypeEnum.Facebook)
         return self.as_dict()
 
     def as_line_message(self):
         """Return message as Line message dictionary."""
-        MAX_BUTTONS = 3
-        MAX_BUBBLES = 5
-        MAX_TEXT_LEN = 160
-        MAX_TITLE_LEN = 40
+        self.apply_limits(PlatformTypeEnum.Line)
 
         if self.text:
-            return {'type': 'text', 'text': self.text[:MAX_TEXT_LEN]}
+            return {'type': 'text', 'text': self.text}
         elif self.image_url:
             return {
                 'type': 'image',
@@ -284,19 +573,19 @@ class Message(base_message.Message):
                 'previewImageUrl':
                     image_convert_url(self.image_url, (240, 240))
             }
-        elif self.buttons:
+        elif self.buttons_text:
             buttons = []
-            for but in self.buttons[:MAX_BUBBLES]:
+            for but in self.buttons:
                 if but.type == Message.ButtonType.WEB_URL:
                     buttons.append({
                         'type': 'uri',
-                        'label': but.title[:MAX_TITLE_LEN],
+                        'label': but.title,
                         'uri': but.url
                     })
                 elif but.type == Message.ButtonType.POSTBACK:
                     buttons.append({
                         'type': 'postback',
-                        'label': but.title[:MAX_TITLE_LEN],
+                        'label': but.title,
                         'data': but.payload
                     })
 
@@ -311,22 +600,22 @@ class Message(base_message.Message):
             }
         elif self.bubbles:
             columns = []
-            max_buttons = max([len(b.buttons[:MAX_BUTTONS])
+            max_buttons = max([len(b.buttons)
                                for b in self.bubbles])
 
-            for bubble in self.bubbles[:MAX_BUBBLES]:
+            for bubble in self.bubbles:
                 buttons = []
-                for but in bubble.buttons[:MAX_BUTTONS]:
+                for but in bubble.buttons:
                     if but.type == Message.ButtonType.WEB_URL:
                         buttons.append({
                             'type': 'uri',
-                            'label': but.title[:MAX_TITLE_LEN],
+                            'label': but.title,
                             'uri': but.url
                         })
                     elif but.type == Message.ButtonType.POSTBACK:
                         buttons.append({
                             'type': 'postback',
-                            'label': but.title[:MAX_TITLE_LEN],
+                            'label': but.title,
                             'data': but.payload
                         })
 
@@ -338,7 +627,7 @@ class Message(base_message.Message):
                     })
 
                 col = {
-                    'title': bubble.title[:MAX_TITLE_LEN],
+                    'title': bubble.title,
                     'text': bubble.subtitle if bubble.subtitle else ' ',
                     'actions': buttons
                 }
@@ -357,8 +646,54 @@ class Message(base_message.Message):
                     'columns': columns
                 }
             }
+        elif self.list_items:
+            msgs = []
+            for list_item in self.list_items:
+                buttons = []
+                but = list_item.button
+                if but:
+                    if but.type == Message.ButtonType.WEB_URL:
+                        buttons.append({
+                            'type': 'uri',
+                            'label': but.title,
+                            'uri': but.url
+                        })
+                    elif but.type == Message.ButtonType.POSTBACK:
+                        buttons.append({
+                            'type': 'postback',
+                            'label': but.title,
+                            'data': but.payload
+                        })
 
-        return {}
+                col = {
+                    'title': list_item.title,
+                    'text': list_item.subtitle if list_item.subtitle else ' ',
+                    'actions': buttons
+                }
+
+                if list_item.image_url:
+                    col['thumbnailImageUrl'] = image_convert_url(
+                        list_item.image_url, (1024, 1024))
+
+                msgs.append({
+                    'type': 'template',
+                    'altText': 'carousel',
+                    'template': {
+                        'type': 'carousel',
+                        'columns': [col]
+                    }
+                })
+            return msgs
+
+        return []
+
+    @classmethod
+    def FromDict(cls, data, variables=None):
+        """Construct Message object given a dictionary."""
+        m = super(Message, cls).FromDict(data, variables)
+        for reply in m.quick_replies:
+            reply.register_mapping()
+        return m
 
     def add_button(self, button):
         super(Message, self).add_button(button)

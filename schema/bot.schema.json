@@ -1,0 +1,101 @@
+{
+  "required": ["bot"],
+  "type": "object",
+  "properties": {
+    "platforms": {
+      "type": "object",
+      "patternProperties": {
+        "^[A-Za-z.]+$": {
+          "type": "string"
+        }
+      }
+    },
+    "bot": {
+      "type": "object",
+      "required": [
+        "description",
+        "interaction_timeout",
+        "admin_interaction_timeout",
+        "name",
+        "session_timeout",
+        "nodes"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "session_timeout": {"type": "integer"},
+        "description": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "interaction_timeout": {"type": "integer"},
+        "admin_interaction_timeout": {"type": "integer"},
+        "ga_id": {
+          "type": "string",
+          "maxLength": 32
+        },
+        "nodes": {
+          "type": "object",
+          "required": [
+            "Root",
+            "Start"
+          ],
+          "additionalProperties": false,
+          "patternProperties": {
+            "^[A-Za-z0-9.]{1,128}$": {"$ref": "#/definitions/node"}
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "node": {
+      "required": [
+        "description",
+        "expect_input",
+        "content_module"
+      ],
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "description": {
+          "type": "string"
+        },
+        "expect_input": {
+          "type": "boolean"
+        },
+        "content_module": {
+          "required": [
+            "config",
+            "id"
+          ],
+          "type": "object",
+          "properties": {
+            "config": {
+              "type": "object"
+            },
+            "id": {
+              "type": "string"
+            }
+          }
+        },
+        "parser_module": {
+          "type": "object",
+          "properties": {
+            "config": {
+              "type": "object"
+            },
+            "id": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

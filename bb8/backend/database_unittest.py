@@ -15,13 +15,10 @@ import uuid
 import jwt
 import pytz
 
-from sqlalchemy.exc import IntegrityError
-
 from bb8 import app, config
-from bb8.error import AppError
-from bb8.backend.bot_parser import get_bot_filename, parse_bot
+from bb8.backend.bot_parser import get_bot_filename, parse_bot_from_file
 from bb8.backend.database import DatabaseManager
-from bb8.backend.database import (Account, Bot, ColletedDatum, Conversation,
+from bb8.backend.database import (Account, Bot, CollectedDatum, Conversation,
                                   ContentModule, Event, Node, ParserModule,
                                   Platform, PlatformTypeEnum, SenderEnum, User,
                                   Broadcast, FeedEnum, Feed, PublicFeed,
@@ -39,7 +36,7 @@ class UserUnittest(unittest.TestCase):
 
     def test_session_mutable_tracking(self):
         bot = reset_and_setup_bots(['test/simple.bot'])[0]
-        user = User(bot_id=bot.id, platform_id=bot.platforms[0].id,
+        user = User(platform_id=bot.platforms[0].id,
                     platform_user_ident='',
                     last_seen=datetime.datetime.now(), session=1).add()
         DatabaseManager.commit()
@@ -54,9 +51,10 @@ class UserUnittest(unittest.TestCase):
         self.assertEquals(s.session.message_sent, True)
 
 
-class SchemaUnittest(unittest.TestCase):
+class DatabaseUnittest(unittest.TestCase):
     def setUp(self):
         DatabaseManager.connect()
+        DatabaseManager.reset()
 
     def tearDown(self):
         DatabaseManager.disconnect()
@@ -71,11 +69,12 @@ class SchemaUnittest(unittest.TestCase):
         """Populate data into all tables and make sure there are no error."""
         DatabaseManager.reset()
 
-        account = Account(name=u'Test Account', username='test',
+        account = Account(name=u'Test Account',
                           email='test@test.com', passwd='test_hashed').add()
 
         bot = Bot(name=u'test', description=u'test', interaction_timeout=120,
                   session_timeout=86400).add()
+        account.bots.append(bot)
 
         content = ContentModule(id='test', name='Content1', description='desc',
                                 module_name='', ui_module_name='').add()
@@ -120,7 +119,9 @@ class SchemaUnittest(unittest.TestCase):
         self.assertEquals(len(account.bots), 1)
         self.assertEquals(account.bots[0].id, bot.id)
 
-        platform = Platform(bot_id=bot.id, type_enum=PlatformTypeEnum.Facebook,
+        platform = Platform(name=u'Test platform',
+                            bot_id=bot.id,
+                            type_enum=PlatformTypeEnum.Facebook,
                             provider_ident='facebook_page_id',
                             config={}).add()
         DatabaseManager.commit()
@@ -156,7 +157,7 @@ class SchemaUnittest(unittest.TestCase):
         # Test bot_node association table
         self.assertEquals(bot.orphan_nodes[0].id, node3.id)
 
-        user = User(bot_id=bot.id, platform_id=platform.id,
+        user = User(platform_id=platform.id,
                     platform_user_ident='',
                     last_seen=datetime.datetime.now()).add()
         DatabaseManager.commit()
@@ -169,12 +170,12 @@ class SchemaUnittest(unittest.TestCase):
 
         self.assertNotEquals(Event.get_by(id=event.id, single=True), None)
 
-        collected_datum = ColletedDatum(user_id=user.id,
-                                        key='key', value={}).add()
+        collected_datum = CollectedDatum(user_id=user.id,
+                                         key='key', value={}).add()
         DatabaseManager.commit()
 
-        self.assertNotEquals(ColletedDatum.get_by(id=collected_datum.id,
-                                                  single=True), None)
+        self.assertNotEquals(CollectedDatum.get_by(id=collected_datum.id,
+                                                   single=True), None)
         self.assertEquals(len(user.colleted_data), 1)
         self.assertEquals(user.colleted_data[0].id, collected_datum.id)
 
@@ -185,14 +186,15 @@ class SchemaUnittest(unittest.TestCase):
                                                  single=True), None)
 
         # Broadcast
-        bc = Broadcast(message={},
+        bc = Broadcast(account_id=account.id, bot_id=bot.id,
+                       name=u'New broadcast', messages=[],
                        scheduled_time=datetime.datetime.utcnow()).add()
 
         DatabaseManager.commit()
         self.assertNotEquals(Broadcast.get_by(id=bc.id, single=True), None)
 
         # PublicFeed, Feed
-        account = Account(name=u'Test Account - 1', username='test1',
+        account = Account(name=u'Test Account - 1',
                           email='test1@test.com', passwd='test_hashed').add()
         feed1 = Feed(url='example.com/rss', type=FeedEnum.RSS,
                      title=u'foo.com', image_url='foo.com/logo').add()
@@ -221,7 +223,7 @@ class SchemaUnittest(unittest.TestCase):
     def test_timestamp_update(self):
         """Make sure the updated_at timestamp automatically updates on
         commit."""
-        account = Account(username=u'user', email='test@test.com',
+        account = Account(email='test@test.com',
                           passwd='test_hashed').add()
         DatabaseManager.commit()
 
@@ -230,7 +232,7 @@ class SchemaUnittest(unittest.TestCase):
         last_updated = account.updated_at
 
         time.sleep(1)
-        account.username = 'user2'
+        account.email = 'test2@test.com'
         DatabaseManager.commit()
 
         account.refresh()
@@ -246,33 +248,31 @@ class SchemaUnittest(unittest.TestCase):
 
         bot2_node_len = len(bot2.nodes)
 
-        bot1.delete_all_node_and_links()
+        bot1.delete_all_nodes()
         DatabaseManager.commit()
 
         # All nodes and links related to this bot should be gone.
         self.assertEquals(bot1.nodes, [])
 
-        # Make sure delete_all_node_and_links does not accidentally delete node
+        # Make sure delete_all_nodes does not accidentally delete node
         # of other bot
         self.assertEquals(len(bot2.nodes), bot2_node_len)
 
         # Test bot reconstruction
-        parse_bot(get_bot_filename('test/simple.bot'), bot1.id)
+        parse_bot_from_file(get_bot_filename('test/simple.bot'), bot1.id)
         DatabaseManager.commit()
 
         self.assertNotEquals(bot1.nodes, [])
+        self.assertEquals(bot1.users, [])
 
-        user = User(bot_id=bot1.id,
-                    platform_id=bot1.platforms[0].id,
-                    platform_user_ident='blablabla',
-                    last_seen=datetime.datetime.now()).add()
-
-        # Delete should fail because of foreign key constraint
-        with self.assertRaises(IntegrityError):
-            bot1.delete()
-
-        user.delete()
+        User(platform_id=bot1.platforms[0].id,
+             platform_user_ident='blablabla',
+             last_seen=datetime.datetime.now()).add()
+        User(platform_id=bot1.platforms[1].id,
+             platform_user_ident='blablabla2',
+             last_seen=datetime.datetime.now()).add()
         DatabaseManager.commit()
+        self.assertEquals(len(bot1.users), 2)
 
         bot1_id = bot1.id
         bot1.delete()
@@ -281,7 +281,7 @@ class SchemaUnittest(unittest.TestCase):
 
     def test_json_serializer(self):
         DatabaseManager.reset()
-        account = Account(name=u'tester', username='test1',
+        account = Account(name=u'tester',
                           email='test@test.com')
 
         dt = datetime.datetime(2010, 1, 1, 0, 0, tzinfo=pytz.utc)
@@ -291,13 +291,12 @@ class SchemaUnittest(unittest.TestCase):
 
         d = account.to_json()
         self.assertEquals(d['created_at'], 1262304000)
-        self.assertEquals(d['username'], 'test1')
         self.assertEquals(d['name'], 'tester')
         self.assertEquals(d['email'], 'test@test.com')
 
     def test_auth(self):
         DatabaseManager.reset()
-        account = Account(name=u'Test Account 3', username='test3',
+        account = Account(name=u'Test Account 3',
                           email='test3@test.com').add()
 
         some_passwd = 'abcdefg'
@@ -322,7 +321,7 @@ class SchemaUnittest(unittest.TestCase):
             'exp': datetime.datetime.utcnow() + datetime.timedelta(days=14)
         }, 'im fake secret')
 
-        with self.assertRaises(AppError):
+        with self.assertRaises(RuntimeError):
             Account.from_auth_token(fake_token)
 
         outdated_token = jwt.encode({
@@ -333,7 +332,7 @@ class SchemaUnittest(unittest.TestCase):
             'exp': datetime.datetime.utcnow() - datetime.timedelta(days=15)
         }, config.JWT_SECRET)
 
-        with self.assertRaises(AppError):
+        with self.assertRaises(RuntimeError):
             Account.from_auth_token(outdated_token)
 
 

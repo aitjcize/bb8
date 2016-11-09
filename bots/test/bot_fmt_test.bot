@@ -1,0 +1,203 @@
+{
+  "bot": {
+    "name": "simple",
+    "description": "test simple graph",
+    "interaction_timeout": 120,
+    "admin_interaction_timeout": -1,
+    "session_timeout": 864000,
+    "settings": {},
+    "nodes": {
+      "Start": {
+        "name": "Start",
+        "description": "Start",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.content.test.text_message",
+          "config": {
+            "text": "In Start"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.passthrough",
+          "config": {
+            "end_node_id": "Root",
+            "ack_message": "Goto Root"
+          }
+        }
+      },
+      "Root": {
+        "name": "Root",
+        "description": "Root",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.test.text_message",
+          "config": {
+            "text": "In Root"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["help"]
+                },
+                "end_node_id": "Root",
+                "ack_message": "Goto help"
+              },
+              {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["gotoA"]
+                },
+                "end_node_id": "NodeA",
+                "ack_message": "Goto A"
+              },
+              {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["gotoD"]
+                },
+                "end_node_id": "NodeD",
+                "ack_message": "Goto D"
+              }
+            ]
+          }
+        }
+      },
+      "NodeA": {
+        "name": "NodeA",
+        "description": "NodeA",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.test.text_message",
+          "config": {
+            "text": "In A"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["error"]
+                },
+                "end_node_id": null,
+                "ack_message": "Goto A"
+              },
+              {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["gotoB"]
+                },
+                "end_node_id": "NodeB",
+                "ack_message": "Goto B"
+              },
+              {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["gotoC"]
+                },
+                "end_node_id": "NodeC",
+                "ack_message": "Goto C"
+              }
+            ]
+          }
+        }
+      },
+      "NodeB": {
+        "name": "NodeB",
+        "description": "NodeB",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.test.text_message",
+          "config": {
+            "text": "In B"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["gotoC"]
+                },
+                "end_node_id": "NodeC",
+                "ack_message": "Goto C"
+              }
+            ]
+          }
+        }
+      },
+      "NodeC": {
+        "name": "NodeC",
+        "description": "NodeC",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.test.text_message",
+          "config": {
+            "text": "In C"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["default"]
+                },
+                "end_node_id": "NodeA",
+                "ack_message": "Goto A"
+              }
+            ]
+          }
+        }
+      },
+      "NodeD": {
+        "name": "NodeD",
+        "description": "NodeD",
+        "expect_input": true,
+        "content_module": {
+          "id": "ai.compose.content.test.text_message",
+          "config": {
+            "text": "In D"
+          }
+        },
+        "parser_module": {
+          "id": "ai.compose.parser.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                    "type": "regexp",
+                    "params": ["gotoE"]
+                },
+                "end_node_id": "NodeE",
+                "ack_message": "Goto E"
+              }
+            ]
+          }
+        }
+      },
+      "NodeE": {
+        "name": "NodeE",
+        "description": "NodeE",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.content.test.text_message",
+          "config": {
+            "text": "In E"
+          }
+        }
+      }
+    }
+  }
+}

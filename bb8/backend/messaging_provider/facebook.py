@@ -7,6 +7,8 @@
 """
 
 import json
+
+import jsonschema
 import requests
 
 
@@ -23,6 +25,15 @@ def get_config_schema():
         'required': ['access_token'],
         'properties': {
             'access_token': {'type': 'string'},
+        }
+    }
+
+
+def get_settings_schema():
+    """Get settings schema."""
+    return {
+        'type': 'object',
+        'properties': {
             'get_start_button': {'type': 'object'},
             'greeting_text': {'type': 'string'},
             'persistent_menu': {
@@ -56,17 +67,23 @@ def get_config_schema():
     }
 
 
-def apply_config(config):
-    """Apply config to platform."""
-    greeting = config.get('greeting_text', None)
+def apply_settings(config, settings):
+    """Apply settings to platform."""
+    try:
+        jsonschema.validate(settings, get_settings_schema())
+    except jsonschema.ValidationError as e:
+        raise RuntimeError('Facebook settings schema validation failed: %s' %
+                           e)
+
+    greeting = settings.get('greeting_text', None)
     if greeting:
         set_greeting_text(config['access_token'], greeting)
 
-    payload = config.get('get_start_button', None)
+    payload = settings.get('get_start_button', None)
     if payload:
         set_get_start_button(config['access_token'], payload)
 
-    menu = config.get('persistent_menu', None)
+    menu = settings.get('persistent_menu', None)
     if menu:
         set_persistent_menu(config['access_token'], menu)
 
@@ -150,8 +167,15 @@ def get_user_profile(platform, user_ident):
         })
 
     if response.status_code != 200:
-        raise RuntimeError('HTTP %d: %s' % (response.status_code,
-                                            response.text))
+        ret = {
+            'first_name': u'你好',
+            'last_name': u'',
+            'locale': 'zh_TW',
+            'timezone': 8,
+            'gender': 'Male'
+        }
+        return ret
+
     ret = response.json()
 
     # Some account does not have gender for some reason ... assume male
@@ -163,7 +187,7 @@ def get_user_profile(platform, user_ident):
 
 
 def send_message(user, messages):
-    """Send message to the platform."""
+    """Send message to the user."""
     for message in messages:
         response = requests.request(
             'POST',
@@ -179,3 +203,18 @@ def send_message(user, messages):
         if response.status_code != 200:
             raise RuntimeError('HTTP %d: %s' % (response.status_code,
                                                 response.text))
+
+
+def push_message(user, messages):
+    """Push message to user proactively."""
+    return send_message(user, messages)
+
+
+def download_audio_as_data(unused_user, audio_payload):
+    """Download audio file as data."""
+    response = requests.get(audio_payload['url'], stream=True)
+
+    if response.status_code != 200:
+        raise RuntimeError('HTTP %d: %s' % (response.status_code,
+                                            response.text))
+    return response.raw.read()

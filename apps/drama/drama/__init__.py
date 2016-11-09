@@ -13,6 +13,7 @@ import os
 class Config(object):
     DATABASE = os.getenv('DATABASE', '')
     N_THREADS = 8
+    DEFAULT_DRAMA_IMAGE = 'http://i.imgur.com/xa9wSAU.png'
 
 
 class DevelopmentConfig(Config):
@@ -26,7 +27,7 @@ class DeployConfig(Config):
 
 
 def ConfigureLogger():
-    logger_ = logging.getLogger('news')
+    logger_ = logging.getLogger('drama')
     logger_.setLevel(logging.DEBUG)
 
     ch = logging.StreamHandler()

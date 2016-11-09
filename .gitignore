@@ -1,7 +1,7 @@
 .*.swp
 *.pyc
+*.pyo
 .env
-node_modules
 htmlcov
 .coverage
 states

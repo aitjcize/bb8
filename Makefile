@@ -1,6 +1,6 @@
 # Copyright 2016 bb8 Authors
 
-LINT_FILES = $(shell find bb8 bb8_client apps -name '*.py' -type f | egrep -v '(_pb2|alembic)' | sort)
+LINT_FILES = $(shell find bb8 bb8_client apps -name '*.py' -type f | egrep -v '(_pb2|alembic|node_modules)' | sort)
 UNITTESTS = $(shell find bb8 bb8_client apps -name '*_unittest.py' | sort)
 
 LINT_OPTIONS = --rcfile=bin/pylintrc \
@@ -41,7 +41,14 @@ remove-redis:
 start-celery:
 	@celery -A bb8.celery worker --loglevel=info --concurrency 4
 
-test: setup-database setup-redis compile-resource-no-cred
+frontend-test:
+	@manage reset_for_dev
+	@cd bb8/frontend && \
+	 npm run test && \
+	 npm run build
+	@manage reset
+
+test: setup-database setup-redis frontend-test
 	@export BB8_TEST=true; \
 	 for test in $(UNITTESTS); do \
 	   if echo $$test | grep '^apps'; then \
@@ -53,9 +60,9 @@ test: setup-database setup-redis compile-resource-no-cred
 	   echo Running $$test ...; \
 	   $$test || exit 1; \
 	 done
-	@manage reset
+	@manage reset_for_dev
 
-coverage: setup-database setup-redis compile-resource-no-cred
+coverage: setup-database setup-redis frontend-test
 	@export BB8_TEST=true; \
 	 for test in $(UNITTESTS); do \
 	   if echo $$test | grep '^apps'; then \
@@ -68,11 +75,13 @@ coverage: setup-database setup-redis compile-resource-no-cred
 	   echo Running $$test ...; \
 	   COVERAGE_FILE=.coverage_$$COVER coverage run $$test || exit 1; \
 	 done
-	@COVERAGE_FILE=.coverage_manage_reset coverage run bin/manage reset
+	@COVERAGE_FILE=.coverage_manage_reset coverage \
+	   run bin/manage reset_for_dev
 	@coverage combine .coverage_*
 	@coverage html --include=bb8/*
 
-lint: compile-resource-no-cred
+lint:
+	@cd bb8/frontend && npm run lint:css
 	@pep8 $(LINT_FILES)
 	@pylint $(LINT_OPTIONS) $(LINT_FILES)
 
@@ -91,8 +100,10 @@ cloud-sql:
 	sudo $(CURDIR)/bin/cloud_sql_proxy -dir=$(CLOUD_SQL_DIR) &
 
 cleanup-docker:
-	@docker rm -v $(docker ps -a -q -f status=exited) 2>/dev/null || true
-	@docker rmi $(docker images -f "dangling=true" -q) 2>/dev/null || true
+	@docker rm $(docker ps --all --quiet --filter status=exited --no-trunc)
+	@docker volume rm $(docker volume ls --quiet --filter dangling=true)
+	@docker rmi $(docker images --quiet --filter="dangling=true" --no-trunc)
+
 
 clean:
 	find bb8 bb8_client apps -name '*_pb2.py' -exec rm -f {} \;

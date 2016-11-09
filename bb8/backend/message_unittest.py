@@ -15,10 +15,10 @@ import jsonschema
 from flask import g
 
 from bb8 import app
-from bb8.backend.database import ColletedDatum, DatabaseManager
+from bb8.backend.database import CollectedDatum, DatabaseManager
 from bb8.backend.message import (Message, TextPayload, LocationPayload,
-                                 IsVariable, Resolve, Render)
-from bb8.backend.test_utils import BaseMessagingMixin
+                                 IsVariable, Resolve)
+from bb8.backend.test_utils import BaseTestMixin
 
 
 class MockNode(object):
@@ -27,7 +27,7 @@ class MockNode(object):
         self.stable_id = str(_id)
 
 
-class MessageUnittest(unittest.TestCase, BaseMessagingMixin):
+class MessageUnittest(unittest.TestCase, BaseTestMixin):
     def setUp(self):
         DatabaseManager.connect()
         self.setup_prerequisite()
@@ -57,22 +57,6 @@ class MessageUnittest(unittest.TestCase, BaseMessagingMixin):
             'node_id': '1'
         }
         self.assertEquals(LocationPayload((1, 1)), ans)
-
-    def test_Render(self):
-        # Basic rendering
-        variables = {'target': 'Isaac', 'name': 'bb8', 'age': 100}
-        text = Render('Hi {{target|upper}}, I am {{name}}. '
-                      'I am {{age|inc|str}} years old.', variables)
-        self.assertEquals(text, 'Hi ISAAC, I am bb8. I am 101 years old.')
-
-        # "One-of" var rendering
-        variables = {'target': {'name': 'Isaac'}}
-        text = Render('Hi {{name,target.name|upper}}', variables)
-        self.assertEquals(text, 'Hi ISAAC')
-
-        variables = {'name': 'Isaac'}
-        text = Render('Hi {{name,target.name|upper}}', variables)
-        self.assertEquals(text, 'Hi ISAAC')
 
     def test_IsVariable(self):
         self.assertEquals(IsVariable("xx{{aaa}}"), False)
@@ -128,6 +112,18 @@ class MessageUnittest(unittest.TestCase, BaseMessagingMixin):
         jsonschema.validate(b.as_dict(), Message.Bubble.schema())
         self.assertEquals(b, b.FromDict(b.as_dict()))
 
+    def test_ListItem(self):
+        l = Message.ListItem('title', 'subtitle', 'http://test.com/image_url')
+        jsonschema.validate(l.as_dict(), Message.ListItem.schema())
+        self.assertEquals(l, l.FromDict(l.as_dict()))
+
+        l.set_default_action(Message.Button(Message.ButtonType.WEB_URL, 'test',
+                                            url='http://test.com'))
+        l.set_button(Message.Button(Message.ButtonType.WEB_URL, 'test',
+                                    url='http://test.com'))
+        jsonschema.validate(l.as_dict(), Message.ListItem.schema())
+        self.assertEquals(l, l.FromDict(l.as_dict()))
+
     def test_QuickReply(self):
         q1 = Message.QuickReply(Message.QuickReplyType.TEXT, 'quick_reply_1',
                                 acceptable_inputs=['1', '2'])
@@ -151,7 +147,7 @@ class MessageUnittest(unittest.TestCase, BaseMessagingMixin):
 
         transform_keys = reduce(lambda x, y: x + y,
                                 [x[0] for x in g.input_transformation], [])
-        self.assertTrue('quick_reply_1' in transform_keys)
+        self.assertTrue('^quick_reply_1$' in transform_keys)
         self.assertTrue('1' in transform_keys)
         self.assertTrue('3' in transform_keys)
 
@@ -173,7 +169,7 @@ class MessageUnittest(unittest.TestCase, BaseMessagingMixin):
         jsonschema.validate(m.as_dict(), Message.schema())
         self.assertEquals(m, m.FromDict(m.as_dict()))
 
-        # Button message
+        # Buttons message
         m = Message(buttons_text='question')
         m.add_button(but1)
         m.add_button(but2)
@@ -184,6 +180,20 @@ class MessageUnittest(unittest.TestCase, BaseMessagingMixin):
                                 [x[0] for x in g.input_transformation], [])
         self.assertTrue('^1$' not in transform_keys)
         self.assertTrue('^2$' in transform_keys)
+
+        # List message
+        l = Message.ListItem('title', 'subtitle', 'http://test.com/image_url')
+        l.set_button(Message.Button(Message.ButtonType.WEB_URL, 'test',
+                                    url='http://test.com'))
+        m = Message(top_element_style=Message.ListTopElementStyle.COMPACT)
+        m.add_list_item(l)
+
+        with self.assertRaises(jsonschema.ValidationError):
+            # Need at least two list items
+            jsonschema.validate(m.as_dict(), Message.schema())
+
+        m.add_list_item(l)
+        jsonschema.validate(m.as_dict(), Message.schema())
 
         # Generic message
         g.input_transformation = []
@@ -235,53 +245,96 @@ class MessageUnittest(unittest.TestCase, BaseMessagingMixin):
 
     def test_query_expression_rendering(self):
         """Test that query expresssion can be query and rendered correctly."""
-        ColletedDatum(user_id=self.user_1.id, key='data', value='value1').add()
+        CollectedDatum(user_id=self.user_1.id, key='data',
+                       value='value1').add()
         DatabaseManager.commit()
         time.sleep(1)
-        ColletedDatum(user_id=self.user_1.id, key='data', value='value2').add()
+        CollectedDatum(user_id=self.user_1.id, key='data',
+                       value='value2').add()
         DatabaseManager.commit()
         time.sleep(1)
-        ColletedDatum(user_id=self.user_1.id, key='data', value='value3').add()
-        ColletedDatum(user_id=self.user_1.id, key='aaa', value='aaa').add()
-        ColletedDatum(user_id=self.user_2.id, key='data', value='value4').add()
+        CollectedDatum(user_id=self.user_1.id, key='data',
+                       value='value3').add()
+        CollectedDatum(user_id=self.user_1.id, key='aaa',
+                       value='aaa').add()
+        CollectedDatum(user_id=self.user_2.id, key='data',
+                       value='value4').add()
         DatabaseManager.commit()
 
         g.user = self.user_1
-        m = Message('{{q.data|first|upper}}')
+        m = Message("{{data('data').first|upper}}")
         self.assertEquals(m.as_dict()['text'], 'VALUE1')
 
-        m = Message("{{q.data|get(1)}}")
+        m = Message("{{data('data').get(1)}}")
         self.assertEquals(m.as_dict()['text'], 'value2')
 
-        m = Message("{{q.data|last}}")
+        m = Message("{{data('data').last}}")
         self.assertEquals(m.as_dict()['text'], 'value3')
 
-        m = Message("{{q.data|lru(0)}}")
+        m = Message("{{data('data').lru(0)}}")
         self.assertEquals(m.as_dict()['text'], 'value3')
 
-        m = Message("{{q.data|lru(1)}}")
+        m = Message("{{data('data').lru(1)}}")
         self.assertEquals(m.as_dict()['text'], 'value2')
 
-        m = Message("{{q.data|get(5)|fallback('valuef')}}")
+        m = Message("{{data('data').fallback('valuef').get(5)}}")
         self.assertEquals(m.as_dict()['text'], 'valuef')
 
-        m = Message("{{q.data|order_by('-created_at')|first}}")
+        m = Message("{{data('data').order_by('-created_at').first}}")
         self.assertEquals(m.as_dict()['text'], 'value3')
 
-        m = Message("{{q.data|count}}")
+        m = Message("{{data('data').count}}")
         self.assertEquals(m.as_dict()['text'], '3')
 
-        m = Message("{{qall.data|count}}")
-        self.assertEquals(m.as_dict()['text'], '4')
-
         # Test error
-        wrong_tmpl = '{{q.data|some_filter}}'
+        with self.assertRaises(Exception):
+            Message("{{data('data')|some_filter}}")
+
+        wrong_tmpl = "{{data('some_key').first}}"
         m = Message(wrong_tmpl)
         self.assertEquals(m.as_dict()['text'], wrong_tmpl)
 
-        wrong_tmpl = '{{q.some_key|first}}'
-        m = Message(wrong_tmpl)
-        self.assertEquals(m.as_dict()['text'], wrong_tmpl)
+    def test_settings_memory_rendering(self):
+        """Test memory and setting variable access."""
+
+        g.user = self.user_1
+        g.user.settings['key1'] = 'value1'
+        m = Message("{{settings.key1|upper}}")
+        self.assertEquals(m.as_dict()['text'], 'VALUE1')
+
+        g.user = self.user_1
+        g.user.memory['key2'] = 'value2'
+        m = Message("{{memory.key2|upper}}")
+        self.assertEquals(m.as_dict()['text'], 'VALUE2')
+
+    def test_input_transformation_reconstruction(self):
+        """Test that input transformation is applied when constructing message
+        with Message.FromDict."""
+
+        msg_dict = {
+            "text": "test",
+            "quick_replies": [
+                {
+                    "content_type": "text",
+                    "title": "A",
+                },
+                {
+                    "content_type": "text",
+                    "title": "B"
+                },
+                {
+                    "content_type": "location",
+                }
+            ]
+        }
+
+        g.input_transformation = []
+        Message.FromDict(msg_dict)
+        transform_keys = reduce(lambda x, y: x + y,
+                                [x[0] for x in g.input_transformation], [])
+        self.assertTrue('^A$' in transform_keys)
+        self.assertTrue('^B$' in transform_keys)
+        self.assertFalse(None in transform_keys)
 
 
 if __name__ == '__main__':

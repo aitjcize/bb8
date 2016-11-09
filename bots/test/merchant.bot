@@ -1,33 +1,21 @@
 {
-  "platforms": [
-    {
-      "type_enum": "Facebook",
-      "deployed": false,
-      "config": {
-        "access_token": "EAAP0okfsZCVkBAHrn40QYuPkFp8Kbj1eblS2HOscOrAPzpdIDTqTriltMFJ42zATQTEGgJRw0HLhrL3swwLcVaXR27E5EHx3H8OzX0Vv4ILTFD1zAnxrY8jRilSe68QpIyLnnqUUj9rl016ckJhIH4r3Mivm5EK8tV4scjwZDZD",
-        "get_start_button": {
-          "message": {
-            "text": "Hi"
-          }
-        },
-        "persistent_menu": []
-      },
-      "provider_ident": "1155924351125985"
-    }
-  ],
+  "platforms": {
+    "Facebook": "bb8.test.platform"
+  },
   "bot": {
     "name": "Merchant",
     "description": "Demo merchant content module",
     "interaction_timeout": 120,
     "admin_interaction_timeout": -1,
     "session_timeout": 864000,
+    "settings": {},
     "nodes": {
       "start": {
         "name": "Greet",
         "description": "Great user",
         "expect_input": false,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.test.text_message",
           "config": {
             "text": "Let's get started"
           }
@@ -45,7 +33,7 @@
         "description": "Root node, show usage",
         "expect_input": true,
         "content_module": {
-          "id": "ai.compose.content.core.text_message",
+          "id": "ai.compose.content.test.text_message",
           "config": {
             "text": "What do you want?"
           }

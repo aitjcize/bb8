@@ -14,12 +14,12 @@ import unittest
 from bb8.backend.app_api_servicer import start_server
 from bb8.backend.database import DatabaseManager
 from bb8.backend.message import Message
-from bb8.backend.test_utils import (BaseMessagingMixin, start_celery_worker,
+from bb8.backend.test_utils import (BaseTestMixin, start_celery_worker,
                                     stop_celery_worker)
 from bb8_client.app_api import MessagingService
 
 
-class MessagingServicerUnittest(unittest.TestCase, BaseMessagingMixin):
+class MessagingServicerUnittest(unittest.TestCase, BaseTestMixin):
     def setUp(self):
         self._process = None
         self._service = MessagingService()
@@ -48,12 +48,12 @@ class MessagingServicerUnittest(unittest.TestCase, BaseMessagingMixin):
     def test_Ping(self):
         self._service.Ping()
 
-    def test_Send(self):
-        ms = [Message('AppAPI: Send: Test message')]
-        self._service.Send([self.user_1.id], ms)
+    def test_Push(self):
+        ms = [Message('AppAPI: Push: Test message')]
+        self._service.Push([self.user_1.id], ms)
 
         with self.assertRaises(RuntimeError):
-            self._service.Send([self.user_1.id], ['bad message'])
+            self._service.Push([self.user_1.id], ['bad message'])
 
         # Wait for celery to process task
         time.sleep(5)

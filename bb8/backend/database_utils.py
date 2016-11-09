@@ -6,6 +6,7 @@
     Copyright 2016 bb8 Authors
 """
 
+import logging
 import time
 
 from datetime import datetime
@@ -33,7 +34,7 @@ class DatabaseManager(object):
     database_uri = None
     engine = None
     db = None
-    pool_size = 8
+    pool_size = 64
 
     @classmethod
     def set_database_uri(cls, database_uri):
@@ -66,10 +67,7 @@ class DatabaseManager(object):
     @classmethod
     def disconnect(cls, commit=True):
         if commit:
-            try:
-                cls.db().commit()
-            except InvalidRequestError:
-                cls.db().rollback()
+            cls.db().commit()
         cls.db().close()
         cls.db.remove()
 
@@ -90,7 +88,7 @@ class DatabaseManager(object):
             raise RuntimeError('DATABASE_URI not set')
         cls.engine = create_engine(cls.database_uri, echo=False,
                                    encoding='utf-8', pool_size=cls.pool_size,
-                                   pool_recycle=3600 * 8)
+                                   pool_recycle=3600)
 
     @classmethod
     def create_all_tables(cls):
@@ -118,7 +116,11 @@ class DatabaseManager(object):
 
     @classmethod
     def commit(cls):
-        cls.db().commit()
+        try:
+            cls.db().commit()
+        except InvalidRequestError as e:
+            cls.db().rollback()
+            logging.exception(e)
 
     @classmethod
     def flush(cls):
@@ -192,7 +194,7 @@ class ModelMixin(object):
                single=False, lock=False, return_query=False, **kwargs):
         """Get item by kwargs."""
         if query:
-            query_object = cls.query(query)
+            query_object = cls.query(*query)
         else:
             query_object = cls.query()
 
@@ -317,12 +319,15 @@ class JSONSerializableMixin(object):
         else:
             return int((dt - _EPOCH).total_seconds())
 
-    def to_json(self):
+    def to_json(self, additional=None):
+        additional = additional or []
         public = self.__json_public__ or self.columns()
         hidden = self.__json_hidden__ or []
 
+        target_fields = public + additional
+
         rv = dict()
-        for key in public:
+        for key in target_fields:
             rv[key] = getattr(self, key)
             if isinstance(rv[key], datetime):
                 rv[key] = self.unix_timestamp(rv[key])

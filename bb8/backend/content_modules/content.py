@@ -10,9 +10,8 @@
 
 import grpc
 
-from bb8.backend.module_api import (Message, EventPayload,
-                                    GetgRPCService, Resolve,
-                                    SupportedPlatform, Render,
+from bb8.backend.module_api import (Message, CollectedData, EventPayload,
+                                    GetgRPCService, Resolve, SupportedPlatform,
                                     GetUserId)
 
 GRPC_TIMEOUT = 5
@@ -56,6 +55,15 @@ def schema():
     }
 
 
+def get_default_image(source):
+    source_default_images = {
+        'storm': 'http://i.imgur.com/j1Kqrj1.png',
+        'yahoo_rss': 'http://i.imgur.com/Q2Yfylc.jpg',
+    }
+    compose_default_image = 'http://i.imgur.com/xa9wSAU.png'
+    return source_default_images.get(source, compose_default_image)
+
+
 class NewsInfo(object):
     """Interface for querying news content"""
 
@@ -64,14 +72,6 @@ class NewsInfo(object):
         channel = grpc.insecure_channel('%s:%d' % addr)
         self._stub = pb2_module.ContentInfoStub(channel)
         self._pb2_module = pb2_module
-
-    def get_default_image(self, source):
-        source_default_images = {
-            'storm': 'http://i.imgur.com/j1Kqrj1.png',
-            'yahoo_rss': 'http://i.imgur.com/Q2Yfylc.jpg',
-        }
-        compose_default_image = 'http://i.imgur.com/xa9wSAU.png'
-        return source_default_images.get(source, compose_default_image)
 
     def trending(self, user_id, source_name=None, count=5):
         return self._stub.Trending(
@@ -121,16 +121,12 @@ class NewsInfo(object):
             GRPC_TIMEOUT).keywords
 
 
-# Global NewsInfo instance for easy access
-news_info = NewsInfo()
-
-
-def add_quick_reply_keywords(message, show_related=False):
+def add_quick_reply_keywords(news_info, message, show_related=False):
     """Install QuickReply keywords into message."""
     keywords = news_info.get_keywords(MAX_KEYWORDS)
     reply_kws = []
     if show_related:
-        query_term = Render("{{q.query_term|last|fallback('')}}", {})
+        query_term = CollectedData.GetLast('query_term', '')
         related_kws = news_info.get_related_keywords(query_term, 3)
 
         reply_kws = [kw.name for kw in related_kws]
@@ -150,7 +146,7 @@ def add_quick_reply_keywords(message, show_related=False):
         Message.QuickReplyType.TEXT, u'搜尋'))
 
 
-def render_cards(news):
+def render_cards(news_info, news):
     """Render cards given a list of new entries."""
     if not len(news):
         return [Message(u'找不到你要的新聞喔！')]
@@ -158,7 +154,7 @@ def render_cards(news):
     m = Message()
     for n in news:
         image_url = (n.image_url if n.image_url != '' else
-                     news_info.get_default_image(n.source))
+                     get_default_image(n.source))
         b = Message.Bubble(n.title,
                            image_url=image_url,
                            subtitle=n.description)
@@ -175,11 +171,11 @@ def render_cards(news):
         b.add_button(Message.Button(Message.ButtonType.ELEMENT_SHARE))
         m.add_bubble(b)
 
-    add_quick_reply_keywords(m, True)
+    add_quick_reply_keywords(news_info, m, True)
     return [m]
 
 
-def run_get_content(variables, limit):
+def run_get_content(news_info, variables, limit):
     try:
         event = variables['event']
         content, char_offset, total_length = news_info.get_content(
@@ -244,7 +240,7 @@ def run_get_content(variables, limit):
 
     if all_ended:
         m = Message(u'這則新聞讀完囉！')
-        add_quick_reply_keywords(m, True)
+        add_quick_reply_keywords(news_info, m, True)
 
         msgs.append(m)
 
@@ -252,30 +248,33 @@ def run_get_content(variables, limit):
 
 
 def run(content_config, env, variables):
-    user_id = GetUserId()
+    news_info = NewsInfo()
     n_items = content_config.get('n_items', DEFAULT_N_ITEMS)
+    user_id = GetUserId()
 
     limit = 200
     if env['platform_type'] == SupportedPlatform.Line:
         limit = 160
 
     if content_config['mode'] == 'get_content':
-        return run_get_content(variables, limit)
+        return run_get_content(news_info, variables, limit)
 
     if content_config['mode'] == 'list_by_source':
         source_name = Resolve(content_config['query_term'], variables)
         return render_cards(
+            news_info,
             news_info.trending(user_id, source_name, n_items))
 
     elif content_config['mode'] == 'prompt':
         m = Message(u'想要知道什麼呢？今天這些字最夯！')
-        add_quick_reply_keywords(m)
+        add_quick_reply_keywords(news_info, m)
         return [m]
 
     elif content_config['mode'] == 'search':
         query_term = Resolve(content_config['query_term'], variables)
         return render_cards(
+            news_info,
             (news_info.search(query_term, n_items)
              if query_term else news_info.trending(user_id)))
 
-    return render_cards(news_info.trending(user_id))
+    return render_cards(news_info, news_info.trending(user_id))
