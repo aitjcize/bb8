@@ -2,6 +2,8 @@ import Moment from 'moment'
 import React from 'react'
 import { connect } from 'react-redux'
 
+import Dialog from 'material-ui/Dialog'
+import FlatButton from 'material-ui/FlatButton'
 import DatePicker from 'material-ui/DatePicker'
 import TimePicker from 'material-ui/TimePicker'
 import TextField from 'material-ui/TextField'
@@ -44,6 +46,7 @@ class BroadcastEditor extends React.Component {
       datepickerVal: null,
       timepickerVal: null,
       broadcast: props.broadcast,
+      dialogOpen: false,
     }
   }
 
@@ -101,6 +104,7 @@ class BroadcastEditor extends React.Component {
   }
 
   handleSubmit() {
+    this.setState({ dialogOpen: false })
     if (this.state.scheduling &&
         (!this.state.timepickerVal ||
          !this.state.datepickerVal)) {
@@ -132,8 +136,30 @@ class BroadcastEditor extends React.Component {
   }
 
   render() {
+    const sendActions = [
+      <FlatButton
+        label="Cancel"
+        primary
+        onTouchTap={() => this.setState({ dialogOpen: false })}
+      />,
+      <FlatButton
+        label="Yes"
+        secondary
+        keyboardFocused
+        onTouchTap={this.handleSubmit}
+      />,
+    ]
     return (
       <div>
+        <Dialog
+          title="Confirm Send"
+          actions={sendActions}
+          modal={false}
+          open={this.state.dialogOpen}
+          onRequestClose={() => this.setState({ dialogOpen: false })}
+        >
+          { 'Are you sure to send this broadcast message?' }
+        </Dialog>
         <TextField
           value={this.state.broadcast.name || ''}
           hintText="Give this broadcast a name"
@@ -167,7 +193,7 @@ class BroadcastEditor extends React.Component {
         <RaisedButton
           label="Send Now"
           primary
-          onClick={this.handleSubmit}
+          onClick={() => this.setState({ dialogOpen: true })}
         />
 
         { this.state.scheduling ?
