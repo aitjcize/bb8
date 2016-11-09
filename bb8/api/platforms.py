@@ -30,7 +30,8 @@ def get_account_platform_by_id(platform_id):
 @login_required
 def list_platforms():
     """List all platforms."""
-    return jsonify(platforms=[p.to_json() for p in g.account.platforms])
+    return jsonify(platforms=[p.to_json(['config'])
+                              for p in g.account.platforms])
 
 
 @app.route('/api/platforms', methods=['POST'])
