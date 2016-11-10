@@ -77,7 +77,11 @@ def facebook_webhook_task():
                     if not user:
                         user = add_user(platform, sender)
 
-                    if user_input:
+                    if user_input.ref:
+                        track(TrackingInfo.Pageview(
+                            sender, '/', user_input.ref))
+
+                    if user_input.valid():
                         engine.step(bot, user, user_input)
 
     # Don't measure the time of the GA call
@@ -116,7 +120,7 @@ def line_webhook_task(provider_ident):
                 user = add_user(platform, sender)
 
             user_input = UserInput.FromLineMessage(entry)
-            if user_input:
+            if user_input.valid():
                 g.line_reply_token = entry['replyToken']
                 g.line_messages = []
                 engine.step(bot, user, user_input)

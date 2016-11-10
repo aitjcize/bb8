@@ -27,13 +27,15 @@ class TrackingInfo(object):
         self.action = None
         self.label = None
         self.value = None
+        self.ref = None
 
     @classmethod
-    def Pageview(cls, cid, page):
+    def Pageview(cls, cid, page, ref=None):
         t = cls()
         t.cid = cid
         t.ttype = cls.Type.Pageview
         t.page = page.replace(' ', '-')
+        t.ref = ref
         return t
 
     @classmethod
@@ -97,7 +99,8 @@ def send_ga_track_info():
                 u'',
                 u'cid=%s' % ti.cid,
                 u't=%s' % ti.ttype.value,
-                u'dp=%s' % ti.page]) + '\n'
+                u'dp=%s' % ti.page
+            ] + [u'dr=%s' % ti.ref] if ti.ref else []) + '\n'
 
     response = requests.request(
         'POST',

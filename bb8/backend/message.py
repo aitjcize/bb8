@@ -44,6 +44,14 @@ class UserInput(object):
         self.audio = None
         self.jump_node_id = None
         self.raw_message = None
+        self.ref = None
+
+    def valid(self):
+        return (self.text or
+                self.sticker or
+                self.location or
+                self.event or
+                self.audio)
 
     @classmethod
     def Text(cls, text):
@@ -107,9 +115,17 @@ class UserInput(object):
 
         postback = data.get('postback')
         if postback:
-            return cls.FromPayload(postback['payload'])
+            u = cls.FromPayload(postback['payload'])
+            referral = postback.get('referral')
+            if referral:
+                u.parse_m_me_referral(referral)
+            return u
 
-        return None
+        referral = data.get('referral')
+        if referral:
+            u.parse_m_me_referral(referral)
+
+        return u
 
     def RunInputTransformation(self):
         """Perform input transformation if there is one."""
@@ -154,6 +170,9 @@ class UserInput(object):
 
         self.raw_message = message
 
+    def parse_m_me_referral(self, referral):
+        self.ref = 'http://m.me/%s' % referral['ref']
+
     def ParseAudioAsText(self, user):
         if self.audio and not self.text:
             data = messaging.download_audio_as_data(user, self.audio)
@@ -161,9 +180,9 @@ class UserInput(object):
 
     @classmethod
     def FromLineMessage(cls, entry):
+        u = UserInput()
         message = entry.get('message')
         if message:
-            u = UserInput()
             if message['type'] == 'text':
                 u.text = message['text']
             elif message['type'] == 'location':
@@ -183,6 +202,8 @@ class UserInput(object):
         postback = entry.get('postback')
         if postback:
             return cls.FromPayload(postback['data'])
+
+        return u
 
     def jump(self):
         return self.jump_node_id is not None
