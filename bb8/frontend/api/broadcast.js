@@ -20,13 +20,21 @@ const broadcast = {
 
   createBroadcast(broadcastObj) {
     return fetch('POST', '/api/broadcasts', broadcastObj)
-      .then(response => ({ response: normalize(response, Broadcast) }))
+      .then(response => ({
+        response: normalize(
+          Object.assign({}, response, { messages: broadcastObj.messages }), Broadcast),
+      }))
       .catch(error => ({ error }))
   },
 
   updateBroadcast(broadcastId, broadcastObj) {
     return fetch('PUT', `/api/broadcasts/${broadcastId}`, broadcastObj)
-      .then(response => ({ response }))
+      .then(() =>
+        ({
+          response: normalize(Object.assign(broadcastObj, { id: broadcastId }),
+                              Broadcast),
+        })
+      )
       .catch(error => ({ error }))
   },
 

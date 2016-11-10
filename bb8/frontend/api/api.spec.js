@@ -194,7 +194,8 @@ describe('API testing', () => {
           }))
       )
       .then(({ broadcastId, resp }) => {
-        expect(resp.response.message).toEqual('ok')
+        expect(resp.response.result).toEqual(broadcastId)
+        expect(typeof resp.response.entities.broadcasts).toEqual('object')
         return broadcastId
       })
       .then(broadcastId => api.deleteBroadcast(broadcastId))

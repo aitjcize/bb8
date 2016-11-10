@@ -32,7 +32,7 @@ class Message extends React.Component {
     this.state = {
       messageInfos: [],
       snackbarOpen: false,
-      snackbarMessage: undefined,
+      snackbarMessage: '',
       hoverIndex: undefined,
     }
     this.messages = {}
@@ -59,6 +59,17 @@ class Message extends React.Component {
       { messageInfos: prevState.messageInfos.filter(x => x.id !== id) }
     ))
     delete this.messages[id]
+  }
+
+  clear() {
+    this.messages = {}
+    this.idMsg = {}
+    this.setState({
+      messageInfos: [],
+      snackbarOpen: false,
+      snackbarMessage: '',
+      hoverIndex: undefined,
+    })
   }
 
   loadFromJSON(message, id) {
