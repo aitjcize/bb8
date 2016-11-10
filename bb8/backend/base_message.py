@@ -75,9 +75,11 @@ class Message(object):
     representation.
     """
 
-    MAX_BUTTONS = 3
-    MAX_BUBBLES = 10
-    MAX_LIST_ITEMS = 4
+    # These are the union of upper limits of all platforms. Individual platform
+    # limits are defined in __limits__ attribute in each class of message.py
+    MAX_BUTTONS = 3  # Facebook limit
+    MAX_BUBBLES = 10  # Facebook limit
+    MAX_LIST_ITEMS = 4  # Facebook limit
 
     class NotificationType(enum.Enum):
         REGULAR = 'REGULAR'
@@ -240,7 +242,7 @@ class Message(object):
             return {
                 'type': 'object',
                 'required': ['title'],
-                'additionalproperties': False,
+                'additionalProperties': False,
                 'properties': {
                     'buttons': {
                         'type': 'array',
@@ -312,7 +314,7 @@ class Message(object):
 
         @classmethod
         def FromDict(cls, data, variables=None):
-            """Construct Bubble object given a dictionary."""
+            """Construct ListItem object given a dictionary."""
             jsonschema.validate(data, cls.schema())
 
             default_action = None
@@ -335,7 +337,7 @@ class Message(object):
             return {
                 'type': 'object',
                 'required': ['title'],
-                'additionalproperties': False,
+                'additionalProperties': False,
                 'properties': {
                     'title': {'type': 'string'},
                     'subtitle': {'type': 'string'},
@@ -698,6 +700,8 @@ class Message(object):
                 'type': 'template',
                 'payload': payload
             }
+        else:
+            raise RuntimeError('Invalid message type %r' % self)
 
         if self.quick_replies:
             data['quick_replies'] = [x.as_dict() for x in self.quick_replies]

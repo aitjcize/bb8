@@ -581,19 +581,19 @@ class Message(base_message.Message):
         return self.as_dict()
 
     def as_line_message(self):
-        """Return message as Line message dictionary."""
+        """Return message as a list of Line message dictionary."""
         self.apply_limits(PlatformTypeEnum.Line)
 
         if self.text:
-            return {'type': 'text', 'text': self.text}
+            return [{'type': 'text', 'text': self.text}]
         elif self.image_url:
-            return {
+            return [{
                 'type': 'image',
                 'originalContentUrl':
                     image_convert_url(self.image_url, (1024, 1024)),
                 'previewImageUrl':
                     image_convert_url(self.image_url, (240, 240))
-            }
+            }]
         elif self.buttons_text:
             buttons = []
             for but in self.buttons:
@@ -610,7 +610,7 @@ class Message(base_message.Message):
                         'data': but.payload
                     })
 
-            return {
+            return [{
                 'type': 'template',
                 'altText': 'buttons',
                 'template': {
@@ -618,7 +618,7 @@ class Message(base_message.Message):
                     'text': self.buttons_text,
                     'actions': buttons
                 }
-            }
+            }]
         elif self.bubbles:
             columns = []
             max_buttons = max([len(b.buttons)
@@ -659,14 +659,14 @@ class Message(base_message.Message):
 
                 columns.append(col)
 
-            return {
+            return [{
                 'type': 'template',
                 'altText': 'carousel',
                 'template': {
                     'type': 'carousel',
                     'columns': columns
                 }
-            }
+            }]
         elif self.list_items:
             msgs = []
             for list_item in self.list_items:
@@ -705,6 +705,8 @@ class Message(base_message.Message):
                     }
                 })
             return msgs
+        else:
+            raise RuntimeError('Invalid message type %r' % self)
 
         return []
 
