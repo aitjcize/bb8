@@ -46,6 +46,15 @@ export function* loginSaga() {
 
 /* Bots Sagas */
 
+export function* setActiveBotSaga() {
+  while (true) {
+    const { payload } = yield take(types.BOTS_SET_ACTIVE)
+
+    // trigger refresh for current page
+    yield put({ type: types.BROADCASTS_LIST.REQUEST, payload })
+  }
+}
+
 export function* getAllBotsSaga() {
   while (true) {
     yield take(types.BOTS_LIST.REQUEST)
@@ -220,6 +229,7 @@ export default function* root() {
   yield fork(logoutSaga)
 
   /* Bots Saga */
+  yield fork(setActiveBotSaga)
   yield fork(getAllBotsSaga)
   yield fork(createBotSaga)
 
