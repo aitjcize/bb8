@@ -117,13 +117,13 @@ def run(content_config, unused_env, variables):
             Message.QuickReply(Message.QuickReplyType.TEXT, u'是',
                                payload=LocationPayload(results[0]['location'],
                                                        in_currrent),
-                               acceptable_inputs=[u'^對', '(?i)y',
+                               acceptable_inputs=[u'^對', '(?i)^y',
                                                   '(?i)ok']))
         m.add_quick_reply(
             Message.QuickReply(Message.QuickReplyType.TEXT, u'否',
                                payload=EventPayload('WRONG_ADDRESS', None,
                                                     in_currrent),
-                               acceptable_inputs=[u'不', '(?i)n']))
+                               acceptable_inputs=[u'不', '(?i)^n']))
     else:
         m = Message(buttons_text=u'你指的是以下哪一個地址呢?')
         for r in results:
