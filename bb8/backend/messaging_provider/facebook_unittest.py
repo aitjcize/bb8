@@ -75,8 +75,7 @@ class FacebookMessagingUnittest(unittest.TestCase):
         m = Message(top_element_style=Message.ListTopElementStyle.LARGE)
         l = Message.ListItem('Google', 'google.com',
                              'http://i.imgur.com/1QfaG1u.png')
-        l.set_default_action(Message.Button(Message.ButtonType.WEB_URL,
-                                            url='http://www.google.com'))
+        l.set_default_action(Message.DefaultAction('http://www.google.com'))
         l.set_button(Message.Button(Message.ButtonType.WEB_URL,
                                     title='Goto Google',
                                     url='http://www.google.com/'))

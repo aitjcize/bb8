@@ -502,6 +502,24 @@ class Message(base_message.Message):
     # Patch Message.Bubble
     base_message.Message.Bubble = _Bubble
 
+    class _DefaultAction(base_message.Message.DefaultAction):
+        limits = {
+            PlatformTypeEnum.Facebook: {
+                'url': 500,
+            },
+            PlatformTypeEnum.Line: {
+                'url': 500,
+            }
+        }
+
+        def apply_limits(self, platform_type):
+            limits = self.limits[platform_type]
+            if self.url:
+                self.url = self.url[:limits['url']]
+
+    # Patch Message.DefaultAction
+    base_message.Message.DefaultAction = _DefaultAction
+
     class _ListItem(base_message.Message.ListItem):
         limits = {
             PlatformTypeEnum.Facebook: {

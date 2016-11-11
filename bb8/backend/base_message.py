@@ -283,6 +283,42 @@ class Message(object):
 
             return data
 
+    class DefaultAction(object):
+        def __init__(self, url, variables=None):
+            variables = variables or {}
+            self.url = Render(url, variables)
+
+        def __str__(self):
+            return json.dumps(self.as_dict())
+
+        def __eq__(self, other):
+            return (
+                self.url == other.url
+            )
+
+        @classmethod
+        def FromDict(cls, data, variables=None):
+            """Construct DefaultAction object given a dictionary."""
+            jsonschema.validate(data, cls.schema())
+            return cls(data['url'], variables)
+
+        @classmethod
+        def schema(cls):
+            return {
+                'type': 'object',
+                'required': ['type', 'url'],
+                'properties': {
+                    'type': {'enum': ['web_url']},
+                    'url': {'type': 'string'},
+                }
+            }
+
+        def as_dict(self):
+            return {
+                'type': 'web_url',
+                'url': self.url
+            }
+
     class ListItem(object):
         def __init__(self, title, subtitle=None, image_url=None,
                      default_action=None, button=None, variables=None):
@@ -297,20 +333,13 @@ class Message(object):
             return json.dumps(self.as_dict())
 
         def __eq__(self, other):
-            eq = (
+            return (
                 self.title == other.title and
                 self.subtitle == other.subtitle and
                 self.image_url == other.image_url and
+                self.default_action == other.default_action and
                 self.button == other.button
             )
-
-            if (self.default_action is None) ^ (other.default_action is None):
-                return False
-            if self.default_action:
-                return eq and self.default_action.action_equals(
-                    other.default_action)
-
-            return eq
 
         @classmethod
         def FromDict(cls, data, variables=None):
@@ -320,13 +349,13 @@ class Message(object):
             default_action = None
             default_action_dict = data.get('default_action')
             if default_action_dict:
-                default_action_dict['title'] = 'dummy'
-                default_action = Message.Button.FromDict(default_action_dict)
+                default_action = Message.DefaultAction.FromDict(
+                    default_action_dict, variables)
 
             button = None
             buttons_dict = data.get('buttons')
             if buttons_dict:
-                button = Message.Button.FromDict(buttons_dict[0])
+                button = Message.Button.FromDict(buttons_dict[0], variables)
 
             return cls(data['title'], data.get('subtitle'),
                        data.get('image_url'), default_action, button,
@@ -351,31 +380,9 @@ class Message(object):
                 },
                 'definitions': {
                     'button': Message.Button.schema(),
-                    'default_action': {
-                        'type': 'object',
-                        'required': ['type', 'url'],
-                        'properties': {
-                            'type': {'enum': ['web_url']},
-                            'url': {'type': 'string'},
-                        }
-                    }
+                    'default_action': Message.DefaultAction.schema()
                 }
             }
-
-        def set_default_action(self, button):
-            if not isinstance(button, Message.Button):
-                raise RuntimeError('object is not a Message.Button object')
-
-            if button.type != Message.ButtonType.WEB_URL:
-                raise RuntimeError('default action needs to be a URL button')
-
-            self.default_action = button
-
-        def set_button(self, button):
-            if not isinstance(button, Message.Button):
-                raise RuntimeError('object is not a Message.Button object')
-
-            self.button = button
 
         def as_dict(self):
             data = {'title': self.title}
@@ -387,14 +394,25 @@ class Message(object):
                 data['image_url'] = self.image_url
 
             if self.default_action:
-                button_dict = self.default_action.as_dict()
-                del button_dict['title']
-                data['default_action'] = button_dict
+                data['default_action'] = self.default_action.as_dict()
 
             if self.button:
                 data['buttons'] = [self.button.as_dict()]
 
             return data
+
+        def set_default_action(self, default_action):
+            if not isinstance(default_action, Message.DefaultAction):
+                raise RuntimeError('object is not a Message.DefaultAction '
+                                   'object')
+
+            self.default_action = default_action
+
+        def set_button(self, button):
+            if not isinstance(button, Message.Button):
+                raise RuntimeError('object is not a Message.Button object')
+
+            self.button = button
 
     class QuickReply(object):
         def __init__(self, content_type, title=None, payload=None,
@@ -776,7 +794,11 @@ class Message(object):
 # To allow pickling inner class, set module attribute alias
 setattr(sys.modules[__name__], 'NotificationType', Message.NotificationType)
 setattr(sys.modules[__name__], 'ButtonType', Message.ButtonType)
+setattr(sys.modules[__name__], 'ListTopElementStyle',
+        Message.ListTopElementStyle)
 setattr(sys.modules[__name__], 'QuickReplyType', Message.QuickReplyType)
 setattr(sys.modules[__name__], 'Button', Message.Button)
 setattr(sys.modules[__name__], 'Bubble', Message.Bubble)
+setattr(sys.modules[__name__], 'DefaultAction', Message.DefaultAction)
+setattr(sys.modules[__name__], 'ListItem', Message.ListItem)
 setattr(sys.modules[__name__], 'QuickReply', Message.QuickReply)

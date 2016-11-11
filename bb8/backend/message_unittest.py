@@ -112,13 +112,17 @@ class MessageUnittest(unittest.TestCase, BaseTestMixin):
         jsonschema.validate(b.as_dict(), Message.Bubble.schema())
         self.assertEquals(b, b.FromDict(b.as_dict()))
 
+    def test_DefaultAction(self):
+        d = Message.DefaultAction('http://test.com/')
+        jsonschema.validate(d.as_dict(), Message.DefaultAction.schema())
+        self.assertEquals(d, d.FromDict(d.as_dict()))
+
     def test_ListItem(self):
         l = Message.ListItem('title', 'subtitle', 'http://test.com/image_url')
         jsonschema.validate(l.as_dict(), Message.ListItem.schema())
         self.assertEquals(l, l.FromDict(l.as_dict()))
 
-        l.set_default_action(Message.Button(Message.ButtonType.WEB_URL, 'test',
-                                            url='http://test.com'))
+        l.set_default_action(Message.DefaultAction('http://test.com'))
         l.set_button(Message.Button(Message.ButtonType.WEB_URL, 'test',
                                     url='http://test.com'))
         jsonschema.validate(l.as_dict(), Message.ListItem.schema())
