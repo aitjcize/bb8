@@ -28,6 +28,9 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
   },
+  list: {
+    margin: '1em 0',
+  },
   logo: {
     width: '6em',
     height: '6em',
@@ -62,7 +65,7 @@ class SideMenu extends React.Component {
         >
           <ToolbarTitle text="compose.ai" />
         </Toolbar>
-        <List>
+        <List style={styles.list}>
           <ListItem
             onTouchTap={() => hashHistory.push('/dashboard')}
             primaryText="Dashboard"
