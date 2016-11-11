@@ -39,14 +39,21 @@ class BotPickerListItem extends React.Component {
   // TODO: Seleted, active and hover styles
 
   render() {
-    const { onSetActiveBot, isActive, data } = this.props
+    const {
+      onSetActiveBot,
+      handleClosePicker,
+      isActive,
+      data } = this.props
     const { name, description, id } = data
     const { hover } = this.state
 
     return (<ListItem
       primaryText={name}
       secondaryText={description}
-      onTouchTap={() => onSetActiveBot(id)}
+      onTouchTap={() => {
+        handleClosePicker()
+        onSetActiveBot(id)
+      }}
       onMouseEnter={this.handleMouseEnter}
       onMouseLeave={this.handleMouseLeave}
       leftAvatar={
@@ -62,10 +69,15 @@ class BotPickerListItem extends React.Component {
 
 BotPickerListItem.propTypes = {
   onSetActiveBot: React.PropTypes.func,
-  data: React.PropTypes.objectOf(React.PropTypes.shape({
+  handleClosePicker: React.PropTypes.func,
+  data: React.PropTypes.shape({
+    // eslint-disable-next-line react/no-unused-prop-types
+    id: React.PropTypes.number,
     // eslint-disable-next-line react/no-unused-prop-types
     name: React.PropTypes.string,
-  })),
+    // eslint-disable-next-line react/no-unused-prop-types
+    description: React.PropTypes.string,
+  }),
   isActive: React.PropTypes.bool,
 }
 

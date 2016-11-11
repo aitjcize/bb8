@@ -14,7 +14,8 @@ function BotsReducer(state = INITIAL_STATE, action) {
   switch (action.type) {
     case types.BOTS_LIST.SUCCESS:
       return {
-        ...state,
+        active: action.payload.result.indexOf(state.active) >= 0 ? state.active :
+          action.payload.result[0] || -1,
         ids: action.payload.result,
       }
     case types.BOTS_GET.SUCCESS:

@@ -74,7 +74,7 @@ describe('Reducer for Bots', () => {
         payload: normalize(BOTS_LISTING, arrayOf(Bot)),
       })
     ).toEqual({
-      active: -1,
+      active: 1,
       ids: [1, 2],
     })
   })

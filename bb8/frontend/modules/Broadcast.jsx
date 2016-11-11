@@ -39,7 +39,7 @@ class Broadcast extends React.Component {
   }
 
   componentWillMount() {
-    this.props.dispatchGetAllBroadcasts(1)
+    this.props.dispatchGetAllBroadcasts(this.props.activeBotId)
   }
 
   handleOpenEditor(broadcast) {
@@ -75,6 +75,7 @@ class Broadcast extends React.Component {
   handleConfirmSendDialog() {
     this.handleCloseDialog()
     this.props.dispatchSendBroadcast(
+      this.props.activeBotId,
       this.state.idInDialog,
       this.props.broadcasts[this.state.idInDialog])
   }
@@ -177,6 +178,7 @@ Broadcast.propTypes = {
   dispatchGetAllBroadcasts: React.PropTypes.func,
   dispatchDelBroadcast: React.PropTypes.func,
   dispatchSendBroadcast: React.PropTypes.func,
+  activeBotId: React.PropTypes.number,
   pastBroadcasts: React.PropTypes.arrayOf(React.PropTypes.shape({})),
   futureBroadcasts: React.PropTypes.arrayOf(React.PropTypes.shape({})),
   broadcasts: React.PropTypes.arrayOf(React.PropTypes.shape({})),
@@ -191,6 +193,7 @@ const mapStateToProps = (state) => {
     pastBroadcasts: bs.filter(b => b.scheduledTime <= now),
     futureBroadcasts: bs.filter(b => b.scheduledTime > now),
     broadcasts: state.entities.broadcasts,
+    activeBotId: state.bots.active,
   }
 }
 
@@ -201,12 +204,12 @@ const mapDispatchToProps = dispatch => ({
   dispatchDelBroadcast(broadcastId) {
     dispatch(delBroadcast(broadcastId))
   },
-  dispatchSendBroadcast(broadcastId, broadcast) {
+  dispatchSendBroadcast(botId, broadcastId, broadcast) {
     dispatch(updateBroadcast(broadcastId, {
       name: broadcast.name,
       scheduledTime: 0,
-      botId: 6,
       messages: broadcast.messages,
+      botId,
     }))
   },
 })

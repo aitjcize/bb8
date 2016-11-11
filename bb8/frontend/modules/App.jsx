@@ -1,5 +1,7 @@
 import React from 'react'
+import { connect } from 'react-redux'
 
+import { initializeApp } from '../actions'
 import TopBar from '../components/TopBar'
 import SideMenu from '../components/SideMenu'
 
@@ -29,20 +31,36 @@ const styles = {
   },
 }
 
-const App = props => (
-  <div style={styles.container}>
-    <SideMenu style={styles.sideMenu} />
-    <div style={styles.row}>
-      <TopBar style={styles.topBar} />
-      <div style={styles.content}>
-        {props.children}
+class App extends React.Component {
+  componentWillMount() {
+    this.props.dispatchInit()
+  }
+
+  render() {
+    return (<div style={styles.container}>
+      <SideMenu style={styles.sideMenu} />
+      <div style={styles.row}>
+        <TopBar style={styles.topBar} />
+        <div style={styles.content}>
+          {this.props.children}
+        </div>
       </div>
-    </div>
-  </div>
-)
+    </div>)
+  }
+}
 
 App.propTypes = {
+  dispatchInit: React.PropTypes.func,
   children: React.PropTypes.node,
 }
 
-export default App
+const ConnectedApp = connect(
+  () => ({}),
+  dispatch => ({
+    dispatchInit() {
+      dispatch(initializeApp())
+    },
+  }),
+)(App)
+
+export default ConnectedApp

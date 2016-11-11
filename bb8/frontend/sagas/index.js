@@ -5,6 +5,16 @@ import types from '../constants/ActionTypes'
 import api from '../api'
 import { AUTH_TOKEN } from '../constants'
 
+/* General Saga */
+
+export function* initializeAppSaga() {
+  while (true) {
+    yield take(types.INITIALIZE_APP)
+
+    yield put({ type: types.BOTS_LIST.REQUEST })
+  }
+}
+
 /* Authorization Sagas */
 
 export function* logoutSaga() {
@@ -188,6 +198,9 @@ export function* deleteBroadcastSaga() {
 }
 
 export default function* root() {
+  /* General Saga */
+  yield fork(initializeAppSaga)
+
   /* Authorization Saga */
   yield fork(loginSaga)
   yield fork(logoutSaga)
