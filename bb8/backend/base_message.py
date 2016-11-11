@@ -516,6 +516,7 @@ class Message(object):
         self.buttons = []
         self.list_items = []
         self.quick_replies = []
+        self.register_mapping = False
 
     def __str__(self):
         return json.dumps(self.as_dict())
@@ -533,12 +534,23 @@ class Message(object):
         )
 
     @classmethod
-    def FromDict(cls, data, variables=None):
-        """Construct Message object given a dictionary."""
+    def FromDict(cls, data, variables=None, register_mapping=False):
+        """Construct Message object given a dictionary.
+
+        Args:
+            register_mapping: whether or not to register the mapping to input
+                transformation list. This is here because we want the derived
+                class message.Message to be able to control wether or not to
+                register the mapping.
+        """
         jsonschema.validate(data, cls.schema())
 
         variables = variables or {}
         m = cls(data.get('text'), variables=variables)
+
+        # Set register_mapping flag, so the dereived (add_button, add_bubble,
+        # ...) methods can decide whether or not to register the mapping.
+        m.register_mapping = register_mapping
 
         attachment = data.get('attachment')
         if attachment:
@@ -554,10 +566,10 @@ class Message(object):
                     for x in attachment['payload']['elements']:
                         m.add_bubble(cls.Bubble.FromDict(x, variables))
 
-        quick_replies = data.get('quick_replies')
-        if quick_replies:
-            m.quick_replies = [cls.QuickReply.FromDict(x, variables)
-                               for x in quick_replies]
+        quick_replies = data.get('quick_replies', [])
+        for x in quick_replies:
+            m.add_quick_reply(cls.QuickReply.FromDict(x, variables))
+
         return m
 
     @classmethod

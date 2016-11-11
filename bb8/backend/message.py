@@ -576,6 +576,10 @@ class Message(base_message.Message):
     # Patch Message.QuickReply
     base_message.Message.QuickReply = _QuickReply
 
+    def __init__(self, *args, **kwargs):
+        super(Message, self).__init__(*args, **kwargs)
+        self.register_mapping = True
+
     def apply_limits(self, platform_type):
         limits = self.limits[platform_type]
         if self.text:
@@ -729,28 +733,31 @@ class Message(base_message.Message):
         return []
 
     @classmethod
-    def FromDict(cls, data, variables=None):
+    def FromDict(cls, data, variables=None, register_mapping=True):
         """Construct Message object given a dictionary."""
-        m = super(Message, cls).FromDict(data, variables)
-        for reply in m.quick_replies:
-            reply.register_mapping()
+        m = super(Message, cls).FromDict(data, variables, register_mapping)
         return m
 
     def add_button(self, button):
         super(Message, self).add_button(button)
-        button.register_mapping(str(len(self.buttons)))
+        if self.register_mapping:
+            button.register_mapping(str(len(self.buttons)))
 
     def add_bubble(self, bubble):
         super(Message, self).add_bubble(bubble)
-        bubble.register_mapping(str(len(self.bubbles)))
+        if self.register_mapping:
+            bubble.register_mapping(str(len(self.bubbles)))
 
     def add_quick_reply(self, reply):
         super(Message, self).add_quick_reply(reply)
-        reply.register_mapping()
+        if self.register_mapping:
+            reply.register_mapping()
 
 
 # To allow pickling inner class, set module attribute alias
 # pylint: disable=W0212
 setattr(sys.modules[__name__], '_Button', Message._Button)
 setattr(sys.modules[__name__], '_Bubble', Message._Bubble)
+setattr(sys.modules[__name__], '_DefaultAction', Message._DefaultAction)
+setattr(sys.modules[__name__], '_ListItem', Message._ListItem)
 setattr(sys.modules[__name__], '_QuickReply', Message._QuickReply)

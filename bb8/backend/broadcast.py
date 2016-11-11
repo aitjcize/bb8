@@ -68,7 +68,8 @@ def broadcast_task(broadcast_id):
         if not bot:
             return
 
-        messages = [Message.FromDict(m) for m in broadcast.messages]
+        messages = [Message.FromDict(m, register_mapping=False)
+                    for m in broadcast.messages]
         broadcast_message_async(bot, messages)
 
         # pylint: disable=R0204
