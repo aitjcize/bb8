@@ -1,6 +1,10 @@
 import createRequestTypes from './utils'
 
 export default {
+
+  // General
+  INITIALIZE_APP: 'INITIALIZE_APP',
+
   // Accounts
   ACCOUNTS_REGISTER: createRequestTypes('ACCOUNTS_REGISTER'),
   ACCOUNTS_LOGIN: createRequestTypes('ACCOUNTS_LOGIN'),

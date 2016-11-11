@@ -5,6 +5,16 @@ import types from '../constants/ActionTypes'
 import api from '../api'
 import { AUTH_TOKEN } from '../constants'
 
+/* General Saga */
+
+export function* initializeAppSaga() {
+  while (true) {
+    yield take(types.INITIALIZE_APP)
+
+    yield put({ type: types.BOTS_LIST.REQUEST })
+  }
+}
+
 /* Authorization Sagas */
 
 export function* logoutSaga() {
@@ -36,7 +46,16 @@ export function* loginSaga() {
 
 /* Bots Sagas */
 
-export function* fetchBotsSaga() {
+export function* setActiveBotSaga() {
+  while (true) {
+    const { payload } = yield take(types.BOTS_SET_ACTIVE)
+
+    // trigger refresh for current page
+    yield put({ type: types.BROADCASTS_LIST.REQUEST, payload })
+  }
+}
+
+export function* getAllBotsSaga() {
   while (true) {
     yield take(types.BOTS_LIST.REQUEST)
 
@@ -46,6 +65,20 @@ export function* fetchBotsSaga() {
       yield put({ type: types.BOTS_LIST.ERROR, payload: error })
     } else {
       yield put({ type: types.BOTS_LIST.SUCCESS, payload: response })
+    }
+  }
+}
+
+export function* createBotSaga() {
+  while (true) {
+    const { payload } = yield take(types.BOTS_CREATE.REQUEST)
+
+    const { response, error } = yield call(api.createBot, payload)
+
+    if (error) {
+      yield put({ type: types.BOTS_CREATE.ERROR, payload: error })
+    } else {
+      yield put({ type: types.BOTS_CREATE.SUCCESS, payload: response })
     }
   }
 }
@@ -188,12 +221,17 @@ export function* deleteBroadcastSaga() {
 }
 
 export default function* root() {
+  /* General Saga */
+  yield fork(initializeAppSaga)
+
   /* Authorization Saga */
   yield fork(loginSaga)
   yield fork(logoutSaga)
 
   /* Bots Saga */
-  yield fork(fetchBotsSaga)
+  yield fork(setActiveBotSaga)
+  yield fork(getAllBotsSaga)
+  yield fork(createBotSaga)
 
   /* Platform Saga */
   yield fork(fetchPlatformsSaga)

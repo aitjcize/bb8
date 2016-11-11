@@ -1,5 +1,10 @@
 import types from '../constants/ActionTypes'
 
+export const initializeApp = () => ({
+  type: types.INITIALIZE_APP,
+  payload: null,
+})
+
 // Accounts action creators
 
 export const startLogin = (email, passwd) => ({
@@ -14,6 +19,34 @@ export const startLogin = (email, passwd) => ({
 
 export const setActiveBot = botId => ({
   type: types.BOTS_SET_ACTIVE,
+  payload: botId,
+})
+
+export const getAllBots = () => ({
+  type: types.BOTS_LIST.REQUEST,
+  payload: null,
+})
+
+export const getBot = botId => ({
+  type: types.BOTS_GET,
+  payload: botId,
+})
+
+export const createBot = bot => ({
+  type: types.BOTS_CREATE.REQUEST,
+  payload: bot,
+})
+
+export const updateBot = (botId, bot) => ({
+  type: types.BOTS_UPDATE.REQUEST,
+  payload: {
+    botId,
+    bot,
+  },
+})
+
+export const delBot = botId => ({
+  type: types.BOTS_DELETE.REQUEST,
   payload: botId,
 })
 

@@ -12,9 +12,10 @@ import MenuItem from 'material-ui/MenuItem'
 import IconArrowDropUp from 'material-ui/svg-icons/navigation/arrow-drop-up'
 import IconArrowDropDown from 'material-ui/svg-icons/navigation/arrow-drop-down'
 
-import { setActiveBot } from '../../actions'
+import { setActiveBot, getAllBots } from '../../actions'
 
 import BotListCell from './BotPickerListItem'
+import BotCreateDialog from './BotCreateDialog'
 
 const styles = {
   button: {
@@ -40,15 +41,18 @@ class BotPickerButton extends React.Component {
     super(props)
 
     this.handleTouchTap = this.handleTouchTap.bind(this)
-    this.handleRequestClose = this.handleRequestClose.bind(this)
+    this.handleClosePicker = this.handleClosePicker.bind(this)
     this.state = {
       open: false,
+      createDialogOpen: false,
     }
   }
 
   handleTouchTap(event) {
     // This prevents ghost click.
     event.preventDefault()
+
+    this.props.dispatchGetAllBots()
 
     if (this.props.ids.length) {
       this.setState({
@@ -61,7 +65,7 @@ class BotPickerButton extends React.Component {
     // }
   }
 
-  handleRequestClose() {
+  handleClosePicker() {
     this.setState({
       open: false,
     })
@@ -79,23 +83,39 @@ class BotPickerButton extends React.Component {
       labelStyle={styles.buttonText}
       style={styles.button}
     >
+      <BotCreateDialog
+        open={this.state.createDialogOpen}
+        handleClose={() => this.setState({ createDialogOpen: false })}
+      />
       <Popover
         open={this.state.open}
         anchorEl={this.state.anchorEl}
         anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
         targetOrigin={{ horizontal: 'left', vertical: 'top' }}
-        onRequestClose={this.handleRequestClose}
+        onRequestClose={this.handleClosePicker}
       >
+        <Menu>
+          <MenuItem
+            primaryText="Create a bot"
+            style={styles.menuItem}
+            onClick={() => this.setState({
+              open: false,
+              createDialogOpen: true,
+            })}
+          />
+        </Menu>
+        <Divider />
         <List
           style={styles.list}
         >
-          <Subheader>testtitle</Subheader>
+          <Subheader> Your Chatbots </Subheader>
           {length === 0 ? null :
             ids.map(id =>
               (<BotListCell
                 key={id}
                 data={data[id]}
                 onSetActiveBot={onSetActiveBot}
+                handleClosePicker={this.handleClosePicker}
                 isActive={id === activeId}
               />))
           }
@@ -114,6 +134,7 @@ class BotPickerButton extends React.Component {
 
 BotPickerButton.propTypes = {
   onSetActiveBot: React.PropTypes.func,
+  dispatchGetAllBots: React.PropTypes.func,
   ids: React.PropTypes.arrayOf(React.PropTypes.number),
   data: React.PropTypes.objectOf(React.PropTypes.shape({
     name: React.PropTypes.string,
@@ -133,6 +154,9 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   onSetActiveBot(id) {
     dispatch(setActiveBot(id))
+  },
+  dispatchGetAllBots() {
+    dispatch(getAllBots())
   },
 })
 
