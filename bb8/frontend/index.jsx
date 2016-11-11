@@ -12,14 +12,7 @@ import createLogger from 'redux-logger'
 import storage from 'store2'
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
-import getMuiTheme from 'material-ui/styles/getMuiTheme'
-import {
-  tealA400,
-  tealA700,
-  teal50,
-  grey600,
-} from 'material-ui/styles/colors'
-
+import muiTheme from './constants/Theme'
 import { AUTH_TOKEN } from './constants'
 import rootSaga from './sagas'
 import rootReducer from './reducers'
@@ -57,21 +50,6 @@ const store = createStore(
 sagaMiddleware.run(rootSaga)
 
 syncHistoryWithStore(hashHistory, store)
-
-const THEME = {
-  palette: {
-    primary1Color: tealA400,
-    accent1Color: tealA700,
-    accent2Color: teal50,
-    textColor: grey600,
-  },
-  toolbar: {
-    height: '4em',
-    backgroundColor: tealA400,
-  },
-}
-
-const muiTheme = getMuiTheme(THEME)
 
 function authRequired(nextState, replace) {
   if (!storage.has(AUTH_TOKEN)) {

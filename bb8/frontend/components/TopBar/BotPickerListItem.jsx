@@ -3,10 +3,15 @@ import React from 'react'
 import { ListItem } from 'material-ui/List'
 import Avatar from 'material-ui/Avatar'
 import IconCheck from 'material-ui/svg-icons/navigation/check'
+// import { tealA700 } from 'material-ui/styles/colors'
+
+import Theme from '../../constants/Theme'
+
+const { palette } = Theme
 
 const styles = {
   selected: {
-    color: 'red',
+    color: palette.accent1Color,
   },
 }
 
