@@ -193,7 +193,7 @@ def run(content_config, unused_env, variables):
 
     def append_categories_to_quick_reply(m):
         m.add_quick_reply(Message.QuickReply(
-            Message.QuickReplyType.TEXT, u'荼蘼'))
+            Message.QuickReplyType.TEXT, u'月薪嬌妻'))
         m.add_quick_reply(Message.QuickReply(
             Message.QuickReplyType.TEXT, u'The K2 第十集'))
         m.add_quick_reply(Message.QuickReply(
