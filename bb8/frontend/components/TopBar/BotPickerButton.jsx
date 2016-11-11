@@ -15,6 +15,7 @@ import IconArrowDropDown from 'material-ui/svg-icons/navigation/arrow-drop-down'
 import { setActiveBot, getAllBots } from '../../actions'
 
 import BotListCell from './BotPickerListItem'
+import BotCreateDialog from './BotCreateDialog'
 
 const styles = {
   button: {
@@ -43,6 +44,7 @@ class BotPickerButton extends React.Component {
     this.handleClosePicker = this.handleClosePicker.bind(this)
     this.state = {
       open: false,
+      createDialogOpen: false,
     }
   }
 
@@ -73,7 +75,6 @@ class BotPickerButton extends React.Component {
     const { ids, activeId, onSetActiveBot, data } = this.props
     const length = ids.length
 
-    console.log('render', activeId, this.props.data)
     return (<FlatButton
       onTouchTap={this.handleTouchTap}
       label={activeId === -1 ? 'Choose a bot' : this.props.data[activeId].name}
@@ -82,6 +83,10 @@ class BotPickerButton extends React.Component {
       labelStyle={styles.buttonText}
       style={styles.button}
     >
+      <BotCreateDialog
+        open={this.state.createDialogOpen}
+        handleClose={() => this.setState({ createDialogOpen: false })}
+      />
       <Popover
         open={this.state.open}
         anchorEl={this.state.anchorEl}
@@ -89,6 +94,17 @@ class BotPickerButton extends React.Component {
         targetOrigin={{ horizontal: 'left', vertical: 'top' }}
         onRequestClose={this.handleClosePicker}
       >
+        <Menu>
+          <MenuItem
+            primaryText="Create a bot"
+            style={styles.menuItem}
+            onClick={() => this.setState({
+              open: false,
+              createDialogOpen: true,
+            })}
+          />
+        </Menu>
+        <Divider />
         <List
           style={styles.list}
         >

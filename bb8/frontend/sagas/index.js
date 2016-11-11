@@ -46,7 +46,7 @@ export function* loginSaga() {
 
 /* Bots Sagas */
 
-export function* fetchBotsSaga() {
+export function* getAllBotsSaga() {
   while (true) {
     yield take(types.BOTS_LIST.REQUEST)
 
@@ -56,6 +56,20 @@ export function* fetchBotsSaga() {
       yield put({ type: types.BOTS_LIST.ERROR, payload: error })
     } else {
       yield put({ type: types.BOTS_LIST.SUCCESS, payload: response })
+    }
+  }
+}
+
+export function* createBotSaga() {
+  while (true) {
+    const { payload } = yield take(types.BOTS_CREATE.REQUEST)
+
+    const { response, error } = yield call(api.createBot, payload)
+
+    if (error) {
+      yield put({ type: types.BOTS_CREATE.ERROR, payload: error })
+    } else {
+      yield put({ type: types.BOTS_CREATE.SUCCESS, payload: response })
     }
   }
 }
@@ -206,7 +220,8 @@ export default function* root() {
   yield fork(logoutSaga)
 
   /* Bots Saga */
-  yield fork(fetchBotsSaga)
+  yield fork(getAllBotsSaga)
+  yield fork(createBotSaga)
 
   /* Platform Saga */
   yield fork(fetchPlatformsSaga)
