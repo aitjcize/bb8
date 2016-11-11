@@ -117,7 +117,7 @@ class Broadcast extends React.Component {
     return (
       <div>
         <Dialog
-          title="Confirm Delete"
+          title={`Confirm ${this.state.dialogOpen === DIALOG_STATE.DELETE ? 'Delete' : 'Send'}`}
           actions={this.state.dialogOpen === DIALOG_STATE.DELETE ?
                    deleteActions : sendActions}
           modal={false}
@@ -181,7 +181,7 @@ Broadcast.propTypes = {
   activeBotId: React.PropTypes.number,
   pastBroadcasts: React.PropTypes.arrayOf(React.PropTypes.shape({})),
   futureBroadcasts: React.PropTypes.arrayOf(React.PropTypes.shape({})),
-  broadcasts: React.PropTypes.arrayOf(React.PropTypes.shape({})),
+  broadcasts: React.PropTypes.objectOf(React.PropTypes.shape({})),
 }
 
 const mapStateToProps = (state) => {
