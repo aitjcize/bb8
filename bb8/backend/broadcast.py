@@ -6,6 +6,7 @@
     Copyright 2016 bb8 Authors
 """
 
+import time
 from datetime import datetime
 
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
@@ -70,6 +71,9 @@ def broadcast_task(broadcast_id):
         messages = [Message.FromDict(m) for m in broadcast.messages]
         broadcast_message_async(bot, messages)
 
+        # pylint: disable=R0204
+        broadcast.status = BroadcastStatusEnum.SENT
+
 
 def schedule_broadcast(broadcast):
     """Schedule a broadcast."""
@@ -89,6 +93,9 @@ def parse_broadcast(broadcast_json, to_broadcast_id=None):
                      single=True)
     if not bot:
         raise RuntimeError('bot does not exist for broadcast')
+
+    if broadcast_json['scheduled_time'] == 0:
+        broadcast_json['scheduled_time'] = int(time.time())
 
     if to_broadcast_id:
         broadcast = Broadcast.get_by(id=to_broadcast_id, single=True)
