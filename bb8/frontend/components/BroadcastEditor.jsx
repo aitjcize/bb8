@@ -56,7 +56,9 @@ class BroadcastEditor extends React.Component {
       broadcast: nextProps.broadcast,
     })
     this.editor.clear()
-    this.editor.fromJSON(nextProps.broadcast)
+    if (nextProps.broadcast && nextProps.messages) {
+      this.editor.fromJSON(nextProps.broadcast)
+    }
   }
 
   handleNameChange(e) {
@@ -73,7 +75,7 @@ class BroadcastEditor extends React.Component {
       })
     } else {
       this.setState({
-        nameError: null,
+        nameError: '',
         broadcast: Object.assign({}, this.state.broadcast, { name }),
       })
     }
@@ -105,12 +107,19 @@ class BroadcastEditor extends React.Component {
 
   handleSubmit() {
     this.setState({ dialogOpen: false })
+
     if (this.state.scheduling &&
         (!this.state.timepickerVal ||
          !this.state.datepickerVal)) {
       this.setState({
         editorError: 'Please pick a date and a time',
       })
+      return
+    }
+
+    if (!this.state.broadcast.name || this.state.broadcast.name.length > 30 ||
+        (this.state.scheduling && (!this.state.timepickerVal || !this.state.datepickerVal))) {
+      // TODO: show an error message
       return
     }
 
