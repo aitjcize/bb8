@@ -74,6 +74,7 @@ class Config(object):
     # Facebook
     FACEBOOK_WEBHOOK_PATH = BOT_WEBHOOOK_ROOT + '/facebook'
     FACEBOOK_WEBHOOK_VALIDATION_TOKEN = 'meow_meow_meow'
+    FACEBOOK_APP_SECRET = 'd9750fb43ea8158cff33444d917c2185'
 
     # Line
     LINE_WEBHOOK_PATH = BOT_WEBHOOOK_ROOT + '/line/<provider_ident>'
@@ -129,6 +130,10 @@ class DeployConfig(DevelopmentConfig):
         'content':  'bb8.app.content',
         'drama':    'bb8.app.drama',
     }
+
+    # Messaging provider config
+    # Facebook
+    FACEBOOK_APP_SECRET = 'd998c8124ef6ef8008ce404e18dfe07f'
 
     # Datadog
     DATADOG_HOST = 'bb8.service.datadog'

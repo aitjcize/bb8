@@ -6,10 +6,7 @@
     Copyright 2016 bb8 Authors
 """
 
-import base64
 import datetime
-import hashlib
-import hmac
 
 from flask import g, request
 
@@ -92,6 +89,11 @@ def facebook_webhook_task():
 def line_webhook_task(provider_ident):
     with statsd.timed('line_webhook_task', tags=[config.ENV_TAG]):
         engine = Engine()
+        platform = Platform.get_by(type_enum=PlatformTypeEnum.Line,
+                                   provider_ident=provider_ident, single=True)
+        if platform is None:
+            raise RuntimeError('no associate bot found for Line '
+                               'Platform with ident = %s' % provider_ident)
 
         for entry in request.json.get('events', []):
             if entry['source']['type'] != 'user':
@@ -99,18 +101,6 @@ def line_webhook_task(provider_ident):
                                    'for now')
 
             sender = entry['source']['userId']
-            platform = Platform.get_by(provider_ident=provider_ident,
-                                       single=True)
-            if platform is None:
-                raise RuntimeError('no associate bot found for Line '
-                                   'Platform with ident = %s' % provider_ident)
-            digest = hmac.new(str(platform.config['channel_secret']),
-                              request.data, hashlib.sha256).digest()
-            signature = base64.b64encode(digest)
-
-            if signature != request.headers['X-Line-Signature']:
-                raise RuntimeError('line_receive: failed to verify message')
-
             bot = platform.bot
             g.ga_id = bot.ga_id
 
