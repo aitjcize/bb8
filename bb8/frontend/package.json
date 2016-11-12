@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack --progress",
-    "dev-server": "webpack-dev-server --devtool source-map --hot --progress --content-base dist --host 0.0.0.0 --port $WEBPACK_PORT",
+    "dev-server": "webpack-dev-server --watch --hot --progress --content-base dist --host 0.0.0.0 --port $WEBPACK_PORT",
     "lint:css": "stylelint \"**/*.scss\" --syntax scss",
     "test": "jest",
     "test:watch": "jest --watch"

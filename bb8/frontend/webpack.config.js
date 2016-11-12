@@ -7,9 +7,11 @@ const isDebug = global.DEBUG === false ? false : !process.argv.includes('--relea
 const isVerbose = process.argv.includes('--verbose') || process.argv.includes('-v')
 
 const defaultConfig = {
+  devtool: 'cheap-source-map',
   context: __dirname,
   devServer: {
     port: '8080',
+    compress: true,
     contentBase: './build',
     inline: true,
     proxy: {
@@ -71,6 +73,7 @@ const defaultConfig = {
     require('autoprefixer')(),
   ],
   plugins: [
+    new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
     new webpack.DefinePlugin({
       'process.env.BB8_DEPLOY': process.env.BB8_DEPLOY,
       'process.env.HTTP_PORT': process.env.HTTP_PORT,

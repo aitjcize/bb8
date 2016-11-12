@@ -1,5 +1,5 @@
 import React from 'react'
-import Lodash from 'lodash'
+import uniqueId from 'lodash/uniqueId'
 
 import { Card, CardText, CardMedia } from 'material-ui/Card'
 import ActionDelete from 'material-ui/svg-icons/action/delete'
@@ -38,7 +38,7 @@ class TextCardMessage extends React.Component {
     if (this.state.buttonIds.length < 3) {
       this.setState(prevState => (
         { buttonIds: prevState.buttonIds.concat(
-          [Lodash.uniqueId('buttons_message')]) }
+          [uniqueId('buttons_message')]) }
       ))
     }
   }
@@ -70,7 +70,7 @@ class TextCardMessage extends React.Component {
       const idBut = {}
       const buttonIds = []
       for (const but of buttons) {
-        const id = Lodash.uniqueId('buttons_message')
+        const id = uniqueId('buttons_message')
         idBut[id] = but
         buttonIds.push(id)
       }
