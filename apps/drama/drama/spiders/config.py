@@ -34,5 +34,15 @@ spider_configs = {
             ), callback='parse_drama'),
         ),
 
+    },
+    'vmus': {
+        'name': 'vmus',
+        'allowed_domains': ['vmus.co'],
+        'start_urls': (
+            'http://vmus.co/',
+        ),
+        'rules': (
+            Rule(LinkExtractor(), callback='parse_vmus_drama'),
+        ),
     }
 }
