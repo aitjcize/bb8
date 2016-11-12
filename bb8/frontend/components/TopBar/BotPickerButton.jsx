@@ -54,15 +54,10 @@ class BotPickerButton extends React.Component {
 
     this.props.dispatchGetAllBots()
 
-    if (this.props.ids.length) {
-      this.setState({
-        open: true,
-        anchorEl: event.currentTarget,
-      })
-    }
-    // else {
-    //   TODO: open create bot dialog
-    // }
+    this.setState({
+      open: true,
+      anchorEl: event.currentTarget,
+    })
   }
 
   handleClosePicker() {
@@ -108,18 +103,20 @@ class BotPickerButton extends React.Component {
         <List
           style={styles.list}
         >
-          <Subheader> Your Chatbots </Subheader>
           {length === 0 ? null :
-            ids.map(id =>
-              (<BotListCell
-                key={id}
-                data={data[id]}
-                onSetActiveBot={onSetActiveBot}
-                handleClosePicker={this.handleClosePicker}
-                isActive={id === activeId}
-              />))
+            (<div>
+              <Subheader> Your Chatbots </Subheader>
+              { ids.map(id =>
+                (<BotListCell
+                  key={id}
+                  data={data[id]}
+                  onSetActiveBot={onSetActiveBot}
+                  handleClosePicker={this.handleClosePicker}
+                  isActive={id === activeId}
+                />)) }
+              <Divider />
+            </div>)
           }
-          <Divider />
           <Menu>
             <MenuItem
               primaryText="Manage BOTS"
