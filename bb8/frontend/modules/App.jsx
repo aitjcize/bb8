@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import { initializeApp } from '../actions'
 import TopBar from '../components/TopBar'
 import SideMenu from '../components/SideMenu'
+import Notification from '../components/Notification'
 
 const styles = {
   container: {
@@ -38,6 +39,7 @@ class App extends React.Component {
 
   render() {
     return (<div style={styles.container}>
+      <Notification />
       <SideMenu style={styles.sideMenu} />
       <div style={styles.row}>
         <TopBar style={styles.topBar} />

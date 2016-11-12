@@ -3,7 +3,6 @@ import { connect } from 'react-redux'
 import Dialog from 'material-ui/Dialog'
 import Drawer from 'material-ui/Drawer'
 import { Card, CardActions } from 'material-ui/Card'
-import RaisedButton from 'material-ui/RaisedButton'
 import FlatButton from 'material-ui/FlatButton'
 import FloatingActionButton from 'material-ui/FloatingActionButton'
 import ContentAdd from 'material-ui/svg-icons/content/add'
@@ -37,13 +36,6 @@ DeployStatus.propTypes = {
   activeBotId: React.PropTypes.number,
   platform: React.PropTypes.shape({}),
 }
-
-const EmptyPlatformsPageComponent = () => (
-  <div>
-    You did not have any platform settings yet.
-    <RaisedButton label="Add One" primary />
-  </div>
-)
 
 const PlatformCard = props => (
   <Card className="b-platform-card">
@@ -136,7 +128,7 @@ class Platforms extends React.Component {
 
     return (
       <div>
-        { this.props.platformIds.length === 0 ? <EmptyPlatformsPageComponent /> :
+        {
           this.props.platformIds.map((id) => {
             const plat = this.props.platforms[id]
             return (
@@ -166,7 +158,10 @@ class Platforms extends React.Component {
           onRequestChange={rightDrawerOpen => this.setState({ rightDrawerOpen })}
         >
           { this.state.rightDrawerOpen === false ? null :
-            <PlatformForm platform={this.state.editingPlatform} /> }
+            <PlatformForm
+              handleClose={() => this.setState({ rightDrawerOpen: false })}
+              platform={this.state.editingPlatform}
+            /> }
         </Drawer>
 
         <FloatingActionButton
