@@ -71,6 +71,10 @@ def update_platform(platform_id):
         platform_json = request.json
         platform_json['account_id'] = g.account.id
         platform = parse_platform(platform_json, platform.id)
+    except DuplicateEntryError:
+        raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
+                       CustomError.ERR_DUPLICATE_ENTRY,
+                       'Platform already exists')
     except Exception as e:
         logger.exception(e)
         raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,

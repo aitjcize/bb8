@@ -4,6 +4,7 @@ import { hashHistory } from 'react-router'
 import types from '../constants/ActionTypes'
 import api from '../api'
 import { AUTH_TOKEN } from '../constants'
+import CustomError from '../constants/CustomError'
 
 /* General Saga */
 
@@ -105,6 +106,10 @@ export function* createPlatformSaga() {
 
     const { response, error } = yield call(api.createPlatform, payload)
 
+    if (error && error.body.errorCode === CustomError.errDuplicateEntry) {
+      yield put({ type: types.NOTIFICATION_OPEN, payload: 'This provider id is already in used' })
+    }
+
     if (error) {
       yield put({ type: types.PLATFORMS_CREATE.ERROR, payload: error })
     } else {
@@ -121,6 +126,10 @@ export function* updatePlatformSaga() {
     const { payload: { platformId, platform } } = yield take(types.PLATFORMS_UPDATE.REQUEST)
 
     const { response, error } = yield call(api.updatePlatform, platformId, platform)
+
+    if (error && error.body.errorCode === CustomError.errDuplicateEntry) {
+      yield put({ type: types.NOTIFICATION_OPEN, payload: 'This provider id is already in used' })
+    }
 
     if (error) {
       yield put({ type: types.PLATFORMS_UPDATE.ERROR, payload: error })
