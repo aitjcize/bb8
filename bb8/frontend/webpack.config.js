@@ -6,6 +6,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const isDebug = global.DEBUG === false ? false : !process.argv.includes('--release')
 const isVerbose = process.argv.includes('--verbose') || process.argv.includes('-v')
 
+const httpPort = process.env.HTTP_PORT || 7006
+
 const defaultConfig = {
   devtool: 'cheap-source-map',
   context: __dirname,
@@ -16,7 +18,7 @@ const defaultConfig = {
     inline: true,
     proxy: {
       '/': {
-        target: 'https://localhost:' + process.env.HTTP_PORT,
+        target: 'https://dev.compose.ai:' + httpPort,
         secure: false
       }
     },
