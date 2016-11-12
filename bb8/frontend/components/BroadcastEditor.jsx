@@ -10,7 +10,7 @@ import TextField from 'material-ui/TextField'
 import RaisedButton from 'material-ui/RaisedButton'
 
 import Message from './content_modules/Message'
-import { createBroadcast, updateBroadcast } from '../actions'
+import { createBroadcast, updateBroadcast, openNotification } from '../actions'
 
 
 function combineDateTime(date, time) {
@@ -39,8 +39,6 @@ class BroadcastEditor extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this)
 
     this.state = {
-      // TODO: show this error in the editor
-      editorError: '',
       nameError: '',
       scheduling: false,
       datepickerVal: null,
@@ -108,18 +106,16 @@ class BroadcastEditor extends React.Component {
   handleSubmit() {
     this.setState({ dialogOpen: false })
 
-    if (this.state.scheduling &&
+    if (!this.state.broadcast.name) {
+      this.props.handleShowNotification('Please provide a name for this broadcast')
+      return
+    } else if (this.state.broadcast.name.length > 30) {
+      this.props.handleShowNotification('The name of the broadcast is too long')
+      return
+    } else if (this.state.scheduling &&
         (!this.state.timepickerVal ||
          !this.state.datepickerVal)) {
-      this.setState({
-        editorError: 'Please pick a date and a time',
-      })
-      return
-    }
-
-    if (!this.state.broadcast.name || this.state.broadcast.name.length > 30 ||
-        (this.state.scheduling && (!this.state.timepickerVal || !this.state.datepickerVal))) {
-      // TODO: show an error message
+      this.props.handleShowNotification('Please pick a date and a time')
       return
     }
 
@@ -229,6 +225,7 @@ BroadcastEditor.propTypes = {
   handleUpdateBroadcast: React.PropTypes.func,
   handleCreateBroadcast: React.PropTypes.func,
   handleCloseEditor: React.PropTypes.func,
+  handleShowNotification: React.PropTypes.func,
 }
 
 const ConnectedBroadcastEditor = connect(
@@ -241,6 +238,9 @@ const ConnectedBroadcastEditor = connect(
     },
     handleCreateBroadcast(broadcast) {
       dispatch(createBroadcast(broadcast))
+    },
+    handleShowNotification(message) {
+      dispatch(openNotification(message))
     },
   }),
 )(BroadcastEditor)

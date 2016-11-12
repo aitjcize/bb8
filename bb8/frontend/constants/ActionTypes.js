@@ -19,6 +19,7 @@ export default {
   BOTS_UPDATE: createRequestTypes('BOTS_UPDATE'),
   BOTS_DEPLOY: createRequestTypes('BOTS_DEPLOY'),
   BOTS_DELETE: createRequestTypes('BOTS_DELETE'),
+  BOTS_SET_ACTIVE: 'BOTS_SET_ACTIVE',
 
   // Broadcasts
   BROADCASTS_LIST: createRequestTypes('BROADCASTS_LIST'),
@@ -35,5 +36,6 @@ export default {
   PLATFORMS_DELETE: createRequestTypes('PLATFORMS_DELETE'),
 
   // UI
-  BOTS_SET_ACTIVE: 'BOTS_SET_ACTIVE',
+  NOTIFICATION_OPEN: 'NOTIFICATION_OPEN',
+  NOTIFICATION_CLOSE: 'NOTIFICATION_CLOSE',
 }
