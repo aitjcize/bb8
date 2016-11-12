@@ -10,11 +10,11 @@ import Divider from 'material-ui/Divider'
 import FloatingActionButton from 'material-ui/FloatingActionButton'
 import { ListItem } from 'material-ui/List'
 
-import TextCardMessage from './lib/TextCardMessage'
-import CarouselMessage from './lib/CarouselMessage'
-import ImageMessage from './lib/ImageMessage'
+import TextCardMessage from './TextCardMessage'
+import CarouselMessage from './CarouselMessage'
+import ImageMessage from './ImageMessage'
 
-import ModuleInfos from '../../constants/ModuleInfos.json'
+import ModuleInfos from '../../../constants/ModuleInfos.json'
 
 
 class Message extends React.Component {
@@ -46,7 +46,7 @@ class Message extends React.Component {
   }
 
   onAddClicked(type) {
-    if (this.state.messageInfos.length < 3) {
+    if (this.state.messageInfos.length < this.props.maxMessages) {
       this.setState(prevState => (
         { messageInfos: prevState.messageInfos.concat(
           [{ id: uniqueId('messages'), type }]) }
