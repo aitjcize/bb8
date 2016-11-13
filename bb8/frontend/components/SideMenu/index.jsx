@@ -19,6 +19,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
+    borderRadius: 0,
   },
   logoContainer: {
     height: '20vw',
