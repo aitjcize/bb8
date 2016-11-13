@@ -1,6 +1,7 @@
 import React from 'react'
 import Moment from 'moment'
 import FlatButton from 'material-ui/FlatButton'
+import IconButton from 'material-ui/IconButton'
 import Divider from 'material-ui/Divider'
 import Paper from 'material-ui/Paper'
 import {
@@ -9,6 +10,8 @@ import {
   CardHeader,
   CardText
 } from 'material-ui/Card'
+import Toggle from 'material-ui/Toggle'
+import ModeEdit from 'material-ui/svg-icons/editor/mode-edit'
 
 import BroadcastEditor from './BroadcastEditor'
 
@@ -21,6 +24,7 @@ const styles = {
     marginLeft: '1em',
     marginRight: '1em',
     transition: '.24s ease-out',
+    overflow: 'hidden',
   },
   isFirst: {
     marginTop: '1em',
@@ -50,6 +54,32 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
   },
+  infoHeader: {
+    display: 'flex',
+  },
+  infoHeaderTextStyle: {
+    flex: 1,
+  },
+  infoHeaderGroupRight: {
+    fontSize: '.875em',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+  },
+  infoHeaderToggle: {
+    flex: 'none',
+    width: 'auto',
+    padding: '0 1em',
+  },
+  infoHeaderToggleLabel: {
+  },
+  infoActionsContainer: {
+    display: 'flex',
+    marginTop: '1em',
+  },
+  infoActionsGroup: {
+    flex: 1,
+  },
 }
 
 class BroadcastItem extends React.Component {
@@ -60,37 +90,63 @@ class BroadcastItem extends React.Component {
     this.renderEditor = this.renderEditor.bind(this)
 
     this.setState({
-      expandedIdx: this.props.expandedIdx,
+      expandedIdx: props.expandedIdx,
     })
   }
 
   renderNormalCell() {
     const { broadcast } = this.props
-    const { name, status } = broadcast
+    const { name, status, scheduledTime } = broadcast
 
-    return (<div>
+    return (<Card style={styles.infoContainer}>
       <CardHeader
         title={name}
         subtitle={status}
-      />
-      <CardActions>
-        <span>
-          { Moment.unix(broadcast.scheduledTime).format('ll') }
-        </span>
-        <FlatButton
-          onClick={() => this.props.handleEdit(broadcast)}
-          label="Edit"
-        />
-        <FlatButton
-          onClick={this.props.handleDelete}
-          label="Delete"
-        />
-        <FlatButton
-          onClick={this.props.handleSend}
-          label="Send Now"
-        />
+        style={styles.infoHeader}
+        textStyle={styles.infoHeaderTextStyle}
+      >
+        <div style={styles.infoHeaderGroupRight}>
+          <Toggle
+            label={true ? 'Scheduled' : 'Set schedule'}
+            defaultToggled={true}
+            style={styles.infoHeaderToggle}
+            labelStyle={styles.infoHeaderToggleLabel}
+          />
+          <FlatButton
+            style={{ display: 'flex', alignItems: 'center' }}
+            labelStyle={{
+              textTransform: 'none',
+            }}
+            label={
+              Moment.unix(broadcast.scheduledTime).calendar(null, {
+                sameElse: 'll',
+              })
+            }
+            labelPosition="before"
+          />
+        </div>
+      </CardHeader>
+      <CardActions style={styles.infoActionsContainer}>
+        <div style={styles.infoActionsGroup}>
+          <FlatButton
+            onClick={() => this.props.handleEdit(broadcast)}
+            label="edit"
+          />
+          <FlatButton
+            onClick={this.props.handleDelete}
+            label="discard"
+            secondary
+          />
+        </div>
+        <div style={{ ...styles.infoActionsGroup, ...{ flex: 'none' } }}>
+          <FlatButton
+            onClick={this.props.handleSend}
+            label="Send Now"
+            primary
+          />
+        </div>
       </CardActions>
-    </div>)
+    </Card>)
   }
 
   renderEditor() {
@@ -103,7 +159,6 @@ class BroadcastItem extends React.Component {
 
   render() {
     const {
-      broadcast,
       idx,
       lastIdx,
       expandedIdx,
@@ -123,18 +178,6 @@ class BroadcastItem extends React.Component {
       ...isFirst && styles.isFirst,
       ...((isFirst && isPrev) || (isLast && isNext)) && styles.isBoth,
       ...expanded && styles.isExpanded,
-    }
-
-    if (broadcast.id === 1) {
-      console.log(
-        'broadcast', broadcast,
-        '\n isFirst:', isFirst,
-        '\n isLast:', isLast,
-        '\n expanded:', expanded,
-        '\n isPrev:', isPrev,
-        '\n isNext:', isNext,
-        paperStyle
-      )
     }
 
     const containerStyle = {

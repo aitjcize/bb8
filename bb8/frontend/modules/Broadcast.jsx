@@ -28,7 +28,7 @@ const styles = {
     position: 'absolute',
     right: 0,
     bottom: 0,
-    margin: '4em',
+    margin: '1.5em',
   },
 }
 
