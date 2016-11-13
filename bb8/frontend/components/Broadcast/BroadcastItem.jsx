@@ -9,6 +9,7 @@ import {
   CardHeader,
 } from 'material-ui/Card'
 import Toggle from 'material-ui/Toggle'
+import BroadcastEditor from './BroadcastEditor'
 
 const styles = {
   container: {
@@ -47,7 +48,8 @@ const styles = {
     minHeight: '50vh',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'left',
+    padding: '1.5em',
   },
   infoHeader: {
     display: 'flex',
@@ -148,7 +150,7 @@ class BroadcastItem extends React.Component {
   renderEditor() {
     return (
       <div style={styles.editorContainer}>
-        editor placeholder
+        <BroadcastEditor broadcast={this.props.broadcast} />
       </div>
     )
   }
