@@ -14,6 +14,11 @@
       "persistent_menu": [
         {
           "type": "postback",
+          "title": "熱門美劇",
+          "payload": {"message": {"text": "trending_us"}}
+        },
+        {
+          "type": "postback",
           "title": "熱門韓劇",
           "payload": {"message": {"text": "trending_kr"}}
         },
@@ -21,11 +26,6 @@
           "type": "postback",
           "title": "熱門日劇",
           "payload": {"message": {"text": "trending_jp"}}
-        },
-        {
-          "type": "postback",
-          "title": "熱門台劇",
-          "payload": {"message": {"text": "trending_tw"}}
         },
         {
           "type": "postback",
@@ -225,7 +225,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["trending_us", "美劇", "(?i)us"],
+                  "params": ["trending_us", "^美$", "美劇", "(?i)^us$"],
                   "collect_as": {"key": "us_drama_interest"}
                 },
                 "end_node_id": "TrendingUS",
