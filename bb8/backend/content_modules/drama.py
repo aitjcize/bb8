@@ -139,7 +139,8 @@ def render_dramas(dramas):
     for d in dramas:
         b = Message.Bubble(d.name,
                            image_url=CacheImage(d.image_url),
-                           subtitle=d.description)
+                           subtitle=d.description,
+                           item_url=d.link)
         if d.subscribed:
             b.add_button(Message.Button(
                 Message.ButtonType.POSTBACK,
@@ -185,7 +186,8 @@ def render_episodes(episodes, variables):
 
         b = Message.Bubble(title,
                            image_url=CacheImage(ep.image_url),
-                           subtitle=ep.description)
+                           subtitle=ep.description,
+                           item_url=ep.link)
 
         b.add_button(Message.Button(
             Message.ButtonType.WEB_URL,
