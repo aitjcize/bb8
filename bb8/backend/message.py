@@ -199,8 +199,6 @@ class UserInput(object):
                 }
             elif message['type'] == 'audio':
                 u.audio = message['id']
-            else:
-                return None
             return u
 
         postback = entry.get('postback')
