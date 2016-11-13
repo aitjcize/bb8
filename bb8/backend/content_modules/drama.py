@@ -45,6 +45,7 @@ def schema():
                     'trending_jp',
                     'trending_tw',
                     'trending_cn',
+                    'trending_us',
                     'subscribe',
                     'unsubscribe',
                     'search',
@@ -150,7 +151,14 @@ def render_episodes(episodes, variables):
 
     m = Message()
     for ep in episodes:
-        b = Message.Bubble(ep.drama_name + u'第 %d 集' % ep.serial_number,
+        if ep.serial_number > 1000 and ep.serial_number < 20000:
+            s_n = ep.serial_number / 1000
+            e_n = ep.serial_number % 1000
+            title = u'S%02dE%02d ' % (s_n, e_n) + ep.drama_name
+        else:
+            title = ep.drama_name + u' 第 %d 集' % ep.serial_number
+
+        b = Message.Bubble(title,
                            image_url=CacheImage(ep.image_url),
                            subtitle=ep.description)
 
@@ -172,6 +180,8 @@ def render_episodes(episodes, variables):
 
     m.add_quick_reply(Message.QuickReply(
         Message.QuickReplyType.TEXT, u'第1集'))
+    m.add_quick_reply(Message.QuickReply(
+        Message.QuickReplyType.TEXT, u'熱門美劇'))
     m.add_quick_reply(Message.QuickReply(
         Message.QuickReplyType.TEXT, u'熱門韓劇'))
     m.add_quick_reply(Message.QuickReply(
@@ -207,6 +217,9 @@ def run(content_config, unused_env, variables):
         m.add_quick_reply(Message.QuickReply(
             Message.QuickReplyType.TEXT, u'通知設定'))
         return [m]
+
+    not_found = Message(u'找不到耶！你可以換個關鍵字或試試熱門的類別：')
+    append_categories_to_quick_reply(not_found)
 
     if content_config['mode'] == 'subscribe':
         event = variables['event']
@@ -257,31 +270,39 @@ def run(content_config, unused_env, variables):
             m = render_dramas(dramas)
             append_categories_to_quick_reply(m)
             return [m]
-        m = Message(u'找不到耶！你可以換個關鍵字或試試熱門的類別：')
-        append_categories_to_quick_reply(m)
-        return [m]
+        return [not_found]
 
     if content_config['mode'] == 'search_episode':
-        if len(variables['matches']) == 3:
-            dramas = drama_info.search(user_id, variables['matches'][1], 1)
-            if dramas:
+        matches = variables['matches']
+
+        # The regexp pattern segments the result as follows:
+        # (name) (episode)   len == 3
+        # (name) (season) (episode)   len == 4
+        if len(matches) == 3 or len(matches) == 4:
+            name = matches[1].strip()
+            if name:
+                dramas = drama_info.search(user_id, name, 1)
+                if not dramas:
+                    return [not_found]
                 Memory.Set('last_query_drama_id', dramas[0].id)
 
         drama_id = Memory.Get('last_query_drama_id')
-        if drama_id:
-            try:
-                try:
-                    serial_number = int(Resolve(content_config['episode'],
-                                                variables))
-                except ValueError:
-                    serial_number = convert_to_arabic_numbers(
-                        Resolve(content_config['episode'], variables))
-                episode = drama_info.get_episode(drama_id, serial_number)
-            except Exception:
-                return [Message('沒有這一集喔')]
-            return render_episodes([episode], variables)
-        else:
+        if not drama_id:
             return [Message('請先告訴我你要查的劇名')]
+
+        if len(matches) == 4:
+            s_n = convert_to_arabic_numbers(matches[2])
+            e_n = convert_to_arabic_numbers(matches[3])
+            serial_number = s_n * 1000 + e_n
+        else:
+            serial_number = convert_to_arabic_numbers(
+                Resolve(content_config['episode'], variables))
+
+        try:
+            episode = drama_info.get_episode(drama_id, serial_number)
+        except Exception:
+            return [Message('沒有這一集喔')]
+        return render_episodes([episode], variables)
 
     m = render_dramas(drama_info.get_trending(user_id, country=country))
     append_categories_to_quick_reply(m)

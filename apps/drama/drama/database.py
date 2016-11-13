@@ -37,6 +37,7 @@ class DramaCountryEnum(enum.Enum):
     JAPAN = 'jp'
     KOREA = 'kr'
     CHINA = 'cn'
+    UNITED_STATES = 'us'
     NOT_CLASSIFIED = 'default'
 
 

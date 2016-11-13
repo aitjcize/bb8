@@ -185,7 +185,7 @@
               {
                 "rule":{
                   "type": "regexp",
-                  "params": ["(.+?)\\s*第\\s*(.+?)\\s*集", "第?\\s*(.+?)\\s*集"]
+                  "params": ["(.*?)(?:第\\s*(.+?)\\s*季)?\\s*第\\s*(.+?)\\s*集", "(.*)\\s?[sS]\\s*(.+?)\\s*[eE]\\s*(.+)"]
                 },
                 "end_node_id": "SearchEpisode",
                 "ack_message": ""
@@ -228,7 +228,8 @@
                   "params": ["trending_us", "美劇", "(?i)us"],
                   "collect_as": {"key": "us_drama_interest"}
                 },
-                "ack_message": "追劇吧暫時還沒有支援美劇喔！正在加緊趕工中，等到上線後我會再通知你！"
+                "end_node_id": "TrendingUS",
+                "ack_message": "您好，以下為您送上現在最熱門的美劇"
               },
               {
                 "rule": {
@@ -383,6 +384,18 @@
           "id": "ai.compose.content.third_party.drama",
           "config": {
             "mode": "trending_tw",
+            "count": 10
+          }
+        }
+      },
+      "TrendingUS": {
+        "name": "TrendingUS",
+        "description": "Trending US Drama",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.content.third_party.drama",
+          "config": {
+            "mode": "trending_us",
             "count": 10
           }
         }

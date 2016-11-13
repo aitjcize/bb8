@@ -6,4 +6,4 @@
     Copyright 2016 bb8 Authors
 """
 
-from spiders import DramaSpider
+from spiders import DramaSpider, VmusDramaSpider

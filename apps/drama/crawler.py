@@ -17,7 +17,7 @@ from scrapy.utils.project import get_project_settings
 
 from drama import keywords
 from drama.database import DatabaseManager, Initialize, Drama
-from drama.spiders import DramaSpider
+from drama.spiders import DramaSpider, VmusDramaSpider
 from drama.spiders.config import spider_configs
 
 
@@ -30,6 +30,7 @@ def crawl():
         logger.info('Crawler: started')
         process = CrawlerProcess(get_project_settings())
         process.crawl(DramaSpider, **spider_configs['dramaq'])
+        process.crawl(VmusDramaSpider, **spider_configs['vmus'])
         process.start()
         process.stop()
 

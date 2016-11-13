@@ -21,6 +21,11 @@ def convert_to_arabic_numbers(number_char):
     if not isinstance(number_char, unicode):
         number_char = unicode(number_char, 'utf8')
 
+    try:
+        return int(number_char, base=10)
+    except ValueError:
+        pass
+
     digit = 0
     tmp = 0
     for orig_char in number_char:
