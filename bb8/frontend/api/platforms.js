@@ -19,13 +19,13 @@ const platforms = {
   },
 
   createPlatform(platform) {
-    return fetch('POST', '/api/platforms', platform)
+    return fetch('POST', '/api/platforms', { ...platform, deployed: true })
       .then(response => ({ response: normalize(response, Platform) }))
       .catch(error => ({ error }))
   },
 
   updatePlatform(platformId, platform) {
-    return fetch('PUT', `/api/platforms/${platformId}`, platform)
+    return fetch('PUT', `/api/platforms/${platformId}`, { ...platform, deployed: true })
       .then(response => ({ response: normalize(response, Platform) }))
       .catch(error => ({ error }))
   },

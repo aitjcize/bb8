@@ -10,19 +10,30 @@ import ContentAdd from 'material-ui/svg-icons/content/add'
 import LineLogo from '../assets/line_logo.png'
 import FBLogo from '../assets/facebook_logo.png'
 
-import { getPlatforms, delPlatform } from '../actions'
+import { getPlatforms, updatePlatform, delPlatform } from '../actions'
 import PlatformForm from '../components/PlatformForm'
 
 const DeployStatus = (props) => {
-  const { platform, activeBotId } = props
+  const { platform, activeBotId, dispatchAttachPlatform, dispatchDetachPlatform } = props
   const botId = platform.botId
 
   let statusComponent
 
   if (!botId) {
-    statusComponent = <FlatButton label="Attach" />
+    statusComponent = (
+      <FlatButton
+        label="Attach"
+        onClick={() => dispatchAttachPlatform(activeBotId, platform)}
+      />)
   } else if (botId === activeBotId) {
-    statusComponent = <span className="b-platform-card__status--active"> Active </span>
+    statusComponent = (
+      <div>
+        <span className="b-platform-card__status--active"> Active </span>
+        <FlatButton
+          label="Detach"
+          onClick={() => dispatchDetachPlatform(activeBotId, platform)}
+        />
+      </div>)
   } else {
     statusComponent = <span className="b-platform-card__status--occupied"> Occupied </span>
   }
@@ -33,6 +44,8 @@ const DeployStatus = (props) => {
 }
 
 DeployStatus.propTypes = {
+  dispatchAttachPlatform: React.PropTypes.func,
+  dispatchDetachPlatform: React.PropTypes.func,
   activeBotId: React.PropTypes.number,
   platform: React.PropTypes.shape({}),
 }
@@ -134,6 +147,9 @@ class Platforms extends React.Component {
             return (
               <PlatformCard
                 key={id}
+                activeBotId={this.props.activeBotId}
+                dispatchAttachPlatform={this.props.dispatchAttachPlatform}
+                dispatchDetachPlatform={this.props.dispatchDetachPlatform}
                 handleEdit={() => this.handleOpenDrawer(plat)}
                 handleOpen={() => this.handleOpenDialog(id)}
                 platform={plat}
@@ -176,6 +192,9 @@ class Platforms extends React.Component {
 }
 
 Platforms.propTypes = {
+  activeBotId: React.PropTypes.number,
+  dispatchAttachPlatform: React.PropTypes.func,
+  dispatchDetachPlatform: React.PropTypes.func,
   platformIds: React.PropTypes.arrayOf(React.PropTypes.number),
   platforms: React.PropTypes.objectOf(React.PropTypes.shape({})),
   getPlatforms: React.PropTypes.func,
@@ -192,6 +211,12 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
+  dispatchAttachPlatform(botId, platform) {
+    dispatch(updatePlatform(platform.id, { ...platform, botId }))
+  },
+  dispatchDetachPlatform(botId, platform) {
+    dispatch(updatePlatform(platform.id, { ...platform, botId: null }))
+  },
   getPlatforms() {
     dispatch(getPlatforms())
   },
