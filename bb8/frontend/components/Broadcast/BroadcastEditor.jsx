@@ -9,8 +9,8 @@ import TimePicker from 'material-ui/TimePicker'
 import TextField from 'material-ui/TextField'
 import RaisedButton from 'material-ui/RaisedButton'
 
-import Message from './content_modules/Message'
-import { createBroadcast, updateBroadcast, openNotification } from '../actions'
+import Message from '../content_modules/Message'
+import { createBroadcast, updateBroadcast, openNotification } from '../../actions'
 
 
 function combineDateTime(date, time) {
