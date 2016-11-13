@@ -151,6 +151,7 @@ def render_dramas(dramas):
                 Message.ButtonType.POSTBACK,
                 u'追蹤我', payload=EventPayload('SUBSCRIBE', {
                     'drama_id': d.id,
+                    'drama_country': d.country,
                 }, False)))
 
         b.add_button(Message.Button(
@@ -159,6 +160,7 @@ def render_dramas(dramas):
             payload=EventPayload(
                 'GET_HISTORY', {
                     'drama_id': d.id,
+                    'drama_country': d.country,
                     'from_episode': 0,
                     'backward': True,
                 })))
@@ -221,6 +223,8 @@ def run(content_config, unused_env, variables):
         event = variables['event']
         drama_id = event.value['drama_id']
         Memory.Set('last_query_drama_id', drama_id)
+        Memory.Set('last_query_drama_country',
+                   event.value.get('drama_country'))
         drama_info.subscribe(user_id, drama_id)
 
         episodes = drama_info.get_history(drama_id=drama_id,
@@ -243,6 +247,8 @@ def run(content_config, unused_env, variables):
         event = variables['event']
         drama_id = event.value['drama_id']
         Memory.Set('last_query_drama_id', drama_id)
+        Memory.Set('last_query_drama_country',
+                   event.value.get('drama_country'))
         from_episode = event.value['from_episode']
         backward = event.value['backward']
         episodes = drama_info.get_history(drama_id=drama_id,
