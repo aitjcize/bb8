@@ -1,19 +1,14 @@
 import React from 'react'
 import Moment from 'moment'
 import FlatButton from 'material-ui/FlatButton'
-import IconButton from 'material-ui/IconButton'
 import Divider from 'material-ui/Divider'
 import Paper from 'material-ui/Paper'
 import {
   Card,
   CardActions,
   CardHeader,
-  CardText
 } from 'material-ui/Card'
 import Toggle from 'material-ui/Toggle'
-import ModeEdit from 'material-ui/svg-icons/editor/mode-edit'
-
-import BroadcastEditor from './BroadcastEditor'
 
 const styles = {
   container: {
@@ -108,7 +103,7 @@ class BroadcastItem extends React.Component {
         <div style={styles.infoHeaderGroupRight}>
           <Toggle
             label={true ? 'Scheduled' : 'Set schedule'}
-            defaultToggled={true}
+            defaultToggled
             style={styles.infoHeaderToggle}
             labelStyle={styles.infoHeaderToggleLabel}
           />
@@ -118,7 +113,7 @@ class BroadcastItem extends React.Component {
               textTransform: 'none',
             }}
             label={
-              Moment.unix(broadcast.scheduledTime).calendar(null, {
+              Moment.unix(scheduledTime).calendar(null, {
                 sameElse: 'll',
               })
             }
@@ -149,6 +144,7 @@ class BroadcastItem extends React.Component {
     </Card>)
   }
 
+  // eslint-disable-next-line class-methods-use-this
   renderEditor() {
     return (
       <div style={styles.editorContainer}>
@@ -208,8 +204,11 @@ BroadcastItem.propTypes = {
   handleDelete: React.PropTypes.func,
   handleSend: React.PropTypes.func,
   broadcast: React.PropTypes.shape({
+    // eslint-disable-next-line react/no-unused-prop-types
     name: React.PropTypes.string,
+    // eslint-disable-next-line react/no-unused-prop-types
     status: React.PropTypes.string,
+    // eslint-disable-next-line react/no-unused-prop-types
     scheduledTime: React.PropTypes.number,
   }),
   idx: React.PropTypes.number,

@@ -3,11 +3,10 @@ import React from 'react'
 import { connect } from 'react-redux'
 
 import ContentAdd from 'material-ui/svg-icons/content/add'
-import Dialog from 'material-ui/Dialog'
-import Drawer from 'material-ui/Drawer'
-import FlatButton from 'material-ui/FlatButton'
+// import Dialog from 'material-ui/Dialog'
+// import Drawer from 'material-ui/Drawer'
+// import FlatButton from 'material-ui/FlatButton'
 import FloatingActionButton from 'material-ui/FloatingActionButton'
-import Paper from 'material-ui/Paper'
 import Subheader from 'material-ui/Subheader'
 
 import { BroadcastItem, BroadcastEditor } from '../components/Broadcast'
@@ -113,6 +112,7 @@ class Broadcast extends React.Component {
   }
 
   render() {
+    /*
     const deleteActions = [
       <FlatButton
         label="Cancel"
@@ -140,12 +140,12 @@ class Broadcast extends React.Component {
         onTouchTap={this.handleConfirmSendDialog}
       />,
     ]
-
-    const self = this
+    */
 
     return (
       <div style={styles.container}>
-      {/* 
+        {
+      /*
         <Dialog
           title={`Confirm ${this.state.dialogOpen === DIALOG_STATE.DELETE ? 'Delete' : 'Send'}`}
           actions={this.state.dialogOpen === DIALOG_STATE.DELETE ?
