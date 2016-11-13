@@ -311,24 +311,24 @@ def run(content_config, unused_env, variables):
         if not drama_id:
             return [Message('請先告訴我你要查的劇名')]
 
-        drama_country = Memory.Get('last_query_drama_country')
-        if len(matches) == 4 and drama_country == 'us':
-            if matches[2] is None:
-                s_n = Memory.Get('last_query_season')
-                if s_n is None:
-                    return [Message('請輸入「第X季 第Y集」來查詢哦！')]
-            else:
-                s_n = convert_to_arabic_numbers(matches[2])
-                Memory.Set('last_query_season', s_n)
-
-            # Find that singal episode
-            e_n = convert_to_arabic_numbers(matches[3])
-            serial_number = s_n * 1000 + e_n
-        else:
-            serial_number = convert_to_arabic_numbers(
-                Resolve(content_config['episode'], variables))
-
         try:
+            drama_country = Memory.Get('last_query_drama_country')
+            if len(matches) == 4 and drama_country == 'us':
+                if matches[2] is None:
+                    s_n = Memory.Get('last_query_season')
+                    if s_n is None:
+                        return [Message('請輸入「第X季 第Y集」來查詢哦！')]
+                else:
+                    s_n = convert_to_arabic_numbers(matches[2])
+                    Memory.Set('last_query_season', s_n)
+
+                # Find that singal episode
+                e_n = convert_to_arabic_numbers(matches[3])
+                serial_number = s_n * 1000 + e_n
+            else:
+                serial_number = convert_to_arabic_numbers(
+                    Resolve(content_config['episode'], variables))
+
             episode = drama_info.get_episode(drama_id, serial_number)
         except Exception:
             return [Message('沒有這一集喔')]
