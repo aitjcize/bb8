@@ -238,7 +238,12 @@ class VmusDramaSpider(CrawlSpider):
 
         user_ids = [u.id for u in drama.users]
         if user_ids:
+            patterns = [ur'[簡中英繁/]+字幕', '(?:HD/)?HR-HDTV', '720P',
+                        '1080P', '720P/1080P', 'HD']
+            drama_name = drama.name
+            for pattern in patterns:
+                drama_name = re.sub(pattern, '', drama_name)
             message_service.Push(
                 user_ids,
                 [Message(u'您訂閱的戲劇%s'
-                         u'有新的一集囉！快來看！' % drama.name), msg])
+                         u'有新的一集囉！快來看！' % drama_name), msg])
