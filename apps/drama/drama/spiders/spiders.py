@@ -136,7 +136,7 @@ class DramaSpider(CrawlSpider):
                 assert len(nums) == 2
                 serial_numbers = range(*map(int, nums))
             except Exception:
-                print 'Not supported link %s' % link
+                # Not supported link
                 return
 
         msg = Message()
@@ -216,7 +216,12 @@ class VmusDramaSpider(CrawlSpider):
     def parse_episode(self, variables, response):
         link = response.request.__dict__['_url']
 
-        m = re.search(r'[sS](\d+)[eE](\d+)', link)
+        try:
+            title = response.xpath('//h2/text()').extract()[0]
+        except Exception:
+            return
+
+        m = re.search(r'[sS](\d+)[eE](\d+)', title)
         if m:
             serial_number = 1000 * int(m.groups()[0]) + int(m.groups()[1])
         else:  # not valid episode URL
