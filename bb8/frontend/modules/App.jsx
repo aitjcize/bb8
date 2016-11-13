@@ -1,6 +1,8 @@
 import React from 'react'
 import { connect } from 'react-redux'
 
+import Paper from 'material-ui/Paper'
+
 import { initializeApp } from '../actions'
 import TopBar from '../components/TopBar'
 import SideMenu from '../components/SideMenu'
@@ -10,6 +12,9 @@ const styles = {
   container: {
     display: 'flex',
     height: '100vh',
+    boxShadow: 'none',
+    borderRadius: 0,
+    backgroundColor: 'transparent',
   },
   topBar: {
     flex: 'none',
@@ -38,7 +43,7 @@ class App extends React.Component {
   }
 
   render() {
-    return (<div style={styles.container}>
+    return (<Paper style={styles.container}>
       <Notification />
       <SideMenu style={styles.sideMenu} />
       <div style={styles.row}>
@@ -47,7 +52,7 @@ class App extends React.Component {
           {this.props.children}
         </div>
       </div>
-    </div>)
+    </Paper>)
   }
 }
 
