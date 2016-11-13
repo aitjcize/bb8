@@ -50,6 +50,7 @@ def schema():
                     'unsubscribe',
                     'search',
                     'get_history',
+                    'search_season',
                     'search_episode',
                 ]
             },
@@ -105,6 +106,28 @@ class DramaInfo(object):
                 drama_id=drama_id,
                 serial_number=serial_number
             ), GRPC_TIMEOUT)
+
+
+def append_categories_to_quick_reply(m):
+    m.add_quick_reply(Message.QuickReply(
+        Message.QuickReplyType.TEXT, u'Westworld S01E06'))
+    m.add_quick_reply(Message.QuickReply(
+        Message.QuickReplyType.TEXT, u'月薪嬌妻'))
+    m.add_quick_reply(Message.QuickReply(
+        Message.QuickReplyType.TEXT, u'The K2 第十集'))
+    m.add_quick_reply(Message.QuickReply(
+        Message.QuickReplyType.TEXT, u'熱門美劇'))
+    m.add_quick_reply(Message.QuickReply(
+        Message.QuickReplyType.TEXT, u'熱門韓劇'))
+    m.add_quick_reply(Message.QuickReply(
+        Message.QuickReplyType.TEXT, u'熱門日劇'))
+    m.add_quick_reply(Message.QuickReply(
+        Message.QuickReplyType.TEXT, u'熱門台劇'))
+    m.add_quick_reply(Message.QuickReply(
+        Message.QuickReplyType.TEXT, u'熱門陸劇'))
+    m.add_quick_reply(Message.QuickReply(
+        Message.QuickReplyType.TEXT, u'通知設定'))
+    return [m]
 
 
 def render_dramas(dramas):
@@ -180,18 +203,8 @@ def render_episodes(episodes, variables):
 
     m.add_quick_reply(Message.QuickReply(
         Message.QuickReplyType.TEXT, u'第1集'))
-    m.add_quick_reply(Message.QuickReply(
-        Message.QuickReplyType.TEXT, u'熱門美劇'))
-    m.add_quick_reply(Message.QuickReply(
-        Message.QuickReplyType.TEXT, u'熱門韓劇'))
-    m.add_quick_reply(Message.QuickReply(
-        Message.QuickReplyType.TEXT, u'熱門日劇'))
-    m.add_quick_reply(Message.QuickReply(
-        Message.QuickReplyType.TEXT, u'熱門台劇'))
-    m.add_quick_reply(Message.QuickReply(
-        Message.QuickReplyType.TEXT, u'熱門陸劇'))
-    m.add_quick_reply(Message.QuickReply(
-        Message.QuickReplyType.TEXT, u'通知設定'))
+
+    append_categories_to_quick_reply(m)
 
     return [m]
 
@@ -200,23 +213,6 @@ def run(content_config, unused_env, variables):
     drama_info = DramaInfo()
     n_items = content_config.get('n_items', DEFAULT_N_ITEMS)
     user_id = GetUserId()
-
-    def append_categories_to_quick_reply(m):
-        m.add_quick_reply(Message.QuickReply(
-            Message.QuickReplyType.TEXT, u'月薪嬌妻'))
-        m.add_quick_reply(Message.QuickReply(
-            Message.QuickReplyType.TEXT, u'The K2 第十集'))
-        m.add_quick_reply(Message.QuickReply(
-            Message.QuickReplyType.TEXT, u'熱門韓劇'))
-        m.add_quick_reply(Message.QuickReply(
-            Message.QuickReplyType.TEXT, u'熱門日劇'))
-        m.add_quick_reply(Message.QuickReply(
-            Message.QuickReplyType.TEXT, u'熱門台劇'))
-        m.add_quick_reply(Message.QuickReply(
-            Message.QuickReplyType.TEXT, u'熱門陸劇'))
-        m.add_quick_reply(Message.QuickReply(
-            Message.QuickReplyType.TEXT, u'通知設定'))
-        return [m]
 
     not_found = Message(u'找不到耶！你可以換個關鍵字或試試熱門的類別：')
     append_categories_to_quick_reply(not_found)
@@ -272,6 +268,28 @@ def run(content_config, unused_env, variables):
             return [m]
         return [not_found]
 
+    if content_config['mode'] == 'search_season':
+        matches = variables['matches']
+        if len(matches) == 3:
+            name = matches[1].strip()
+            if name:
+                dramas = drama_info.search(user_id, name, 1)
+                if not dramas:
+                    return [not_found]
+                Memory.Set('last_query_drama_id', dramas[0].id)
+
+        drama_id = Memory.Get('last_query_drama_id')
+        if not drama_id:
+            return [Message('請先告訴我你要查的劇名')]
+
+        s_n = convert_to_arabic_numbers(
+            Resolve(content_config['season'], variables))
+        Memory.Set('last_query_season', s_n)
+        episodes = drama_info.get_history(drama_id=drama_id,
+                                          from_episode=s_n * 1000 + 1,
+                                          backward=False)
+        return render_episodes(episodes, variables)
+
     if content_config['mode'] == 'search_episode':
         matches = variables['matches']
 
@@ -291,7 +309,15 @@ def run(content_config, unused_env, variables):
             return [Message('請先告訴我你要查的劇名')]
 
         if len(matches) == 4:
-            s_n = convert_to_arabic_numbers(matches[2])
+            if matches[2] is None:
+                s_n = Memory.Get('last_query_season')
+                if s_n is None:
+                    return [Message('請輸入「第X季 第Y集」來查詢哦！')]
+            else:
+                s_n = convert_to_arabic_numbers(matches[2])
+                Memory.Set('last_query_season', s_n)
+
+            # Find that singal episode
             e_n = convert_to_arabic_numbers(matches[3])
             serial_number = s_n * 1000 + e_n
         else:

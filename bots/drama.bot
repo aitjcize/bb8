@@ -185,9 +185,17 @@
               {
                 "rule":{
                   "type": "regexp",
-                  "params": ["(.*?)(?:第\\s*(.+?)\\s*季)?\\s*第\\s*(.+?)\\s*集", "(.*)\\s?[sS]\\s*(.+?)\\s*[eE]\\s*(.+)"]
+                  "params": ["(.*?)(?:第\\s*(.+?)\\s*季)?\\s*第\\s*(.+?)\\s*集", "(.*)\\s?[sS]\\s*(\\d+?)\\s*[eE]\\s*(\\d+)"]
                 },
                 "end_node_id": "SearchEpisode",
+                "ack_message": ""
+              },
+              {
+                "rule":{
+                  "type": "regexp",
+                  "params": ["(.*?)第\\s*(.+?)\\s*季", "(.*?)[sS](?:eason)?\\s*(\\d+?)"]
+                },
+                "end_node_id": "SearchSeason",
                 "ack_message": ""
               },
               {
@@ -489,6 +497,18 @@
           "config": {
             "end_node_id": "Root",
             "ack_message": ""
+          }
+        }
+      },
+      "SearchSeason": {
+        "name": "SearchSeason",
+        "description": "Let user can select season",
+        "expect_input": false,
+        "content_module": {
+          "id": "ai.compose.content.third_party.drama",
+          "config": {
+            "mode": "search_season",
+            "season": "{{matches#2,matches#1}}"
           }
         }
       },
