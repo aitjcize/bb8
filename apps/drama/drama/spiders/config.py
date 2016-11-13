@@ -42,7 +42,10 @@ spider_configs = {
             'http://vmus.co/',
         ),
         'rules': (
-            Rule(LinkExtractor(), callback='parse_vmus_drama'),
+            Rule(LinkExtractor(
+                allow=('vmus.co/'),
+                deny=(r'[sS]\d+[eE]\d+'),
+                ), callback='parse_vmus_drama'),
         ),
     }
 }
