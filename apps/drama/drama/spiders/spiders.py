@@ -248,7 +248,9 @@ class VmusDramaSpider(CrawlSpider):
             drama_name = drama.name
             for pattern in patterns:
                 drama_name = re.sub(pattern, '', drama_name)
+            drama_name = drama_name.strip()
+
             message_service.Push(
                 user_ids,
-                [Message(u'您訂閱的戲劇%s'
+                [Message(u'您訂閱的戲劇 %s '
                          u'有新的一集囉！快來看！' % drama_name), msg])
