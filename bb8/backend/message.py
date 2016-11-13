@@ -40,6 +40,7 @@ class UserInput(object):
         self.text = None
         self.sticker = None
         self.location = None
+        self.image = None
         self.event = None
         self.audio = None
         self.jump_node_id = None
@@ -50,6 +51,7 @@ class UserInput(object):
         return (self.text or
                 self.sticker or
                 self.location or
+                self.image or
                 self.event or
                 self.audio)
 
@@ -156,6 +158,8 @@ class UserInput(object):
         for att in attachments:
             if att['type'] == 'location':
                 self.location = att['payload']
+            elif att['type'] == 'image':
+                self.image = att['payload']
             elif att['type'] == 'audio':
                 self.audio = att['payload']
 
