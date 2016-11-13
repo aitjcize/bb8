@@ -7,15 +7,29 @@ import Dialog from 'material-ui/Dialog'
 import Drawer from 'material-ui/Drawer'
 import FlatButton from 'material-ui/FlatButton'
 import FloatingActionButton from 'material-ui/FloatingActionButton'
+import Paper from 'material-ui/Paper'
+import Subheader from 'material-ui/Subheader'
 
-import BroadcastItem from '../components/BroadcastItem'
-import BroadcastEditor from '../components/BroadcastEditor'
+import { BroadcastItem, BroadcastEditor } from '../components/Broadcast'
+
 import { getAllBroadcasts, updateBroadcast, delBroadcast } from '../actions'
 
 const DIALOG_STATE = {
   CLOSE: 0,
   DELETE: 1,
   SEND: 2,
+}
+
+const styles = {
+  container: {
+    padding: '1em',
+  },
+  floatButton: {
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+    margin: '1.5em',
+  },
 }
 
 class Broadcast extends React.Component {
@@ -29,6 +43,7 @@ class Broadcast extends React.Component {
     this.handleConfirmDeleteDialog = this.handleConfirmDeleteDialog.bind(this)
     this.handleConfirmSendDialog = this.handleConfirmSendDialog.bind(this)
     this.handleCloseDialog = this.handleCloseDialog.bind(this)
+    this.renderBroadcastEditor = this.renderBroadcastEditor.bind(this)
 
     this.state = {
       dialogOpen: DIALOG_STATE.CLOSE,
@@ -47,6 +62,8 @@ class Broadcast extends React.Component {
       editorOpen: true,
       editingBroadcast: Object.assign({}, broadcast),
     })
+
+    return this.state.editorOpen
   }
 
   handleCloseEditor() {
@@ -86,6 +103,15 @@ class Broadcast extends React.Component {
     })
   }
 
+  renderBroadcastEditor() {
+    return (
+      <BroadcastEditor
+        broadcast={this.state.editingBroadcast}
+        handleCloseEditor={this.handleCloseEditor}
+      />
+    )
+  }
+
   render() {
     const deleteActions = [
       <FlatButton
@@ -100,6 +126,7 @@ class Broadcast extends React.Component {
         onTouchTap={this.handleConfirmDeleteDialog}
       />,
     ]
+
     const sendActions = [
       <FlatButton
         label="Cancel"
@@ -114,8 +141,11 @@ class Broadcast extends React.Component {
       />,
     ]
 
+    const self = this
+
     return (
-      <div>
+      <div style={styles.container}>
+      {/* 
         <Dialog
           title={`Confirm ${this.state.dialogOpen === DIALOG_STATE.DELETE ? 'Delete' : 'Send'}`}
           actions={this.state.dialogOpen === DIALOG_STATE.DELETE ?
@@ -140,32 +170,51 @@ class Broadcast extends React.Component {
             handleCloseEditor={this.handleCloseEditor}
           />
         </Drawer>
+        */}
         {
-          this.props.futureBroadcasts.map(b =>
+          this.props.futureBroadcasts.map((b, idx) =>
             <BroadcastItem
               key={b.id}
               broadcast={b}
-              handleEdit={() => this.handleOpenEditor(b)}
+              handleEdit={() => {
+                this.setState({
+                  futureBroadcastsExpandedIdx: idx,
+                  pastBroadcastsExpandedIdx: undefined,
+                })
+                this.handleOpenEditor(b)
+              }}
               handleDelete={() => this.handleOpenDeleteDialog(b.id)}
               handleSend={() => this.handleOpenSendDialog(b.id)}
+              expandedIdx={this.state.futureBroadcastsExpandedIdx}
+              idx={idx}
+              lastIdx={this.props.futureBroadcasts.length - 1}
             />
           )
         }
-        <div> this is a line, below is past broadcast </div>
+        <Subheader>History broadcasts</Subheader>
         {
-          this.props.pastBroadcasts.map(b =>
+          this.props.pastBroadcasts.map((b, idx) =>
             <BroadcastItem
               key={b.id}
               broadcast={b}
-              handleEdit={() => this.handleOpenEditor(b)}
+              handleEdit={() => {
+                this.setState({
+                  futureBroadcastsExpandedIdx: undefined,
+                  pastBroadcastsExpandedIdx: idx,
+                })
+                this.handleOpenEditor(b)
+              }}
               handleDelete={() => this.handleOpenDeleteDialog(b.id)}
               handleSend={() => this.handleOpenSendDialog(b.id)}
+              expandedIdx={this.state.pastBroadcastsExpandedIdx}
+              idx={idx}
+              lastIdx={this.props.pastBroadcasts.length - 1}
             />
           )
         }
         <FloatingActionButton
           onClick={() => this.handleOpenEditor({ broadcast: {} })}
-          className="b-add-platform-btn"
+          style={styles.floatButton}
         >
           <ContentAdd />
         </FloatingActionButton>

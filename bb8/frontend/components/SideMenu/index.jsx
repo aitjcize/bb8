@@ -19,6 +19,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
+    borderRadius: 0,
   },
   logoContainer: {
     height: '20vw',
@@ -27,6 +28,9 @@ const styles = {
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  list: {
+    margin: '1em 0',
   },
   logo: {
     width: '6em',
@@ -62,7 +66,7 @@ class SideMenu extends React.Component {
         >
           <ToolbarTitle text="compose.ai" />
         </Toolbar>
-        <List>
+        <List style={styles.list}>
           <ListItem
             onTouchTap={() => hashHistory.push('/dashboard')}
             primaryText="Dashboard"
