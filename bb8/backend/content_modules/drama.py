@@ -130,7 +130,7 @@ def append_categories_to_quick_reply(m):
     return [m]
 
 
-def render_dramas(dramas):
+def render_dramas(dramas, variables):
     """Render cards given a list of dramas"""
     if not len(dramas):
         return Message(u'找不到你要的劇喔！')
@@ -140,7 +140,8 @@ def render_dramas(dramas):
         b = Message.Bubble(d.name,
                            image_url=CacheImage(d.image_url),
                            subtitle=d.description,
-                           item_url=d.link)
+                           item_url=TrackedURL(d.link, 'ItemUrl/Drama'),
+                           variables=variables)
         if d.subscribed:
             b.add_button(Message.Button(
                 Message.ButtonType.POSTBACK,
@@ -187,7 +188,8 @@ def render_episodes(episodes, variables):
         b = Message.Bubble(title,
                            image_url=CacheImage(ep.image_url),
                            subtitle=ep.description,
-                           item_url=ep.link)
+                           item_url=TrackedURL(ep.link, 'ItemUrl/Episode'),
+                           variables=variables)
 
         b.add_button(Message.Button(
             Message.ButtonType.WEB_URL,
@@ -272,7 +274,7 @@ def run(content_config, unused_env, variables):
             if len(dramas) == 1:
                 Memory.Set('last_query_drama_id', dramas[0].id)
                 Memory.Set('last_query_drama_country', dramas[0].country)
-            m = render_dramas(dramas)
+            m = render_dramas(dramas, variables)
             append_categories_to_quick_reply(m)
             return [m]
         return [not_found]
@@ -342,6 +344,7 @@ def run(content_config, unused_env, variables):
             return [Message('沒有這一集喔')]
         return render_episodes([episode], variables)
 
-    m = render_dramas(drama_info.get_trending(user_id, country=country))
+    m = render_dramas(drama_info.get_trending(user_id, country=country),
+                      variables)
     append_categories_to_quick_reply(m)
     return [m]

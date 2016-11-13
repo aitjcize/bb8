@@ -41,7 +41,8 @@ def build_new_episode_bubble(message, drama, episode):
     b = Message.Bubble(title,
                        image_url=image_url,
                        subtitle=drama.description,
-                       item_url=episode.link)
+                       item_url=TrackedURL(episode.link,
+                                           'ItemUrl/PushEpisode'))
 
     b.add_button(
         Message.Button(Message.ButtonType.WEB_URL,
