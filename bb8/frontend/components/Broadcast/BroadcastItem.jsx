@@ -1,6 +1,7 @@
 import React from 'react'
 import Moment from 'moment'
 import FlatButton from 'material-ui/FlatButton'
+import IconButton from 'material-ui/IconButton'
 import Divider from 'material-ui/Divider'
 import Paper from 'material-ui/Paper'
 import {
@@ -51,6 +52,32 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'left',
     padding: '1.5em',
+  },
+  infoHeader: {
+    display: 'flex',
+  },
+  infoHeaderTextStyle: {
+    flex: 1,
+  },
+  infoHeaderGroupRight: {
+    fontSize: '.875em',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+  },
+  infoHeaderToggle: {
+    flex: 'none',
+    width: 'auto',
+    padding: '0 1em',
+  },
+  infoHeaderToggleLabel: {
+  },
+  infoActionsContainer: {
+    display: 'flex',
+    marginTop: '1em',
+  },
+  infoActionsGroup: {
+    flex: 1,
   },
   infoHeader: {
     display: 'flex',
@@ -158,7 +185,6 @@ class BroadcastItem extends React.Component {
 
   render() {
     const {
-      broadcast,
       idx,
       lastIdx,
       expandedIdx,
