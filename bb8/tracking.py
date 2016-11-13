@@ -100,7 +100,7 @@ def send_ga_track_info():
                 u'cid=%s' % ti.cid,
                 u't=%s' % ti.ttype.value,
                 u'dp=%s' % ti.page
-            ] + [u'dr=%s' % ti.ref] if ti.ref else []) + '\n'
+            ] + ([u'dr=%s' % ti.ref] if ti.ref else [])) + '\n'
 
     response = requests.request(
         'POST',
