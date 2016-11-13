@@ -9,6 +9,7 @@ import {
   CardHeader,
 } from 'material-ui/Card'
 import Toggle from 'material-ui/Toggle'
+
 import BroadcastEditor from './BroadcastEditor'
 
 const styles = {
@@ -157,6 +158,7 @@ class BroadcastItem extends React.Component {
 
   render() {
     const {
+      broadcast,
       idx,
       lastIdx,
       expandedIdx,

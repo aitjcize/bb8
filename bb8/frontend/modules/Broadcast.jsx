@@ -142,10 +142,11 @@ class Broadcast extends React.Component {
     ]
     */
 
+    const self = this
+
     return (
       <div style={styles.container}>
-        {
-      /*
+      {/* 
         <Dialog
           title={`Confirm ${this.state.dialogOpen === DIALOG_STATE.DELETE ? 'Delete' : 'Send'}`}
           actions={this.state.dialogOpen === DIALOG_STATE.DELETE ?
