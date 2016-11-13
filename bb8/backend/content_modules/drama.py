@@ -263,6 +263,7 @@ def run(content_config, unused_env, variables):
         if dramas:
             if len(dramas) == 1:
                 Memory.Set('last_query_drama_id', dramas[0].id)
+                Memory.Set('last_query_drama_country', dramas[0].country)
             m = render_dramas(dramas)
             append_categories_to_quick_reply(m)
             return [m]
@@ -277,6 +278,7 @@ def run(content_config, unused_env, variables):
                 if not dramas:
                     return [not_found]
                 Memory.Set('last_query_drama_id', dramas[0].id)
+                Memory.Set('last_query_drama_country', dramas[0].country)
 
         drama_id = Memory.Get('last_query_drama_id')
         if not drama_id:
@@ -303,12 +305,14 @@ def run(content_config, unused_env, variables):
                 if not dramas:
                     return [not_found]
                 Memory.Set('last_query_drama_id', dramas[0].id)
+                Memory.Set('last_query_drama_country', dramas[0].country)
 
         drama_id = Memory.Get('last_query_drama_id')
         if not drama_id:
             return [Message('請先告訴我你要查的劇名')]
 
-        if len(matches) == 4:
+        drama_country = Memory.Get('last_query_drama_country')
+        if len(matches) == 4 and drama_country == 'us':
             if matches[2] is None:
                 s_n = Memory.Get('last_query_season')
                 if s_n is None:

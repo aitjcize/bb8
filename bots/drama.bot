@@ -520,7 +520,7 @@
           "id": "ai.compose.content.third_party.drama",
           "config": {
             "mode": "search_episode",
-            "episode": "{{matches#2,matches#1,text}}"
+            "episode": "{{matches#3,text}}"
           }
         }
       },
