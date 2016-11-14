@@ -73,7 +73,7 @@ def _push_message_from_dict(users, messages_dict, eta=None,
                     'bot_id': bot_id
                 }
                 msgs = [Message.FromDict(m, variables) for m in messages_dict]
-                push_message.apply_async((user, msgs), eta=eta)
+                push_message.apply_async((user, msgs), eta=eta, priority=0)
 
 
 def push_message_from_dict_async(users, messages_dict, eta=None,
@@ -84,7 +84,7 @@ def push_message_from_dict_async(users, messages_dict, eta=None,
         eta: Unix timestamp
     """
     _push_message_from_dict.apply_async((users, messages_dict, eta,
-                                         user_localtime))
+                                         user_localtime), priority=0)
 
 
 @celery.task
@@ -100,7 +100,7 @@ def _broadcast_message(bot, messages):
                 continue
             try:
                 logger.info('Sending message to %s ...' % user)
-                push_message.apply_async((user, messages))
+                push_message.apply_async((user, messages), priority=0)
             except Exception as e:
                 logger.exception(e)
 
@@ -113,4 +113,4 @@ def broadcast_message_async(bot, messages, eta=None):
     """
     if eta:
         eta = datetime.fromtimestamp(eta)
-    _broadcast_message.apply_async((bot, messages), eta=eta)
+    _broadcast_message.apply_async((bot, messages), eta=eta, priority=0)
