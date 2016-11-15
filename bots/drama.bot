@@ -279,7 +279,8 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(關掉|關閉|停止|取消)通知", "unsubscribe"],
+                  "params": ["(關關|關閉|停止|取消)通知", "unsubscribe",
+                             "不要再?傳"],
                   "settings_set": {
                     "key": "subscribe",
                     "value": false
