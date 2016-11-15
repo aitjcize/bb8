@@ -174,6 +174,14 @@ class VmusDramaSpider(CrawlSpider):
         for pattern in [r'\[.*?\]', u'線上看', u'限制級', u'連載中']:
             name = re.sub(pattern, '', name)
 
+        image_url = extract_xpath(
+            response,
+            '//div[@id="wrapper"]/div[@id="wrap"]/'
+            'section[@id="content"]/article/img/@src')
+
+        if not image_url.startswith('http:'):
+            image_url = 'http:' + image_url
+
         return dict(
             name=name[:64],
             description=extract_content(
@@ -181,10 +189,7 @@ class VmusDramaSpider(CrawlSpider):
                 '//div[@id="wrapper"]/div[@id="wrap"]'
                 '/section[@id="content"]/article'
                 '/div[@class="entry clearfix"]/p[1]')[:512],
-            image='http:' + extract_xpath(
-                response,
-                '//div[@id="wrapper"]/div[@id="wrap"]/'
-                'section[@id="content"]/article/img/@src'),
+            image=image_url,
             country=DramaCountryEnum.UNITED_STATES
         )
 
