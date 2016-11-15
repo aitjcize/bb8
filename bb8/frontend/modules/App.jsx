@@ -30,6 +30,7 @@ const styles = {
     position: 'relative',
     display: 'flex',
     flexDirection: 'column',
+    overflow: 'hidden',
   },
   content: {
     overflow: 'scroll',
