@@ -43,6 +43,7 @@ class Broadcast extends React.Component {
     this.handleConfirmSendDialog = this.handleConfirmSendDialog.bind(this)
     this.handleCloseDialog = this.handleCloseDialog.bind(this)
     this.renderBroadcastEditor = this.renderBroadcastEditor.bind(this)
+    this.handleKeyDownEsc = this.handleKeyDownEsc.bind(this)
 
     this.state = {
       dialogOpen: DIALOG_STATE.CLOSE,
@@ -52,8 +53,20 @@ class Broadcast extends React.Component {
     }
   }
 
+
   componentWillMount() {
     this.props.dispatchGetAllBroadcasts(this.props.activeBotId)
+  }
+
+  componentDidMount() {
+    window.addEventListener('keydown', this.handleKeyDownEsc)
+    // window.addEventListener('mousedown', (e) => {
+      // TODO: click empty field to end edit seasons.
+    // })
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.handleKeyDownEsc)
   }
 
   handleOpenEditor(broadcast) {
@@ -63,6 +76,17 @@ class Broadcast extends React.Component {
     })
 
     return this.state.editorOpen
+  }
+
+  handleKeyDownEsc(e) {
+    // TODO: on ESC pressed
+    if (e.which === 27) {
+      this.setState({
+        futureBroadcastsExpandedIdx: undefined,
+        pastBroadcastsExpandedIdx: undefined,
+      })
+      this.handleCloseEditor()
+    }
   }
 
   handleCloseEditor() {
@@ -142,11 +166,9 @@ class Broadcast extends React.Component {
     ]
     */
 
-    const self = this
-
     return (
       <div style={styles.container}>
-      {/* 
+        {/*
         <Dialog
           title={`Confirm ${this.state.dialogOpen === DIALOG_STATE.DELETE ? 'Delete' : 'Send'}`}
           actions={this.state.dialogOpen === DIALOG_STATE.DELETE ?
@@ -192,7 +214,7 @@ class Broadcast extends React.Component {
             />
           )
         }
-        <Subheader>History broadcasts</Subheader>
+        {this.props.pastBroadcasts.length > 0 && <Subheader>History broadcasts</Subheader>}
         {
           this.props.pastBroadcasts.map((b, idx) =>
             <BroadcastItem
