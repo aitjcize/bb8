@@ -1,12 +1,21 @@
 import React from 'react'
 import uniqueId from 'lodash/uniqueId'
 
-import { Card } from 'material-ui/Card'
+// import { Card } from 'material-ui/Card'
 import ContentAdd from 'material-ui/svg-icons/content/add'
-import ActionDelete from 'material-ui/svg-icons/action/delete'
+// import ActionDelete from 'material-ui/svg-icons/action/delete'
 import FloatingActionButton from 'material-ui/FloatingActionButton'
 
 import Bubble from './Bubble'
+import ButtonGroup from './ButtonGroup'
+
+const styles = {
+  bubbleContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+  },
+}
 
 
 class CarouselMessage extends React.Component {
@@ -26,7 +35,6 @@ class CarouselMessage extends React.Component {
     this.maxBubbles = 7
     this.idBub = {}
     this.defaultProps = {
-      editorWidth: '18.75em',
       readOnly: false,
     }
   }
@@ -95,91 +103,75 @@ class CarouselMessage extends React.Component {
     return (
       <div
         style={{
-          maxHeight: '28.125em',
-          minHeight: '22.125em',
-          height: '100%',
-          maxWidth: this.props.maxWidth,
-          overflowX: 'auto',
-          overflowY: 'hidden',
-          whiteSpace: 'nowrap',
+          display: 'flex',
+          overflowX: 'scroll',
         }}
       >
         {
         this.state.bubbleIds.map((id, index) => (
           <div
             key={id}
-            style={{
-              width: this.props.editorWidth,
-              position: 'relative',
-              display: 'inline-block',
-              verticalAlign: 'top',
-              margin: '0.2em',
-              whiteSpace: 'normal',
-            }}
             onMouseEnter={() => { this.setState({ hoverIndex: index }) }}
             onMouseLeave={() => { this.setState({ hoverIndex: undefined }) }}
+            style={styles.bubbleContainer}
           >
             <Bubble
-              editorWidth={this.props.editorWidth}
               readOnly={this.props.readOnly}
               ref={(b) => { this.loadFromJSON(b, id) }}
             />
-            {!this.props.readOnly &&
-             ((index !== 0 || this.state.bubbleIds.length > 1) &&
-             this.state.hoverIndex === index) &&
-             <FloatingActionButton
-               mini
-               secondary
-               onClick={() => { this.onRemoveClicked(id) }}
-               style={{ position: 'absolute', right: '0.625em', top: '0.2em' }}
-             >
-               <ActionDelete />
-             </FloatingActionButton>
-            }
+            {!this.props.readOnly && <ButtonGroup
+              onRemoveClicked={() => { this.onRemoveClicked(id) }}
+            >
+              <div
+                style={{
+                  textAlign: 'right',
+                  padding: '0 .5em',
+                }}
+              >
+                <span
+                  style={{
+                    color: '#B4B4B4',
+                    padding: '0 .5em',
+                  }}
+                >
+                  {`${index + 1}/${this.maxBubbles}`}
+                </span>
+                {index >= 7 && (
+                  <span
+                    style={{
+                      fontSize: '.7em',
+                    }}
+                  >
+                    This card may NOT show up on LINE platform.
+                  </span>
+                )}
+              </div>
+            </ButtonGroup>}
           </div>
         ))
         }
         {!this.props.readOnly && showAddButton &&
-        <Card
+        <div
           style={{
-            width: '5em',
-            height: '100%',
-            minHeight: '18.5em',
-            position: 'relative',
-            display: 'inline-block',
-            verticalAlign: 'top',
-            margin: '0.2em',
           }}
         >
-          <div
-            style={{
-              position: 'absolute',
-              verticalAlign: 'middle',
-              horizontalAlign: 'center',
-              display: 'inline-block',
-              top: 'calc(50% - 1.25em)',
-              left: '1.25em',
-            }}
+          <FloatingActionButton
+            mini
+            secondary
+            onClick={() => { this.onAddClicked() }}
+            style={{ margin: '1em', marginRight: '2.5em' }}
           >
-            <FloatingActionButton
-              mini
-              secondary
-              onClick={() => { this.onAddClicked() }}
-            >
-              <ContentAdd />
-            </FloatingActionButton>
-          </div>
-        </Card>
+            <ContentAdd />
+          </FloatingActionButton>
+        </div>
         }
       </div>
     )
   }
 }
 
-
 CarouselMessage.propTypes = {
-  maxWidth: React.PropTypes.string,
-  editorWidth: React.PropTypes.string.isRequired,
+  // maxWidth: React.PropTypes.string,
   readOnly: React.PropTypes.bool,
 }
 

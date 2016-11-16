@@ -3,16 +3,49 @@ import uniqueId from 'lodash/uniqueId'
 
 import { Card, CardText, CardMedia } from 'material-ui/Card'
 import ActionDelete from 'material-ui/svg-icons/action/delete'
-import ContentLink from 'material-ui/svg-icons/content/link'
-import FileUpload from 'material-ui/svg-icons/file/file-upload'
+// import ContentLink from 'material-ui/svg-icons/content/link'
+// import FileUpload from 'material-ui/svg-icons/file/file-upload'
 import Divider from 'material-ui/Divider'
 import FloatingActionButton from 'material-ui/FloatingActionButton'
 import { ListItem } from 'material-ui/List'
-import Popover from 'material-ui/Popover'
+// import Popover from 'material-ui/Popover'
 import TextField from 'material-ui/TextField'
+import FlatButton from 'material-ui/FlatButton'
 
 import Button from './Button'
 
+import Styles from './Styles'
+
+const styles = {
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    position: 'relative',
+  },
+  cover: {
+    paddingTop: '52.63%', // 1:1.9
+    position: 'relative',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
+    backgroundSize: 'cover',
+  },
+  coverActionContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, .2)',
+    transition: '.24s ease-out',
+  },
+  coverAction: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+}
 
 class Bubble extends React.Component {
 
@@ -28,10 +61,12 @@ class Bubble extends React.Component {
       title: '',
       subtitle: '',
 
-      imageUrl: 'http://i.imgur.com/4loi6PJ.jpg',
-      imageUrlEditorOpen: false,
-      imageUrlEditorError: '',
-      imageUrlEditorAnchorEl: undefined,
+      // imageUrl: 'http://i.imgur.com/4loi6PJ.jpg',
+      imageUrl: null,
+      // imageUrlEditorOpen: false,
+      // imageUrlEditorError: '',
+      // imageUrlEditorAnchorEl: undefined,
+
 
       itemUrl: '',
       itemUrlEditorOpen: false,
@@ -41,6 +76,7 @@ class Bubble extends React.Component {
       buttonIds: [],
 
       hoverIndex: undefined,
+      coverHover: false,
     }
     this.buttons = {}
     this.idBut = {}
@@ -75,15 +111,27 @@ class Bubble extends React.Component {
     }
   }
 
-  validateUrl() {
-    const valid = /^(http|https):\/\/[^ "]+$/.test(this.state.imageUrl)
-    if (!valid) {
-      this.setState({ imageUrlEditorError: 'Invalid URL' })
-      return false
-    }
-    this.setState({ imageUrlEditorError: undefined })
-    return true
+  // validateUrl() {
+    // const valid = /^(http|https):\/\/[^ "]+$/.test(this.state.imageUrl)
+    // if (!valid) {
+      // this.setState({ imageUrlEditorError: 'Invalid URL' })
+      // return false
+    // }
+    // this.setState({ imageUrlEditorError: undefined })
+    // return true
+  // }
+
+  validateUrl(urlInput, validation) {
+    const valid = /^(http|https):\/\/[^ "]+$/.test(urlInput)
+    const stateObj = {}
+
+    stateObj[validation] = (!urlInput || valid) ? undefined : 'Invalid URL'
+
+    this.setState(stateObj)
+
+    return valid
   }
+
 
   valid() {
     if (!this.state.title) {
@@ -128,24 +176,93 @@ class Bubble extends React.Component {
 
   render() {
     const showAddButton = this.state.buttonIds.length < 3
+
     return (
-      <Card style={{ width: this.props.editorWidth }}>
+      <Card
+        style={Styles.card}
+      >
         <CardMedia
-          style={{
-            width: '100%',
-            height: '9.75em',
-            overflow: 'hidden',
-          }}
+          onMouseEnter={() => { this.setState({ coverHover: true }) }}
+          onMouseLeave={() => { this.setState({ coverHover: false }) }}
         >
-          <img
-            alt="cover"
-            src={this.state.imageUrl}
+          <div
             style={{
-              width: this.props.editorWidth,
-              position: 'absolute',
+              ...styles.cover,
+              ...this.state.imageUrl && {
+                backgroundImage: `url(${this.state.imageUrl})`,
+              },
             }}
-          />
+          >
+            <div
+              style={{
+                ...styles.coverActionContainer,
+                ...{ opacity: (this.state.coverHover || !this.state.imageUrl) ? 1 : 0 },
+              }}
+            >
+              <div
+                style={styles.coverAction}
+              >
+                <TextField
+                  hintText={!this.state.imageUrlTextFieldFocused && 'image url'}
+                  inputStyle={{
+                    color: 'white',
+                    textAlign: 'center',
+                  }}
+                  hintStyle={{
+                    color: 'white',
+                    textAlign: 'center',
+                    width: '100%',
+                    textTransform: 'capitalize',
+                  }}
+                  underlineFocusStyle={{
+                    borderColor: 'white',
+                  }}
+                  errorText={this.state.imageUrlEditorError}
+                  value={this.state.imageUrlTextFieldBuffer}
+                  onChange={(e) => {
+                    this.setState({
+                      imageUrlTextFieldBuffer: e.target.value,
+                    })
+                    this.validateUrl(this.state.imageUrlTextFieldBuffer, 'imageUrlEditorError')
+                  }}
+                  onKeyPress={(e) => {
+                    if (e.nativeEvent.which === 13) {
+                      this.setState({
+                        imageUrlTextFieldFocused: false,
+                        imageUrl: this.validateUrl(this.state.imageUrlTextFieldBuffer, 'imageUrlEditorError') ? this.state.imageUrlTextFieldBuffer : undefined,
+                      })
+                      e.target.blur()
+                    }
+                  }}
+                  onFocus={(e) => {
+                    this.setState({
+                      imageUrlTextFieldFocused: true,
+                    })
+                    e.target.select()
+                  }}
+                  onBlur={() => {
+                    this.setState({
+                      imageUrlTextFieldFocused: false,
+                      imageUrl: this.validateUrl(this.state.imageUrlTextFieldBuffer, 'imageUrlEditorError') ? this.state.imageUrlTextFieldBuffer : undefined,
+                    })
+                  }}
+                />
+                {this.state.imageUrl && <FlatButton
+                  label="remove"
+                  labelStyle={{ color: 'white' }}
+                  onClick={() => {
+                    this.setState({
+                      imageUrl: undefined,
+                      imageUrlTextFieldBuffer: '',
+                    })
+                  }}
+                />}
+              </div>
+            </div>
+          </div>
         </CardMedia>
+        {this.state.imageUrl && <Divider />}
+        {/*
         {!this.props.readOnly &&
         <div>
           <FloatingActionButton
@@ -238,6 +355,7 @@ class Bubble extends React.Component {
           </Popover>
         </div>
         }
+        */}
         <CardText>
           <TextField
             hintText="Title"
@@ -249,9 +367,13 @@ class Bubble extends React.Component {
                 this.setState({ title: e.target.value })
               }
             }}
-            style={{ height: '2em' }}
-            hintStyle={{ bottom: '0.25em' }}
-            inputStyle={{ fontWeight: '700' }}
+            style={{
+              height: '2.5em',
+              lineHeight: '2.5em',
+            }}
+            hintStyle={{
+              bottom: 0,
+            }}
           />
           <TextField
             hintText="Subtitle"
@@ -263,16 +385,20 @@ class Bubble extends React.Component {
                 this.setState({ subtitle: e.target.value })
               }
             }}
-            style={{ height: '1.75em' }}
-            hintStyle={{ bottom: '0.125em', fontSize: '80%' }}
-            inputStyle={{ fontSize: '80%', color: 'grey' }}
+            style={{
+              fontSize: '1em',
+              height: '2.5em',
+              lineHeight: '2.5em',
+            }}
+            hintStyle={{
+              bottom: 0,
+            }}
           />
         </CardText>
+        <Divider />
         <CardMedia>
           <div>
-            <Divider />
-            {
-            this.state.buttonIds.map((id, index) => (
+            {this.state.buttonIds.map((id, index) => (
               <div
                 key={id}
                 style={{ position: 'relative' }}
@@ -299,14 +425,11 @@ class Bubble extends React.Component {
                 }
                 <Divider />
               </div>
-            ))
-            }
-            {!this.props.readOnly && showAddButton && (
-            <ListItem
-              primaryText="Add a button"
+            ))}
+            {!this.props.readOnly && showAddButton && <ListItem
+              primaryText="New button"
               onClick={this.onAddClicked}
-            />
-            )}
+            />}
           </div>
         </CardMedia>
       </Card>
@@ -315,7 +438,6 @@ class Bubble extends React.Component {
 }
 
 Bubble.propTypes = {
-  editorWidth: React.PropTypes.string.isRequired,
   readOnly: React.PropTypes.bool,
 }
 
