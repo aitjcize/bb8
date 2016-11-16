@@ -2,12 +2,13 @@ import Moment from 'moment'
 import React from 'react'
 import { connect } from 'react-redux'
 
-import Dialog from 'material-ui/Dialog'
-import FlatButton from 'material-ui/FlatButton'
-import DatePicker from 'material-ui/DatePicker'
-import TimePicker from 'material-ui/TimePicker'
+// import Dialog from 'material-ui/Dialog'
+// import FlatButton from 'material-ui/FlatButton'
+// import DatePicker from 'material-ui/DatePicker'
+// import TimePicker from 'material-ui/TimePicker'
 import TextField from 'material-ui/TextField'
-import RaisedButton from 'material-ui/RaisedButton'
+// import RaisedButton from 'material-ui/RaisedButton'
+import { Card, CardHeader } from 'material-ui/Card'
 
 import Message from '../content_modules/Message'
 import { createBroadcast, updateBroadcast, openNotification } from '../../actions'
@@ -141,81 +142,109 @@ class BroadcastEditor extends React.Component {
   }
 
   render() {
-    const sendActions = [
-      <FlatButton
-        label="Cancel"
-        primary
-        onTouchTap={() => this.setState({ dialogOpen: false })}
-      />,
-      <FlatButton
-        label="Yes"
-        secondary
-        keyboardFocused
-        onTouchTap={this.handleSubmit}
-      />,
-    ]
+    // const sendActions = [
+      // <FlatButton
+        // label="Cancel"
+        // primary
+        // onTouchTap={() => this.setState({ dialogOpen: false })}
+      // />,
+      // <FlatButton
+        // label="Yes"
+        // secondary
+        // keyboardFocused
+        // onTouchTap={this.handleSubmit}
+      // />,
+    // ]
+
     return (
-      <div>
-        <Dialog
-          title="Confirm Send"
-          actions={sendActions}
-          modal={false}
-          open={this.state.dialogOpen}
-          onRequestClose={() => this.setState({ dialogOpen: false })}
-        >
-          { 'Are you sure to send this broadcast message?' }
-        </Dialog>
-        <TextField
-          value={this.state.broadcast.name || ''}
-          hintText="Give this broadcast a name"
-          errorText={this.state.nameError}
-          onChange={this.handleNameChange}
+      <Card>
+        <CardHeader
+          title={
+            <TextField
+              value={this.state.broadcast.name}
+              style={{
+                minWidth: '25vw',
+              }}
+            />
+          }
+          titleStyle={{
+            paddingLeft: '1em',
+          }}
+          subtitle={this.state.broadcast.status}
+          subtitleStyle={{
+            paddingLeft: '1em',
+          }}
         />
         <Message
-          editorWidth="300px"
           maxMessages={5}
           ref={(m) => {
             this.editor = m
           }}
         />
-        { !this.state.scheduling ? null :
-          <div>
-            <DatePicker
-              autoOk
-              hintText="Tell me a date"
-              container="inline"
-              value={this.state.datepickerVal}
-              onChange={this.handleDateChange}
-            />
-            <TimePicker
-              autoOk
-              hintText="Tell me a time"
-              value={this.state.timepickerVal}
-              onChange={this.handleTimeChange}
-            />
-          </div>
-        }
-        <RaisedButton
-          label="Send Now"
-          primary
-          onClick={() => this.setState({ dialogOpen: true })}
-        />
-
-        { this.state.scheduling ?
-          <RaisedButton
-            label="Save"
-            onClick={this.handleSubmit}
-          /> :
-            <RaisedButton
-              label="Schedule"
-              onClick={() => this.setState(prevState => ({
-                ...prevState,
-                scheduling: true,
-              }))}
-            />
-        }
-      </div>
+      </Card>
     )
+    // return (
+      // <div>
+        // <Dialog
+          // title="Confirm Send"
+          // actions={sendActions}
+          // modal={false}
+          // open={this.state.dialogOpen}
+          // onRequestClose={() => this.setState({ dialogOpen: false })}
+        // >
+          // { 'Are you sure to send this broadcast message?' }
+        // </Dialog>
+        // <TextField
+          // value={this.state.broadcast.name || ''}
+          // hintText="Give this broadcast a name"
+          // errorText={this.state.nameError}
+          // onChange={this.handleNameChange}
+        // />
+        // <Message
+          // editorWidth="300px"
+          // maxMessages={5}
+          // ref={(m) => {
+            // this.editor = m
+          // }}
+        // />
+        // { !this.state.scheduling ? null :
+          // <div>
+            // <DatePicker
+              // autoOk
+              // hintText="Tell me a date"
+              // container="inline"
+              // value={this.state.datepickerVal}
+              // onChange={this.handleDateChange}
+            // />
+            // <TimePicker
+              // autoOk
+              // hintText="Tell me a time"
+              // value={this.state.timepickerVal}
+              // onChange={this.handleTimeChange}
+            // />
+          // </div>
+        // }
+        // <RaisedButton
+          // label="Send Now"
+          // primary
+          // onClick={() => this.setState({ dialogOpen: true })}
+        // />
+
+        // { this.state.scheduling ?
+          // <RaisedButton
+            // label="Save"
+            // onClick={this.handleSubmit}
+          // /> :
+            // <RaisedButton
+              // label="Schedule"
+              // onClick={() => this.setState(prevState => ({
+                // ...prevState,
+                // scheduling: true,
+              // }))}
+            // />
+        // }
+      // </div>
+    // )
   }
 }
 

@@ -1,7 +1,6 @@
 import React from 'react'
 import Moment from 'moment'
 import FlatButton from 'material-ui/FlatButton'
-import IconButton from 'material-ui/IconButton'
 import Divider from 'material-ui/Divider'
 import Paper from 'material-ui/Paper'
 import {
@@ -79,51 +78,26 @@ const styles = {
   infoActionsGroup: {
     flex: 1,
   },
-  infoHeader: {
-    display: 'flex',
-  },
-  infoHeaderTextStyle: {
-    flex: 1,
-  },
-  infoHeaderGroupRight: {
-    fontSize: '.875em',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-  },
-  infoHeaderToggle: {
-    flex: 'none',
-    width: 'auto',
-    padding: '0 1em',
-  },
-  infoHeaderToggleLabel: {
-  },
-  infoActionsContainer: {
-    display: 'flex',
-    marginTop: '1em',
-  },
-  infoActionsGroup: {
-    flex: 1,
-  },
 }
 
 class BroadcastItem extends React.Component {
   constructor(props) {
     super(props)
 
-    this.renderNormalCell = this.renderNormalCell.bind(this)
-    this.renderEditor = this.renderEditor.bind(this)
+    this.renderCell = this.renderCell.bind(this)
 
     this.setState({
       expandedIdx: props.expandedIdx,
     })
   }
 
-  renderNormalCell() {
+  renderCell() {
     const { broadcast } = this.props
     const { name, status, scheduledTime } = broadcast
 
-    return (<Card style={styles.infoContainer}>
+    return (<Card
+      style={styles.infoContainer}
+    >
       <CardHeader
         title={name}
         subtitle={status}
@@ -174,21 +148,14 @@ class BroadcastItem extends React.Component {
     </Card>)
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  renderEditor() {
-    return (
-      <div style={styles.editorContainer}>
-        <BroadcastEditor broadcast={this.props.broadcast} />
-      </div>
-    )
-  }
-
   render() {
     const {
       idx,
       lastIdx,
       expandedIdx,
     } = this.props
+
+    // const expandedIdx = 1
 
     const isFirst = idx === 0
     const isLast = idx === lastIdx
@@ -219,7 +186,9 @@ class BroadcastItem extends React.Component {
         zDepth={expanded ? 3 : 1}
       >
         {
-          expanded ? this.renderEditor() : this.renderNormalCell()
+          expanded ? (<BroadcastEditor
+            broadcast={this.props.broadcast}
+          />) : this.renderCell()
         }
         {
           isLast || isPrev || expanded ? null : <Divider />
