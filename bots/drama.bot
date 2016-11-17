@@ -44,7 +44,8 @@
         "name": "Greet",
         "description": "Greet user",
         "expect_input": false,
-        "content_module": {
+        "next_node_id": "Notification",
+        "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
@@ -53,20 +54,14 @@
               }
             ]
           }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.passthrough",
-          "config": {
-            "end_node_id": "Notification",
-            "ack_message": ""
-          }
         }
       },
       "Notification": {
         "name": "Notification",
         "description": "User enable/disable notification",
-        "expect_input": true,
-        "content_module": {
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
@@ -79,35 +74,37 @@
                 "content_type": "text",
                 "title": "好",
                 "payload": {"message": {"text": "subscribe"}},
-                "acceptable_inputs": ["要", "(?i)ok","(?i)yes"]
+                "acceptable_inputs": ["要", "(?i)ok", "(?i)yes"]
               },
               {
                 "content_type": "text",
-                "title": "不用了"
+                "title": "不用了",
+                "payload": {"message": {"text": "nosubscribe"}},
+                "acceptable_inputs": ["不", "否", "非", "(?i)n"]
               }
             ]
-          }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.passthrough",
-          "config": {
-            "end_node_id": "Root",
-            "ack_message": ""
           }
         }
       },
       "Root": {
         "name": "Root",
         "description": "Root node, show usage",
-        "expect_input": true,
-        "content_module": {
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
           "id": "ai.compose.content.third_party.drama",
           "config": {
             "mode": "prompt"
           }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.default",
+        }
+      },
+      "RootRouter": {
+        "name": "RootRouter",
+        "description": "Root node, show usage",
+        "expect_input": true,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.router.core.default",
           "config": {
             "links": [
               {
@@ -268,7 +265,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(開啟|打開)通知", "(?<!un)subscribe"],
+                  "params": ["(開啟|打開)通知", "(?<!un|no)subscribe"],
                   "settings_set": {
                     "key": "subscribe",
                     "value": true
@@ -287,6 +284,20 @@
                   }
                 },
                 "ack_message": "你已關閉通知！"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["放棄設定"]
+                },
+                "ack_message": "好的，已放棄設定"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["nosubscribe"]
+                },
+                "ack_message": "如果之後需要，可以在目錄中的「通知設定」重新打開噢"
               }
             ],
             "on_error": {
@@ -296,148 +307,12 @@
           }
         }
       },
-      "PromptSearchTerm": {
-        "name": "PromptSearchTerm",
-        "description": "search without term, prompt for term",
-        "expect_input": true,
-        "content_module": {
-          "id": "ai.compose.content.core.message",
-          "config": {
-            "messages": [
-              {
-                "text": "你想要找什麼樣的主題呢？"
-              }
-            ]
-          }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.default",
-          "config": {
-            "links": [
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": ["(.*)"],
-                  "collect_as": {"key": "search_term"}
-                },
-                "end_node_id": "SearchDramas",
-                "ack_message": ""
-              }
-            ]
-          }
-        }
-      },
-      "SearchDramas": {
-        "name": "Search",
-        "description": "Search dramas",
-        "expect_input": true,
-        "content_module": {
-          "id": "ai.compose.content.third_party.drama",
-          "config": {
-            "mode": "search",
-            "query_term": "{{matches#1,text}}"
-          }
-        }
-      },
-      "SubscribeDrama": {
-        "name": "SubscribeDrama",
-        "description": "Subscribe drama",
-        "expect_input": false,
-        "content_module": {
-          "id": "ai.compose.content.third_party.drama",
-          "config": {
-            "mode": "subscribe"
-          }
-        }
-      },
-      "UnsubscribeDrama": {
-        "name": "UnsubscribeDrama",
-        "description": "UnsubscribeDrama drama",
-        "expect_input": false,
-        "content_module": {
-          "id": "ai.compose.content.third_party.drama",
-          "config": {
-            "mode": "unsubscribe"
-          }
-        }
-      },
-      "TrendingKR": {
-        "name": "TrendingKR",
-        "description": "Trending Korea Drama",
-        "expect_input": false,
-        "content_module": {
-          "id": "ai.compose.content.third_party.drama",
-          "config": {
-            "mode": "trending_kr",
-            "count": 10
-          }
-        }
-      },
-      "TrendingJP": {
-        "name": "TrendingJP",
-        "description": "Trending Japan Drama",
-        "expect_input": false,
-        "content_module": {
-          "id": "ai.compose.content.third_party.drama",
-          "config": {
-            "mode": "trending_jp",
-            "count": 10
-          }
-        }
-      },
-      "TrendingTW": {
-        "name": "TrendingTW",
-        "description": "Trending Taiwan Drama",
-        "expect_input": false,
-        "content_module": {
-          "id": "ai.compose.content.third_party.drama",
-          "config": {
-            "mode": "trending_tw",
-            "count": 10
-          }
-        }
-      },
-      "TrendingUS": {
-        "name": "TrendingUS",
-        "description": "Trending US Drama",
-        "expect_input": false,
-        "content_module": {
-          "id": "ai.compose.content.third_party.drama",
-          "config": {
-            "mode": "trending_us",
-            "count": 10
-          }
-        }
-      },
-      "TrendingCN": {
-        "name": "TrendingCN",
-        "description": "Trending China Drama",
-        "expect_input": false,
-        "content_module": {
-          "id": "ai.compose.content.third_party.drama",
-          "config": {
-            "mode": "trending_cn",
-            "count": 10
-          }
-        }
-      },
-      "GetHistory": {
-        "name": "GetHistory",
-        "description": "Get History of the Drama",
-        "expect_input": false,
-        "content_module": {
-          "id": "ai.compose.content.third_party.drama",
-          "config": {
-            "mode": "get_history",
-            "count": 10
-          }
-        }
-      },
       "PromptEnableNotification": {
         "name": "PromptEnableNotification",
         "description": "PromptEnableNotification",
-        "expect_input": true,
-        "content_module": {
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
@@ -458,20 +333,14 @@
               }
             ]
           }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.passthrough",
-          "config": {
-            "end_node_id": "Root",
-            "ack_message": ""
-          }
         }
       },
       "PromptDisableNotification": {
         "name": "PromptDisableNotification",
         "description": "PromptDisableNotification",
-        "expect_input": true,
-        "content_module": {
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
@@ -492,12 +361,159 @@
               }
             ]
           }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.passthrough",
+        }
+      },
+      "PromptSearchTerm": {
+        "name": "PromptSearchTerm",
+        "description": "search without term, prompt for term",
+        "expect_input": false,
+        "module": {
+          "id": "ai.compose.content.core.message",
           "config": {
-            "end_node_id": "Root",
-            "ack_message": ""
+            "messages": [
+              {
+                "text": "你想要找什麼樣的主題呢？"
+              }
+            ]
+          }
+        }
+      },
+      "PromptSearchTermRouter": {
+        "name": "PromptSearchTerm",
+        "description": "search without term, prompt for term",
+        "expect_input": true,
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(.*)"],
+                  "collect_as": {"key": "search_term"}
+                },
+                "end_node_id": "SearchDramas",
+                "ack_message": ""
+              }
+            ],
+            "on_error": {
+              "end_node_id": "RootRouter"
+            }
+          }
+        }
+      },
+      "SearchDramas": {
+        "name": "Search",
+        "description": "Search dramas",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.third_party.drama",
+          "config": {
+            "mode": "search",
+            "query_term": "{{matches#1,text}}"
+          }
+        }
+      },
+      "SubscribeDrama": {
+        "name": "SubscribeDrama",
+        "description": "Subscribe drama",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.third_party.drama",
+          "config": {
+            "mode": "subscribe"
+          }
+        }
+      },
+      "UnsubscribeDrama": {
+        "name": "UnsubscribeDrama",
+        "description": "UnsubscribeDrama drama",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.third_party.drama",
+          "config": {
+            "mode": "unsubscribe"
+          }
+        }
+      },
+      "TrendingKR": {
+        "name": "TrendingKR",
+        "description": "Trending Korea Drama",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.third_party.drama",
+          "config": {
+            "mode": "trending_kr",
+            "count": 10
+          }
+        }
+      },
+      "TrendingJP": {
+        "name": "TrendingJP",
+        "description": "Trending Japan Drama",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.third_party.drama",
+          "config": {
+            "mode": "trending_jp",
+            "count": 10
+          }
+        }
+      },
+      "TrendingTW": {
+        "name": "TrendingTW",
+        "description": "Trending Taiwan Drama",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.third_party.drama",
+          "config": {
+            "mode": "trending_tw",
+            "count": 10
+          }
+        }
+      },
+      "TrendingUS": {
+        "name": "TrendingUS",
+        "description": "Trending US Drama",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.third_party.drama",
+          "config": {
+            "mode": "trending_us",
+            "count": 10
+          }
+        }
+      },
+      "TrendingCN": {
+        "name": "TrendingCN",
+        "description": "Trending China Drama",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.third_party.drama",
+          "config": {
+            "mode": "trending_cn",
+            "count": 10
+          }
+        }
+      },
+      "GetHistory": {
+        "name": "GetHistory",
+        "description": "Get History of the Drama",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.third_party.drama",
+          "config": {
+            "mode": "get_history",
+            "count": 10
           }
         }
       },
@@ -505,7 +521,8 @@
         "name": "SearchSeason",
         "description": "Let user can select season",
         "expect_input": false,
-        "content_module": {
+        "next_node_id": "RootRouter",
+        "module": {
           "id": "ai.compose.content.third_party.drama",
           "config": {
             "mode": "search_season",
@@ -517,7 +534,8 @@
         "name": "SearchEpisode",
         "description": "Let user can select episode",
         "expect_input": false,
-        "content_module": {
+        "next_node_id": "RootRouter",
+        "module": {
           "id": "ai.compose.content.third_party.drama",
           "config": {
             "mode": "search_episode",
@@ -529,7 +547,8 @@
         "name": "Thanks",
         "description": "Thank user",
         "expect_input": false,
-        "content_module": {
+        "next_node_id": "RootRouter",
+        "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
@@ -547,7 +566,8 @@
         "name": "About",
         "description": "About",
         "expect_input": false,
-        "content_module": {
+        "next_node_id": "Root",
+        "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": [

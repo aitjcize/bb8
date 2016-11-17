@@ -97,7 +97,7 @@ class UserInput(object):
         if event:
             u.event = PostbackEvent(event)
 
-        u.jump_node_id = payload.get('node_id', 'Root')
+        u.jump_node_id = payload.get('node_id', 'RootRouter')
         return u
 
     @classmethod
@@ -356,43 +356,43 @@ def Render(tmpl, variables):
     return template.Render(tmpl, variables)
 
 
-def TextPayload(text, send_to_current_node=True):
+def TextPayload(text, send_to_next_node=True):
     """Create a text payload representation given text.
 
     Args:
         text: text to send
-        send_to_current_node: whether or not to jump to current node before
-            parsing the payload.
+        send_to_next_node: whether or not to jump to next node of current node
+            before parsing the payload.
     """
     ret = base_message.TextPayload(text)
-    ret['node_id'] = g.node.stable_id if send_to_current_node else None
+    ret['node_id'] = g.node.next_node_id if send_to_next_node else None
     return ret
 
 
-def LocationPayload(coordinate, send_to_current_node=True):
+def LocationPayload(coordinate, send_to_next_node=True):
     """Create a location payload representation given coordinate.
 
     Args:
         coordinate: the tuple containing long and lat
-        send_to_current_node: whether or not to jump to current node before
-            parsing the payload.
+        send_to_next_node: whether or not to jump to next node of current node
+            before parsing the payload.
     """
     ret = base_message.LocationPayload(coordinate)
-    ret['node_id'] = g.node.stable_id if send_to_current_node else None
+    ret['node_id'] = g.node.next_node_id if send_to_next_node else None
     return ret
 
 
-def EventPayload(key, value, send_to_current_node=True):
+def EventPayload(key, value, send_to_next_node=True):
     """Create a event payload representing module events
 
     Args:
         key: the event name
         value: the event value
-        send_to_current_node: whether or not to jump to current node before
-            parsing the payload.
+        send_to_next_node: whether or not to jump to next node of current node
+            before parsing the payload.
     """
     ret = base_message.EventPayload(key, value)
-    ret['node_id'] = g.node.stable_id if send_to_current_node else None
+    ret['node_id'] = g.node.next_node_id if send_to_next_node else None
     return ret
 
 

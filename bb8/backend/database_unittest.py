@@ -19,9 +19,9 @@ from bb8 import app, config
 from bb8.backend.bot_parser import get_bot_filename, parse_bot_from_file
 from bb8.backend.database import DatabaseManager
 from bb8.backend.database import (Account, Bot, CollectedDatum, Conversation,
-                                  ContentModule, Event, Node, ParserModule,
-                                  Platform, PlatformTypeEnum, SenderEnum, User,
-                                  Broadcast, FeedEnum, Feed, PublicFeed,
+                                  Event, Node, Module, Platform,
+                                  ModuleTypeEnum, PlatformTypeEnum, SenderEnum,
+                                  User, Broadcast, FeedEnum, Feed, PublicFeed,
                                   OAuthInfo, OAuthProviderEnum)
 
 from bb8.backend.test_utils import reset_and_setup_bots
@@ -44,11 +44,11 @@ class UserUnittest(unittest.TestCase):
         self.assertNotEquals(User.get_by(id=user.id, single=True), None)
 
         s = User.get_by(id=user.id, single=True)
-        s.session.message_sent = True
+        s.session.input_transformation = 'Test'
         DatabaseManager.commit()
 
         s = User.get_by(id=user.id, single=True)
-        self.assertEquals(s.session.message_sent, True)
+        self.assertEquals(s.session.input_transformation, 'Test')
 
 
 class DatabaseUnittest(unittest.TestCase):
@@ -76,11 +76,9 @@ class DatabaseUnittest(unittest.TestCase):
                   session_timeout=86400).add()
         account.bots.append(bot)
 
-        content = ContentModule(id='test', name='Content1', description='desc',
-                                module_name='', ui_module_name='').add()
-        parser = ParserModule(id='test', name='Parser1', description='desc',
-                              module_name='passthrough', ui_module_name='',
-                              variables={}).add()
+        module = Module(id='test', type=ModuleTypeEnum.Content,
+                        name='Content1', description='desc',
+                        module_name='test', variables=[]).add()
 
         # Test for oauth schema
         oauth1 = OAuthInfo(provider=OAuthProviderEnum.Facebook,
@@ -110,10 +108,7 @@ class DatabaseUnittest(unittest.TestCase):
 
         self.assertNotEquals(Account.get_by(id=account.id, single=True), None)
         self.assertNotEquals(Bot.get_by(id=bot.id, single=True), None)
-        self.assertNotEquals(ContentModule.get_by(id=content.id, single=True),
-                             None)
-        self.assertNotEquals(ParserModule.get_by(id=parser.id, single=True),
-                             None)
+        self.assertNotEquals(Module.get_by(id=module.id, single=True), None)
 
         # Check acccount_bot association table
         self.assertEquals(len(account.bots), 1)
@@ -132,19 +127,13 @@ class DatabaseUnittest(unittest.TestCase):
         self.assertEquals(bot.platforms[0].id, platform.id)
 
         node1 = Node(stable_id='node1', name=u'1', bot_id=bot.id,
-                     expect_input=True, content_module_id=content.id,
-                     content_config={}, parser_module_id=parser.id,
-                     parser_config={}).add()
+                     expect_input=True, module_id=module.id, config={}).add()
 
         node2 = Node(stable_id='node2', name=u'2', bot_id=bot.id,
-                     expect_input=True, content_module_id=content.id,
-                     content_config={}, parser_module_id=parser.id,
-                     parser_config={}).add()
+                     expect_input=True, module_id=module.id, config={}).add()
 
         node3 = Node(stable_id='node3', name=u'3', bot_id=bot.id,
-                     expect_input=True, content_module_id=content.id,
-                     content_config={}, parser_module_id=parser.id,
-                     parser_config={}).add()
+                     expect_input=True, module_id=module.id, config={}).add()
 
         bot.orphan_nodes.append(node3)
 

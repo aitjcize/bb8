@@ -14,22 +14,23 @@ import re
 
 from bb8.backend.module_api import (EventPayload, Message,
                                     Resolve, SupportedPlatform,
-                                    LocationPayload)
-from bb8.backend.content_modules.lib.google_maps import GoogleMapsPlaceAPI
+                                    LocationPayload, ModuleTypeEnum,
+                                    PureContentModule)
+from bb8.backend.modules.lib.google_maps import GoogleMapsPlaceAPI
 
 
 STOP_WORDS = u'(我|在|要|去|的|到)'
 
 
-def get_module_info():
+def properties():
     return {
         'id': 'ai.compose.content.core.geocoding',
+        'type': ModuleTypeEnum.Content,
         'name': 'Geocoding',
         'description': 'Convert an address to a list of possible GPS '
                        'locations which users can select from.',
         'supported_platform': SupportedPlatform.All,
-        'module_name': 'geocoding',
-        'ui_module_name': 'geocoding',
+        'variables': []
     }
 
 
@@ -71,6 +72,7 @@ def schema():
     }
 
 
+@PureContentModule
 def run(content_config, unused_env, variables):
     """
     content_config schema:

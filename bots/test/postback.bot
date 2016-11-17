@@ -12,34 +12,32 @@
     "nodes": {
       "Start": {
         "name": "Start",
-        "description": "Start",
         "expect_input": false,
-        "content_module": {
+        "next_node_id": "Root",
+        "module": {
           "id": "ai.compose.content.test.text_message",
           "config": {
             "text": "In Start"
-          }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.passthrough",
-          "config": {
-            "end_node_id": "Root",
-            "ack_message": "Goto Root"
           }
         }
       },
       "Root": {
         "name": "Root",
-        "description": "Root",
-        "expect_input": true,
-        "content_module": {
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
           "id": "ai.compose.content.test.text_message",
           "config": {
             "text": "In Root"
           }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.default",
+        }
+      },
+      "RootRouter": {
+        "name": "RootRouter",
+        "expect_input": true,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.router.core.default",
           "config": {
             "links": [
               {
@@ -50,22 +48,30 @@
                 "end_node_id": "Postback",
                 "ack_message": "Goto Postback"
               }
-            ]
+            ],
+            "on_error": {
+              "end_node_id": "Root",
+              "ack_message": "Goto Root"
+            }
           }
         }
       },
       "Postback": {
         "name": "Postback",
-        "description": "Show and parse Postback",
-        "expect_input": true,
-        "content_module": {
+        "expect_input": false,
+        "next_node_id": "PostbackRouter",
+        "module": {
           "id": "ai.compose.content.test.postback",
           "config": {
             "text": "In Postback"
           }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.default",
+        }
+      },
+      "PostbackRouter": {
+        "name": "PostbackRouter",
+        "expect_input": true,
+        "module": {
+          "id": "ai.compose.router.core.default",
           "config": {
             "links": [
               {
@@ -86,19 +92,11 @@
       },
       "Show": {
         "name": "Show",
-        "description": "Show response",
-        "expect_input": true,
-        "content_module": {
+        "expect_input": false,
+        "module": {
           "id": "ai.compose.content.test.show_response",
           "config": {
             "response": "{{text}}"
-          }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.passthrough",
-          "config": {
-            "end_node_id": "Root",
-            "ack_message": "Goto Root"
           }
         }
       }

@@ -30,26 +30,28 @@
     User will get a plain text message and a Bubble message with title and
     subtitle.
 """
+
 import json
 import logging
 
 import requests
 
-from bb8.backend.module_api import Message, Render, SupportedPlatform
+from bb8.backend.module_api import (Message, Render, SupportedPlatform,
+                                    ModuleTypeEnum, PureContentModule)
 
 
 _LOG = logging.getLogger(__name__)
 _LOG.setLevel(logging.INFO)
 
 
-def get_module_info():
+def properties():
     return {
         'id': 'ai.compose.content.core.commando',
+        'type': ModuleTypeEnum.Content,
         'name': 'Commando',
         'description': 'Generic Commando module',
         'supported_platform': SupportedPlatform.All,
-        'module_name': 'commando',
-        'ui_module_name': 'commando',
+        'variables': []
     }
 
 
@@ -91,6 +93,7 @@ def FetchData(url, params=[], method='post'):  # pylint: disable=W0102
     return json.loads(resp.text)
 
 
+@PureContentModule
 def run(content_config, unused_env, variables):
     msgs = []  # The output messages.
 

@@ -39,8 +39,9 @@
       "Start": {
         "name": "Start",
         "description": "Great user",
-        "expect_input": true,
-        "content_module": {
+        "expect_input": false,
+        "next_node_id": "StartRouter",
+        "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
@@ -62,9 +63,14 @@
               }
             ]
           }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.default",
+        }
+      },
+      "StartRouter": {
+        "name": "StartRouter",
+        "description": "Parser and router user response",
+        "expect_input": true,
+        "module": {
+          "id": "ai.compose.router.core.default",
           "config": {
             "links": [
               {
@@ -77,21 +83,33 @@
               },
               {
                 "rule": {
+                  "type": "sticker",
+                  "params": ["369239263222822", "369239343222814", "369239383222810"]
+                },
+                "end_node_id": "YoubikeDemoDescription",
+                "ack_message": ""
+              },
+              {
+                "rule": {
                   "type": "regexp",
                   "params": ["不", "(?i)no", ".*", "2"]
                 },
                 "end_node_id": "Root",
                 "ack_message": "Ok! 如果你還需要解說的話，可以再輸入「使用說明」"
               }
-            ]
+            ],
+            "on_error": {
+              "end_node_id": "Root"
+            }
           }
         }
       },
       "YoubikeDemoDescription": {
         "name": "YoubikeDemoDescription",
         "description": "Give context about the demo",
-        "expect_input": true,
-        "content_module": {
+        "expect_input": false,
+        "next_node_id": "YoubikeDemoDescriptionContinue",
+        "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": {
@@ -129,20 +147,14 @@
               }
             ]
           }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.passthrough",
-          "config": {
-            "end_node_id": "YoubikeDemoDescriptionContinue",
-            "ack_message": ""
-          }
         }
       },
       "YoubikeDemoDescriptionContinue": {
         "name": "YoubikeDemoDescriptionContinue",
         "description": "Give context about the demo cont",
-        "expect_input": false,
-        "content_module": {
+        "expect_input": true,
+        "next_node_id": "YoubikeDemo",
+        "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
@@ -151,20 +163,14 @@
               }
             ]
           }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.passthrough",
-          "config": {
-            "end_node_id": "YoubikeDemo",
-            "ack_message": ""
-          }
         }
       },
       "YoubikeDemo": {
         "name": "YoubikeDemo",
         "description": "Demo youbike search result",
         "expect_input": false,
-        "content_module": {
+        "next_node_id": "YoubikeDemoPostDescription",
+        "module": {
           "id": "ai.compose.content.third_party.youbike",
           "config": {
             "api_key": "AIzaSyAJjjE4BnIS-JAlfC1V77QGvb5kCauUVnc",
@@ -179,20 +185,14 @@
             "distance_threshold": 0.050,
             "display_weather": false
           }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.passthrough",
-          "config": {
-            "end_node_id": "YoubikeDemoPostDescription",
-            "ack_message": ""
-          }
         }
       },
       "YoubikeDemoPostDescription": {
         "name": "YoubikeDemoPostDescription",
         "description": "More desc after demo",
         "expect_input": false,
-        "content_module": {
+        "next_node_id": "Root",
+        "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
@@ -201,20 +201,14 @@
               }
             ]
           }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.passthrough",
-          "config": {
-            "end_node_id": "Root",
-            "ack_message": ""
-          }
         }
       },
       "Root": {
         "name": "Root",
         "description": "Root node, show usage",
-        "expect_input": true,
-        "content_module": {
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
@@ -248,9 +242,15 @@
               }
             ]
           }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.default",
+        }
+      },
+      "RootRouter": {
+        "name": "RootRouter",
+        "description": "Root router",
+        "next_node_id": "Root",
+        "expect_input": true,
+        "module": {
+          "id": "ai.compose.router.core.default",
           "config": {
             "links": [
               {
@@ -424,7 +424,8 @@
         "name": "Youbike",
         "description": "Show youbike search result",
         "expect_input": false,
-        "content_module": {
+        "next_node_id": "HintAction",
+        "module": {
           "id": "ai.compose.content.third_party.youbike",
           "config": {
             "api_key": "AIzaSyAJjjE4BnIS-JAlfC1V77QGvb5kCauUVnc",
@@ -434,20 +435,14 @@
             "distance_threshold": 0.050,
             "display_weather": true
           }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.passthrough",
-          "config": {
-            "end_node_id": "HintAction",
-            "ack_message": ""
-          }
         }
       },
       "Geocoding": {
         "name": "Geocoding",
         "description": "Prompt user for correct address",
         "expect_input": false,
-        "content_module": {
+        "next_node_id": "RootRouter",
+        "module": {
           "id": "ai.compose.content.core.geocoding",
           "config": {
             "send_payload_to_current_node": false,
@@ -476,7 +471,8 @@
         "name": "HintAction",
         "description": "Hint user",
         "expect_input": false,
-        "content_module": {
+        "next_node_id": "RootRouter",
+        "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
@@ -516,7 +512,7 @@
         "name": "HintLocation",
         "description": "Hint user about how to send location",
         "expect_input": false,
-        "content_module": {
+        "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": {
@@ -548,20 +544,14 @@
               ]
             }
           }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.passthrough",
-          "config": {
-            "end_node_id": "Root",
-            "ack_message": ""
-          }
         }
       },
       "Thanks": {
         "name": "Thanks",
         "description": "Thank user",
         "expect_input": false,
-        "content_module": {
+        "next_node_id": "RootRouter",
+        "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
@@ -599,8 +589,9 @@
       "Feedback": {
         "name": "Feedback",
         "description": "Feedback without content, guide user to input feedback",
-        "expect_input": true,
-        "content_module": {
+        "expect_input": false,
+        "next_node_id": "FeedbackRouter",
+        "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
@@ -609,9 +600,14 @@
               }
             ]
           }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.default",
+        }
+      },
+      "FeedbackRouter": {
+        "name": "FeedbackRouter",
+        "description": "Feedback router",
+        "expect_input": true,
+        "module": {
+          "id": "ai.compose.router.core.default",
           "config": {
             "links": [
               {
@@ -620,10 +616,13 @@
                   "params": [".*"],
                   "collect_as": {"key": "feedback"}
                 },
-                "end_node_id": "Root",
+                "end_node_id": "RootRouter",
                 "ack_message": "謝謝你的建議，我們會根據你的建議改善的！"
               }
-            ]
+            ],
+            "on_error": {
+              "end_node_id": "Root"
+            }
           }
         }
       }

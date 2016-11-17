@@ -6,17 +6,19 @@
     Copyright 2016 bb8 Authors
 """
 
-from bb8.backend.module_api import Message, Memory, Settings, SupportedPlatform
+from bb8.backend.module_api import (Message, Memory, Settings,
+                                    SupportedPlatform, PureContentModule,
+                                    ModuleTypeEnum)
 
 
-def get_module_info():
+def properties():
     return {
         'id': 'ai.compose.content.test.memory_settings',
+        'type': ModuleTypeEnum.Content,
         'name': 'Memory & Settings',
         'description': 'Test user memory and settings',
         'supported_platform': SupportedPlatform.All,
-        'module_name': 'test.memory_settings',
-        'ui_module_name': 'memory_settings',
+        'variables': [],
     }
 
 
@@ -32,6 +34,7 @@ def schema():
     }
 
 
+@PureContentModule
 def run(content_config, unused_env, unused_variables):
     if content_config['target'] == 'memory':
         target = Memory

@@ -40,6 +40,7 @@
           "type": "object",
           "required": [
             "Root",
+            "RootRouter",
             "Start"
           ],
           "additionalProperties": false,
@@ -53,9 +54,9 @@
   "definitions": {
     "node": {
       "required": [
-        "description",
+        "name",
         "expect_input",
-        "content_module"
+        "module"
       ],
       "type": "object",
       "properties": {
@@ -69,29 +70,22 @@
         "expect_input": {
           "type": "boolean"
         },
-        "content_module": {
+        "next_node_id": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "module": {
           "required": [
-            "config",
-            "id"
+            "id",
+            "config"
           ],
           "type": "object",
           "properties": {
-            "config": {
-              "type": "object"
-            },
             "id": {
               "type": "string"
-            }
-          }
-        },
-        "parser_module": {
-          "type": "object",
-          "properties": {
+            },
             "config": {
               "type": "object"
-            },
-            "id": {
-              "type": "string"
             }
           }
         }

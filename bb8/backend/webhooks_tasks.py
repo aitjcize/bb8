@@ -79,7 +79,7 @@ def facebook_webhook_task():
                             sender, '/', user_input.ref))
 
                     if user_input.valid():
-                        engine.step(bot, user, user_input)
+                        engine.run(bot, user, user_input)
 
     # Don't measure the time of the GA call
     send_ga_track_info()
@@ -113,7 +113,7 @@ def line_webhook_task(provider_ident):
             if user_input.valid():
                 g.line_reply_token = entry['replyToken']
                 g.line_messages = []
-                engine.step(bot, user, user_input)
+                engine.run(bot, user, user_input)
                 line.flush_message(platform)
 
     # Don't measure the time of the GA call

@@ -10,21 +10,22 @@ import json
 import urllib
 import urllib2
 
-from bb8.backend.module_api import (Message, Resolve,
-                                    SupportedPlatform, TextPayload)
+from bb8.backend.module_api import (Message, Resolve, ModuleTypeEnum,
+                                    SupportedPlatform, TextPayload,
+                                    PureContentModule)
 
 
 DEFAULT_TIMEOUT_SECS = 5
 
 
-def get_module_info():
+def properties():
     return {
         'id': 'ai.compose.content.core.listing',
+        'type': ModuleTypeEnum.Content,
         'name': 'Listing',
         'description': 'List website elements as cards',
         'supported_platform': SupportedPlatform.All,
-        'module_name': 'listing',
-        'ui_module_name': 'listing',
+        'variables': []
     }
 
 
@@ -62,6 +63,7 @@ def schema():
     }
 
 
+@PureContentModule
 def run(content_config, unused_env, variables):
     """
     content_config schema:

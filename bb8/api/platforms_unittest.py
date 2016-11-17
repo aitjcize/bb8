@@ -17,7 +17,7 @@ from bb8.api.test_utils import BearerAuthTestClient
 from bb8.constant import HTTPStatus, CustomError
 from bb8.backend.platform_parser import get_platform_filename, parse_platform
 from bb8.backend.database import DatabaseManager, Account
-from bb8.backend.modules import register_all_modules
+from bb8.backend.modules import register_all
 
 
 class PlatformAPIUnittest(unittest.TestCase):
@@ -69,7 +69,7 @@ class PlatformAPIUnittest(unittest.TestCase):
         self.platform_ids.append(data['id'])
 
     def setup_prerequisite(self):
-        register_all_modules()
+        register_all()
 
         self.account1 = Account(
             name=u'test',

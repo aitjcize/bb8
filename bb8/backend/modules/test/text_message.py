@@ -6,17 +6,18 @@
     Copyright 2016 bb8 Authors
 """
 
-from bb8.backend.module_api import Message, SupportedPlatform
+from bb8.backend.module_api import (Message, SupportedPlatform,
+                                    PureContentModule, ModuleTypeEnum)
 
 
-def get_module_info():
+def properties():
     return {
         'id': 'ai.compose.content.test.text_message',
+        'type': ModuleTypeEnum.Content,
         'name': 'Text message',
         'description': 'Show text-only message',
         'supported_platform': SupportedPlatform.All,
-        'module_name': 'test.text_message',
-        'ui_module_name': 'text_message',
+        'variables': [],
     }
 
 
@@ -58,6 +59,7 @@ def schema():
     }
 
 
+@PureContentModule
 def run(content_config, env, variables):
     """
     content_config schema:

@@ -29,7 +29,8 @@
         "name": "Greet",
         "description": "Great user",
         "expect_input": false,
-        "content_module": {
+        "next_node_id": "Root",
+        "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
@@ -113,8 +114,9 @@
       "Root": {
         "name": "BotOp",
         "description": "Main bot operation node",
-        "expect_input": true,
-        "content_module": {
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
           "id": "ai.compose.content.core.composeai",
           "config": {
             "bot_admins": {
@@ -125,9 +127,15 @@
               "1151173601634814": [7]
             }
           }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.composeai",
+        }
+      },
+      "RootRouter": {
+        "name": "RootRouter",
+        "description": "Main bot operation node",
+        "expect_input": true,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.router.core.composeai",
           "config": {
             "done": "Root"
           }

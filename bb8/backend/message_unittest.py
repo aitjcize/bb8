@@ -24,7 +24,7 @@ from bb8.backend.test_utils import BaseTestMixin
 class MockNode(object):
     def __init__(self, _id):
         self.id = _id  # pylint: disable=W0622
-        self.stable_id = str(_id)
+        self.next_node_id = str(_id)
 
 
 class MessageUnittest(unittest.TestCase, BaseTestMixin):

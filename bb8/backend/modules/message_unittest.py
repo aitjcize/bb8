@@ -9,7 +9,7 @@
 
 import unittest
 
-from bb8.backend.content_modules import message
+from bb8.backend.modules import message
 from bb8.backend.module_api import SupportedPlatform
 
 
@@ -44,13 +44,14 @@ class GenericMessageUnittest(unittest.TestCase):
 
     def test_run_independent(self):
         # Test Platform independent
-        content_config = {
+        config = {
             'messages': self.messages
         }
         env = {
             'platform_type': SupportedPlatform.Facebook
         }
-        msgs = message.run(content_config, env, {})
+        result = message.run(config, env, {})
+        msgs = result.messages  # pylint: disable=E1101
         self.assertEquals(msgs[0].as_dict()['text'], 'text')
         payload = msgs[1].as_dict()['attachment']['payload']
         self.assertEquals(payload['text'], 'A')
@@ -58,7 +59,7 @@ class GenericMessageUnittest(unittest.TestCase):
 
     def test_run_dependent(self):
         # Test Platform independent
-        content_config = {
+        config = {
             'messages': {
                 'Facebook': self.messages,
                 'Line': self.messages
@@ -67,7 +68,8 @@ class GenericMessageUnittest(unittest.TestCase):
         env = {
             'platform_type': SupportedPlatform.Line
         }
-        msgs = message.run(content_config, env, {})
+        result = message.run(config, env, {})
+        msgs = result.messages  # pylint: disable=E1101
         self.assertEquals(msgs[0].as_dict()['text'], 'text')
         payload = msgs[1].as_dict()['attachment']['payload']
         self.assertEquals(payload['text'], 'A')

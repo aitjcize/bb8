@@ -3,8 +3,8 @@
     "Facebook": "bb8.test.platform"
   },
   "bot": {
-    "name": "postback",
-    "description": "test postback",
+    "name": "input_transformation",
+    "description": "test input_transformation",
     "interaction_timeout": 120,
     "admin_interaction_timeout": -1,
     "session_timeout": 864000,
@@ -12,46 +12,56 @@
     "nodes": {
       "Start": {
         "name": "Start",
-        "description": "Start",
         "expect_input": false,
-        "content_module": {
+        "next_node_id": "Root",
+        "module": {
           "id": "ai.compose.content.test.text_message",
           "config": {
             "text": "In Start"
-          }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.passthrough",
-          "config": {
-            "end_node_id": "Root",
-            "ack_message": "Goto Root"
           }
         }
       },
       "Root": {
         "name": "Root",
-        "description": "Root",
-        "expect_input": true,
-        "content_module": {
-          "id": "ai.compose.content.core.selection",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
           "config": {
-            "text": "question",
-            "choices": [
+            "messages": [
               {
-                "title": "option 1",
-                "payload": "payload1",
-                "acceptable_inputs": ["^A$", "^B$", "^C$"]
-              },
-              {
-                "title": "option 2",
-                "payload": "payload2",
-                "acceptable_inputs": ["^D$", "^E$", "^F$"]
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "question",
+                    "buttons": [
+                      {
+                        "type": "postback",
+                        "title": "option 1",
+                        "payload": "payload1",
+                        "acceptable_inputs": ["^A$", "^B$", "^C$"]
+                      },
+                      {
+                        "type": "postback",
+                        "title": "option 2",
+                        "payload": "payload2",
+                        "acceptable_inputs": ["^D$", "^E$", "^F$"]
+                      }
+                    ]
+                  }
+                }
               }
             ]
           }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.default",
+        }
+      },
+      "RootRouter": {
+        "name": "RootRouter",
+        "expect_input": true,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.router.core.default",
           "config": {
             "links": [
               {
@@ -70,43 +80,30 @@
                 "end_node_id": "Option2",
                 "ack_message": "Goto Option2"
               }
-            ]
+            ],
+            "on_error": {
+              "end_node_id": "Root"
+            }
           }
         }
       },
       "Option1": {
         "name": "Option1",
-        "description": "Option1",
-        "expect_input": true,
-        "content_module": {
+        "expect_input": false,
+        "module": {
           "id": "ai.compose.content.test.show_response",
           "config": {
             "response": "{{text}}"
-          }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.passthrough",
-          "config": {
-            "end_node_id": "Root",
-            "ack_message": "Goto Root"
           }
         }
       },
       "Option2": {
         "name": "Option2",
-        "description": "Option2",
-        "expect_input": true,
-        "content_module": {
+        "expect_input": false,
+        "module": {
           "id": "ai.compose.content.test.show_response",
           "config": {
             "response": "{{text}}"
-          }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.passthrough",
-          "config": {
-            "end_node_id": "Root",
-            "ack_message": "Goto Root"
           }
         }
       }

@@ -9,7 +9,7 @@
 
 import unittest
 
-from bb8.backend.content_modules.lib.numbers_parsing_utils import (
+from bb8.backend.modules.lib.numbers_parsing_utils import (
     convert_to_arabic_numbers)
 
 

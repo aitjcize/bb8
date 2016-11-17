@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    Passthrough module
-    ~~~~~~~~~~~~~~~~~~
+    Compose.ai Root Router
+    ~~~~~~~~~~~~~~~~~~~~~~
 
     Pass through next node without any action.
 
@@ -10,18 +10,18 @@
 
 from bb8.backend.database import Bot
 
-from bb8.backend.module_api import (BroadcastMessage, ParseResult,
-                                    SupportedPlatform, Message, Memory)
+from bb8.backend.module_api import (BroadcastMessage, RouteResult,
+                                    SupportedPlatform, Message, Memory,
+                                    ModuleTypeEnum)
 
 
-def get_module_info():
+def properties():
     return {
-        'id': 'ai.compose.parser.core.composeai',
+        'id': 'ai.compose.router.core.composeai',
         'name': 'Composeai',
+        'type': ModuleTypeEnum.Router,
         'description': 'Compose.ai bot parser',
         'supported_platform': SupportedPlatform.All,
-        'module_name': 'composeai',
-        'ui_module_name': 'composeai',
         'variables': [],
     }
 
@@ -50,14 +50,14 @@ def run(parser_config, user_input, unused_as_root):
     if user_input.text:
         if u'重設' in user_input.text or 'reset' in user_input.text.lower():
             Memory.Clear()
-            return ParseResult(ack_message=u'讓我們重新開始吧!')
+            return RouteResult(ack_message=u'讓我們重新開始吧!')
 
     if user_input.event:
         event = user_input.event
         if event.key == 'CONTROL_FLOW':
             if event.value == 'reset':
                 Memory.Clear()
-                return ParseResult(parser_config['done'],
+                return RouteResult(parser_config['done'],
                                    ack_message=u'放棄操作')
         elif event.key == 'SELECT_BOT':
             Memory.Set('bot', event.value)
@@ -73,13 +73,13 @@ def run(parser_config, user_input, unused_as_root):
             if event.value:
                 bot = Bot.get_by(id=Memory.Get('bot'), single=True)
                 if not bot:
-                    return ParseResult(ack_message=u'發生錯誤，找不到對應的'
+                    return RouteResult(ack_message=u'發生錯誤，找不到對應的'
                                                    u'機器人')
                 msgs = [Message.FromDict(raw_msg)
                         for raw_msg in Memory.Get('broadcast_message')]
                 BroadcastMessage(bot, msgs)
                 Memory.Clear()
-                return ParseResult(parser_config['done'],
+                return RouteResult(parser_config['done'],
                                    ack_message=u'您的訊息已送出!')
             else:
                 Memory.Set('broadcast_message', None)
@@ -90,7 +90,7 @@ def run(parser_config, user_input, unused_as_root):
         broadcast_message.append(user_input.raw_message)
         Memory.Set('broadcast_message', broadcast_message)
 
-    return ParseResult(skip_content_module=False)
+    return RouteResult()
 
 
 def get_linkages(parser_config):
