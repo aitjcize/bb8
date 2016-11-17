@@ -44,11 +44,11 @@ class UserUnittest(unittest.TestCase):
         self.assertNotEquals(User.get_by(id=user.id, single=True), None)
 
         s = User.get_by(id=user.id, single=True)
-        s.session.message_sent = True
+        s.session.input_transformation = 'Test'
         DatabaseManager.commit()
 
         s = User.get_by(id=user.id, single=True)
-        self.assertEquals(s.session.message_sent, True)
+        self.assertEquals(s.session.input_transformation, 'Test')
 
 
 class DatabaseUnittest(unittest.TestCase):

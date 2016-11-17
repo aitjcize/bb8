@@ -14,24 +14,14 @@ from sqlalchemy.ext.mutable import Mutable
 class SessionRecord(Mutable):
     def __init__(self, node_id):
         self._node_id = node_id
-        self._message_sent = False
         self._input_transformation = []
 
     def __repr__(self):
-        return '<SessionRecord(%s, %s)>' % (self._node_id, self._message_sent)
+        return '<SessionRecord(%s)>' % (self._node_id)
 
     @property
     def node_id(self):
         return self._node_id
-
-    @property
-    def message_sent(self):
-        return self._message_sent
-
-    @message_sent.setter
-    def message_sent(self, value):
-        self._message_sent = value
-        self.changed()
 
     @property
     def input_transformation(self):
@@ -52,11 +42,10 @@ class SessionRecord(Mutable):
             return value
 
     def __getstate__(self):
-        return self._node_id, self._message_sent, self._input_transformation
+        return self._node_id, self._input_transformation
 
     def __setstate__(self, state):
         (self._node_id,
-         self._message_sent,
          self._input_transformation) = state
 
 
