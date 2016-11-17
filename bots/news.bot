@@ -220,7 +220,6 @@
                     "value": true
                   }
                 },
-                "end_node_id": "Root",
                 "ack_message": "好的，之後會不定時通知您新聞哦！"
               },
               {
@@ -232,7 +231,6 @@
                     "value": false
                   }
                 },
-                "end_node_id": "Root",
                 "ack_message": "你已取消訂閱！"
               },
               {
@@ -337,6 +335,7 @@
         "name": "Get by source",
         "description": "Get content by source name",
         "expect_input": true,
+        "next_node_id": "RootRouter",
         "module": {
           "id": "ai.compose.content.core.content",
           "config": {
@@ -348,7 +347,8 @@
       "SearchNews": {
         "name": "Search",
         "description": "Search node, search news",
-        "expect_input": true,
+        "expect_input": false,
+        "next_node_id": "RootRouter",
         "module": {
           "id": "ai.compose.content.core.content",
           "config": {
@@ -361,7 +361,7 @@
         "name": "Trending",
         "description": "Provide some trending news",
         "expect_input": false,
-        "next_node_id": "Root",
+        "next_node_id": "RootRouter",
         "module": {
           "id": "ai.compose.content.core.content",
           "config": {
@@ -374,7 +374,7 @@
         "name": "Get Content",
         "description": "Get news detail content",
         "expect_input": false,
-        "next_node_id": "Root",
+        "next_node_id": "RootRouter",
         "module": {
           "id": "ai.compose.content.core.content",
           "config": {
@@ -388,7 +388,7 @@
         "name": "Recommend some news",
         "description": "Provide some recommended news",
         "expect_input": false,
-        "next_node_id": "Root",
+        "next_node_id": "RootRouter",
         "module": {
           "id": "ai.compose.content.core.content",
           "config": {
