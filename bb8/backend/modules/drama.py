@@ -9,12 +9,13 @@
 
 import grpc
 
-from bb8.backend.content_modules.lib.numbers_parsing_utils import (
+from bb8.backend.modules.lib.numbers_parsing_utils import (
     convert_to_arabic_numbers)
 from bb8.backend.module_api import (CacheImage, Message, EventPayload,
                                     GetgRPCService, GetUserId,
                                     SupportedPlatform, Resolve, Memory,
-                                    TrackedURL)
+                                    TrackedURL, ModuleTypeEnum,
+                                    PureContentModule)
 
 
 GRPC_TIMEOUT = 5
@@ -22,14 +23,14 @@ MAX_KEYWORDS = 7
 DEFAULT_N_ITEMS = 7
 
 
-def get_module_info():
+def properties():
     return {
         'id': 'ai.compose.content.third_party.drama',
+        'type': ModuleTypeEnum.Content,
         'name': 'drama',
         'description': 'Drama service',
         'supported_platform': SupportedPlatform.All,
-        'module_name': 'drama',
-        'ui_module_name': 'drama',
+        'variables': []
     }
 
 
@@ -177,11 +178,13 @@ def render_episodes(episodes, variables):
         return [Message(u'沒有更多的集數可以看囉 :(')]
 
     m = Message()
+    drama_country = None
     for ep in episodes:
         if ep.serial_number > 1000 and ep.serial_number < 20000:
             s_n = ep.serial_number / 1000
             e_n = ep.serial_number % 1000
             title = u'S%02dE%02d ' % (s_n, e_n) + ep.drama_name
+            drama_country = 'us'
         else:
             title = ep.drama_name + u' 第 %d 集' % ep.serial_number
 
@@ -202,6 +205,7 @@ def render_episodes(episodes, variables):
             payload=EventPayload(
                 'GET_HISTORY', {
                     'drama_id': ep.drama_id,
+                    'drama_country': drama_country,
                     'from_episode': ep.serial_number,
                     'backward': True,
                 })))
@@ -215,6 +219,7 @@ def render_episodes(episodes, variables):
     return [m]
 
 
+@PureContentModule
 def run(content_config, unused_env, variables):
     drama_info = DramaInfo()
     n_items = content_config.get('n_items', DEFAULT_N_ITEMS)

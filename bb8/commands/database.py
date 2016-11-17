@@ -19,7 +19,7 @@ class ResetCommand(Command):
     def run(self):  # pylint: disable=E0202
         with DatabaseSession():
             DatabaseManager.reset()
-            modules.register_all_modules()
+            modules.register_all()
             platform_parser.build_all_platforms()
             bot_parser.build_all_bots()
 
@@ -29,7 +29,7 @@ class ResetForDevCommand(Command):
     def run(self):  # pylint: disable=E0202
         with DatabaseSession():
             DatabaseManager.reset()
-            modules.register_all_modules()
+            modules.register_all()
             platform_parser.build_all_platforms(include_dev=True)
             bot_parser.build_all_bots()
 
@@ -38,7 +38,7 @@ class RegisterModulesCommand(Command):
     """Register all bot modules"""
     def run(self):  # pylint: disable=E0202
         with DatabaseSession():
-            modules.register_all_modules()
+            modules.register_all()
 
 
 class GeneratePlatformsCommand(Command):

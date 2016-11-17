@@ -55,44 +55,34 @@ class SessionRecord(Mutable):
         return self._node_id, self._message_sent, self._input_transformation
 
     def __setstate__(self, state):
-        try:
-            (self._node_id,
-             self._message_sent,
-             self._input_transformation) = state
-        except ValueError:
-            # Temporarily workaround: We added input_transformation on
-            # 2016/07/02. Need to handle the case where the previous user
-            # session does not have input_transformation
-            self._node_id, self._message_sent = state
-            self._input_transformation = []
+        (self._node_id,
+         self._message_sent,
+         self._input_transformation) = state
 
 
-class ParseResult(object):
-    """A result object parser modules needs to return.
+class ModuleResult(object):
+    def __init__(self, messages=None, variables=None):
+        self.messages = messages or []
+        self.variables = variables or {}
+
+
+class RouteResult(object):
+    """A result object router modules needs to return.
     """
     def __init__(self, end_node_id=None, ack_message=None, variables=None,
-                 collected_datum=None, errored=False,
-                 skip_content_module=True):
+                 errored=False):
         """Constructor.
 
         Args:
             end_node_id: end_node stable_id.
             ack_message: ack message that we want to reply immediately.
             variables: parsed action variable.
-            collected_datum: data that the parser wants to collect.
-            errored: whether or that there was a parser error.
-            skip_content_module: skip running content module if the current
-                node is executed immediately.
+            errored: whether or that there was an error.
         """
         self.end_node_id = end_node_id
         self.ack_message = ack_message
         self.variables = variables or {}
-        self.collected_datum = collected_datum or {}
         self.errored = errored
-        self.skip_content_module = skip_content_module
-
-    def collect(self, key, value):
-        self.collected_datum[key] = value
 
     @property
     def matched(self):

@@ -16,8 +16,9 @@ from flask import g
 from bb8 import app
 from bb8.backend.database import DatabaseManager
 from bb8.backend.message import UserInput
-from bb8.backend.parser_modules import default
+from bb8.backend.modules import default
 from bb8.backend.test_utils import BaseTestMixin
+from bb8.backend.module_api import CollectedData
 
 
 class DefaultUnittest(unittest.TestCase, BaseTestMixin):
@@ -89,7 +90,7 @@ class DefaultUnittest(unittest.TestCase, BaseTestMixin):
         self.assertEquals(result.errored, False)
         self.assertEquals(result.variables['text'], 'action1-0')
         self.assertEquals(result.variables['matches'], ['action1-0', '0'])
-        self.assertEquals(result.collected_datum['action'], 'action1-0')
+        self.assertEquals(CollectedData.GetLast('action'), 'action1-0')
         self.assertEquals(self.user_1.memory['action'], 'action1-0')
         self.assertEquals(self.user_1.settings['action'], 'action1-0')
 
@@ -106,7 +107,7 @@ class DefaultUnittest(unittest.TestCase, BaseTestMixin):
         self.assertEquals(result.errored, False)
         self.assertEquals(result.variables['text'], u'中文')
         self.assertEquals(result.variables['matches'], [u'中文', u'文'])
-        self.assertEquals(result.collected_datum['group'], u'文')
+        self.assertEquals(CollectedData.GetLast('group'), u'文')
         self.assertEquals(self.user_1.memory['group'], u'文')
         self.assertEquals(self.user_1.settings['group'], u'文')
 
@@ -120,7 +121,7 @@ class DefaultUnittest(unittest.TestCase, BaseTestMixin):
         result = default.run(config, loc, False)
         self.assertEquals(result.end_node_id, 'Node3')
         self.assertEquals(result.errored, False)
-        self.assertEquals(result.collected_datum['location'], loc.location)
+        self.assertEquals(CollectedData.GetLast('location'), loc.location)
         self.assertEquals(self.user_1.memory['location'], loc.location)
         self.assertEquals(self.user_1.settings['location'], loc.location)
 
@@ -132,7 +133,7 @@ class DefaultUnittest(unittest.TestCase, BaseTestMixin):
         self.assertEquals(result.end_node_id, 'Root')
         self.assertEquals(result.ack_message, 'on_error')
         self.assertEquals(result.errored, True)
-        self.assertEquals(result.collected_datum['error'], 'XXXXXX')
+        self.assertEquals(CollectedData.GetLast('error'), 'XXXXXX')
 
         result = default.run(config, UserInput.Text('XXXXXX'), True)
         self.assertEquals(result.errored, True)

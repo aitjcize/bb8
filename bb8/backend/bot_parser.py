@@ -19,8 +19,8 @@ import bb8
 from bb8 import config, logger
 from bb8 import util
 from bb8.backend.messaging import get_messaging_provider
-from bb8.backend.database import (DatabaseManager, Bot, ContentModule, Node,
-                                  Platform)
+from bb8.backend.database import (DatabaseManager, Bot, Module, Node, Platform,
+                                  ModuleTypeEnum)
 
 
 HAS_VARIABLE_RE = re.compile('{{(.*?)}}')
@@ -112,46 +112,39 @@ def parse_bot(bot_json, to_bot_id=None, source='bot_json'):
     # Build node
     for stable_id, node in nodes.iteritems():
         try:
-            cm = ContentModule.get_by(id=node['content_module']['id'],
-                                      single=True)
-            if cm is None:
-                raise RuntimeError('Content_module `%d\' does not exist',
-                                   node['content_module']['id'])
-            jsonschema.validate(node['content_module']['config'],
-                                cm.get_module().schema())
+            m = Module.get_by(id=node['module']['id'], single=True)
+            if m is None:
+                raise RuntimeError('Module `%s\' does not exist' %
+                                   node['module']['id'])
+            jsonschema.validate(node['module']['config'],
+                                m.get_python_module().schema())
         except jsonschema.exceptions.ValidationError:
-            logger.error('Node `%s\' content module config validation '
+            logger.error('Node `%s\' module config validation '
                          'failed', stable_id)
             raise
 
         n = Node(stable_id=stable_id, bot_id=bot.id,
                  name=unicode(node['name']),
-                 description=unicode(node['description']),
+                 description=unicode(node.get('description', '')),
                  expect_input=node['expect_input'],
-                 content_module_id=node['content_module']['id'],
-                 content_config=node['content_module']['config']).add()
-
-        if 'parser_module' in node:
-            n.parser_module_id = node['parser_module']['id']
+                 next_node_id=node.get('next_node_id'),
+                 module_id=node['module']['id'],
+                 config=node['module']['config']).add()
 
         DatabaseManager.flush()
         id_map[stable_id] = n.id
 
-    # Validate that parser module linkages are present in this bot file.
+    # Validate that module linkages are present in this bot file.
     for stable_id, node in nodes.iteritems():
         n = Node.get_by(id=id_map[stable_id], single=True)
-        if n.parser_module is not None:
-            nodes = bot_json['bot']['nodes']
-            n.parser_config = node['parser_module']['config']
-            pm = n.parser_module.get_module()
-            try:
-                jsonschema.validate(n.parser_config, pm.schema())
-            except jsonschema.exceptions.ValidationError:
-                logger.error('Node `%s\' parser module config validation '
-                             'failed', stable_id)
-                raise
-
-            for end_node_id in pm.get_linkages(n.parser_config):
+        if n.module.type != ModuleTypeEnum.Router:
+            if n.next_node_id and n.next_node_id not in id_map.keys():
+                raise RuntimeError(
+                    'next_node_id `%s\' is invalid for node `%s\'' %
+                    (n.next_node_id, n.stable_id))
+        else:
+            pm = n.module.get_python_module()
+            for end_node_id in pm.get_linkages(n.config):
                 if end_node_id is not None:
                     if re.search(HAS_VARIABLE_RE, end_node_id):
                         logger.info('Rendered end_node_id `%s\', check '
@@ -160,6 +153,15 @@ def parse_bot(bot_json, to_bot_id=None, source='bot_json'):
                     if end_node_id not in id_map.keys():
                         raise RuntimeError('end_node_id `%s\' is invalid' %
                                            end_node_id)
+    # Extra Constraint check
+    root = Node.get_by(stable_id='Root', single=True)
+    root_router = Node.get_by(stable_id='RootRouter', single=True)
+
+    if root.next_node_id != 'RootRouter':
+        raise RuntimeError('next_node_id for Root must be RootRouter')
+
+    if root_router.next_node_id != 'Root':
+        raise RuntimeError('next_node_id for RootRouter must be Root')
 
     DatabaseManager.flush()
     return bot

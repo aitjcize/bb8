@@ -2,6 +2,7 @@
 """
     Content recommendation
     ~~~~~~~~~~~~~~~~~~~~~~
+
     News content module
 
     Copyright 2016 bb8 Authors
@@ -12,21 +13,23 @@ import grpc
 
 from bb8.backend.module_api import (Message, CollectedData, EventPayload,
                                     GetgRPCService, Resolve, SupportedPlatform,
-                                    GetUserId)
+                                    GetUserId, PureContentModule,
+                                    ModuleTypeEnum)
+
 
 GRPC_TIMEOUT = 5
 MAX_KEYWORDS = 7
 DEFAULT_N_ITEMS = 7
 
 
-def get_module_info():
+def properties():
     return {
         'id': 'ai.compose.content.core.content',
+        'type': ModuleTypeEnum.Content,
         'name': 'Content',
         'description': '',
         'supported_platform': SupportedPlatform.All,
-        'module_name': 'content',
-        'ui_module_name': 'content',
+        'variables': [],
     }
 
 
@@ -247,6 +250,7 @@ def run_get_content(news_info, variables, limit):
     return msgs
 
 
+@PureContentModule
 def run(content_config, env, variables):
     news_info = NewsInfo()
     n_items = content_config.get('n_items', DEFAULT_N_ITEMS)

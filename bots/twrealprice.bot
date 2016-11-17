@@ -29,8 +29,9 @@
       "Start": {
         "name": "Greet",
         "description": "Great user",
-        "expect_input": true,
-        "content_module": {
+        "expect_input": false,
+        "next_node_id": "StartRouter",
+        "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
@@ -52,9 +53,14 @@
               }
             ]
           }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.default",
+        }
+      },
+      "StartRouter": {
+        "name": "Greet",
+        "description": "Parse user selection",
+        "expect_input": true,
+        "module": {
+          "id": "ai.compose.router.core.default",
           "config": {
             "links": [
               {
@@ -75,7 +81,7 @@
               }
             ],
             "on_error": {
-              "end_node_id": null,
+              "end_node_id": "Root",
               "ack_message": "我不了解你的指令，可以再輸入一次，或輸入「使用說明」喔。"
             }
           }
@@ -85,7 +91,8 @@
         "name": "Demo-Desc",
         "description": "Give context about the demo",
         "expect_input": false,
-        "content_module": {
+        "next_node_id": "Root",
+        "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": {
@@ -120,20 +127,14 @@
               ]
             }
           }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.passthrough",
-          "config": {
-            "end_node_id": "Root",
-            "ack_message": ""
-          }
         }
       },
       "Root": {
         "name": "Root",
         "description": "Root node, show usage",
-        "expect_input": true,
-        "content_module": {
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
@@ -171,9 +172,15 @@
               }
             ]
           }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.default",
+        }
+      },
+      "RootRouter": {
+        "name": "RootRouter",
+        "description": "Root router",
+        "expect_input": true,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.router.core.default",
           "config": {
             "links": [
               {
@@ -265,7 +272,7 @@
               }
             ],
             "on_error": {
-              "end_node_id": null,
+              "end_node_id": "RootRouter",
               "ack_message": "我不了解你的指令，可以再輸入一次，或輸入「使用說明」喔。"
             }
           }
@@ -275,16 +282,10 @@
         "name": "Get transaction data",
         "description": "Show nearby transaction data",
         "expect_input": false,
-        "content_module": {
+        "next_node_id": "RootRouter",
+        "module": {
           "id": "ai.compose.content.third_party.twrealprice",
           "config": {
-          }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.passthrough",
-          "config": {
-            "end_node_id": "Root",
-            "ack_message": ""
           }
         }
       },
@@ -292,7 +293,8 @@
         "name": "Thanks",
         "description": "Thank user",
         "expect_input": false,
-        "content_module": {
+        "next_node_id": "RootRouter",
+        "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
@@ -309,8 +311,9 @@
       "Feedback": {
         "name": "Feedback",
         "description": "Feedback without content, guide user to input feedback",
-        "expect_input": true,
-        "content_module": {
+        "expect_input": false,
+        "next_node_id": "FeedbackRouter",
+        "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
@@ -319,9 +322,14 @@
               }
             ]
           }
-        },
-        "parser_module": {
-          "id": "ai.compose.parser.core.default",
+        }
+      },
+      "FeedbackRouter": {
+        "name": "FeedbackRouter",
+        "description": "Feedback router",
+        "expect_input": true,
+        "module": {
+          "id": "ai.compose.router.core.default",
           "config": {
             "links": [
               {
@@ -330,10 +338,13 @@
                   "params": [".*"],
                   "collect_as": {"key": "feedback"}
                 },
-                "end_node_id": "Root",
+                "end_node_id": "RootRouter",
                 "ack_message": "謝謝你的建議，我們會根據你的建議改善的！"
               }
-            ]
+            ],
+            "on_error": {
+              "end_node_id": "Root"
+            }
           }
         }
       }

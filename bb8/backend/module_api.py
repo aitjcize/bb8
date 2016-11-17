@@ -16,13 +16,14 @@ from sqlalchemy import desc
 
 from bb8 import config
 # pylint: disable=W0611
-from bb8.backend.database import PlatformTypeEnum, SupportedPlatform
+from bb8.backend.database import (PlatformTypeEnum, SupportedPlatform,
+                                  ModuleTypeEnum)
 from bb8.backend.database import CollectedDatum as _CollectedDatum
 # pylint: disable=W0611
 from bb8.backend.message import (Message, Render, Resolve, IsVariable,
                                  TextPayload, LocationPayload, EventPayload)
 from bb8.backend.messaging_tasks import broadcast_message_async
-from bb8.backend.metadata import ParseResult
+from bb8.backend.metadata import ModuleResult, RouteResult
 
 
 CONFIG = {
@@ -116,6 +117,11 @@ class CollectedData(object):
     _MAX_RETURN_RESULTS = 100
 
     @classmethod
+    def Add(cls, key, value):
+        """Add a record."""
+        _CollectedDatum(user_id=g.user.id, key=key, value=value).add()
+
+    @classmethod
     def GetLast(cls, key, default=None):
         """Get the last collected result given *key*."""
         result = _CollectedDatum.get_by(
@@ -143,3 +149,10 @@ class CollectedData(object):
     def Count(cls, key):
         """Get number of entries."""
         return _CollectedDatum.count_by(user_id=g.user.id, key=key)
+
+
+def PureContentModule(f):
+    """A decorator for pure content modules which return a list of messages."""
+    def wrap(*args, **kwargs):
+        return ModuleResult(messages=f(*args, **kwargs))
+    return wrap

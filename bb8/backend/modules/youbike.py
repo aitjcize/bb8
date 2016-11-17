@@ -22,8 +22,9 @@ import grpc
 from bb8 import logger
 from bb8.backend.module_api import (Message, GetUserTime,
                                     GetgRPCService, LocationPayload,
-                                    Resolve, SupportedPlatform)
-from bb8.backend.content_modules.lib.google_maps import (
+                                    Resolve, SupportedPlatform,
+                                    ModuleTypeEnum, PureContentModule)
+from bb8.backend.modules.lib.google_maps import (
     GoogleStaticMapAPIRequestBuilder)
 
 
@@ -31,14 +32,14 @@ GRPC_TIMEOUT = 5
 GOOGLE_STATIC_MAP_API_KEY = 'AIzaSyAJjjE4BnIS-JAlfC1V77QGvb5kCauUVnc'
 
 
-def get_module_info():
+def properties():
     return {
         'id': 'ai.compose.content.third_party.youbike',
+        'type': ModuleTypeEnum.Content,
         'name': 'Youbike',
         'description': 'Youbike info search according to location.',
         'supported_platform': SupportedPlatform.All,
-        'module_name': 'youbike',
-        'ui_module_name': 'youbike',
+        'variables': []
     }
 
 
@@ -210,6 +211,7 @@ class YoubikeInfo(object):
         return 10
 
 
+@PureContentModule
 def run(content_config, unused_env, variables):
     """
     content_config schema:

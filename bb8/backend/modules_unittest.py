@@ -14,11 +14,8 @@ from bb8.backend import modules
 
 
 class ModuleRegistrationUnittest(unittest.TestCase):
-    def test_register_content_modules(self):
-        modules.register_content_modules()
-
-    def test_register_parser_modules(self):
-        modules.register_parser_modules()
+    def test_register_modules(self):
+        modules.register_all()
 
 
 if __name__ == '__main__':

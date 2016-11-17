@@ -12,7 +12,7 @@ from flask import request, make_response
 
 from bb8 import app
 
-from bb8.backend.content_modules.youbike import GOOGLE_STATIC_MAP_API_KEY
+from bb8.backend.modules.youbike import GOOGLE_STATIC_MAP_API_KEY
 
 
 @app.route('/api/third_party/youbike/render_map')

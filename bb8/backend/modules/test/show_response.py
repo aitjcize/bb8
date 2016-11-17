@@ -6,17 +6,18 @@
     Copyright 2016 bb8 Authors
 """
 
-from bb8.backend.module_api import Message, Resolve, SupportedPlatform
+from bb8.backend.module_api import (Message, Resolve, SupportedPlatform,
+                                    PureContentModule, ModuleTypeEnum)
 
 
-def get_module_info():
+def properties():
     return {
         'id': 'ai.compose.content.test.show_response',
+        'type': ModuleTypeEnum.Content,
         'name': 'show response',
         'description': 'show response',
         'supported_platform': SupportedPlatform.All,
-        'module_name': 'test.show_response',
-        'ui_module_name': 'show_response',
+        'variables': [],
     }
 
 
@@ -30,6 +31,7 @@ def schema():
     }
 
 
+@PureContentModule
 def run(content_config, unused_env, variables):
     """
     content_config schema:

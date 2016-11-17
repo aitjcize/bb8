@@ -17,8 +17,9 @@ import time
 import traceback
 
 from bb8.backend.module_api import (Message, Memory,
-                                    SupportedPlatform, LocationPayload)
-from bb8.backend.content_modules.lib.google_maps import (
+                                    SupportedPlatform, LocationPayload,
+                                    ModuleTypeEnum, PureContentModule)
+from bb8.backend.modules.lib.google_maps import (
     GoogleMapsPlaceAPI,
     GoogleStaticMapAPIRequestBuilder)
 import twrealprice_rule
@@ -127,14 +128,14 @@ def Deser(obj):
     return None
 
 
-def get_module_info():
+def properties():
     return {
         'id': 'ai.compose.content.third_party.twrealprice',
+        'type': ModuleTypeEnum.Content,
         'name': 'TwRealPrice',
         'description': 'estate info search according to location.',
         'supported_platform': SupportedPlatform.All,
-        'module_name': 'twrealprice',
-        'ui_module_name': 'twrealprice',
+        'variables': []
     }
 
 
@@ -227,6 +228,7 @@ class UserInput(object):
         return self.singleton[key]
 
 
+@PureContentModule
 def run(unused_content_config, env, unused_variables):
     user_input = UserInput()
     msgs = []  # The output messages.

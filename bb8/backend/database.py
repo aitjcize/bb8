@@ -151,6 +151,7 @@ class Bot(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     orphan_nodes = relationship('Node', secondary='bot_node')
 
     ROOT_STABLE_ID = 'Root'
+    ROOT_ROUTER_STABLE_ID = 'RootRouter'
     START_STABLE_ID = 'Start'
 
     def __repr__(self):
@@ -180,10 +181,8 @@ class Bot(DeclarativeBase, ModelMixin, JSONSerializableMixin):
             return []
         return User.query().filter(User.platform_id.in_(platform_ids)).all()
 
-    @property
-    def root_node(self):
-        return Node.get_by(bot_id=self.id, stable_id=Bot.ROOT_STABLE_ID,
-                           single=True)
+    def node(self, stable_id):
+        return Node.get_by(bot_id=self.id, stable_id=stable_id, single=True)
 
     def delete(self):
         Node.delete_by(bot_id=self.id)
@@ -256,16 +255,14 @@ class Node(DeclarativeBase, ModelMixin):
     stable_id = Column(String(128), nullable=False)
     bot_id = Column(ForeignKey('bot.id'), nullable=False)
     name = Column(Unicode(128), nullable=False)
-    description = deferred(Column(UnicodeText, nullable=True))
+    description = deferred(Column(UnicodeText, nullable=False, default=u''))
     expect_input = Column(Boolean, nullable=False)
-    content_module_id = Column(ForeignKey('content_module.id'), nullable=False)
-    content_config = Column(PickleType, nullable=False)
-    parser_module_id = Column(ForeignKey('parser_module.id'), nullable=True)
-    parser_config = Column(PickleType, nullable=True)
+    next_node_id = Column(String(128), nullable=True)
+    module_id = Column(ForeignKey('module.id'), nullable=False)
+    config = Column(PickleType, nullable=False)
 
     bot = relationship('Bot')
-    content_module = relationship('ContentModule')
-    parser_module = relationship('ParserModule')
+    module = relationship('Module')
 
     def __repr__(self):
         return '<%s(\'%s\', \'%s\')>' % (type(self).__name__, self.id,
@@ -337,43 +334,29 @@ class SupportedPlatform(enum.Enum):
     Line = 'Line'
 
 
-class ContentModule(DeclarativeBase, ModelMixin):
-    __tablename__ = 'content_module'
+class ModuleTypeEnum(enum.Enum):
+    Content = 'Content'
+    Parser = 'Parser'
+    Router = 'Router'
+
+
+class Module(DeclarativeBase, ModelMixin):
+    __tablename__ = 'module'
 
     id = Column(String(128), primary_key=True, nullable=False)
+    type = Column(Enum(ModuleTypeEnum), nullable=False)
     name = Column(String(256), nullable=False)
     description = Column(Text, nullable=False)
     supported_platform = Column(Enum(SupportedPlatform), nullable=False,
                                 default=SupportedPlatform.All)
     module_name = Column(String(256), nullable=False)
-    ui_module_name = Column(String(256), nullable=False)
-
-    CONTENT_MODULES = 'bb8.backend.content_modules'
-
-    def get_module(self):
-        return importlib.import_module(
-            '%s.%s' % (self.CONTENT_MODULES, self.module_name))
-
-
-class ParserModule(DeclarativeBase, ModelMixin):
-    __tablename__ = 'parser_module'
-
-    id = Column(String(128), primary_key=True, nullable=False)
-    name = Column(String(256), nullable=False)
-    description = Column(Text, nullable=False)
-    supported_platform = Column(Enum(SupportedPlatform), nullable=False,
-                                default=SupportedPlatform.All)
-    module_name = Column(String(256), nullable=False)
-    ui_module_name = Column(String(256), nullable=False)
     variables = Column(PickleType, nullable=False)
 
-    PARSER_MODULES = 'bb8.backend.parser_modules'
+    MODULE_PACKAGE = 'bb8.backend.modules'
 
-    def get_module(self, name=None):
-        if name is None:
-            name = self.module_name
+    def get_python_module(self):
         return importlib.import_module(
-            '%s.%s' % (self.PARSER_MODULES, name))
+            '%s.%s' % (self.MODULE_PACKAGE, self.module_name))
 
 
 class CollectedDatum(DeclarativeBase, ModelMixin):

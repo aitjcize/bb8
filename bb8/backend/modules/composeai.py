@@ -10,17 +10,18 @@ from flask import g
 from bb8.backend.database import Bot
 
 from bb8.backend.module_api import (Message, Memory, SupportedPlatform,
-                                    EventPayload)
+                                    EventPayload, ModuleTypeEnum,
+                                    PureContentModule)
 
 
-def get_module_info():
+def properties():
     return {
         'id': 'ai.compose.content.core.composeai',
+        'type': ModuleTypeEnum.Content,
         'name': 'Compose.ai Control',
         'description': 'Control interface for compose.ai',
         'supported_platform': SupportedPlatform.All,
-        'module_name': 'composeai',
-        'ui_module_name': 'composeai',
+        'variables': []
     }
 
 
@@ -42,6 +43,7 @@ def schema():
     }
 
 
+@PureContentModule
 def run(content_config, unused_env, variables):
     """
     content_config schema:

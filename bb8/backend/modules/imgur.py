@@ -12,18 +12,19 @@ import imgurpython
 
 from imgurpython.imgur.models.gallery_image import GalleryImage
 
-from bb8.backend.module_api import (Message, Resolve,
-                                    SupportedPlatform, TextPayload)
+from bb8.backend.module_api import (Message, Resolve, ModuleTypeEnum,
+                                    SupportedPlatform, TextPayload,
+                                    PureContentModule)
 
 
-def get_module_info():
+def properties():
     return {
         'id': 'ai.compose.content.third_party.imgur',
+        'type': ModuleTypeEnum.Content,
         'name': 'Imgur',
         'description': 'Imgur image search and listing.',
         'supported_platform': SupportedPlatform.All,
-        'module_name': 'imgur',
-        'ui_module_name': 'imgur',
+        'variables': []
     }
 
 
@@ -68,6 +69,7 @@ def schema():
     }
 
 
+@PureContentModule
 def run(content_config, unused_env, variables):
     """
     content_config schema:
