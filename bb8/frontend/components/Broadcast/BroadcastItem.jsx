@@ -85,10 +85,6 @@ class BroadcastItem extends React.Component {
     super(props)
 
     this.renderCell = this.renderCell.bind(this)
-
-    this.setState({
-      expandedIdx: props.expandedIdx,
-    })
   }
 
   renderCell() {
@@ -150,18 +146,12 @@ class BroadcastItem extends React.Component {
 
   render() {
     const {
-      idx,
-      lastIdx,
-      expandedIdx,
+      isFirst,
+      isLast,
+      expanded,
+      isPrev,
+      isNext,
     } = this.props
-
-    // const expandedIdx = 1
-
-    const isFirst = idx === 0
-    const isLast = idx === lastIdx
-    const expanded = idx === expandedIdx
-    const isPrev = idx === expandedIdx - 1
-    const isNext = idx === expandedIdx + 1
 
     const paperStyle = {
       ...styles.paper,
@@ -210,9 +200,11 @@ BroadcastItem.propTypes = {
     // eslint-disable-next-line react/no-unused-prop-types
     scheduledTime: React.PropTypes.number,
   }),
-  idx: React.PropTypes.number,
-  lastIdx: React.PropTypes.number,
-  expandedIdx: React.PropTypes.number,
+  isFirst: React.PropTypes.bool,
+  isLast: React.PropTypes.bool,
+  expanded: React.PropTypes.bool,
+  isPrev: React.PropTypes.bool,
+  isNext: React.PropTypes.bool,
 }
 
 export default BroadcastItem
