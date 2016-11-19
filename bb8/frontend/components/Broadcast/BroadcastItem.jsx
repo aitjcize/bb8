@@ -176,9 +176,14 @@ class BroadcastItem extends React.Component {
         zDepth={expanded ? 3 : 1}
       >
         {
-          expanded ? (<BroadcastEditor
-            broadcast={this.props.broadcast}
-          />) : this.renderCell()
+          expanded ? (
+            <BroadcastEditor
+              handleCloseEditor={this.props.handleCloseEditor}
+              styles={styles}
+              broadcast={this.props.broadcast}
+            />
+          ) :
+            this.renderCell()
         }
         {
           isLast || isPrev || expanded ? null : <Divider />
@@ -190,6 +195,7 @@ class BroadcastItem extends React.Component {
 
 BroadcastItem.propTypes = {
   handleEdit: React.PropTypes.func,
+  handleCloseEditor: React.PropTypes.func,
   handleDelete: React.PropTypes.func,
   handleSend: React.PropTypes.func,
   broadcast: React.PropTypes.shape({

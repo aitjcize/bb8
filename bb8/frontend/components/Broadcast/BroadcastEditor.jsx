@@ -2,13 +2,12 @@ import Moment from 'moment'
 import React from 'react'
 import { connect } from 'react-redux'
 
-// import Dialog from 'material-ui/Dialog'
-// import FlatButton from 'material-ui/FlatButton'
-// import DatePicker from 'material-ui/DatePicker'
-// import TimePicker from 'material-ui/TimePicker'
+import stylePropType from 'react-style-proptype'
+
+import Dialog from 'material-ui/Dialog'
+import FlatButton from 'material-ui/FlatButton'
 import TextField from 'material-ui/TextField'
-// import RaisedButton from 'material-ui/RaisedButton'
-import { Card, CardHeader } from 'material-ui/Card'
+import { Card, CardActions, CardHeader } from 'material-ui/Card'
 
 import Message from '../modules/Message'
 import { createBroadcast, updateBroadcast, openNotification } from '../../actions'
@@ -49,14 +48,10 @@ class BroadcastEditor extends React.Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.setState({
-      nameError: '',
-      broadcast: nextProps.broadcast,
-    })
-    this.editor.clear()
-    if (nextProps.broadcast && nextProps.messages) {
-      this.editor.fromJSON(nextProps.broadcast)
+  componentDidMount() {
+    if (this.props.broadcast && this.props.broadcast.messages) {
+      this.editor.clear()
+      this.editor.fromJSON(this.props.broadcast)
     }
   }
 
@@ -107,6 +102,7 @@ class BroadcastEditor extends React.Component {
   handleSubmit() {
     this.setState({ dialogOpen: false })
 
+    const messages = this.editor.toJSON()
     if (!this.state.broadcast.name) {
       this.props.handleShowNotification('Please provide a name for this broadcast')
       return
@@ -118,10 +114,12 @@ class BroadcastEditor extends React.Component {
          !this.state.datepickerVal)) {
       this.props.handleShowNotification('Please pick a date and a time')
       return
+    } else if (!messages.messages || messages.messages.length === 0) {
+      this.props.handleShowNotification('Cannot save a broadcast with no message')
+      return
     }
 
     this.props.handleCloseEditor()
-    const messages = this.editor.toJSON()
     const broadcast = {
       name: this.state.broadcast.name,
       scheduledTime: this.state.broadcast.scheduledTime,
@@ -142,25 +140,37 @@ class BroadcastEditor extends React.Component {
   }
 
   render() {
-    // const sendActions = [
-      // <FlatButton
-        // label="Cancel"
-        // primary
-        // onTouchTap={() => this.setState({ dialogOpen: false })}
-      // />,
-      // <FlatButton
-        // label="Yes"
-        // secondary
-        // keyboardFocused
-        // onTouchTap={this.handleSubmit}
-      // />,
-    // ]
+    const sendActions = [
+      <FlatButton
+        label="Cancel"
+        primary
+        onTouchTap={() => this.setState({ dialogOpen: false })}
+      />,
+      <FlatButton
+        label="Yes"
+        secondary
+        keyboardFocused
+        onTouchTap={this.handleSubmit}
+      />,
+    ]
+    const styles = this.props.styles
 
     return (
       <Card>
+        <Dialog
+          title="Confirm Send"
+          actions={sendActions}
+          modal={false}
+          open={this.state.dialogOpen}
+          onRequestClose={() => this.setState({ dialogOpen: false })}
+        >
+          { 'Are you sure to send this broadcast message?' }
+        </Dialog>
         <CardHeader
           title={
             <TextField
+              errorText={this.state.nameError}
+              onChange={this.handleNameChange}
               value={this.state.broadcast.name}
               style={{
                 minWidth: '25vw',
@@ -181,76 +191,37 @@ class BroadcastEditor extends React.Component {
             this.editor = m
           }}
         />
+        <CardActions style={styles.infoActionsContainer}>
+          <div style={styles.infoActionsGroup}>
+            <FlatButton
+              onClick={() => this.handleSubmit(this.props.broadcast)}
+              label="Save"
+            />
+            <FlatButton
+              onClick={this.props.handleCloseEditor}
+              label="Cancel"
+              secondary
+            />
+          </div>
+          <div style={{ ...styles.infoActionsGroup, ...{ flex: 'none' } }}>
+            <FlatButton
+              onClick={() => this.setState({ dialogOpen: true })}
+              label="Send Now"
+              primary
+            />
+          </div>
+        </CardActions>
       </Card>
     )
-    // return (
-      // <div>
-        // <Dialog
-          // title="Confirm Send"
-          // actions={sendActions}
-          // modal={false}
-          // open={this.state.dialogOpen}
-          // onRequestClose={() => this.setState({ dialogOpen: false })}
-        // >
-          // { 'Are you sure to send this broadcast message?' }
-        // </Dialog>
-        // <TextField
-          // value={this.state.broadcast.name || ''}
-          // hintText="Give this broadcast a name"
-          // errorText={this.state.nameError}
-          // onChange={this.handleNameChange}
-        // />
-        // <Message
-          // editorWidth="300px"
-          // maxMessages={5}
-          // ref={(m) => {
-            // this.editor = m
-          // }}
-        // />
-        // { !this.state.scheduling ? null :
-          // <div>
-            // <DatePicker
-              // autoOk
-              // hintText="Tell me a date"
-              // container="inline"
-              // value={this.state.datepickerVal}
-              // onChange={this.handleDateChange}
-            // />
-            // <TimePicker
-              // autoOk
-              // hintText="Tell me a time"
-              // value={this.state.timepickerVal}
-              // onChange={this.handleTimeChange}
-            // />
-          // </div>
-        // }
-        // <RaisedButton
-          // label="Send Now"
-          // primary
-          // onClick={() => this.setState({ dialogOpen: true })}
-        // />
-
-        // { this.state.scheduling ?
-          // <RaisedButton
-            // label="Save"
-            // onClick={this.handleSubmit}
-          // /> :
-            // <RaisedButton
-              // label="Schedule"
-              // onClick={() => this.setState(prevState => ({
-                // ...prevState,
-                // scheduling: true,
-              // }))}
-            // />
-        // }
-      // </div>
-    // )
   }
 }
 
 BroadcastEditor.propTypes = {
   activeBotId: React.PropTypes.number,
-  broadcast: React.PropTypes.shape({}),
+  styles: React.PropTypes.objectOf(stylePropType),
+  broadcast: React.PropTypes.shape({
+    messages: React.PropTypes.shape({}),
+  }),
   handleUpdateBroadcast: React.PropTypes.func,
   handleCreateBroadcast: React.PropTypes.func,
   handleCloseEditor: React.PropTypes.func,

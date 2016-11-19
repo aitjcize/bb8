@@ -9,7 +9,7 @@ const isVerbose = process.argv.includes('--verbose') || process.argv.includes('-
 const httpPort = process.env.HTTP_PORT || 7006
 
 const defaultConfig = {
-  devtool: 'source-map',
+  devtool: 'eval',
   context: __dirname,
   devServer: {
     port: '8080',

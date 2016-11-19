@@ -1,7 +1,8 @@
 import { reducer as form } from 'redux-form'
 import { combineReducers } from 'redux'
 import { routerReducer } from 'react-router-redux'
-import merge from 'lodash/merge'
+import mergeWith from 'lodash/mergeWith'
+import isArray from 'lodash/isArray'
 
 import AccountsReducer from './AccountsReducer'
 import BotsReducer from './BotsReducer'
@@ -17,7 +18,8 @@ const initialEntities = {
 // Updates an entity cache in response to any action with response.entities.
 const entities = (state = initialEntities, action) => {
   if (action.payload && action.payload.entities) {
-    return merge({}, state, action.payload.entities)
+    return mergeWith({}, state,
+      action.payload.entities, (objVal, srcVal) => (isArray(objVal) ? srcVal : undefined))
   }
   return state
 }

@@ -15,7 +15,7 @@ import PlatformsReducer from './reducers/PlatformsReducer'
 const BROADCASTS_LISTING = camelizeKeys([
   {
     id: 1,
-    bod_id: 1,
+    bot_id: 1,
     name: 'Broadcast 1',
     scheduled_time: 1478361772,
     messages: [{ text: 'Test message' }],
@@ -23,7 +23,7 @@ const BROADCASTS_LISTING = camelizeKeys([
   },
   {
     id: 2,
-    bod_id: 1,
+    bot_id: 1,
     name: 'Broadcast 2',
     scheduled_time: 1478361572,
     messages: [{ text: 'Test message' }],
@@ -31,7 +31,7 @@ const BROADCASTS_LISTING = camelizeKeys([
   },
   {
     id: 3,
-    bod_id: 1,
+    bot_id: 1,
     name: 'Broadcast 3',
     scheduled_time: 1478361672,
     messages: [{ text: 'Test message' }],
@@ -39,7 +39,7 @@ const BROADCASTS_LISTING = camelizeKeys([
   },
   {
     id: 4,
-    bod_id: 1,
+    bot_id: 1,
     name: 'Broadcast 4',
     scheduled_time: Math.floor(Date.now() / 1000) + 100,
     messages: [{ text: 'Test message' }],
@@ -47,7 +47,7 @@ const BROADCASTS_LISTING = camelizeKeys([
   },
   {
     id: 5,
-    bod_id: 1,
+    bot_id: 1,
     name: 'Broadcast 5',
     scheduled_time: Math.floor(Date.now() / 1000) + 100,
     messages: [{ text: 'Test message' }],
