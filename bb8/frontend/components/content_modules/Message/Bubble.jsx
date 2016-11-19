@@ -7,7 +7,6 @@ import ActionDelete from 'material-ui/svg-icons/action/delete'
 // import FileUpload from 'material-ui/svg-icons/file/file-upload'
 import Divider from 'material-ui/Divider'
 import FloatingActionButton from 'material-ui/FloatingActionButton'
-import { ListItem } from 'material-ui/List'
 // import Popover from 'material-ui/Popover'
 import TextField from 'material-ui/TextField'
 import FlatButton from 'material-ui/FlatButton'
@@ -52,7 +51,7 @@ class Bubble extends React.Component {
   constructor(props) {
     super(props)
 
-    this.onAddClicked = this.onAddClicked.bind(this)
+    this.addButton = this.addButton.bind(this)
     this.onRemoveClicked = this.onRemoveClicked.bind(this)
     this.toJSON = this.toJSON.bind(this)
     this.fromJSON = this.fromJSON.bind(this)
@@ -61,8 +60,7 @@ class Bubble extends React.Component {
       title: '',
       subtitle: '',
 
-      // imageUrl: 'http://i.imgur.com/4loi6PJ.jpg',
-      imageUrl: null,
+      imageUrl: '',
       // imageUrlEditorOpen: false,
       // imageUrlEditorError: '',
       // imageUrlEditorAnchorEl: undefined,
@@ -77,6 +75,9 @@ class Bubble extends React.Component {
 
       hoverIndex: undefined,
       coverHover: false,
+
+      addButtonTextEditing: false,
+      addButtonTextBuffer: '',
     }
     this.buttons = {}
     this.idBut = {}
@@ -87,11 +88,16 @@ class Bubble extends React.Component {
     }
   }
 
-  onAddClicked() {
+  addButton(title) {
     if (this.state.buttonIds.length < 3) {
+      const id = uniqueId('buttons_message')
+      this.idBut[id] = {
+        type: 'web_url',
+        title,
+        url: '',
+      }
       this.setState(prevState => (
-        { buttonIds: prevState.buttonIds.concat(
-          [uniqueId('buttons')]) }
+        { buttonIds: prevState.buttonIds.concat([id]) }
       ))
     }
   }
@@ -426,10 +432,47 @@ class Bubble extends React.Component {
                 <Divider />
               </div>
             ))}
-            {!this.props.readOnly && showAddButton && <ListItem
-              primaryText="New button"
-              onClick={this.onAddClicked}
-            />}
+            {!this.props.readOnly && showAddButton && (
+            <div>
+              <Divider />
+              <TextField
+                fullWidth
+                underlineShow={false}
+                value={this.state.addButtonTextBuffer}
+                hintText={!this.state.addButtonTextEditing && 'New Button'}
+                inputStyle={{ textAlign: 'center' }}
+                hintStyle={{
+                  textAlign: 'center',
+                  width: '100%',
+                  color: '#29D3A4',
+                }}
+                onChange={(e) => {
+                  this.setState({ addButtonTextBuffer: e.target.value })
+                }}
+                onFocus={() => {
+                  this.setState({ addButtonTextEditing: true })
+                }}
+                onBlur={(e) => {
+                  if (e.target.value) {
+                    this.addButton(e.target.addButtonTextBuffer)
+                  }
+                  this.setState({
+                    addButtonTextEditing: false,
+                    addButtonTextBuffer: '',
+                  })
+                }}
+                onKeyPress={(e) => {
+                  if (e.nativeEvent.code === 'Enter' && e.target.value) {
+                    this.addButton(this.state.addButtonTextBuffer)
+                    this.setState({
+                      addButtonTextEditing: this.state.buttonIds.length < 2,
+                      addButtonTextBuffer: '',
+                    })
+                  }
+                }}
+              />
+            </div>
+            )}
           </div>
         </CardMedia>
       </Card>

@@ -4,18 +4,9 @@ import uniqueId from 'lodash/uniqueId'
 import { Validator } from 'jsonschema'
 
 import Snackbar from 'material-ui/Snackbar'
-// import ActionDelete from 'material-ui/svg-icons/action/delete'
-import {
-  Card,
-  // CardHeader,
-  // CardMedia,
-  // CardText
-} from 'material-ui/Card'
-import Divider from 'material-ui/Divider'
-// import FloatingActionButton from 'material-ui/FloatingActionButton'
+import { Card } from 'material-ui/Card'
 import { List, ListItem } from 'material-ui/List'
 import Subheader from 'material-ui/Subheader'
-// import FlatButton from 'material-ui/FlatButton'
 
 import TextCardMessage from './TextCardMessage'
 import CarouselMessage from './CarouselMessage'
@@ -212,12 +203,10 @@ class Message extends React.Component {
               primaryText="Text Card"
               onClick={() => { this.onAddClicked('TextCardMessage') }}
             />
-            <Divider />
             <ListItem
               primaryText="Image"
               onClick={() => { this.onAddClicked('ImageMessage') }}
             />
-            <Divider />
             <ListItem
               primaryText="Carousel"
               onClick={() => { this.onAddClicked('CarouselMessage') }}
@@ -238,7 +227,7 @@ class Message extends React.Component {
 
 Message.propTypes = {
   maxMessages: React.PropTypes.number.isRequired,
-  editorWidth: React.PropTypes.string.isRequired,
+  editorWidth: React.PropTypes.string,
   readOnly: React.PropTypes.bool,
 }
 

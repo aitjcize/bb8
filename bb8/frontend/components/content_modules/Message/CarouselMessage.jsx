@@ -1,9 +1,7 @@
 import React from 'react'
 import uniqueId from 'lodash/uniqueId'
 
-// import { Card } from 'material-ui/Card'
 import ContentAdd from 'material-ui/svg-icons/content/add'
-// import ActionDelete from 'material-ui/svg-icons/action/delete'
 import FloatingActionButton from 'material-ui/FloatingActionButton'
 
 import Bubble from './Bubble'
@@ -171,7 +169,6 @@ class CarouselMessage extends React.Component {
 }
 
 CarouselMessage.propTypes = {
-  // maxWidth: React.PropTypes.string,
   readOnly: React.PropTypes.bool,
 }
 

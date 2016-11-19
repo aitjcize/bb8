@@ -1,20 +1,11 @@
 import React from 'react'
 import uniqueId from 'lodash/uniqueId'
 
-import {
-  Card,
-  CardText,
-  // CardMedia,
-  // CardTitle,
-  // CardHeader,
-} from 'material-ui/Card'
+import { Card, CardText } from 'material-ui/Card'
 import ActionDelete from 'material-ui/svg-icons/action/delete'
 import Divider from 'material-ui/Divider'
 import FloatingActionButton from 'material-ui/FloatingActionButton'
-import {
-  List,
-  // ListItem
-} from 'material-ui/List'
+import { List } from 'material-ui/List'
 import TextField from 'material-ui/TextField'
 
 import Button from './Button'
@@ -36,7 +27,7 @@ class TextCardMessage extends React.Component {
   constructor(props) {
     super(props)
 
-    this.onAddClicked = this.onAddClicked.bind(this)
+    this.addButton = this.addButton.bind(this)
     this.onRemoveClicked = this.onRemoveClicked.bind(this)
     this.toJSON = this.toJSON.bind(this)
     this.fromJSON = this.fromJSON.bind(this)
@@ -45,6 +36,9 @@ class TextCardMessage extends React.Component {
       text: '',
       buttonIds: [],
       hoverIndex: undefined,
+
+      addButtonTextEditing: false,
+      addButtonTextBuffer: '',
     }
     this.buttons = {}
     this.idBut = {}
@@ -54,11 +48,16 @@ class TextCardMessage extends React.Component {
     }
   }
 
-  onAddClicked() {
+  addButton(title) {
     if (this.state.buttonIds.length < 3) {
+      const id = uniqueId('buttons_message')
+      this.idBut[id] = {
+        type: 'web_url',
+        title,
+        url: '',
+      }
       this.setState(prevState => (
-        { buttonIds: prevState.buttonIds.concat(
-          [uniqueId('buttons_message')]) }
+        { buttonIds: prevState.buttonIds.concat([id]) }
       ))
     }
   }
@@ -199,19 +198,21 @@ class TextCardMessage extends React.Component {
                   this.setState({ addButtonTextEditing: true })
                 }}
                 onBlur={(e) => {
-                  if (e.target.value) this.onAddClicked()
+                  if (e.target.value) {
+                    this.addButton(e.target.addButtonTextBuffer)
+                  }
                   this.setState({
                     addButtonTextEditing: false,
                     addButtonTextBuffer: '',
                   })
                 }}
                 onKeyPress={(e) => {
-                  if (e.nativeEvent.which === 13 && e.target.value) {
+                  if (e.nativeEvent.code === 'Enter' && e.target.value) {
+                    this.addButton(this.state.addButtonTextBuffer)
                     this.setState({
                       addButtonTextEditing: this.state.buttonIds.length < 2,
                       addButtonTextBuffer: '',
                     })
-                    this.onAddClicked()
                   }
                 }}
               />
