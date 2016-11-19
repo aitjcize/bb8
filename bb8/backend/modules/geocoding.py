@@ -73,9 +73,9 @@ def schema():
 
 
 @PureContentModule
-def run(content_config, unused_env, variables):
+def run(config, unused_user_input, unused_env, variables):
     """
-    content_config schema:
+    config schema:
 
     Platform dependent message:
     {
@@ -91,14 +91,14 @@ def run(content_config, unused_env, variables):
         'center': {'lat': 23.816576, 'long': 122.053702}
     }
     """
-    query_term = Resolve(content_config['query_term'], variables)
+    query_term = Resolve(config['query_term'], variables)
 
     # Remove stop words
     query_term = re.sub(STOP_WORDS, '', query_term)
 
-    cfg = content_config
+    cfg = config
 
-    api = GoogleMapsPlaceAPI(content_config['api_key'])
+    api = GoogleMapsPlaceAPI(config['api_key'])
 
     py_bounds = []
     for b in cfg.get('bounds', []):
@@ -109,7 +109,7 @@ def run(content_config, unused_env, variables):
                               cfg['region'], py_bounds,
                               cfg.get('center', None))
 
-    in_currrent = content_config['send_payload_to_current_node']
+    in_currrent = config['send_payload_to_current_node']
 
     if not results:
         m = Message(u'對不起，我找不到這個地址, 請重新輸入 >_<')

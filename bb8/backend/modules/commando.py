@@ -94,12 +94,12 @@ def FetchData(url, params=[], method='post'):  # pylint: disable=W0102
 
 
 @PureContentModule
-def run(content_config, unused_env, variables):
+def run(config, unused_user_input, unused_env, variables):
     msgs = []  # The output messages.
 
-    url = Render(content_config['url'], variables)
-    method = content_config.get('method', 'post')
-    params = content_config.get('params', [])
+    url = Render(config['url'], variables)
+    method = config.get('method', 'post')
+    params = config.get('params', [])
     params = [
         (Render(x[0], variables), Render(x[1], variables))
         for x in params]

@@ -63,9 +63,9 @@ def schema():
 
 
 @PureContentModule
-def run(content_config, env, variables):
+def run(config, unused_input, env, variables):
     """
-    content_config schema:
+    config schema:
 
     Platform independent message:
     {
@@ -81,7 +81,7 @@ def run(content_config, env, variables):
         }
     }
     """
-    messages = content_config.get('messages')
+    messages = config.get('messages')
     msgs = []
 
     if not isinstance(messages, list):
@@ -91,7 +91,7 @@ def run(content_config, env, variables):
     for message in messages:
         msgs.append(Message.FromDict(message, variables))
 
-    for quick_reply in content_config.get('quick_replies', []):
+    for quick_reply in config.get('quick_replies', []):
         msgs[-1].add_quick_reply(Message.QuickReply.FromDict(quick_reply))
 
     return msgs

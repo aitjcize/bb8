@@ -137,10 +137,10 @@ def schema():
     }
 
 
-def run(parser_config, user_input, as_root):
+def run(config, user_input, as_root):
     """Run module."""
 
-    for link in parser_config['links']:
+    for link in config['links']:
         r_type = link['rule']['type']
 
         def ret(link, variables):
@@ -221,7 +221,7 @@ def run(parser_config, user_input, as_root):
     if as_root:
         return RouteResult(errored=True)
 
-    on_error = parser_config['on_error']
+    on_error = config['on_error']
     collect_as = on_error.get('collect_as')
     if collect_as:
         value = collect_as.get('value', '{{text}}')
@@ -234,9 +234,9 @@ def run(parser_config, user_input, as_root):
                        variables, errored=True)
 
 
-def get_linkages(parser_config):
+def get_linkages(config):
     links = []
-    for link in parser_config['links']:
+    for link in config['links']:
         if 'end_node_id' in link:
             links.append(link['end_node_id'])
     return links

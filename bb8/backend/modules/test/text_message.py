@@ -60,9 +60,9 @@ def schema():
 
 
 @PureContentModule
-def run(content_config, env, variables):
+def run(config, unused_user_input, env, variables):
     """
-    content_config schema:
+    config schema:
 
     Platform independent message:
     {
@@ -78,7 +78,7 @@ def run(content_config, env, variables):
         }
     }
     """
-    text = content_config['text']
+    text = config['text']
 
     if not isinstance(text, list):
         text = [text]
@@ -90,7 +90,7 @@ def run(content_config, env, variables):
         platform_type = env['platform_type'].value
         msgs = [Message(t[platform_type], variables=variables) for t in text]
 
-    for qr in content_config.get('quick_replies', []):
+    for qr in config.get('quick_replies', []):
         msgs[-1].add_quick_reply(
             Message.QuickReply.FromDict(qr, variables=variables))
 

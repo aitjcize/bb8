@@ -27,7 +27,7 @@ def schema():
 
 
 @PureContentModule
-def run(unused_content_config, unused_env, unused_variables):
+def run(unused_config, unused_user_input, unused_env, unused_variables):
     m = Message()
     b = Message.Bubble('Tap postback')
     b.add_button(Message.Button(Message.ButtonType.POSTBACK, 'Postback',

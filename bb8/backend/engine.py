@@ -97,8 +97,8 @@ class Engine(object):
     def run_router_module(self, node, user_input, init_variables,
                           as_root=False):
         """Execute a parser module of a node, then return end_node_id."""
-        pm = node.module.get_python_module()
-        result = pm.run(node.config, user_input, as_root)
+        module = node.module.get_python_module()
+        result = module.run(node.config, user_input, as_root)
         assert isinstance(result, RouteResult)
 
         variables = result.variables
@@ -142,7 +142,7 @@ class Engine(object):
 
             # TODO(aitjcize): figure out how to deal with module exceptions
             module = node.module.get_python_module()
-            result = module.run(node.config, env, input_vars)
+            result = module.run(node.config, user_input, env, input_vars)
 
             # Send message
             if result.messages:

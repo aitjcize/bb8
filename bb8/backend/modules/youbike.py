@@ -212,9 +212,9 @@ class YoubikeInfo(object):
 
 
 @PureContentModule
-def run(content_config, unused_env, variables):
+def run(config, unused_user_input, unused_env, variables):
     """
-    content_config schema:
+    config schema:
     {
        "api_key": "api_key",
        "send_payload_to_current_node": true,
@@ -225,21 +225,21 @@ def run(content_config, unused_env, variables):
     }
     """
 
-    location = Resolve(content_config['location'], variables)
+    location = Resolve(config['location'], variables)
     if 'coordinates' not in location:
         return [Message('不正確的輸入，請重新輸入')]
 
     c = (location['coordinates']['lat'], location['coordinates']['long'])
     youbike = YoubikeInfo()
 
-    k = content_config.get('max_count', 5)
+    k = config.get('max_count', 5)
     size = (500, 260)
 
-    stations = youbike.find_knn(k, c, content_config['distance_threshold'])
+    stations = youbike.find_knn(k, c, config['distance_threshold'])
     if not stations:
         return [Message('對不起，這裡附近沒有 Ubike 站喔！')]
 
-    m = GoogleStaticMapAPIRequestBuilder(content_config['api_key'], size)
+    m = GoogleStaticMapAPIRequestBuilder(config['api_key'], size)
     m.add_marker(c, 'purple')
     for s in stations:
         m.add_marker((float(s['lat']), float(s['lng'])))
@@ -262,7 +262,7 @@ def run(content_config, unused_env, variables):
     b.add_button(Message.Button(Message.ButtonType.WEB_URL, u'帶我去',
                                 url=m.build_navigation_url(best_gps_coord)))
 
-    to_current = content_config['send_payload_to_current_node']
+    to_current = config['send_payload_to_current_node']
     b.add_button(Message.Button(Message.ButtonType.POSTBACK, u'再次查詢',
                                 payload=LocationPayload(c, to_current)))
     msg.add_bubble(b)
@@ -294,7 +294,7 @@ def run(content_config, unused_env, variables):
 
     msgs.append(msg)
 
-    if content_config['display_weather'] and 'weather' in best:
+    if config['display_weather'] and 'weather' in best:
         # See http://openweathermap.org/weather-conditions
         # for weather codes.
         weather = best['weather']

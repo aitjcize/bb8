@@ -251,31 +251,31 @@ def run_get_content(news_info, variables, limit):
 
 
 @PureContentModule
-def run(content_config, env, variables):
+def run(config, unused_user_input, env, variables):
     news_info = NewsInfo()
-    n_items = content_config.get('n_items', DEFAULT_N_ITEMS)
+    n_items = config.get('n_items', DEFAULT_N_ITEMS)
     user_id = GetUserId()
 
     limit = 200
     if env['platform_type'] == SupportedPlatform.Line:
         limit = 160
 
-    if content_config['mode'] == 'get_content':
+    if config['mode'] == 'get_content':
         return run_get_content(news_info, variables, limit)
 
-    if content_config['mode'] == 'list_by_source':
-        source_name = Resolve(content_config['query_term'], variables)
+    if config['mode'] == 'list_by_source':
+        source_name = Resolve(config['query_term'], variables)
         return render_cards(
             news_info,
             news_info.trending(user_id, source_name, n_items))
 
-    elif content_config['mode'] == 'prompt':
+    elif config['mode'] == 'prompt':
         m = Message(u'想要知道什麼呢？今天這些字最夯！')
         add_quick_reply_keywords(news_info, m)
         return [m]
 
-    elif content_config['mode'] == 'search':
-        query_term = Resolve(content_config['query_term'], variables)
+    elif config['mode'] == 'search':
+        query_term = Resolve(config['query_term'], variables)
         return render_cards(
             news_info,
             (news_info.search(query_term, n_items)

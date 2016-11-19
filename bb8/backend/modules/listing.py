@@ -64,9 +64,9 @@ def schema():
 
 
 @PureContentModule
-def run(content_config, unused_env, variables):
+def run(config, unused_user_input, unused_env, variables):
     """
-    content_config schema:
+    config schema:
     {
         "query_url": "http://ecshweb.pchome.com.tw/search/v3.3/all/results?"
                      "q=%s&page=1&sort=rnk/dc",
@@ -88,11 +88,11 @@ def run(content_config, unused_env, variables):
           }
     }
     """
-    url = content_config['query_url']
-    timeout = content_config.get('timeout_secs', DEFAULT_TIMEOUT_SECS)
+    url = config['query_url']
+    timeout = config.get('timeout_secs', DEFAULT_TIMEOUT_SECS)
 
-    if 'term' in content_config:
-        term = Resolve(content_config['term'], variables)
+    if 'term' in config:
+        term = Resolve(config['term'], variables)
         url = url % urllib.quote(term.encode('utf-8'))
 
     try:
@@ -100,9 +100,9 @@ def run(content_config, unused_env, variables):
     except Exception:
         return []
 
-    max_count = content_config['max_count']
-    attributes = content_config['attributes']
-    elements = content.get(content_config['list'], [])
+    max_count = config['max_count']
+    attributes = config['attributes']
+    elements = content.get(config['list'], [])
 
     if len(elements) > max_count:
         elements = elements[:max_count]

@@ -50,7 +50,7 @@ class GenericMessageUnittest(unittest.TestCase):
         env = {
             'platform_type': SupportedPlatform.Facebook
         }
-        result = message.run(config, env, {})
+        result = message.run(config, None, env, {})
         msgs = result.messages  # pylint: disable=E1101
         self.assertEquals(msgs[0].as_dict()['text'], 'text')
         payload = msgs[1].as_dict()['attachment']['payload']
@@ -68,7 +68,7 @@ class GenericMessageUnittest(unittest.TestCase):
         env = {
             'platform_type': SupportedPlatform.Line
         }
-        result = message.run(config, env, {})
+        result = message.run(config, None, env, {})
         msgs = result.messages  # pylint: disable=E1101
         self.assertEquals(msgs[0].as_dict()['text'], 'text')
         payload = msgs[1].as_dict()['attachment']['payload']
