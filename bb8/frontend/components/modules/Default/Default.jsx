@@ -18,7 +18,7 @@ class Default extends React.Component {
   constructor(props) {
     super(props)
 
-    this.moduleId = 'ai.compose.parser.core.default'
+    this.moduleId = 'ai.compose.router.core.default'
 
     this.toJSON = this.toJSON.bind(this)
     this.fromJSON = this.fromJSON.bind(this)
@@ -76,7 +76,7 @@ class Default extends React.Component {
     }
     const obj = { links: rules }
     const v = new Validator()
-    const schema = ModuleInfos.parser_modules[this.moduleId].schema
+    const schema = ModuleInfos[this.moduleId].schema
     const result = v.validate(obj, schema)
     if (!result.valid) {
       this.setState({

@@ -123,7 +123,7 @@ class Message extends React.Component {
       }
     }
     const v = new Validator()
-    const schema = ModuleInfos.content_modules[this.moduleId].schema
+    const schema = ModuleInfos[this.moduleId].schema
     const result = v.validate({ messages }, schema)
     if (!result.valid) {
       this.setState({

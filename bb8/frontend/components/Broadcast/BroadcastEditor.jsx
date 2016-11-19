@@ -10,7 +10,7 @@ import TextField from 'material-ui/TextField'
 // import RaisedButton from 'material-ui/RaisedButton'
 import { Card, CardHeader } from 'material-ui/Card'
 
-import Message from '../content_modules/Message'
+import Message from '../modules/Message'
 import { createBroadcast, updateBroadcast, openNotification } from '../../actions'
 
 

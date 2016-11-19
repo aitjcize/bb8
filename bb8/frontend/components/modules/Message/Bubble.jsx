@@ -51,8 +51,8 @@ class Bubble extends React.Component {
   constructor(props) {
     super(props)
 
-    this.addButton = this.addButton.bind(this)
     this.onRemoveClicked = this.onRemoveClicked.bind(this)
+    this.addButton = this.addButton.bind(this)
     this.toJSON = this.toJSON.bind(this)
     this.fromJSON = this.fromJSON.bind(this)
 
@@ -88,6 +88,13 @@ class Bubble extends React.Component {
     }
   }
 
+  onRemoveClicked(id) {
+    this.setState(prevState => (
+      { buttonIds: prevState.buttonIds.filter(x => x !== id) }
+    ))
+    delete this.buttons[id]
+  }
+
   addButton(title) {
     if (this.state.buttonIds.length < 3) {
       const id = uniqueId('buttons_message')
@@ -100,13 +107,6 @@ class Bubble extends React.Component {
         { buttonIds: prevState.buttonIds.concat([id]) }
       ))
     }
-  }
-
-  onRemoveClicked(id) {
-    this.setState(prevState => (
-      { buttonIds: prevState.buttonIds.filter(x => x !== id) }
-    ))
-    delete this.buttons[id]
   }
 
   loadFromJSON(button, id) {
