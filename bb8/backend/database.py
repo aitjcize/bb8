@@ -396,10 +396,10 @@ class Event(DeclarativeBase, ModelMixin):
 
 
 class BroadcastStatusEnum(enum.Enum):
+    DRAFT = 'Draft'
     QUEUED = 'Queued'
     SENDING = 'Sending'
     SENT = 'Sent'
-    CANCELED = 'Canceled'
 
 
 class Broadcast(DeclarativeBase, ModelMixin, JSONSerializableMixin):
@@ -414,7 +414,7 @@ class Broadcast(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     messages = Column(PickleType, nullable=False)
     scheduled_time = Column(DateTime, nullable=True)
     status = Column(Enum(BroadcastStatusEnum), nullable=False,
-                    default=BroadcastStatusEnum.QUEUED)
+                    default=BroadcastStatusEnum.DRAFT)
 
     account = relationship('Account')
 
@@ -441,7 +441,7 @@ class Broadcast(DeclarativeBase, ModelMixin, JSONSerializableMixin):
                     'item': {'type': 'object'}
                 },
                 'scheduled_time': {'type': 'integer'},
-                'status': {'enum': ['Canceled']}
+                'status': {'enum': ['Draft', 'Queued']}
             }
         }
 

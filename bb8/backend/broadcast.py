@@ -43,7 +43,7 @@ def broadcast_task(broadcast_id):
         if not broadcast:
             return
 
-        # Either broadcast in progress or already sent
+        # Only QUEUED broadcast can be scheduled.
         if broadcast.status != BroadcastStatusEnum.QUEUED:
             return
 
@@ -78,7 +78,9 @@ def broadcast_task(broadcast_id):
 
 def schedule_broadcast(broadcast):
     """Schedule a broadcast."""
-    broadcast_task.apply_async((broadcast.id,), eta=broadcast.scheduled_time)
+    if broadcast.status == BroadcastStatusEnum.QUEUED:
+        broadcast_task.apply_async((broadcast.id,),
+                                   eta=broadcast.scheduled_time)
 
 
 def parse_broadcast(broadcast_json, to_broadcast_id=None):
@@ -88,7 +90,7 @@ def parse_broadcast(broadcast_json, to_broadcast_id=None):
     if callable(to_broadcast_id):
         to_broadcast_id = to_broadcast_id(broadcast_json)
 
-    # Validate that the target bot is own by the same account.
+    # Validate that the target bot is owned by the same account.
     bot = Bot.get_by(id=broadcast_json['bot_id'],
                      account_id=broadcast_json['account_id'],
                      single=True)
@@ -100,7 +102,8 @@ def parse_broadcast(broadcast_json, to_broadcast_id=None):
 
     if to_broadcast_id:
         broadcast = Broadcast.get_by(id=to_broadcast_id, single=True)
-        if broadcast.status != BroadcastStatusEnum.QUEUED:
+        if broadcast.status not in [BroadcastStatusEnum.DRAFT,
+                                    BroadcastStatusEnum.QUEUED]:
             raise BroadcastUnmodifiableError
 
         # Update existing broadcast.
