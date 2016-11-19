@@ -197,9 +197,9 @@ class TextCardMessage extends React.Component {
                 onFocus={() => {
                   this.setState({ addButtonTextEditing: true })
                 }}
-                onBlur={(e) => {
-                  if (e.target.value) {
-                    this.addButton(e.target.addButtonTextBuffer)
+                onBlur={() => {
+                  if (this.state.addButtonTextBuffer) {
+                    this.addButton(this.state.addButtonTextBuffer)
                   }
                   this.setState({
                     addButtonTextEditing: false,

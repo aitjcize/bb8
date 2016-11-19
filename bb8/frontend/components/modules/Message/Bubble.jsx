@@ -12,8 +12,8 @@ import TextField from 'material-ui/TextField'
 import FlatButton from 'material-ui/FlatButton'
 
 import Button from './Button'
-
 import Styles from './Styles'
+
 
 const styles = {
   container: {
@@ -209,7 +209,7 @@ class Bubble extends React.Component {
                 style={styles.coverAction}
               >
                 <TextField
-                  hintText={!this.state.imageUrlTextFieldFocused && 'image url'}
+                  hintText={!this.state.imageUrlTextFieldFocused && 'Image URL'}
                   inputStyle={{
                     color: 'white',
                     textAlign: 'center',
@@ -452,9 +452,9 @@ class Bubble extends React.Component {
                 onFocus={() => {
                   this.setState({ addButtonTextEditing: true })
                 }}
-                onBlur={(e) => {
-                  if (e.target.value) {
-                    this.addButton(e.target.addButtonTextBuffer)
+                onBlur={() => {
+                  if (this.state.addButtonTextBuffer) {
+                    this.addButton(this.state.addButtonTextBuffer)
                   }
                   this.setState({
                     addButtonTextEditing: false,
