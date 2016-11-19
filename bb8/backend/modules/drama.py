@@ -220,15 +220,15 @@ def render_episodes(episodes, variables):
 
 
 @PureContentModule
-def run(content_config, unused_env, variables):
+def run(config, unused_user_input, unused_env, variables):
     drama_info = DramaInfo()
-    n_items = content_config.get('n_items', DEFAULT_N_ITEMS)
+    n_items = config.get('n_items', DEFAULT_N_ITEMS)
     user_id = GetUserId()
 
     not_found = Message(u'找不到耶！你可以換個關鍵字或試試熱門的類別：')
     append_categories_to_quick_reply(not_found)
 
-    if content_config['mode'] == 'subscribe':
+    if config['mode'] == 'subscribe':
         event = variables['event']
         drama_id = event.value['drama_id']
         Memory.Set('last_query_drama_id', drama_id)
@@ -245,14 +245,14 @@ def run(content_config, unused_env, variables):
                          u'您可以先看看之前的集數喲！')] +
                 render_episodes(episodes, variables))
 
-    if content_config['mode'] == 'unsubscribe':
+    if config['mode'] == 'unsubscribe':
         event = variables['event']
         drama_id = event.value['drama_id']
         drama_info.unsubscribe(user_id, drama_id)
 
         return [Message(u'已成功取消訂閱')]
 
-    if content_config['mode'] == 'get_history':
+    if config['mode'] == 'get_history':
         event = variables['event']
         drama_id = event.value['drama_id']
         Memory.Set('last_query_drama_id', drama_id)
@@ -266,14 +266,14 @@ def run(content_config, unused_env, variables):
 
         return render_episodes(episodes, variables)
 
-    if content_config['mode'] == 'prompt':
+    if config['mode'] == 'prompt':
         m = Message(u'你比較喜歡以下的什麼劇呢？')
         append_categories_to_quick_reply(m)
         return [m]
 
-    country = content_config['mode'].replace('trending_', '')
-    if content_config['mode'] == 'search':
-        query_term = Resolve(content_config['query_term'], variables)
+    country = config['mode'].replace('trending_', '')
+    if config['mode'] == 'search':
+        query_term = Resolve(config['query_term'], variables)
         dramas = drama_info.search(user_id, query_term, n_items)
         if dramas:
             if len(dramas) == 1:
@@ -284,7 +284,7 @@ def run(content_config, unused_env, variables):
             return [m]
         return [not_found]
 
-    if content_config['mode'] == 'search_season':
+    if config['mode'] == 'search_season':
         matches = variables['matches']
         if len(matches) == 3:
             name = matches[1].strip()
@@ -300,14 +300,14 @@ def run(content_config, unused_env, variables):
             return [Message('請先告訴我你要查的劇名')]
 
         s_n = convert_to_arabic_numbers(
-            Resolve(content_config['season'], variables))
+            Resolve(config['season'], variables))
         Memory.Set('last_query_season', s_n)
         episodes = drama_info.get_history(drama_id=drama_id,
                                           from_episode=s_n * 1000 + 1,
                                           backward=False)
         return render_episodes(episodes, variables)
 
-    if content_config['mode'] == 'search_episode':
+    if config['mode'] == 'search_episode':
         matches = variables['matches']
 
         # The regexp pattern segments the result as follows:
@@ -342,7 +342,7 @@ def run(content_config, unused_env, variables):
                 serial_number = s_n * 1000 + e_n
             else:
                 serial_number = convert_to_arabic_numbers(
-                    Resolve(content_config['episode'], variables))
+                    Resolve(config['episode'], variables))
 
             episode = drama_info.get_episode(drama_id, serial_number)
         except Exception:

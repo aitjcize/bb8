@@ -81,7 +81,7 @@ def update_platform(platform_id):
                        CustomError.ERR_WRONG_PARAM,
                        'Platform definition parsing failed')
     DatabaseManager.commit()
-    return jsonify(platform.to_json(['config']))
+    return jsonify(message='ok')
 
 
 @app.route('/api/platforms/<int:platform_id>', methods=['DELETE'])

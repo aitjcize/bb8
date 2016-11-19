@@ -30,7 +30,7 @@ def schema():
     return {}
 
 
-def run(parser_config, user_input, unused_as_root):
+def run(config, user_input, unused_as_root):
     """
     {
       "links": [
@@ -57,7 +57,7 @@ def run(parser_config, user_input, unused_as_root):
         if event.key == 'CONTROL_FLOW':
             if event.value == 'reset':
                 Memory.Clear()
-                return RouteResult(parser_config['done'],
+                return RouteResult(config['done'],
                                    ack_message=u'放棄操作')
         elif event.key == 'SELECT_BOT':
             Memory.Set('bot', event.value)
@@ -79,7 +79,7 @@ def run(parser_config, user_input, unused_as_root):
                         for raw_msg in Memory.Get('broadcast_message')]
                 BroadcastMessage(bot, msgs)
                 Memory.Clear()
-                return RouteResult(parser_config['done'],
+                return RouteResult(config['done'],
                                    ack_message=u'您的訊息已送出!')
             else:
                 Memory.Set('broadcast_message', None)
@@ -93,5 +93,5 @@ def run(parser_config, user_input, unused_as_root):
     return RouteResult()
 
 
-def get_linkages(parser_config):
-    return [parser_config['done']]
+def get_linkages(config):
+    return [config['done']]

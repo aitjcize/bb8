@@ -50,9 +50,9 @@ class Engine(object):
             g.user = user
             if user_input:
                 if config.STORE_CONVERSATION:
-                    Conversation(bot_id=user.bot_id, user_id=user.id,
+                    Conversation(user_id=user.id,
                                  sender_enum=SenderEnum.Human,
-                                 msg=user_input).add()
+                                 messages=user_input).add()
 
                 # Parse audio as text if there are audio payload
                 user_input.ParseAudioAsText(user)
@@ -97,8 +97,8 @@ class Engine(object):
     def run_router_module(self, node, user_input, init_variables,
                           as_root=False):
         """Execute a parser module of a node, then return end_node_id."""
-        pm = node.module.get_python_module()
-        result = pm.run(node.config, user_input, as_root)
+        module = node.module.get_python_module()
+        result = module.run(node.config, user_input, as_root)
         assert isinstance(result, RouteResult)
 
         variables = result.variables
@@ -142,7 +142,7 @@ class Engine(object):
 
             # TODO(aitjcize): figure out how to deal with module exceptions
             module = node.module.get_python_module()
-            result = module.run(node.config, env, input_vars)
+            result = module.run(node.config, user_input, env, input_vars)
 
             # Send message
             if result.messages:

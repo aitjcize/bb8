@@ -229,7 +229,7 @@ class UserInput(object):
 
 
 @PureContentModule
-def run(unused_content_config, env, unused_variables):
+def run(unused_config, unused_user_input, env, unused_variables):
     user_input = UserInput()
     msgs = []  # The output messages.
 

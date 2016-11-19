@@ -70,9 +70,9 @@ def schema():
 
 
 @PureContentModule
-def run(content_config, unused_env, variables):
+def run(config, unused_user_input, unused_env, variables):
     """
-    content_config schema:
+    config schema:
     {
        "type": "random or query",
        "term": "query term if type is query",
@@ -83,18 +83,18 @@ def run(content_config, unused_env, variables):
        }
     }
     """
-    client = imgurpython.ImgurClient(content_config['auth']['client_id'],
-                                     content_config['auth']['client_secret'])
+    client = imgurpython.ImgurClient(config['auth']['client_id'],
+                                     config['auth']['client_secret'])
 
-    if content_config['type'] == 'random':
+    if config['type'] == 'random':
         images = [x for x in client.gallery_random() if
                   isinstance(x, GalleryImage)]
     else:
-        term = Resolve(content_config['term'], variables)
+        term = Resolve(config['term'], variables)
         images = [x for x in client.gallery_search(term) if
                   isinstance(x, GalleryImage)]
 
-    images = random.sample(images, int(content_config['max_count']))
+    images = random.sample(images, int(config['max_count']))
 
     m = Message()
     for i in images:

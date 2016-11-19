@@ -232,6 +232,7 @@ class User(DeclarativeBase, ModelMixin, JSONSerializableMixin):
                       default={'subscribe': False})
 
     platform = relationship('Platform')
+    conversations = relationship('Conversation')
     colleted_data = relationship('CollectedDatum')
 
     def delete(self):
@@ -377,10 +378,9 @@ class Conversation(DeclarativeBase, ModelMixin):
     __tablename__ = 'conversation'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    bot_id = Column(ForeignKey('bot.id'), nullable=False)
     user_id = Column(ForeignKey('user.id'), nullable=False)
     sender_enum = Column(Enum(SenderEnum), nullable=False)
-    msg = Column(PickleType, nullable=False)
+    messages = Column(PickleType, nullable=False)
 
     user = relationship('User')
 
@@ -396,16 +396,17 @@ class Event(DeclarativeBase, ModelMixin):
 
 
 class BroadcastStatusEnum(enum.Enum):
+    DRAFT = 'Draft'
     QUEUED = 'Queued'
     SENDING = 'Sending'
     SENT = 'Sent'
-    CANCELED = 'Canceled'
 
 
 class Broadcast(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     __tablename__ = 'broadcast'
 
-    __json_public__ = ['id', 'bot_id', 'name', 'scheduled_time', 'status']
+    __json_public__ = ['id', 'bot_id', 'name', 'messages', 'scheduled_time',
+                       'status']
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     account_id = Column(ForeignKey('account.id'), nullable=False)
@@ -414,7 +415,7 @@ class Broadcast(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     messages = Column(PickleType, nullable=False)
     scheduled_time = Column(DateTime, nullable=True)
     status = Column(Enum(BroadcastStatusEnum), nullable=False,
-                    default=BroadcastStatusEnum.QUEUED)
+                    default=BroadcastStatusEnum.DRAFT)
 
     account = relationship('Account')
 
@@ -441,7 +442,7 @@ class Broadcast(DeclarativeBase, ModelMixin, JSONSerializableMixin):
                     'item': {'type': 'object'}
                 },
                 'scheduled_time': {'type': 'integer'},
-                'status': {'enum': ['Canceled']}
+                'status': {'enum': ['Draft', 'Queued']}
             }
         }
 

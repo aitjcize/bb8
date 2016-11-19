@@ -71,7 +71,7 @@ class BroadcastAPIUnittest(unittest.TestCase):
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
         self.assertEquals(data['name'], input_data['name'])
-        self.assertEquals(data['status'], 'Queued')
+        self.assertEquals(data['status'], 'Draft')
         self.broadcast_ids.append(data['id'])
 
     def setup_prerequisite(self):
@@ -166,7 +166,7 @@ class BroadcastAPIUnittest(unittest.TestCase):
 
         broadcast_id = data['broadcasts'][0]['id']
 
-        # Test invalid status update, status can only be 'Canceled'
+        # Switch status to Queued
         input_data = {
             'bot_id': self.bot_ids[0],
             'name': 'New broadcast',
@@ -177,27 +177,18 @@ class BroadcastAPIUnittest(unittest.TestCase):
         rv = self.app.put('/api/broadcasts/%d' % broadcast_id,
                           data=json.dumps(input_data),
                           content_type='application/json')
-        self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
-
-        # Test broadcast cancelation
-        input_data = {
-            'bot_id': self.bot_ids[0],
-            'name': 'New broadcast',
-            'messages': [Message('1234').as_dict()],
-            'scheduled_time': int(time.time()),
-            'status': 'Canceled'
-        }
-        rv = self.app.put('/api/broadcasts/%d' % broadcast_id,
-                          data=json.dumps(input_data),
-                          content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
 
-        rv = self.app.get('/api/broadcasts/%d' % broadcast_id)
+        rv = self.app.get('/api/broadcasts/%d' % self.bot_ids[0])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
-        self.assertEquals(data['messages'][0]['text'], '1234')
+        self.assertEquals(data['status'], 'Queued')
 
-        # Broadcast is canceled, should be unmodifiable
+        # Set status to Sent, the broadcast should be unmodifiable
+        b = Broadcast.get_by(id=broadcast_id, single=True)
+        b.status = BroadcastStatusEnum.SENT
+        DatabaseManager.commit()
+
         input_data = {
             'bot_id': self.bot_ids[0],
             'name': 'New broadcast 2',

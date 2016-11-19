@@ -32,12 +32,12 @@ def schema():
 
 
 @PureContentModule
-def run(content_config, unused_env, variables):
+def run(config, unused_user_input, unused_env, variables):
     """
-    content_config schema:
+    config schema:
     {
        "response": "{{variable}",
     }
     """
-    m = Message(Resolve(content_config['response'], variables))
+    m = Message(Resolve(config['response'], variables))
     return [m]

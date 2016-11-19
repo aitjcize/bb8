@@ -35,17 +35,17 @@ def schema():
 
 
 @PureContentModule
-def run(content_config, unused_env, unused_variables):
-    if content_config['target'] == 'memory':
+def run(config, unused_user_input, unused_env, unused_variables):
+    if config['target'] == 'memory':
         target = Memory
     else:
         target = Settings
 
-    if content_config['mode'] == 'set':
-        target.Set('data', content_config['data'])
-    elif content_config['mode'] == 'get':
+    if config['mode'] == 'set':
+        target.Set('data', config['data'])
+    elif config['mode'] == 'get':
         return [Message(target.Get('data'))]
-    elif content_config['mode'] == 'clear':
+    elif config['mode'] == 'clear':
         target.Clear()
 
     return []

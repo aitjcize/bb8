@@ -168,8 +168,9 @@ class DatabaseUnittest(unittest.TestCase):
         self.assertEquals(len(user.colleted_data), 1)
         self.assertEquals(user.colleted_data[0].id, collected_datum.id)
 
-        conversation = Conversation(bot_id=bot.id, user_id=user.id,
-                                    sender_enum=SenderEnum.Bot, msg={}).add()
+        conversation = Conversation(user_id=user.id,
+                                    sender_enum=SenderEnum.Bot,
+                                    messages=[]).add()
         DatabaseManager.commit()
         self.assertNotEquals(Conversation.get_by(id=conversation.id,
                                                  single=True), None)

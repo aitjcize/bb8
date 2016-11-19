@@ -56,7 +56,7 @@ def create_broadcast():
 @login_required
 def show_broadcast(broadcast_id):
     broadcast = get_account_broadcast_by_id(broadcast_id)
-    return jsonify(broadcast.to_json(['messages']))
+    return jsonify(broadcast.to_json())
 
 
 @app.route('/api/broadcasts/<int:broadcast_id>', methods=['PUT'])
@@ -86,7 +86,8 @@ def update_broadcast(broadcast_id):
 def delete_broadcast(broadcast_id):
     """Delete a broadcast."""
     broadcast = get_account_broadcast_by_id(broadcast_id)
-    if broadcast.status == BroadcastStatusEnum.SENT:
+    if broadcast.status in [BroadcastStatusEnum.SENT,
+                            BroadcastStatusEnum.SENDING]:
         raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
                        CustomError.ERR_WRONG_PARAM,
                        'Broadcast not deletable')

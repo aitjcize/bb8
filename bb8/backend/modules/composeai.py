@@ -44,9 +44,9 @@ def schema():
 
 
 @PureContentModule
-def run(content_config, unused_env, variables):
+def run(config, unused_user_input, unused_env, variables):
     """
-    content_config schema:
+    config schema:
     {
         "bot_admins": {
             "platform_user_ident_1": ["bot_id_1", "bot_id_2" ..],
@@ -56,7 +56,7 @@ def run(content_config, unused_env, variables):
     """
     user = g.user
 
-    bots = content_config['bot_admins'].get(user.platform_user_ident)
+    bots = config['bot_admins'].get(user.platform_user_ident)
     if not bots:
         return []
 

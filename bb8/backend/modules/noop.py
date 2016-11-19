@@ -28,5 +28,5 @@ def schema():
 
 
 @PureContentModule
-def run(unused_content_config, unused_env, unused_variables):
+def run(unused_config, unused_user_input, unused_env, unused_variables):
     return []

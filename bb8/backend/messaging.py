@@ -13,6 +13,14 @@ from bb8.backend.database import Conversation, PlatformTypeEnum, SenderEnum
 from bb8.backend.messaging_provider import facebook, line
 
 
+def store_conversation(user, messages):
+    if config.STORE_CONVERSATION:
+        for message in messages:
+            Conversation(user_id=user.id,
+                         sender_enum=SenderEnum.Bot,
+                         messages=message.as_dict()).add()
+
+
 def get_messaging_provider(platform_type):
     if platform_type == PlatformTypeEnum.Facebook:
         return facebook
@@ -33,13 +41,7 @@ def send_message(user, messages):
 
     provider = get_messaging_provider(user.platform.type_enum)
     provider.send_message(user, messages)
-
-    if config.STORE_CONVERSATION:
-        for message in messages:
-            Conversation(bot_id=user.bot_id,
-                         user_id=user.id,
-                         sender_enum=SenderEnum.Bot,
-                         msg=message.as_dict()).add()
+    store_conversation(user, messages)
 
 
 def push_message(user, messages):
@@ -49,13 +51,7 @@ def push_message(user, messages):
 
     provider = get_messaging_provider(user.platform.type_enum)
     provider.push_message(user, messages)
-
-    if config.STORE_CONVERSATION:
-        for message in messages:
-            Conversation(bot_id=user.bot_id,
-                         user_id=user.id,
-                         sender_enum=SenderEnum.Bot,
-                         msg=message.as_dict()).add()
+    store_conversation(user, messages)
 
 
 def download_audio_as_data(user, audio_payload):
