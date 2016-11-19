@@ -405,7 +405,8 @@ class BroadcastStatusEnum(enum.Enum):
 class Broadcast(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     __tablename__ = 'broadcast'
 
-    __json_public__ = ['id', 'bot_id', 'name', 'scheduled_time', 'status']
+    __json_public__ = ['id', 'bot_id', 'name', 'messages', 'scheduled_time',
+                       'status']
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     account_id = Column(ForeignKey('account.id'), nullable=False)

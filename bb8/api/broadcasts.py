@@ -56,7 +56,7 @@ def create_broadcast():
 @login_required
 def show_broadcast(broadcast_id):
     broadcast = get_account_broadcast_by_id(broadcast_id)
-    return jsonify(broadcast.to_json(['messages']))
+    return jsonify(broadcast.to_json())
 
 
 @app.route('/api/broadcasts/<int:broadcast_id>', methods=['PUT'])
