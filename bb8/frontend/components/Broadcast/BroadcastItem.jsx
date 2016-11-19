@@ -9,6 +9,7 @@ import {
   CardHeader,
 } from 'material-ui/Card'
 import Toggle from 'material-ui/Toggle'
+
 import BroadcastEditor from './BroadcastEditor'
 
 const styles = {
@@ -83,19 +84,16 @@ class BroadcastItem extends React.Component {
   constructor(props) {
     super(props)
 
-    this.renderNormalCell = this.renderNormalCell.bind(this)
-    this.renderEditor = this.renderEditor.bind(this)
-
-    this.setState({
-      expandedIdx: props.expandedIdx,
-    })
+    this.renderCell = this.renderCell.bind(this)
   }
 
-  renderNormalCell() {
+  renderCell() {
     const { broadcast } = this.props
     const { name, status, scheduledTime } = broadcast
 
-    return (<Card style={styles.infoContainer}>
+    return (<Card
+      style={styles.infoContainer}
+    >
       <CardHeader
         title={name}
         subtitle={status}
@@ -146,27 +144,14 @@ class BroadcastItem extends React.Component {
     </Card>)
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  renderEditor() {
-    return (
-      <div style={styles.editorContainer}>
-        <BroadcastEditor broadcast={this.props.broadcast} />
-      </div>
-    )
-  }
-
   render() {
     const {
-      idx,
-      lastIdx,
-      expandedIdx,
+      isFirst,
+      isLast,
+      expanded,
+      isPrev,
+      isNext,
     } = this.props
-
-    const isFirst = idx === 0
-    const isLast = idx === lastIdx
-    const expanded = idx === expandedIdx
-    const isPrev = idx === expandedIdx - 1
-    const isNext = idx === expandedIdx + 1
 
     const paperStyle = {
       ...styles.paper,
@@ -191,7 +176,9 @@ class BroadcastItem extends React.Component {
         zDepth={expanded ? 3 : 1}
       >
         {
-          expanded ? this.renderEditor() : this.renderNormalCell()
+          expanded ? (<BroadcastEditor
+            broadcast={this.props.broadcast}
+          />) : this.renderCell()
         }
         {
           isLast || isPrev || expanded ? null : <Divider />
@@ -213,9 +200,11 @@ BroadcastItem.propTypes = {
     // eslint-disable-next-line react/no-unused-prop-types
     scheduledTime: React.PropTypes.number,
   }),
-  idx: React.PropTypes.number,
-  lastIdx: React.PropTypes.number,
-  expandedIdx: React.PropTypes.number,
+  isFirst: React.PropTypes.bool,
+  isLast: React.PropTypes.bool,
+  expanded: React.PropTypes.bool,
+  isPrev: React.PropTypes.bool,
+  isNext: React.PropTypes.bool,
 }
 
 export default BroadcastItem

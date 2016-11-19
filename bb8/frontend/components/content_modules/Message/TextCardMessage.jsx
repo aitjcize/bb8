@@ -1,14 +1,35 @@
 import React from 'react'
 import uniqueId from 'lodash/uniqueId'
 
-import { Card, CardText, CardMedia } from 'material-ui/Card'
+import {
+  Card,
+  CardText,
+  // CardMedia,
+  // CardTitle,
+  // CardHeader,
+} from 'material-ui/Card'
 import ActionDelete from 'material-ui/svg-icons/action/delete'
 import Divider from 'material-ui/Divider'
 import FloatingActionButton from 'material-ui/FloatingActionButton'
-import { ListItem } from 'material-ui/List'
+import {
+  List,
+  // ListItem
+} from 'material-ui/List'
 import TextField from 'material-ui/TextField'
 
 import Button from './Button'
+import Styles from './Styles'
+
+const styles = {
+  container: {
+    display: 'flex',
+  },
+  info: {
+    flex: 1,
+    borderRadius: 0,
+    boxShadow: 'none',
+  },
+}
 
 
 class TextCardMessage extends React.Component {
@@ -29,7 +50,6 @@ class TextCardMessage extends React.Component {
     this.idBut = {}
 
     this.defaultProps = {
-      editorWidth: '18.75em',
       readOnly: false,
     }
   }
@@ -105,25 +125,28 @@ class TextCardMessage extends React.Component {
   render() {
     const showAddButton = this.state.buttonIds.length < 3
     return (
-      <Card style={{ width: this.props.editorWidth }}>
-        <CardText>
-          <TextField
-            hintText="Text to send"
-            value={this.state.text}
-            underlineShow={false}
-            fullWidth
-            multiLine
-            onChange={(e) => {
-              if (!this.props.readOnly) {
-                this.setState({ text: e.target.value })
-              }
-            }}
-            inputStyle={{ fontWeight: '600' }}
-          />
-        </CardText>
-        <CardMedia>
-          <div>
-            <Divider />
+      <div style={styles.container}>
+        <Card
+          style={{
+            ...Styles.card,
+            ...this.props.editorWidth && { width: this.props.editorWidth },
+          }}
+        >
+          <CardText>
+            <TextField
+              hintText="Text to send"
+              value={this.state.text}
+              underlineShow={false}
+              fullWidth
+              multiLine
+              onChange={(e) => {
+                if (!this.props.readOnly) {
+                  this.setState({ text: e.target.value })
+                }
+              }}
+            />
+          </CardText>
+          <List>
             {
             this.state.buttonIds.map((id, index) => (
               <div
@@ -136,6 +159,7 @@ class TextCardMessage extends React.Component {
                   this.setState({ hoverIndex: undefined })
                 }}
               >
+                <Divider />
                 <Button
                   disableShare
                   readOnly={this.props.readOnly}
@@ -151,25 +175,67 @@ class TextCardMessage extends React.Component {
                   <ActionDelete />
                 </FloatingActionButton>
                 }
-                <Divider />
               </div>
             ))
             }
             {!this.props.readOnly && showAddButton && (
-            <ListItem
-              primaryText="Add a button"
-              onClick={this.onAddClicked}
-            />
+            <div>
+              <Divider />
+              <TextField
+                fullWidth
+                underlineShow={false}
+                value={this.state.addButtonTextBuffer}
+                hintText={!this.state.addButtonTextEditing && 'New Button'}
+                inputStyle={{ textAlign: 'center' }}
+                hintStyle={{
+                  textAlign: 'center',
+                  width: '100%',
+                  color: '#29D3A4',
+                }}
+                onChange={(e) => {
+                  this.setState({ addButtonTextBuffer: e.target.value })
+                }}
+                onFocus={() => {
+                  this.setState({ addButtonTextEditing: true })
+                }}
+                onBlur={(e) => {
+                  if (e.target.value) this.onAddClicked()
+                  this.setState({
+                    addButtonTextEditing: false,
+                    addButtonTextBuffer: '',
+                  })
+                }}
+                onKeyPress={(e) => {
+                  if (e.nativeEvent.which === 13 && e.target.value) {
+                    this.setState({
+                      addButtonTextEditing: this.state.buttonIds.length < 2,
+                      addButtonTextBuffer: '',
+                    })
+                    this.onAddClicked()
+                  }
+                }}
+              />
+            </div>
             )}
-          </div>
-        </CardMedia>
-      </Card>
+          </List>
+        </Card>
+        {/*
+        <Card style={styles.info}>
+          <CardTitle
+            title="Text Card"
+            subtitle="a card with text and actions!"
+          />
+          <CardText>
+          </CardText>
+        </Card>
+        */}
+      </div>
     )
   }
 }
 
 TextCardMessage.propTypes = {
-  editorWidth: React.PropTypes.string.isRequired,
+  editorWidth: React.PropTypes.string,
   readOnly: React.PropTypes.bool,
 }
 

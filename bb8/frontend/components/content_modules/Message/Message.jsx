@@ -4,17 +4,41 @@ import uniqueId from 'lodash/uniqueId'
 import { Validator } from 'jsonschema'
 
 import Snackbar from 'material-ui/Snackbar'
-import ActionDelete from 'material-ui/svg-icons/action/delete'
-import { Card, CardHeader, CardMedia } from 'material-ui/Card'
+// import ActionDelete from 'material-ui/svg-icons/action/delete'
+import {
+  Card,
+  // CardHeader,
+  // CardMedia,
+  // CardText
+} from 'material-ui/Card'
 import Divider from 'material-ui/Divider'
-import FloatingActionButton from 'material-ui/FloatingActionButton'
-import { ListItem } from 'material-ui/List'
+// import FloatingActionButton from 'material-ui/FloatingActionButton'
+import { List, ListItem } from 'material-ui/List'
+import Subheader from 'material-ui/Subheader'
+// import FlatButton from 'material-ui/FlatButton'
 
 import TextCardMessage from './TextCardMessage'
 import CarouselMessage from './CarouselMessage'
 import ImageMessage from './ImageMessage'
+import ButtonGroup from './ButtonGroup'
+import Styles from './Styles'
 
 import ModuleInfos from '../../../constants/ModuleInfos.json'
+
+const styles = {
+  container: {
+    padding: '1.5em',
+    display: 'flex',
+    flexDirection: 'column',
+    borderRadius: 0,
+    boxShadow: 'none',
+  },
+  messageContainer: {
+    flex: 1,
+    position: 'relative',
+    marginBottom: '1em',
+  },
+}
 
 
 class Message extends React.Component {
@@ -123,8 +147,9 @@ class Message extends React.Component {
     const showAddButton = (
       this.state.messageInfos.length < this.props.maxMessages)
 
+
     return (
-      <div>
+      <div style={styles.container}>
         {
         this.state.messageInfos.map((info, index) => {
           let messageContent
@@ -154,6 +179,7 @@ class Message extends React.Component {
               />
             )
           }
+
           return (
             <div
               key={info.id}
@@ -163,35 +189,25 @@ class Message extends React.Component {
               onMouseLeave={() => {
                 this.setState({ hoverIndex: undefined })
               }}
-              style={{
-                margin: '1.4em',
-                position: 'relative',
-              }}
+              style={styles.messageContainer}
             >
               {messageContent}
               {!this.props.readOnly &&
-               this.state.hoverIndex === index &&
-               <FloatingActionButton
-                 mini
-                 secondary
-                 onClick={() => { this.onRemoveClicked(info.id) }}
-                 style={{ position: 'absolute', left: -20, top: -20 }}
-               >
-                 <ActionDelete />
-               </FloatingActionButton>
+                info.type !== 'CarouselMessage' &&
+                <ButtonGroup
+                  onRemoveClicked={() => { this.onRemoveClicked(info.id) }}
+                />
               }
             </div>
           )
         })
         }
         {showAddButton &&
-        <Card style={{ width: this.props.editorWidth, margin: '1.4em' }}>
-          <CardHeader
-            title="Add a new message"
-            style={{ fontWeight: '900' }}
-          />
-          <CardMedia>
-            <Divider />
+        <Card style={Styles.card}>
+          <List>
+            <Subheader>
+              New message
+            </Subheader>
             <ListItem
               primaryText="Text Card"
               onClick={() => { this.onAddClicked('TextCardMessage') }}
@@ -206,7 +222,7 @@ class Message extends React.Component {
               primaryText="Carousel"
               onClick={() => { this.onAddClicked('CarouselMessage') }}
             />
-          </CardMedia>
+          </List>
         </Card>
         }
         <Snackbar

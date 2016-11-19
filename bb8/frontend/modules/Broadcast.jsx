@@ -43,6 +43,7 @@ class Broadcast extends React.Component {
     this.handleConfirmSendDialog = this.handleConfirmSendDialog.bind(this)
     this.handleCloseDialog = this.handleCloseDialog.bind(this)
     this.renderBroadcastEditor = this.renderBroadcastEditor.bind(this)
+    this.handleKeyDownEsc = this.handleKeyDownEsc.bind(this)
 
     this.state = {
       dialogOpen: DIALOG_STATE.CLOSE,
@@ -52,8 +53,20 @@ class Broadcast extends React.Component {
     }
   }
 
+
   componentWillMount() {
     this.props.dispatchGetAllBroadcasts(this.props.activeBotId)
+  }
+
+  componentDidMount() {
+    window.addEventListener('keydown', this.handleKeyDownEsc)
+    // window.addEventListener('mousedown', (e) => {
+      // TODO: click empty field to end edit seasons.
+    // })
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.handleKeyDownEsc)
   }
 
   handleOpenEditor(broadcast) {
@@ -65,8 +78,18 @@ class Broadcast extends React.Component {
     return this.state.editorOpen
   }
 
+  handleKeyDownEsc(e) {
+    // TODO: on ESC pressed
+    if (e.which === 27) {
+      this.handleCloseEditor()
+    }
+  }
+
   handleCloseEditor() {
-    this.setState({ editorOpen: false })
+    this.setState({
+      editorOpen: false,
+      editingBroadcast: {},
+    })
   }
 
   handleOpenDeleteDialog(id) {
@@ -144,8 +167,7 @@ class Broadcast extends React.Component {
 
     return (
       <div style={styles.container}>
-        {
-      /*
+        {/*
         <Dialog
           title={`Confirm ${this.state.dialogOpen === DIALOG_STATE.DELETE ? 'Delete' : 'Send'}`}
           actions={this.state.dialogOpen === DIALOG_STATE.DELETE ?
@@ -176,39 +198,36 @@ class Broadcast extends React.Component {
             <BroadcastItem
               key={b.id}
               broadcast={b}
-              handleEdit={() => {
-                this.setState({
-                  futureBroadcastsExpandedIdx: idx,
-                  pastBroadcastsExpandedIdx: undefined,
-                })
-                this.handleOpenEditor(b)
-              }}
+              handleEdit={() => { this.handleOpenEditor(b) }}
               handleDelete={() => this.handleOpenDeleteDialog(b.id)}
               handleSend={() => this.handleOpenSendDialog(b.id)}
               expandedIdx={this.state.futureBroadcastsExpandedIdx}
-              idx={idx}
-              lastIdx={this.props.futureBroadcasts.length - 1}
+              isFirst={idx === 0}
+              isLast={idx === this.props.futureBroadcasts.length - 1}
+              expanded={b.id === this.state.editingBroadcast.id}
+              isNext={!!this.props.futureBroadcasts[idx - 1] &&
+                this.state.editingBroadcast.id === this.props.futureBroadcasts[idx - 1].id}
+              isPrev={!!this.props.futureBroadcasts[idx + 1] &&
+                this.state.editingBroadcast.id === this.props.futureBroadcasts[idx + 1].id}
             />
           )
         }
-        <Subheader>History broadcasts</Subheader>
+        {this.props.pastBroadcasts.length > 0 && <Subheader>History broadcasts</Subheader>}
         {
           this.props.pastBroadcasts.map((b, idx) =>
             <BroadcastItem
               key={b.id}
               broadcast={b}
-              handleEdit={() => {
-                this.setState({
-                  futureBroadcastsExpandedIdx: undefined,
-                  pastBroadcastsExpandedIdx: idx,
-                })
-                this.handleOpenEditor(b)
-              }}
+              handleEdit={() => { this.handleOpenEditor(b) }}
               handleDelete={() => this.handleOpenDeleteDialog(b.id)}
               handleSend={() => this.handleOpenSendDialog(b.id)}
-              expandedIdx={this.state.pastBroadcastsExpandedIdx}
-              idx={idx}
-              lastIdx={this.props.pastBroadcasts.length - 1}
+              isFirst={idx === 0}
+              isLast={idx === this.props.pastBroadcasts.length - 1}
+              expanded={b.id === this.state.editingBroadcast.id}
+              isNext={!!this.props.pastBroadcasts[idx - 1] &&
+                this.state.editingBroadcast.id === this.props.pastBroadcasts[idx - 1].id}
+              isPrev={!!this.props.pastBroadcasts[idx + 1] &&
+                this.state.editingBroadcast.id === this.props.pastBroadcasts[idx + 1].id}
             />
           )
         }
@@ -228,8 +247,12 @@ Broadcast.propTypes = {
   dispatchDelBroadcast: React.PropTypes.func,
   dispatchSendBroadcast: React.PropTypes.func,
   activeBotId: React.PropTypes.number,
-  pastBroadcasts: React.PropTypes.arrayOf(React.PropTypes.shape({})),
-  futureBroadcasts: React.PropTypes.arrayOf(React.PropTypes.shape({})),
+  pastBroadcasts: React.PropTypes.arrayOf(React.PropTypes.shape({
+    id: React.PropTypes.Number,
+  })),
+  futureBroadcasts: React.PropTypes.arrayOf(React.PropTypes.shape({
+    id: React.PropTypes.Number,
+  })),
   broadcasts: React.PropTypes.objectOf(React.PropTypes.shape({})),
 }
 
