@@ -41,6 +41,7 @@ class Config(object):
 
     # Server
     HOSTNAME = os.getenv('BB8_HOSTNAME', 'dev.compose.ai')
+    RESOURCE_HOSTNAME = os.getenv('BB8_RESOURCE_HOSTNAME', 'r-dev.compose.ai')
     HTTP_PORT = int(os.getenv('HTTP_PORT', 7000))
 
     # Ports
@@ -122,6 +123,7 @@ class DeployConfig(DevelopmentConfig):
 
     # Server
     HOSTNAME = os.getenv('BB8_HOSTNAME', 'bot.compose.ai')
+    RESOURCE_HOSTNAME = os.getenv('BB8_RESOURCE_HOSTNAME', 'r.compose.ai')
 
     # Third-Party apps hostname map
     APP_HOSTNAME_MAP = {

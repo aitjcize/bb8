@@ -21,6 +21,7 @@ export MYSQL_PORT=3307
 export REDIS_PORT=6379
 export HTTP_PORT=7000
 export BB8_HOSTNAME=dev.compose.ai
+export BB8_RESOURCE_HOSTNAME=r-dev.compose.ai
 export BB8_SCOPE=$USER
 
 # Per-User port config for users testing on same machine
@@ -29,6 +30,7 @@ case $USER in
     export BB8_DEPLOY=true
     export HTTP_PORT=5000
     export BB8_HOSTNAME=bot.compose.ai
+    export BB8_RESOURCE_HOSTNAME=r.compose.ai
     ;;
   aitjcize)
     export MYSQL_PORT=3308
