@@ -53,7 +53,7 @@ class Config(object):
 
     # Options
     COMMIT_ON_APP_TEARDOWN = True
-    STORE_CONVERSATION = False
+    STORE_CONVERSATION = True
 
     # Third-Party apps hostname map
     if os.getenv('BB8_IN_DOCKER', False) == 'true':

@@ -50,9 +50,9 @@ class Engine(object):
             g.user = user
             if user_input:
                 if config.STORE_CONVERSATION:
-                    Conversation(bot_id=user.bot_id, user_id=user.id,
+                    Conversation(user_id=user.id,
                                  sender_enum=SenderEnum.Human,
-                                 msg=user_input).add()
+                                 messages=user_input).add()
 
                 # Parse audio as text if there are audio payload
                 user_input.ParseAudioAsText(user)

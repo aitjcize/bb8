@@ -232,6 +232,7 @@ class User(DeclarativeBase, ModelMixin, JSONSerializableMixin):
                       default={'subscribe': False})
 
     platform = relationship('Platform')
+    conversations = relationship('Conversation')
     colleted_data = relationship('CollectedDatum')
 
     def delete(self):
@@ -377,10 +378,9 @@ class Conversation(DeclarativeBase, ModelMixin):
     __tablename__ = 'conversation'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    bot_id = Column(ForeignKey('bot.id'), nullable=False)
     user_id = Column(ForeignKey('user.id'), nullable=False)
     sender_enum = Column(Enum(SenderEnum), nullable=False)
-    msg = Column(PickleType, nullable=False)
+    messages = Column(PickleType, nullable=False)
 
     user = relationship('User')
 
