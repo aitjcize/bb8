@@ -1,6 +1,7 @@
 import React from 'react'
+import CircularProgress from 'material-ui/CircularProgress'
 
-const drawDiagram = (startDate, endDate, viewId) => {
+const drawDiagram = (startDate, endDate, viewId, callback) => {
   if (!viewId) return
 
   const gaViewId = `ga:${viewId}`
@@ -120,6 +121,8 @@ const drawDiagram = (startDate, endDate, viewId) => {
     },
   })
   dataChart6.execute()
+
+  dataChart1.on('success', callback)
 }
 
 const CLIENT_ID = '791471658501-jdp3nf8jc1aueei26qhh73npe35r167o.apps.googleusercontent.com'
@@ -144,7 +147,7 @@ class Diagrams extends React.Component {
 
     super(props)
     const { startDate, endDate, gaId } = this.props
-    this.state = { startDate, endDate, gaId }
+    this.state = { startDate, endDate, gaId, loading: true }
 
     this.loadMapping = this.loadMapping.bind(this)
     this.mapping = {}
@@ -171,6 +174,10 @@ class Diagrams extends React.Component {
       } else {
         this.loadMapping().then(mapping => this.setState({ viewId: mapping[gaId] }))
       }
+      // eslint-disable-next-line no-undef
+      gapi.analytics.auth.on('needsAuthorization', () => {
+        this.setState({ loading: false })
+      })
     })
   }
 
@@ -205,7 +212,9 @@ class Diagrams extends React.Component {
         this.state.viewId === prevState.viewId) {
       return
     }
-    drawDiagram(this.state.startDate, this.state.endDate, this.state.viewId)
+    drawDiagram(this.state.startDate, this.state.endDate, this.state.viewId, () => {
+      this.setState({ loading: false })
+    })
   }
 
   loadMapping() {
@@ -237,6 +246,7 @@ class Diagrams extends React.Component {
   render() {
     return (
       <div>
+        { this.state.loading ? <CircularProgress size={80} thickness={5} /> : null }
         <div id="embed-api-auth-container" />
         <div id="chart-1-container" />
         <div id="chart-2-container" />
