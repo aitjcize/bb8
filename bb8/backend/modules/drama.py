@@ -332,7 +332,7 @@ def run(config, unused_user_input, unused_env, variables):
                 if matches[2] is None:
                     s_n = Memory.Get('last_query_season')
                     if s_n is None:
-                        return [Message('請輸入「第X季 第Y集」來查詢哦！')]
+                        s_n = 1
                 else:
                     s_n = convert_to_arabic_numbers(matches[2])
                     Memory.Set('last_query_season', s_n)
