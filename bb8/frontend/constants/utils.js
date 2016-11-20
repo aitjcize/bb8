@@ -1,4 +1,4 @@
-function createRequestTypes(base) {
+export function createRequestTypes(base) {
   return {
     REQUEST: `${base}_REQUEST`,
     SUCCESS: `${base}_SUCCESS`,
@@ -6,4 +6,10 @@ function createRequestTypes(base) {
   }
 }
 
-export default createRequestTypes
+export function createDialogTypes(base) {
+  return {
+    OPEN: `${base}_OPEN`,
+    CONFIRM: `${base}_CONFIRM`,
+    CANCEL: `${base}_CANCEL`,
+  }
+}

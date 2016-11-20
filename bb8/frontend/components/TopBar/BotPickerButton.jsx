@@ -12,7 +12,7 @@ import MenuItem from 'material-ui/MenuItem'
 import IconArrowDropUp from 'material-ui/svg-icons/navigation/arrow-drop-up'
 import IconArrowDropDown from 'material-ui/svg-icons/navigation/arrow-drop-down'
 
-import { setActiveBot, getAllBots } from '../../actions'
+import { setActiveBot, getAllBots } from '../../actions/botActionCreators'
 
 import BotListCell from './BotPickerListItem'
 import BotCreateDialog from './BotCreateDialog'

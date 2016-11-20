@@ -5,7 +5,7 @@ import TextField from 'material-ui/TextField'
 import RaisedButton from 'material-ui/RaisedButton'
 import validator from 'validator'
 
-import { startLogin } from '../actions'
+import { startLogin } from '../actions/accountActionCreators'
 
 
 function validate(values) {

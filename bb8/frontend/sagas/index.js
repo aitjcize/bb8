@@ -229,6 +229,25 @@ export function* deleteBroadcastSaga() {
   }
 }
 
+/* Dialog Saga */
+
+export function* confirmBroadcastDateSaga() {
+  while (true) {
+    const { payload } = yield take(types.DIALOG_BROADCAST_DATE.CONFIRM)
+
+    yield put({
+      type: types.BROADCASTS_UPDATE.REQUEST,
+      payload: {
+        broadcastId: payload.id,
+        broadcast: Object.assign({}, payload, { status: 'Queued' }),
+      },
+    })
+
+    yield take(types.BROADCASTS_UPDATE.SUCCESS)
+    yield put({ type: types.DIALOG_CLOSE })
+  }
+}
+
 export default function* root() {
   /* General Saga */
   yield fork(initializeAppSaga)
@@ -248,9 +267,12 @@ export default function* root() {
   yield fork(updatePlatformSaga)
   yield fork(deletePlatformSaga)
 
-  /* Broadcast Sagas */
+  /* Broadcast Saga */
   yield fork(fetchBroadcastsSaga)
   yield fork(createBroadcastSaga)
   yield fork(updateBroadcastSaga)
   yield fork(deleteBroadcastSaga)
+
+  /* Dialog Saga */
+  yield fork(confirmBroadcastDateSaga)
 }

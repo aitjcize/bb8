@@ -7,6 +7,7 @@ import isArray from 'lodash/isArray'
 import AccountsReducer from './AccountsReducer'
 import BotsReducer from './BotsReducer'
 import BroadcastsReducer from './BroadcastsReducer'
+import DialogReducer from './DialogReducer'
 import NotificationReducer from './NotificationReducer'
 import PlatformsReducer from './PlatformsReducer'
 
@@ -30,6 +31,7 @@ const rootReducer = combineReducers({
   account: AccountsReducer,
   bots: BotsReducer,
   broadcasts: BroadcastsReducer,
+  dialog: DialogReducer,
   notification: NotificationReducer,
   platforms: PlatformsReducer,
   routing: routerReducer,

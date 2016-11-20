@@ -1,4 +1,4 @@
-import createRequestTypes from './utils'
+import { createRequestTypes, createDialogTypes } from './utils'
 
 export default {
 
@@ -38,4 +38,8 @@ export default {
   // UI
   NOTIFICATION_OPEN: 'NOTIFICATION_OPEN',
   NOTIFICATION_CLOSE: 'NOTIFICATION_CLOSE',
+
+  // Dialog
+  DIALOG_CLOSE: 'DIALOG_CLOSE',
+  DIALOG_BROADCAST_DATE: createDialogTypes('DIALOG_BROADCAST_DATE'),
 }

@@ -1,6 +1,6 @@
 import types from '../constants/ActionTypes'
 import NotificationReducer from './NotificationReducer' 
-import { openNotification, closeNotification } from '../actions'
+import { openNotification, closeNotification } from '../actions/uiActionCreators'
 
 describe('Reducer for Notifications', () => {
   it('should return the initial state', () => {
