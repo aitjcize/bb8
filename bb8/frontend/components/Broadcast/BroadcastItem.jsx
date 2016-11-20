@@ -1,4 +1,7 @@
 import React from 'react'
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
+
 import Moment from 'moment'
 import FlatButton from 'material-ui/FlatButton'
 import Divider from 'material-ui/Divider'
@@ -11,6 +14,8 @@ import {
 import Toggle from 'material-ui/Toggle'
 
 import BroadcastEditor from './BroadcastEditor'
+import * as dialogActionCreators from '../../actions/dialogActionCreators'
+import * as broadcastActionCreators from '../../actions/broadcastActionCreators'
 
 const styles = {
   container: {
@@ -84,7 +89,21 @@ class BroadcastItem extends React.Component {
   constructor(props) {
     super(props)
 
+    this.handleToggle = this.handleToggle.bind(this)
     this.renderCell = this.renderCell.bind(this)
+  }
+
+  handleToggle() {
+    if (this.props.broadcast.status === 'Draft') {
+      const actionCreator = bindActionCreators(
+        dialogActionCreators, this.props.dispatch)
+      actionCreator.openBroadcastDate(this.props.broadcast)
+    } else {
+      const actionCreator = bindActionCreators(
+        broadcastActionCreators, this.props.dispatch)
+      actionCreator.updateBroadcast(this.props.broadcast.id,
+        Object.assign(this.props.broadcast, { status: 'Draft' }))
+    }
   }
 
   renderCell() {
@@ -102,23 +121,26 @@ class BroadcastItem extends React.Component {
       >
         <div style={styles.infoHeaderGroupRight}>
           <Toggle
-            label={true ? 'Scheduled' : 'Set schedule'}
-            defaultToggled
+            label={broadcast.status === 'Draft' ? 'Set schedule' : 'Scheduled'}
+            toggled={broadcast.status !== 'Draft'}
             style={styles.infoHeaderToggle}
             labelStyle={styles.infoHeaderToggleLabel}
+            onToggle={this.handleToggle}
           />
-          <FlatButton
-            style={{ display: 'flex', alignItems: 'center' }}
-            labelStyle={{
-              textTransform: 'none',
-            }}
-            label={
-              Moment.unix(scheduledTime).calendar(null, {
-                sameElse: 'll',
-              })
-            }
-            labelPosition="before"
-          />
+          { broadcast.status === 'Draft' ? null :
+            <FlatButton
+              style={{ display: 'flex', alignItems: 'center' }}
+              labelStyle={{
+                textTransform: 'none',
+              }}
+              label={
+                Moment.unix(scheduledTime).calendar(null, {
+                  sameElse: 'll',
+                })
+              }
+              labelPosition="before"
+            />
+          }
         </div>
       </CardHeader>
       <CardActions style={styles.infoActionsContainer}>
@@ -194,11 +216,13 @@ class BroadcastItem extends React.Component {
 }
 
 BroadcastItem.propTypes = {
+  dispatch: React.PropTypes.func,
   handleEdit: React.PropTypes.func,
   handleCloseEditor: React.PropTypes.func,
   handleDelete: React.PropTypes.func,
   handleSend: React.PropTypes.func,
   broadcast: React.PropTypes.shape({
+    id: React.PropTypes.number,
     // eslint-disable-next-line react/no-unused-prop-types
     name: React.PropTypes.string,
     // eslint-disable-next-line react/no-unused-prop-types
@@ -213,4 +237,6 @@ BroadcastItem.propTypes = {
   isNext: React.PropTypes.bool,
 }
 
-export default BroadcastItem
+const ConnectedBroadcastItem = connect()(BroadcastItem)
+
+export default ConnectedBroadcastItem

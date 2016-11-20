@@ -10,7 +10,8 @@ import Subheader from 'material-ui/Subheader'
 
 import { BroadcastItem, BroadcastEditor } from '../components/Broadcast'
 
-import { getAllBroadcasts, updateBroadcast, delBroadcast, openNotification } from '../actions'
+import { getAllBroadcasts, updateBroadcast, delBroadcast } from '../actions/broadcastActionCreators'
+import { openNotification } from '../actions/uiActionCreators'
 
 const DIALOG_STATE = {
   CLOSE: 0,

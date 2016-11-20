@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import Snackbar from 'material-ui/Snackbar'
 
-import { closeNotification } from '../actions'
+import { closeNotification } from '../actions/uiActionCreators'
 
 const Notification = props => (
   <Snackbar

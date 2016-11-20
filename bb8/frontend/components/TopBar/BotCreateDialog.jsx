@@ -6,7 +6,7 @@ import Dialog from 'material-ui/Dialog'
 import FlatButton from 'material-ui/FlatButton'
 import TextField from 'material-ui/TextField'
 
-import { createBot } from '../../actions'
+import { createBot } from '../../actions/botActionCreators'
 
 const NAME_LIMIT = 30
 const DESC_LIMIT = 150

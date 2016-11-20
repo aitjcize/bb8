@@ -10,7 +10,7 @@ import ContentAdd from 'material-ui/svg-icons/content/add'
 import LineLogo from '../assets/line_logo.png'
 import FBLogo from '../assets/facebook_logo.png'
 
-import { getPlatforms, updatePlatform, delPlatform } from '../actions'
+import { getPlatforms, updatePlatform, delPlatform } from '../actions/platformActionCreators'
 import PlatformForm from '../components/PlatformForm'
 
 const DeployStatus = (props) => {

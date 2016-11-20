@@ -1,4 +1,3 @@
-import Moment from 'moment'
 import React from 'react'
 import { connect } from 'react-redux'
 
@@ -10,32 +9,14 @@ import TextField from 'material-ui/TextField'
 import { Card, CardActions, CardHeader } from 'material-ui/Card'
 
 import Message from '../modules/Message'
-import { createBroadcast, updateBroadcast, openNotification } from '../../actions'
-
-
-function combineDateTime(date, time) {
-  if (!date || !time) {
-    return null
-  }
-
-  const d = Moment(date)
-  const t = Moment(time)
-
-  const scheduledTime = Moment(d)
-  scheduledTime
-    .hours(t.hours())
-    .minutes(t.minutes())
-    .seconds(t.seconds())
-  return scheduledTime.unix()
-}
+import { createBroadcast, updateBroadcast } from '../../actions/broadcastActionCreators'
+import { openNotification } from '../../actions/uiActionCreators'
 
 class BroadcastEditor extends React.Component {
   constructor(props) {
     super(props)
 
     this.handleNameChange = this.handleNameChange.bind(this)
-    this.handleDateChange = this.handleDateChange.bind(this)
-    this.handleTimeChange = this.handleTimeChange.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
 
     this.state = {
@@ -75,30 +56,6 @@ class BroadcastEditor extends React.Component {
     }
   }
 
-  handleDateChange(e, date) {
-    const scheduledTime = combineDateTime(
-      date, this.state.timepickerVal)
-
-    this.setState({
-      datepickerVal: date,
-      broadcast: Object.assign(
-        {}, this.state.broadcast, { scheduledTime }
-      ),
-    })
-  }
-
-  handleTimeChange(e, time) {
-    const scheduledTime = combineDateTime(
-      this.state.datepickerVal, time)
-
-    this.setState({
-      timepickerVal: time,
-      broadcast: Object.assign(
-        {}, this.state.broadcast, { scheduledTime }
-      ),
-    })
-  }
-
   handleSubmit() {
     this.setState({ dialogOpen: false })
 
@@ -118,6 +75,8 @@ class BroadcastEditor extends React.Component {
       this.props.handleShowNotification('Cannot save a broadcast with no message')
       return
     }
+
+    this.props.handleShowNotification('Successfully saved the broadcast')
 
     this.props.handleCloseEditor()
     const broadcast = {
@@ -220,7 +179,7 @@ BroadcastEditor.propTypes = {
   activeBotId: React.PropTypes.number,
   styles: React.PropTypes.objectOf(stylePropType),
   broadcast: React.PropTypes.shape({
-    messages: React.PropTypes.shape({}),
+    messages: React.PropTypes.arrayOf(React.PropTypes.shape({})),
   }),
   handleUpdateBroadcast: React.PropTypes.func,
   handleCreateBroadcast: React.PropTypes.func,

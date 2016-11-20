@@ -8,7 +8,8 @@ import SelectField from 'material-ui/SelectField'
 import MenuItem from 'material-ui/MenuItem'
 
 import config from '../config'
-import { createPlatform, updatePlatform, openNotification } from '../actions'
+import { createPlatform, updatePlatform } from '../actions/platformActionCreators'
+import { openNotification } from '../actions/uiActionCreators'
 
 class PlatformForm extends React.Component {
   constructor(props) {

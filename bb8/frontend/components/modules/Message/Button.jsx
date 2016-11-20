@@ -64,7 +64,10 @@ class Button extends React.Component {
 
   validateUrl() {
     const valid = /^(http|https):\/\/[^ "]+$/.test(this.state.url)
-    if (!valid && this.state.url !== '') {
+    if (!this.state.url) {
+      this.setState({ urlEditorError: 'Please enter a url of this picture' })
+      return false
+    } else if (!valid && this.state.url !== '') {
       this.setState({ urlEditorError: 'Invalid URL' })
       return false
     }
@@ -161,7 +164,7 @@ class Button extends React.Component {
             errorText={this.state.urlEditorError}
             value={this.state.url}
             style={{ margin: '0.125em 0.5em' }}
-            onChange={(e) => { this.setState({ url: e.target.value }) }}
+            onChange={(e) => { this.setState({ url: e.target.value }, () => this.validateUrl()) }}
             onKeyPress={(e) => {
               if (e.nativeEvent.code === 'Enter') {
                 if (this.validateUrl()) {

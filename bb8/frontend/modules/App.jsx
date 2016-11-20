@@ -3,10 +3,11 @@ import { connect } from 'react-redux'
 
 import Paper from 'material-ui/Paper'
 
-import { initializeApp } from '../actions'
 import TopBar from '../components/TopBar'
 import SideMenu from '../components/SideMenu'
 import Notification from '../components/Notification'
+
+import { initializeApp } from '../actions/uiActionCreators'
 
 const styles = {
   container: {
@@ -46,6 +47,7 @@ class App extends React.Component {
   render() {
     return (<Paper style={styles.container}>
       <Notification />
+      { this.props.dialogComponent }
       <SideMenu style={styles.sideMenu} />
       <div style={styles.row}>
         <TopBar style={styles.topBar} />
@@ -60,10 +62,13 @@ class App extends React.Component {
 App.propTypes = {
   dispatchInit: React.PropTypes.func,
   children: React.PropTypes.node,
+  dialogComponent: React.PropTypes.element,
 }
 
 const ConnectedApp = connect(
-  () => ({}),
+  state => ({
+    dialogComponent: state.dialog.component,
+  }),
   dispatch => ({
     dispatchInit() {
       dispatch(initializeApp())
