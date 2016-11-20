@@ -119,6 +119,8 @@ class BroadcastEditor extends React.Component {
       return
     }
 
+    this.props.handleShowNotification('Successfully saved the broadcast')
+
     this.props.handleCloseEditor()
     const broadcast = {
       name: this.state.broadcast.name,
@@ -220,7 +222,7 @@ BroadcastEditor.propTypes = {
   activeBotId: React.PropTypes.number,
   styles: React.PropTypes.objectOf(stylePropType),
   broadcast: React.PropTypes.shape({
-    messages: React.PropTypes.shape({}),
+    messages: React.PropTypes.arrayOf(React.PropTypes.shape({})),
   }),
   handleUpdateBroadcast: React.PropTypes.func,
   handleCreateBroadcast: React.PropTypes.func,
