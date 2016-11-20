@@ -127,18 +127,20 @@ class BroadcastItem extends React.Component {
             labelStyle={styles.infoHeaderToggleLabel}
             onToggle={this.handleToggle}
           />
-          <FlatButton
-            style={{ display: 'flex', alignItems: 'center' }}
-            labelStyle={{
-              textTransform: 'none',
-            }}
-            label={
-              Moment.unix(scheduledTime).calendar(null, {
-                sameElse: 'll',
-              })
-            }
-            labelPosition="before"
-          />
+          { broadcast.status === 'Draft' ? null :
+            <FlatButton
+              style={{ display: 'flex', alignItems: 'center' }}
+              labelStyle={{
+                textTransform: 'none',
+              }}
+              label={
+                Moment.unix(scheduledTime).calendar(null, {
+                  sameElse: 'll',
+                })
+              }
+              labelPosition="before"
+            />
+          }
         </div>
       </CardHeader>
       <CardActions style={styles.infoActionsContainer}>

@@ -4,15 +4,31 @@ import { connect } from 'react-redux'
 
 import Dialog from 'material-ui/Dialog'
 import FlatButton from 'material-ui/FlatButton'
+import TextField from 'material-ui/TextField'
 
 import * as dialogActionCreators from '../../actions/dialogActionCreators'
 
 class BroadcastDateDialog extends React.Component {
   constructor(props) {
     super(props)
+
+    this.handleDateChange = this.handleDateChange.bind(this)
+    this.handleTimeChange = this.handleTimeChange.bind(this)
     this.state = {
       date: new Date(),
     }
+  }
+
+  // FIXME(kevin): temporarily disable lint until this is implemented
+  // eslint-disable-next-line class-methods-use-this
+  handleDateChange() {
+
+  }
+
+  // FIXME(kevin): temporarily disable lint until this is implemented
+  // eslint-disable-next-line class-methods-use-this
+  handleTimeChange() {
+
   }
 
   render() {
@@ -42,7 +58,14 @@ class BroadcastDateDialog extends React.Component {
         open={this.props.open}
         onRequestClose={actionCreators.closeDialog}
       >
-        { 'some date picker here...' }
+        <TextField
+          hintText="mm/dd/yyyy"
+          onChange={this.handleDateChange}
+        />
+        <TextField
+          hintText="hh/mm"
+          onChange={this.handleTimeChange}
+        />
       </Dialog>
     )
   }
