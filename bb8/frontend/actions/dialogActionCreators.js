@@ -17,3 +17,23 @@ export const confirmBroadcastDate = (broadcast, date) => ({
     broadcast,
     { scheduledTime: Moment(date).unix() }),
 })
+
+export const openSendBroadcast = broadcast => ({
+  type: types.DIALOG_BROADCAST_SEND.OPEN,
+  payload: broadcast,
+})
+
+export const confirmSendBroadcast = broadcast => ({
+  type: types.DIALOG_BROADCAST_SEND.CONFIRM,
+  payload: broadcast,
+})
+
+export const openDelBroadcast = broadcastId => ({
+  type: types.DIALOG_BROADCAST_DEL.OPEN,
+  payload: broadcastId,
+})
+
+export const confirmDelBroadcast = broadcastId => ({
+  type: types.DIALOG_BROADCAST_DEL.CONFIRM,
+  payload: broadcastId,
+})
