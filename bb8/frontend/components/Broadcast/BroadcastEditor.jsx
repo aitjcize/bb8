@@ -1,4 +1,3 @@
-import Moment from 'moment'
 import React from 'react'
 import { connect } from 'react-redux'
 
@@ -13,29 +12,11 @@ import Message from '../modules/Message'
 import { createBroadcast, updateBroadcast } from '../../actions/broadcastActionCreators'
 import { openNotification } from '../../actions/uiActionCreators'
 
-function combineDateTime(date, time) {
-  if (!date || !time) {
-    return null
-  }
-
-  const d = Moment(date)
-  const t = Moment(time)
-
-  const scheduledTime = Moment(d)
-  scheduledTime
-    .hours(t.hours())
-    .minutes(t.minutes())
-    .seconds(t.seconds())
-  return scheduledTime.unix()
-}
-
 class BroadcastEditor extends React.Component {
   constructor(props) {
     super(props)
 
     this.handleNameChange = this.handleNameChange.bind(this)
-    this.handleDateChange = this.handleDateChange.bind(this)
-    this.handleTimeChange = this.handleTimeChange.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
 
     this.state = {
@@ -73,30 +54,6 @@ class BroadcastEditor extends React.Component {
         broadcast: Object.assign({}, this.state.broadcast, { name }),
       })
     }
-  }
-
-  handleDateChange(e, date) {
-    const scheduledTime = combineDateTime(
-      date, this.state.timepickerVal)
-
-    this.setState({
-      datepickerVal: date,
-      broadcast: Object.assign(
-        {}, this.state.broadcast, { scheduledTime }
-      ),
-    })
-  }
-
-  handleTimeChange(e, time) {
-    const scheduledTime = combineDateTime(
-      this.state.datepickerVal, time)
-
-    this.setState({
-      timepickerVal: time,
-      broadcast: Object.assign(
-        {}, this.state.broadcast, { scheduledTime }
-      ),
-    })
   }
 
   handleSubmit() {
