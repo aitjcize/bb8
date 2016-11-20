@@ -117,26 +117,6 @@
               },
               {
                 "rule": {
-                  "type": "regexp",
-                  "params": ["^搜尋$", "^找$", "^search$", "^有沒有$", "^我想(?:要|看)$"]
-                },
-                "end_node_id": "PromptSearchTerm",
-                "ack_message": ""
-              },
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": ["搜尋 ?(.*)$", "^找 (.*)$", "search ?(.*)$", "有沒有\\s*(.*)$", "^我想(?:要|看)\\s*(.*)$"],
-                  "collect_as": {
-                    "key": "query_term",
-                    "value": "{{matches#1}}"
-                  }
-                },
-                "end_node_id": "SearchDramas",
-                "ack_message": ""
-              },
-              {
-                "rule": {
                   "type": "sticker",
                   "params": ["369239263222822", "369239343222814", "369239383222810"]
                 },
@@ -235,6 +215,26 @@
                 },
                 "end_node_id": "TrendingUS",
                 "ack_message": "您好，以下為您送上現在最熱門的美劇"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["^搜尋$", "^找$", "^search$", "^有沒有$", "^我想(?:要|看)$"]
+                },
+                "end_node_id": "PromptSearchTerm",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["搜尋 ?(.*)$", "^找 (.*)$", "search ?(.*)$", "有沒有\\s*(.*)$", "^我想(?:要|看)\\s*(.*)$"],
+                  "collect_as": {
+                    "key": "query_term",
+                    "value": "{{matches#1}}"
+                  }
+                },
+                "end_node_id": "SearchDramas",
+                "ack_message": ""
               },
               {
                 "rule": {
