@@ -149,6 +149,7 @@ class TestCanonize(unittest.TestCase):
         self.assertEqual(self.canonizer(u'十六'), u'16')
         self.assertEqual(self.canonizer(u'一十六'), u'16')
         self.assertEqual(self.canonizer(u'十'), u'10')
+        self.assertEqual(self.canonizer(u'一'), u'1')
         self.assertEqual(self.canonizer(u'一千二百一十六'), u'1216')
         self.assertEqual(self.canonizer(u'九千零三十'), u'9030')
         self.assertEqual(self.canonizer(u'１９７８'), u'1978')
@@ -158,6 +159,8 @@ class TestCanonize(unittest.TestCase):
         self.assertEqual(self.canonizer(u'十萬'), u'10萬')
         self.assertEqual(self.canonizer(u'一千五百萬'), u'1500萬')
         self.assertEqual(self.canonizer(u'一千五百六十八萬'), u'1568萬')
+        self.assertEqual(self.canonizer(u'一億'), u'10000萬')
+        self.assertEqual(self.canonizer(u'一億一千五百萬'), u'11500萬')
         self.assertEqual(self.canonizer(u'二億'), u'20000萬')
         self.assertEqual(self.canonizer(u'二億五千一百萬'), u'25100萬')
         self.assertEqual(self.canonizer(
