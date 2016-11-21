@@ -183,15 +183,15 @@ class Broadcast extends React.Component {
         </Dialog>
         {
           !this.state.creating ? null :
-            <BroadcastItem
-              handleCloseEditor={() => this.setState({
-                creating: false,
-              })}
-              broadcast={{}}
-              expanded
-              isFirst
-              isLast
-            />
+          <BroadcastItem
+            handleCloseEditor={() => this.setState({
+              creating: false,
+            })}
+            broadcast={{}}
+            expanded
+            isFirst
+            isLast
+          />
         }
         {
           this.props.futureBroadcasts.map((b, idx) =>
