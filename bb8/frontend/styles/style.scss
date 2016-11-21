@@ -35,46 +35,6 @@ body {
   }
 }
 
-.b-platform-card {
-  width: 50%;
-  margin: 1.5em auto;
-  padding: 1em;
-
-  &__body {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  &__logo {
-    width: 5em;
-    height: 5em;
-  }
-
-  &__info {
-    flex-grow: 5;
-  }
-
-  &__name {
-    margin-left: 2em;
-  }
-
-  &__status {
-    &--active {
-      color: green;
-    }
-
-    &--occupied {
-      color: red;
-    }
-  }
-}
-
-.b-add-platform-btn {
-  position: fixed;
-  right: 10%;
-  bottom: 10%;
-}
-
 .b-toolbar {
   z-index: 200;
 }
