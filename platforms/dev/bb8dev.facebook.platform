@@ -1,0 +1,9 @@
+{
+  "name": "Compose.ai dev bot",
+  "type_enum": "Facebook",
+  "deployed": false,
+  "provider_ident": "1714333502218993",
+  "config": {
+    "access_token": "EAAXpAz7BtJsBADINaqqT0bVfHynlkGcSUPFKZC9TpOPL2VWg3H1MKVn0XZApzWPeRwhkLlFRWkV5sykVu7K05fKnj34fSIfnYagsHFZCZCXrrui8Dl1o2s1enFMDasQeSxiJ9dZANCAJ7kYLpTJVdOPQOqUag9M4xaX0YCYZBZAwwZDZD"
+  }
+}
