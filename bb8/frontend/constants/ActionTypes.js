@@ -1,7 +1,6 @@
 import { createRequestTypes, createDialogTypes } from './utils'
 
 export default {
-
   // General
   INITIALIZE_APP: 'INITIALIZE_APP',
 
@@ -41,5 +40,8 @@ export default {
 
   // Dialog
   DIALOG_CLOSE: 'DIALOG_CLOSE',
+  DIALOG_BOT_CREATE: createDialogTypes('DIALOG_BOT_CREATE'),
   DIALOG_BROADCAST_DATE: createDialogTypes('DIALOG_BROADCAST_DATE'),
+  DIALOG_BROADCAST_SEND: createDialogTypes('DIALOG_BROADCAST_SEND'),
+  DIALOG_BROADCAST_DEL: createDialogTypes('DIALOG_BROADCAST_DEL'),
 }

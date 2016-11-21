@@ -1,23 +1,16 @@
-import orderBy from 'lodash/orderBy'
 import React from 'react'
 import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
 
+import orderBy from 'lodash/orderBy'
 import ContentAdd from 'material-ui/svg-icons/content/add'
-import Dialog from 'material-ui/Dialog'
-import FlatButton from 'material-ui/FlatButton'
 import FloatingActionButton from 'material-ui/FloatingActionButton'
 import Subheader from 'material-ui/Subheader'
 
 import { BroadcastItem, BroadcastEditor } from '../components/Broadcast'
-
-import { getAllBroadcasts, updateBroadcast, delBroadcast } from '../actions/broadcastActionCreators'
-import { openNotification } from '../actions/uiActionCreators'
-
-const DIALOG_STATE = {
-  CLOSE: 0,
-  DELETE: 1,
-  SEND: 2,
-}
+import * as broadcastActionCreators from '../actions/broadcastActionCreators'
+import * as dialogActionCreators from '../actions/dialogActionCreators'
+import * as uiActionCreators from '../actions/uiActionCreators'
 
 const styles = {
   container: {
@@ -37,17 +30,15 @@ class Broadcast extends React.Component {
 
     this.handleOpenEditor = this.handleOpenEditor.bind(this)
     this.handleCloseEditor = this.handleCloseEditor.bind(this)
-    this.handleOpenDeleteDialog = this.handleOpenDeleteDialog.bind(this)
-    this.handleOpenSendDialog = this.handleOpenSendDialog.bind(this)
-    this.handleConfirmDeleteDialog = this.handleConfirmDeleteDialog.bind(this)
-    this.handleConfirmSendDialog = this.handleConfirmSendDialog.bind(this)
-    this.handleCloseDialog = this.handleCloseDialog.bind(this)
     this.renderBroadcastEditor = this.renderBroadcastEditor.bind(this)
     this.handleKeyDownEsc = this.handleKeyDownEsc.bind(this)
 
+    this.broadcastActions = bindActionCreators(
+      broadcastActionCreators, this.props.dispatch)
+    this.uiActions = bindActionCreators(
+      uiActionCreators, this.props.dispatch)
+
     this.state = {
-      dialogOpen: DIALOG_STATE.CLOSE,
-      idInDialog: null,
       editorOpen: false,
       creating: false,
       editingBroadcast: { },
@@ -56,14 +47,13 @@ class Broadcast extends React.Component {
 
 
   componentWillMount() {
-    this.props.dispatchGetAllBroadcasts(this.props.activeBotId)
+    const broadcastActions = bindActionCreators(
+      broadcastActionCreators, this.props.dispatch)
+    broadcastActions.getAllBroadcasts(this.props.activeBotId)
   }
 
   componentDidMount() {
     window.addEventListener('keydown', this.handleKeyDownEsc)
-    // window.addEventListener('mousedown', (e) => {
-    // TODO: click empty field to end edit seasons.
-    // })
   }
 
   componentWillUnmount() {
@@ -72,7 +62,7 @@ class Broadcast extends React.Component {
 
   handleOpenEditor(broadcast) {
     if (this.state.creating) {
-      this.props.dispatchShowNotification('Please save or cancel your editing broadcast')
+      this.uiActions.openNotification('Please save or cancel your editing broadcast')
       return
     }
 
@@ -96,39 +86,6 @@ class Broadcast extends React.Component {
     })
   }
 
-  handleOpenDeleteDialog(id) {
-    this.setState({
-      dialogOpen: DIALOG_STATE.DELETE,
-      idInDialog: id,
-    })
-  }
-
-  handleOpenSendDialog(id) {
-    this.setState({
-      dialogOpen: DIALOG_STATE.SEND,
-      idInDialog: id,
-    })
-  }
-
-  handleConfirmDeleteDialog() {
-    this.handleCloseDialog()
-    this.props.dispatchDelBroadcast(this.state.idInDialog)
-  }
-
-  handleConfirmSendDialog() {
-    this.handleCloseDialog()
-    this.props.dispatchSendBroadcast(
-      this.props.activeBotId,
-      this.state.idInDialog,
-      this.props.broadcasts[this.state.idInDialog])
-  }
-
-  handleCloseDialog() {
-    this.setState({
-      dialogOpen: DIALOG_STATE.CLOSE,
-    })
-  }
-
   renderBroadcastEditor() {
     return (
       <BroadcastEditor
@@ -139,59 +96,22 @@ class Broadcast extends React.Component {
   }
 
   render() {
-    const deleteActions = [
-      <FlatButton
-        label="Cancel"
-        primary
-        onTouchTap={this.handleCloseDialog}
-      />,
-      <FlatButton
-        label="Delete"
-        secondary
-        keyboardFocused
-        onTouchTap={this.handleConfirmDeleteDialog}
-      />,
-    ]
-
-    const sendActions = [
-      <FlatButton
-        label="Cancel"
-        primary
-        onTouchTap={this.handleCloseDialog}
-      />,
-      <FlatButton
-        label="Send Now"
-        secondary
-        keyboardFocused
-        onTouchTap={this.handleConfirmSendDialog}
-      />,
-    ]
+    const dialogActions = bindActionCreators(
+      dialogActionCreators, this.props.dispatch)
 
     return (
       <div style={styles.container}>
-        <Dialog
-          title={`Confirm ${this.state.dialogOpen === DIALOG_STATE.DELETE ? 'Delete' : 'Send'}`}
-          actions={this.state.dialogOpen === DIALOG_STATE.DELETE ?
-                   deleteActions : sendActions}
-          modal={false}
-          open={this.state.dialogOpen > DIALOG_STATE.CLOSE}
-          onRequestClose={this.handleCloseDialog}
-        >
-          { this.state.dialogOpen === DIALOG_STATE.DELETE ?
-            'Are you sure to delete this broadcast message?' :
-            'Are you sure to send this broadcast message?' }
-        </Dialog>
         {
           !this.state.creating ? null :
-          <BroadcastItem
-            handleCloseEditor={() => this.setState({
-              creating: false,
-            })}
-            broadcast={{}}
-            expanded
-            isFirst
-            isLast
-          />
+            <BroadcastItem
+              handleCloseEditor={() => this.setState({
+                creating: false,
+              })}
+              broadcast={{}}
+              expanded
+              isFirst
+              isLast
+            />
         }
         {
           this.props.futureBroadcasts.map((b, idx) =>
@@ -199,9 +119,9 @@ class Broadcast extends React.Component {
               key={b.id}
               broadcast={b}
               handleEdit={() => { this.handleOpenEditor(b) }}
-              handleDelete={() => this.handleOpenDeleteDialog(b.id)}
               handleCloseEditor={this.handleCloseEditor}
-              handleSend={() => this.handleOpenSendDialog(b.id)}
+              handleSend={() => dialogActions.openSendBroadcast(b)}
+              handleDelete={() => dialogActions.openDelBroadcast(b.id)}
               expandedIdx={this.state.futureBroadcastsExpandedIdx}
               isFirst={idx === 0}
               isLast={idx === this.props.futureBroadcasts.length - 1}
@@ -220,9 +140,9 @@ class Broadcast extends React.Component {
               key={b.id}
               broadcast={b}
               handleEdit={() => { this.handleOpenEditor(b) }}
-              handleDelete={() => this.handleOpenDeleteDialog(b.id)}
               handleCloseEditor={this.handleCloseEditor}
-              handleSend={() => this.handleOpenSendDialog(b.id)}
+              handleSend={() => dialogActions.openSendBroadcast(b)}
+              handleDelete={() => dialogActions.openDelBroadcast(b.id)}
               isFirst={idx === 0}
               isLast={idx === this.props.pastBroadcasts.length - 1}
               expanded={b.id === this.state.editingBroadcast.id}
@@ -236,7 +156,7 @@ class Broadcast extends React.Component {
         <FloatingActionButton
           onClick={() => {
             if (this.state.editorOpen) {
-              this.props.dispatchShowNotification('Please save or cancel the broadcast first')
+              this.uiActions.openNotification('Please save or cancel the broadcast first')
               return
             }
             this.handleCloseEditor()
@@ -254,18 +174,14 @@ class Broadcast extends React.Component {
 }
 
 Broadcast.propTypes = {
-  dispatchGetAllBroadcasts: React.PropTypes.func,
-  dispatchDelBroadcast: React.PropTypes.func,
-  dispatchSendBroadcast: React.PropTypes.func,
-  dispatchShowNotification: React.PropTypes.func,
+  dispatch: React.PropTypes.func,
   activeBotId: React.PropTypes.number,
   pastBroadcasts: React.PropTypes.arrayOf(React.PropTypes.shape({
-    id: React.PropTypes.Number,
+    id: React.PropTypes.number,
   })),
   futureBroadcasts: React.PropTypes.arrayOf(React.PropTypes.shape({
-    id: React.PropTypes.Number,
+    id: React.PropTypes.number,
   })),
-  broadcasts: React.PropTypes.objectOf(React.PropTypes.shape({})),
 }
 
 const mapStateToProps = (state) => {
@@ -276,34 +192,12 @@ const mapStateToProps = (state) => {
   return {
     pastBroadcasts: bs.filter(b => b.scheduledTime <= now),
     futureBroadcasts: bs.filter(b => b.scheduledTime > now),
-    broadcasts: state.entities.broadcasts,
     activeBotId: state.bots.active,
   }
 }
 
-const mapDispatchToProps = dispatch => ({
-  dispatchGetAllBroadcasts(botId) {
-    dispatch(getAllBroadcasts(botId))
-  },
-  dispatchShowNotification(message) {
-    dispatch(openNotification(message))
-  },
-  dispatchDelBroadcast(broadcastId) {
-    dispatch(delBroadcast(broadcastId))
-  },
-  dispatchSendBroadcast(botId, broadcastId, broadcast) {
-    dispatch(updateBroadcast(broadcastId, {
-      name: broadcast.name,
-      scheduledTime: 0,
-      messages: broadcast.messages,
-      botId,
-    }))
-  },
-})
-
 const ConnectedBroadcast = connect(
   mapStateToProps,
-  mapDispatchToProps,
 )(Broadcast)
 
 export default ConnectedBroadcast

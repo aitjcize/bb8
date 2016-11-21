@@ -248,6 +248,46 @@ export function* confirmBroadcastDateSaga() {
   }
 }
 
+export function* confirmSendBroadcastSaga() {
+  while (true) {
+    const { payload } = yield take(types.DIALOG_BROADCAST_SEND.CONFIRM)
+
+    if (payload.id) {
+      yield put({
+        type: types.BROADCASTS_UPDATE.REQUEST,
+        payload: {
+          broadcastId: payload.id,
+          broadcast: Object.assign(
+            {}, payload, { status: 'Queued', scheduledTime: 0 }),
+        },
+      })
+      yield take(types.BROADCASTS_UPDATE.SUCCESS)
+    } else {
+      yield put({
+        type: types.BROADCASTS_CREATE.REQUEST,
+        payload,
+      })
+      yield take(types.BROADCASTS_CREATE.SUCCESS)
+    }
+
+    yield put({ type: types.DIALOG_CLOSE })
+  }
+}
+
+export function* confirmDelBroadcastSaga() {
+  while (true) {
+    const { payload } = yield take(types.DIALOG_BROADCAST_DEL.CONFIRM)
+
+    yield put({
+      type: types.BROADCASTS_DELETE.REQUEST,
+      payload,
+    })
+
+    yield take(types.BROADCASTS_DELETE.SUCCESS)
+    yield put({ type: types.DIALOG_CLOSE })
+  }
+}
+
 export default function* root() {
   /* General Saga */
   yield fork(initializeAppSaga)
@@ -275,4 +315,6 @@ export default function* root() {
 
   /* Dialog Saga */
   yield fork(confirmBroadcastDateSaga)
+  yield fork(confirmSendBroadcastSaga)
+  yield fork(confirmDelBroadcastSaga)
 }

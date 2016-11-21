@@ -1,4 +1,5 @@
 import React from 'react'
+import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
 import Popover from 'material-ui/Popover'
@@ -12,10 +13,10 @@ import MenuItem from 'material-ui/MenuItem'
 import IconArrowDropUp from 'material-ui/svg-icons/navigation/arrow-drop-up'
 import IconArrowDropDown from 'material-ui/svg-icons/navigation/arrow-drop-down'
 
-import { setActiveBot, getAllBots } from '../../actions/botActionCreators'
+import * as botActionCreators from '../../actions/botActionCreators'
+import * as dialogActionCreators from '../../actions/dialogActionCreators'
 
 import BotListCell from './BotPickerListItem'
-import BotCreateDialog from './BotCreateDialog'
 
 const styles = {
   button: {
@@ -42,6 +43,12 @@ class BotPickerButton extends React.Component {
 
     this.handleTouchTap = this.handleTouchTap.bind(this)
     this.handleClosePicker = this.handleClosePicker.bind(this)
+
+    this.botActions = bindActionCreators(
+      botActionCreators, this.props.dispatch)
+    this.dialogActions = bindActionCreators(
+      dialogActionCreators, this.props.dispatch)
+
     this.state = {
       open: false,
       createDialogOpen: false,
@@ -51,8 +58,7 @@ class BotPickerButton extends React.Component {
   handleTouchTap(event) {
     // This prevents ghost click.
     event.preventDefault()
-
-    this.props.dispatchGetAllBots()
+    this.botActions.getAllBots()
 
     this.setState({
       open: true,
@@ -67,7 +73,7 @@ class BotPickerButton extends React.Component {
   }
 
   render() {
-    const { ids, activeId, onSetActiveBot, data } = this.props
+    const { ids, activeId, data } = this.props
     const length = ids.length
 
     return (<FlatButton
@@ -78,10 +84,6 @@ class BotPickerButton extends React.Component {
       labelStyle={styles.buttonText}
       style={styles.button}
     >
-      <BotCreateDialog
-        open={this.state.createDialogOpen}
-        handleClose={() => this.setState({ createDialogOpen: false })}
-      />
       <Popover
         open={this.state.open}
         anchorEl={this.state.anchorEl}
@@ -93,10 +95,10 @@ class BotPickerButton extends React.Component {
           <MenuItem
             primaryText="Create a bot"
             style={styles.menuItem}
-            onClick={() => this.setState({
-              open: false,
-              createDialogOpen: true,
-            })}
+            onClick={() => {
+              this.setState({ open: false })
+              this.dialogActions.openBotCreate()
+            }}
           />
         </Menu>
         <Divider />
@@ -110,7 +112,7 @@ class BotPickerButton extends React.Component {
                 (<BotListCell
                   key={id}
                   data={data[id]}
-                  onSetActiveBot={onSetActiveBot}
+                  onSetActiveBot={this.botActions.setActiveBot}
                   handleClosePicker={this.handleClosePicker}
                   isActive={id === activeId}
                 />)) }
@@ -130,8 +132,7 @@ class BotPickerButton extends React.Component {
 }
 
 BotPickerButton.propTypes = {
-  onSetActiveBot: React.PropTypes.func,
-  dispatchGetAllBots: React.PropTypes.func,
+  dispatch: React.PropTypes.func,
   ids: React.PropTypes.arrayOf(React.PropTypes.number),
   data: React.PropTypes.objectOf(React.PropTypes.shape({
     name: React.PropTypes.string,
@@ -148,18 +149,8 @@ const mapStateToProps = state => ({
   activeId: state.bots.active,
 })
 
-const mapDispatchToProps = dispatch => ({
-  onSetActiveBot(id) {
-    dispatch(setActiveBot(id))
-  },
-  dispatchGetAllBots() {
-    dispatch(getAllBots())
-  },
-})
-
 const ConnectedBotPickerButton = connect(
   mapStateToProps,
-  mapDispatchToProps,
 )(BotPickerButton)
 
 export default ConnectedBotPickerButton

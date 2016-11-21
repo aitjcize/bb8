@@ -1,12 +1,14 @@
 import React from 'react'
+import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import Subheader from 'material-ui/Subheader'
 
+import Subheader from 'material-ui/Subheader'
 import Dialog from 'material-ui/Dialog'
 import FlatButton from 'material-ui/FlatButton'
 import TextField from 'material-ui/TextField'
 
-import { createBot } from '../../actions/botActionCreators'
+import * as botActionCreators from '../../actions/botActionCreators'
+import * as dialogActionCreators from '../../actions/dialogActionCreators'
 
 const NAME_LIMIT = 30
 const DESC_LIMIT = 150
@@ -18,6 +20,9 @@ class BotCreateDialog extends React.Component {
     this.handleCreateBot = this.handleCreateBot.bind(this)
     this.handleNameChange = this.handleNameChange.bind(this)
     this.handleDescChange = this.handleDescChange.bind(this)
+
+    this.dialogActions = bindActionCreators(
+      dialogActionCreators, this.props.dispatch)
 
     this.state = {
       name: '',
@@ -35,12 +40,12 @@ class BotCreateDialog extends React.Component {
       name: this.state.name,
       description: this.state.description,
     }
-    this.props.dispatchCreateBot(bot)
-    this.props.handleClose()
-    this.setState({
-      name: '',
-      description: '',
-    })
+
+    const botActions = bindActionCreators(
+      botActionCreators, this.props.dispatch)
+
+    botActions.createBot(bot)
+    this.dialogActions.closeDialog()
   }
 
   handleNameChange(e) {
@@ -88,7 +93,7 @@ class BotCreateDialog extends React.Component {
       <FlatButton
         label="Cancel"
         primary
-        onTouchTap={this.props.handleClose}
+        onTouchTap={this.dialogActions.closeDialog}
       />,
       <FlatButton
         label="Create"
@@ -129,16 +134,14 @@ class BotCreateDialog extends React.Component {
 
 BotCreateDialog.propTypes = {
   open: React.PropTypes.bool,
-  handleClose: React.PropTypes.func,
-  dispatchCreateBot: React.PropTypes.func,
+  dispatch: React.PropTypes.func.isRequired,
+  payload: React.PropTypes.shape({}).isRequired,
 }
 
 const ConnectedBotCreateDialog = connect(
-  () => ({}),
-  dispatch => ({
-    dispatchCreateBot(bot) {
-      dispatch(createBot(bot))
-    },
+  state => ({
+    open: state.dialog.open,
+    payload: state.dialog.payload,
   }),
 )(BotCreateDialog)
 
