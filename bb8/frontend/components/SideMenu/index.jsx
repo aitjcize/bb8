@@ -5,7 +5,6 @@ import stylePropType from 'react-style-proptype'
 import ActionDashboard from 'material-ui/svg-icons/action/dashboard'
 import ActionTimeline from 'material-ui/svg-icons/action/timeline'
 import ActionHelp from 'material-ui/svg-icons/action/help'
-import CommunicationChatBubbleOutline from 'material-ui/svg-icons/communication/chat-bubble-outline'
 import ImageLooks from 'material-ui/svg-icons/image/looks'
 import HardwareDeviceHub from 'material-ui/svg-icons/hardware/device-hub'
 import { List, ListItem } from 'material-ui/List'
@@ -81,11 +80,6 @@ class SideMenu extends React.Component {
             onTouchTap={() => hashHistory.push('/broadcast')}
             primaryText="Broadcast"
             leftIcon={<ImageLooks />}
-          />
-          <ListItem
-            onTouchTap={() => hashHistory.push('/platforms')}
-            primaryText="Platforms"
-            leftIcon={<CommunicationChatBubbleOutline />}
           />
           <ListItem
             onTouchTap={() => hashHistory.push('/analytics')}

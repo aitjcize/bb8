@@ -30,7 +30,7 @@ const {
   Flow,
   Help,
   Login,
-  Platforms,
+  BotManager,
   Signup,
 } = modules
 
@@ -73,7 +73,7 @@ render(
         <Route path="dashboard" component={Dashboard} />
         <Route path="flow" component={Flow} />
         <Route path="broadcast" component={Broadcast} />
-        <Route path="platforms" component={Platforms} />
+        <Route path="botmanager" component={BotManager} />
         <Route path="analytics" component={Analytics} />
         <Route path="help" component={Help} />
       </Route>

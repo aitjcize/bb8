@@ -36,6 +36,7 @@ const styles = {
   content: {
     overflow: 'scroll',
     height: '100%',
+    position: 'relative',
   },
 }
 

@@ -2,16 +2,49 @@ import React from 'react'
 import { connect } from 'react-redux'
 import Dialog from 'material-ui/Dialog'
 import Drawer from 'material-ui/Drawer'
-import { Card, CardActions } from 'material-ui/Card'
+import {
+  Card,
+  CardActions,
+  CardHeader,
+} from 'material-ui/Card'
 import FlatButton from 'material-ui/FlatButton'
-import FloatingActionButton from 'material-ui/FloatingActionButton'
-import ContentAdd from 'material-ui/svg-icons/content/add'
+// import FloatingActionButton from 'material-ui/FloatingActionButton'
+import Avatar from 'material-ui/Avatar'
+import Paper from 'material-ui/Paper'
+// import { List, ListItem } from 'material-ui/List'
+import { Menu, MenuItem } from 'material-ui/Menu'
+import Divider from 'material-ui/Divider'
+import Chip from 'material-ui/Chip'
+import Popover from 'material-ui/Popover'
+import Subheader from 'material-ui/Subheader'
 
-import LineLogo from '../assets/line_logo.png'
-import FBLogo from '../assets/facebook_logo.png'
+// import ContentAdd from 'material-ui/svg-icons/content/add'
+import IconContentLink from 'material-ui/svg-icons/content/link'
+import { FacebookIcon, LineIcon } from '../assets/svgIcon'
 
 import { getPlatforms, updatePlatform, delPlatform } from '../actions/platformActionCreators'
 import PlatformForm from '../components/PlatformForm'
+
+const styles = {
+  container: {
+
+  },
+  floatButtonContainer: {
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+    padding: '1.25em',
+    border: 'yellow 1px solid',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  cardHeaderRightGroup: {
+    flex: 1,
+    display: 'flex',
+    justifyContent: 'flex-end',
+  },
+}
 
 const DeployStatus = (props) => {
   const { platform, activeBotId, dispatchAttachPlatform, dispatchDetachPlatform } = props
@@ -28,14 +61,14 @@ const DeployStatus = (props) => {
   } else if (botId === activeBotId) {
     statusComponent = (
       <div>
-        <span className="b-platform-card__status--active"> Active </span>
+        <span> Active </span>
         <FlatButton
           label="Detach"
           onClick={() => dispatchDetachPlatform(activeBotId, platform)}
         />
       </div>)
   } else {
-    statusComponent = <span className="b-platform-card__status--occupied"> Occupied </span>
+    statusComponent = <span> Occupied </span>
   }
 
   return (
@@ -50,37 +83,145 @@ DeployStatus.propTypes = {
   platform: React.PropTypes.shape({}),
 }
 
-const PlatformCard = props => (
-  <Card className="b-platform-card">
-    <div className="b-platform-card__body">
-      <img
-        className="b-platform-card__logo"
-        src={props.platform.typeEnum === 'Facebook' ?
-             FBLogo : LineLogo}
-        alt="facebook logo"
-      />
-      <div className="b-platform-card__info">
-        <span className="b-platform-card__name">
-          {props.platform.name}
-        </span>
+class PlatformCard extends React.Component {
+  constructor(props) {
+    super(props)
+
+    this.handlePopoverOpen = this.handlePopoverOpen.bind(this)
+    this.handleRequestClose = this.handleRequestClose.bind(this)
+
+    this.state = {
+      popoverOpen: false,
+      popoverEl: undefined,
+    }
+  }
+
+  handlePopoverOpen(e) {
+    this.setState({
+      popoverOpen: true,
+      popoverEl: e.currentTarget,
+    })
+  }
+
+  handleRequestClose() {
+    this.setState({
+      popoverOpen: false,
+    })
+  }
+
+  render() {
+    const { platform, bots, isFirst, selectedBotId } = this.props
+
+      // console.log(platform)
+      // console.log(platform.botId)
+
+    const cardHeaderRightGroup = (
+      <div
+        style={styles.cardHeaderRightGroup}
+      >
+        {platform.botId ? <Chip
+          onClick={this.handlePopoverOpen}
+        >
+          <Avatar>
+            <IconContentLink />
+          </Avatar>
+          {
+            bots[platform.botId] && bots[platform.botId].name
+          }
+        </Chip> : <FlatButton
+          label="Assign a bot"
+          labelPosition="before"
+          onClick={this.handlePopoverOpen}
+          icon={
+            <IconContentLink />
+          }
+        />}
+        <Popover
+          open={this.state.popoverOpen}
+          anchorEl={this.state.popoverEl}
+          anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
+          targetOrigin={{ horizontal: 'right', vertical: 'top' }}
+          onRequestClose={this.handleRequestClose}
+        >
+          <Menu style={{ maxWidth: '25vw' }}>
+            <Subheader>Assign a bot</Subheader>
+            {Object.values(bots).map(b => (
+              <MenuItem
+                key={b.id}
+                primaryText={b.name}
+                style={{ fontSize: '.875em' }}
+              />
+            ))}
+            {
+              platform.botId && <div>
+                <Divider />
+                <MenuItem
+                  primaryText="Detech"
+                />
+              </div>
+            }
+          </Menu>
+        </Popover>
       </div>
-      <DeployStatus {...props} />
-    </div>
-    <CardActions>
-      <FlatButton label="Edit" onTouchTap={props.handleEdit} />
-      <FlatButton label="Delete" secondary onTouchTap={props.handleOpen} />
-    </CardActions>
-  </Card>
-)
+    )
+
+    return (<Card
+      style={{
+        backgroundColor: 'transparent',
+        borderRadius: 0,
+        boxShadow: 'none',
+        transition: '.24s ease-out',
+      }}
+    >
+      {!isFirst && <Divider /> }
+      <CardHeader
+        title={platform.name}
+        subtitle={platform.botId ? 'Active' : 'Ready for assign'}
+        avatar={platform.typeEnum === 'Facebook' ? <Avatar
+          icon={<FacebookIcon />}
+          backgroundColor="#0084FF"
+        /> : <Avatar
+          icon={<LineIcon />}
+          backgroundColor="#00B900"
+        />
+        }
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        {cardHeaderRightGroup}
+      </CardHeader>
+      {!selectedBotId && <CardActions>
+        <FlatButton label="Edit" onTouchTap={this.props.handleEdit} />
+        <FlatButton label="Delete" secondary onTouchTap={this.props.handleOpen} />
+      </CardActions>}
+    </Card>)
+  }
+}
 
 PlatformCard.propTypes = {
   platform: React.PropTypes.shape({
-    name: React.PropTypes.string,
-    typeEnum: React.PropTypes.string,
+    // name: React.PropTypes.string,
+    // typeEnum: React.PropTypes.string,
   }),
+  bots: React.PropTypes.shape({}),
   handleOpen: React.PropTypes.func,
   handleEdit: React.PropTypes.func,
+  isFirst: React.PropTypes.bool,
+  selectedBotId: React.PropTypes.number,
 }
+
+const mapPlatformCardStateToProps = state => ({
+  bots: state.bots.ids.reduce((obj, id) =>
+    Object.assign(obj, {
+      [id]: state.entities.bots[id],
+    }), {}),
+})
+
+const ConnectedPlatformCard = connect(
+  mapPlatformCardStateToProps,
+)(PlatformCard)
 
 class Platforms extends React.Component {
   constructor(props) {
@@ -140,12 +281,14 @@ class Platforms extends React.Component {
     ]
 
     return (
-      <div>
+      <Paper
+        style={styles.container}
+      >
         {
-          this.props.platformIds.map((id) => {
+          this.props.platformIds.map((id, index) => {
             const plat = this.props.platforms[id]
-            return (
-              <PlatformCard
+            return (!this.props.selectedBotId || this.props.selectedBotId === plat.botId) && (
+              <ConnectedPlatformCard
                 key={id}
                 activeBotId={this.props.activeBotId}
                 dispatchAttachPlatform={this.props.dispatchAttachPlatform}
@@ -153,6 +296,8 @@ class Platforms extends React.Component {
                 handleEdit={() => this.handleOpenDrawer(plat)}
                 handleOpen={() => this.handleOpenDialog(id)}
                 platform={plat}
+                isFirst={index === 0}
+                selectedBotId={this.props.selectedBotId}
               />)
           })
         }
@@ -183,13 +328,20 @@ class Platforms extends React.Component {
           }
         </Drawer>
 
-        <FloatingActionButton
-          onClick={() => this.handleOpenDrawer({ config: {} })}
-          className="b-add-platform-btn"
+        <div
+          style={styles.floatButtonContainer}
         >
-          <ContentAdd />
-        </FloatingActionButton>
-      </div>
+          {/*
+          <FloatingActionButton
+            onClick={() => this.handleOpenDrawer({ config: {} })}
+            style={styles.floatButton}
+            iconStyle={styles.floatButtonIcon}
+          >
+            <ContentAdd />
+          </FloatingActionButton>
+          */}
+        </div>
+      </Paper>
     )
   }
 }
@@ -202,6 +354,7 @@ Platforms.propTypes = {
   platforms: React.PropTypes.objectOf(React.PropTypes.shape({})),
   getPlatforms: React.PropTypes.func,
   onDelPlatform: React.PropTypes.func,
+  selectedBotId: React.PropTypes.number,
 }
 
 const mapStateToProps = state => ({
@@ -211,6 +364,10 @@ const mapStateToProps = state => ({
       [id]: state.entities.platforms[id],
     }), {}),
   platformIds: state.platforms.ids,
+  bots: state.bots.ids.reduce((obj, id) =>
+    Object.assign(obj, {
+      [id]: state.entities.bots[id],
+    }), {}),
 })
 
 const mapDispatchToProps = dispatch => ({
