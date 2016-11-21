@@ -114,11 +114,11 @@ class PlatformForm extends React.Component {
           <div>
             Webhook: { config.LINE_WEBHOOK + this.state.providerIdent }
           </div> :
-            <TextField
-              hintText="Page ID"
-              value={this.state.providerIdent}
-              onChange={this.onProviderIdentChange}
-            />
+          <TextField
+            hintText="Page ID"
+            value={this.state.providerIdent}
+            onChange={this.onProviderIdentChange}
+          />
         }
 
         <TextField
@@ -129,11 +129,11 @@ class PlatformForm extends React.Component {
 
         {
           this.state.typeEnum === 'Facebook' ? null :
-            <TextField
-              hintText="Channel Secret"
-              value={this.state.channelSecret}
-              onChange={this.onChannelSecretChange}
-            />
+          <TextField
+            hintText="Channel Secret"
+            value={this.state.channelSecret}
+            onChange={this.onChannelSecretChange}
+          />
         }
 
         <RaisedButton

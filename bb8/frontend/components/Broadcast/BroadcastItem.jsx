@@ -129,18 +129,18 @@ class BroadcastItem extends React.Component {
           />
           {
             broadcast.status === 'Draft' ? null :
-              <FlatButton
-                style={{ display: 'flex', alignItems: 'center' }}
-                labelStyle={{
-                  textTransform: 'none',
-                }}
-                label={
-                  Moment.unix(scheduledTime).calendar(null, {
-                    sameElse: 'll',
-                  })
-                }
-                labelPosition="before"
-              />
+            <FlatButton
+              style={{ display: 'flex', alignItems: 'center' }}
+              labelStyle={{
+                textTransform: 'none',
+              }}
+              label={
+                Moment.unix(scheduledTime).calendar(null, {
+                  sameElse: 'll',
+                })
+              }
+              labelPosition="before"
+            />
           }
         </div>
       </CardHeader>

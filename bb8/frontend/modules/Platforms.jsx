@@ -175,11 +175,11 @@ class Platforms extends React.Component {
         >
           {
             this.state.rightDrawerOpen === false ? null :
-              <PlatformForm
-                handleClose={() =>
-                  this.setState({ rightDrawerOpen: false })}
-                platform={this.state.editingPlatform}
-              />
+            <PlatformForm
+              handleClose={() =>
+                this.setState({ rightDrawerOpen: false })}
+              platform={this.state.editingPlatform}
+            />
           }
         </Drawer>
 
