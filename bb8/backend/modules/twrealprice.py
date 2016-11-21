@@ -360,6 +360,9 @@ def run(unused_config, unused_user_input, env, unused_variables):
             trans = twrealprice.nearby_transaction(max_count, latlng, rules)
         except IOError:
             return [Message(u'資料庫找不到，趕快回報給粉絲頁管理員，謝謝。')]
+        except Exception:
+            traceback.print_exc()
+            return [Message(u'處理的時候好像有東西出槌了，請試試別的查詢。')]
 
         if rules and rules.filters:
             filters_str = u'篩選條件: 「%s」。' % u'」「'.join(rules.filters)
@@ -461,6 +464,11 @@ def run(unused_config, unused_user_input, env, unused_variables):
 
         except ValueError:
             traceback.print_exc()
+            continue
+        except Exception:
+            traceback.print_exc()
+            msgs.append(
+                Message(u'顯示的時候好像有東西出槌了，請試試別的查詢。'))
             continue
 
     return msgs

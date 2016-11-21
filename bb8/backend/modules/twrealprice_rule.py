@@ -400,26 +400,28 @@ class Rules(object):
         # Split into 2 parts: larther than and less than 億.
         # So that 二億五千一百萬 ==> 25100萬
         query = re.sub(
-            ur'([0123456789一二三四五六七八九])億', ur'\g<1>==YI==', query)
+            ur'([0123456789一二兩三四五六七八九])億', ur'\g<1>==YI==', query)
         yis = re.split(ur'==YI==', query)
 
         ret = u''
-        for query in yis:
-            query = re.sub(ur'([一二三四五六七八九])千萬', ur'\g<1>000萬', query)
-            query = re.sub(ur'([一二三四五六七八九])千', ur'\1', query)
-            query = re.sub(ur'([一二三四五六七八九])百萬', ur'\g<1>00萬', query)
-            query = re.sub(ur'([一二三四五六七八九])百', ur'\1', query)
-            query = re.sub(ur'([一二三四五六七八九])十([一二三四五六七八九])',
+        for yi_index in range(len(yis)):  # pylint: disable=C0200
+            yi_part = True if yi_index == 0 and len(yis) >= 2 else False
+            query = yis[yi_index]
+            query = re.sub(ur'([一二兩三四五六七八九])千萬', ur'\g<1>000萬', query)
+            query = re.sub(ur'([一二兩三四五六七八九])千', ur'\1', query)
+            query = re.sub(ur'([一二兩三四五六七八九])百萬', ur'\g<1>00萬', query)
+            query = re.sub(ur'([一二兩三四五六七八九])百', ur'\1', query)
+            query = re.sub(ur'([一二兩三四五六七八九])十([一二三四五六七八九])',
                            ur'\1__MIDTEN__\2', query)  # 五十六 --> 五六
-            query = re.sub(ur'([一二三四五六七八九])十',
+            query = re.sub(ur'([一二兩三四五六七八九])十',
                            ur'\g<1>__TENS__', query)  # 七十 --> 七__TENS__
-            query = re.sub(ur'十([一二三四五六七八九])',
+            query = re.sub(ur'十([一二兩三四五六七八九])',
                            ur'__TENTH__\1', query)  # 十八 --> __TENTH__八
             query = query.replace(u'十', u'__TEN__')  # 十 --> __TEN__
 
             # At final, convert chinese numbers: 五六-->56
-            if units:
-                # Only convert chinese numbers right before unit
+            if units and not yi_part:
+                # Only convert chinese numbers right before unit. Not for 億.
                 for _ in range(len(query)):
                     org = query
 
@@ -514,7 +516,7 @@ class Rules(object):
             tran_key='建物移轉總面積平方公尺', scale=M2_PER_PING))
         rules.Add(Number(weight=100, unit=u'樓', tran_key='移轉層次', slope=4))
         rules.Add(Number(
-            weight=200, unit=u'萬', tran_key='總價元', slope=-0.2, scale=10000))
+            weight=200, unit=u'萬', tran_key='總價元', slope=-0.3, scale=10000))
         rules.Add(Number(
             weight=400, unit=u'房', tran_key='建物現況格局-房',
             slope=1.0, scale=1.0))
@@ -525,7 +527,7 @@ class Rules(object):
             weight=150, unit=u'衛', tran_key='建物現況格局-衛',
             slope=1.0, scale=1.0))
         rules.Add(Days(
-            weight=700, tran_key='交易年月日',
+            weight=1200, tran_key='交易年月日',
             accept_words=[
                 u'最近成交價', u'最近成交', u'最新成交',
                 u'最近', u'最新']))
