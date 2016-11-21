@@ -37,7 +37,14 @@ class BotPickerListItem extends React.Component {
 
     return (<ListItem
       primaryText={name}
-      secondaryText={description}
+      secondaryText={
+        <span
+          style={{ ...isActive && styles.selected }}
+        >
+          {description}
+        </span>
+      }
+      secondaryTextLines={2}
       onTouchTap={() => {
         handleClosePicker()
         onSetActiveBot(id)

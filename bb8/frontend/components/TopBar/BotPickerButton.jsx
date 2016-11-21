@@ -1,14 +1,13 @@
 import React from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
+import { hashHistory } from 'react-router'
 
 import Popover from 'material-ui/Popover'
 import FlatButton from 'material-ui/FlatButton'
-import { List } from 'material-ui/List'
+import { List, ListItem } from 'material-ui/List'
 import Subheader from 'material-ui/Subheader'
 import Divider from 'material-ui/Divider'
-import Menu from 'material-ui/Menu'
-import MenuItem from 'material-ui/MenuItem'
 
 import IconArrowDropUp from 'material-ui/svg-icons/navigation/arrow-drop-up'
 import IconArrowDropDown from 'material-ui/svg-icons/navigation/arrow-drop-down'
@@ -30,6 +29,7 @@ const styles = {
   list: {
     width: '100%',
     minWidth: '15em',
+    maxWidth: '25vw',
   },
   menuItem: {
     fontSize: '.875em',
@@ -91,17 +91,6 @@ class BotPickerButton extends React.Component {
         targetOrigin={{ horizontal: 'left', vertical: 'top' }}
         onRequestClose={this.handleClosePicker}
       >
-        <Menu>
-          <MenuItem
-            primaryText="Create a bot"
-            style={styles.menuItem}
-            onClick={() => {
-              this.setState({ open: false })
-              this.dialogActions.openBotCreate()
-            }}
-          />
-        </Menu>
-        <Divider />
         <List
           style={styles.list}
         >
@@ -116,15 +105,29 @@ class BotPickerButton extends React.Component {
                   handleClosePicker={this.handleClosePicker}
                   isActive={id === activeId}
                 />)) }
-              <Divider />
             </div>)
           }
-          <Menu>
-            <MenuItem
-              primaryText="Manage BOTS"
-              style={styles.menuItem}
-            />
-          </Menu>
+        </List>
+        <Divider />
+        <List>
+          <ListItem
+            primaryText="Manage chatbots"
+            style={styles.menuItem}
+            onTouchTap={() => {
+              hashHistory.push('/botManager')
+              this.setState({
+                open: false,
+              })
+            }}
+          />
+          <ListItem
+            primaryText="Create new"
+            style={styles.menuItem}
+            onClick={() => {
+              this.setState({ open: false })
+              this.dialogActions.openBotCreate()
+            }}
+          />
         </List>
       </Popover>
     </FlatButton>)
