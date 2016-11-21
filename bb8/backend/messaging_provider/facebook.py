@@ -7,15 +7,21 @@
 """
 
 import json
+import urllib
 
 import jsonschema
 import requests
 
+from flask import g
+
+
+FACEBOOK_API_URL = 'https://graph.facebook.com'
 
 FACEBOOK_PROFILE_API_URL = 'https://graph.facebook.com/v2.6/%s'
 FACEBOOK_MESSAGING_THREAD_SETTING = ('https://graph.facebook.com/v2.6/me/'
                                      'thread_settings')
 FACEBOOK_MESSAGING_API_URL = 'https://graph.facebook.com/v2.6/me/messages'
+FACEBOOK_MESSAGING_API_RELATIVE_URL = 'v2.6/me/messages'
 
 
 def get_config_schema():
@@ -186,28 +192,60 @@ def get_user_profile(platform, user_ident):
     return ret
 
 
-def send_message(user, messages):
-    """Send message to the user."""
-    for message in messages:
-        response = requests.request(
-            'POST',
-            FACEBOOK_MESSAGING_API_URL,
-            params={'access_token': user.platform.config['access_token']},
-            json={
-                'recipient': {'id': user.platform_user_ident},
-                'message': message.as_facebook_message(),
-                'notification_type': message.notification_type.value
-            }
-        )
+def send_message_batch(user, messages):
+    """Batch message sending."""
+    batch = []
+    for index, message in enumerate(messages):
+        payload = {
+            'recipient': json.dumps({'id': user.platform_user_ident}),
+            'message': json.dumps(message.as_facebook_message()),
+            'notification_type': message.notification_type.value
+        }
+        req = {
+            'name': 'msg-%d' % index,
+            'method': 'POST',
+            'relative_url': FACEBOOK_MESSAGING_API_RELATIVE_URL,
+            'body': urllib.urlencode(payload)
+        }
 
-        if response.status_code != 200:
-            raise RuntimeError('HTTP %d: %s' % (response.status_code,
-                                                response.text))
+        if index > 0:
+            req['depends_on'] = 'msg-%d' % (index - 1)
+
+        batch.append(req)
+
+    response = requests.request(
+        'POST',
+        FACEBOOK_API_URL,
+        params={
+            'access_token': user.platform.config['access_token'],
+            'batch': str(batch)
+        }
+    )
+
+    if response.status_code != 200:
+        raise RuntimeError('HTTP %d: %s' % (response.status_code,
+                                            response.text))
+
+
+def send_message(unused_user, messages):
+    """Send message to the user."""
+    if not hasattr(g, 'messages'):
+        g.messages = []
+
+    g.messages += messages
+
+
+def flush_message(user):
+    """Flush the message in the send queue."""
+    if not hasattr(g, 'messages'):
+        return
+
+    send_message_batch(user, g.messages)
 
 
 def push_message(user, messages):
     """Push message to user proactively."""
-    return send_message(user, messages)
+    return send_message_batch(user, messages)
 
 
 def download_audio_as_data(unused_user, audio_payload):

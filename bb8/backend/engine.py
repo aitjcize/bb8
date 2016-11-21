@@ -85,6 +85,8 @@ class Engine(object):
                     user.goto(user_input.jump_node_id)
 
             self.step(bot, user, user_input, input_vars)
+
+            messaging.flush_message(user)
         except Exception as e:
             logger.exception(e)
             # Rollback when error happens, so user won't get stuck in some

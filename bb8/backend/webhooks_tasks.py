@@ -16,7 +16,6 @@ from bb8.backend.database import (DatabaseManager, User, Platform,
 from bb8.backend.engine import Engine
 from bb8.backend.message import UserInput
 from bb8.backend.messaging import get_user_profile
-from bb8.backend.messaging_provider import line
 from bb8.backend.requestcontexttask import RequestContextTask
 
 from bb8.tracking import track, TrackingInfo, send_ga_track_info
@@ -112,9 +111,7 @@ def line_webhook_task(provider_ident):
             user_input = UserInput.FromLineMessage(entry)
             if user_input.valid():
                 g.line_reply_token = entry['replyToken']
-                g.line_messages = []
                 engine.run(bot, user, user_input)
-                line.flush_message(platform)
 
     # Don't measure the time of the GA call
     send_ga_track_info()

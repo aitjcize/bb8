@@ -73,23 +73,25 @@ def get_user_profile(platform, user_ident):
 
 def send_message(unused_user, messages):
     """Send message to the platform."""
-    # pylint: disable=E1101
-    if len(g.line_messages) < 5:
-        g.line_messages += messages
+    if not hasattr(g, 'messages'):
+        g.messages = []
+
+    if len(g.messages) < 5:
+        g.messages += messages
     else:
         LOG.warning('line.send_message: maxinum number of messages(5) '
                     'reached, ignoring new messages!')
 
 
-def flush_message(platform):
-    """Flush the message and send it to user."""
+def flush_message(user):
+    """Flush the message in the send queue."""
     headers = {
-        'Authorization': 'Bearer %s' % platform.config['access_token']
+        'Authorization': 'Bearer %s' % user.platform.config['access_token']
     }
 
     # pylint: disable=E1101
     msgs = reduce(lambda x, y: x + y,
-                  [m.as_line_message() for m in g.line_messages], [])
+                  [m.as_line_message() for m in g.messages], [])
 
     response = requests.request(
         'POST',

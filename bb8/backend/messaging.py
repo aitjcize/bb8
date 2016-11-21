@@ -44,6 +44,12 @@ def send_message(user, messages):
     store_conversation(user, messages)
 
 
+def flush_message(user):
+    """Flush the message in the send queue."""
+    provider = get_messaging_provider(user.platform.type_enum)
+    provider.flush_message(user)
+
+
 def push_message(user, messages):
     """Push message to user proactively."""
     if not isinstance(messages, list):
