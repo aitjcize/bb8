@@ -1,16 +1,17 @@
 import React from 'react'
 import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
 
 import stylePropType from 'react-style-proptype'
 
-import Dialog from 'material-ui/Dialog'
 import FlatButton from 'material-ui/FlatButton'
 import TextField from 'material-ui/TextField'
 import { Card, CardActions, CardHeader } from 'material-ui/Card'
 
 import Message from '../modules/Message'
-import { createBroadcast, updateBroadcast } from '../../actions/broadcastActionCreators'
-import { openNotification } from '../../actions/uiActionCreators'
+import * as uiActionCreators from '../../actions/uiActionCreators'
+import * as broadcastActionCreators from '../../actions/broadcastActionCreators'
+import * as dialogActionCreators from '../../actions/dialogActionCreators'
 
 class BroadcastEditor extends React.Component {
   constructor(props) {
@@ -19,13 +20,17 @@ class BroadcastEditor extends React.Component {
     this.handleNameChange = this.handleNameChange.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
 
+    this.broadcastActions = bindActionCreators(
+      broadcastActionCreators, this.props.dispatch)
+    this.uiActions = bindActionCreators(
+      uiActionCreators, this.props.dispatch)
+
     this.state = {
       nameError: '',
       scheduling: false,
       datepickerVal: null,
       timepickerVal: null,
       broadcast: props.broadcast,
-      dialogOpen: false,
     }
   }
 
@@ -34,6 +39,37 @@ class BroadcastEditor extends React.Component {
       this.editor.clear()
       this.editor.fromJSON(this.props.broadcast)
     }
+  }
+
+  getBroadcast() {
+    const messages = this.editor.toJSON()
+    const err = new Error()
+    if (!this.state.broadcast.name) {
+      err.errorMessage = 'Please provide a name for this broadcast'
+      throw err
+    } else if (this.state.broadcast.name.length > 30) {
+      err.errorMessage = 'The name of the broadcast is too long'
+      throw err
+    } else if (this.state.scheduling &&
+        (!this.state.timepickerVal ||
+         !this.state.datepickerVal)) {
+      err.errorMessage = 'Please pick a date and a time'
+      throw err
+    } else if (!messages.messages || messages.messages.length === 0) {
+      err.errorMessage = 'Cannot save a broadcast with no message'
+      throw err
+    }
+
+    const broadcast = {
+      ...this.state.broadcast,
+      botId: this.props.activeBotId,
+      messages: messages.messages,
+    }
+
+    if (!broadcast.scheduledTime) {
+      broadcast.scheduledTime = 0
+    }
+    return broadcast
   }
 
   handleNameChange(e) {
@@ -57,77 +93,36 @@ class BroadcastEditor extends React.Component {
   }
 
   handleSubmit() {
-    this.setState({ dialogOpen: false })
-
-    const messages = this.editor.toJSON()
-    if (!this.state.broadcast.name) {
-      this.props.handleShowNotification('Please provide a name for this broadcast')
-      return
-    } else if (this.state.broadcast.name.length > 30) {
-      this.props.handleShowNotification('The name of the broadcast is too long')
-      return
-    } else if (this.state.scheduling &&
-        (!this.state.timepickerVal ||
-         !this.state.datepickerVal)) {
-      this.props.handleShowNotification('Please pick a date and a time')
-      return
-    } else if (!messages.messages || messages.messages.length === 0) {
-      this.props.handleShowNotification('Cannot save a broadcast with no message')
-      return
-    }
-
-    this.props.handleShowNotification('Successfully saved the broadcast')
-
     this.props.handleCloseEditor()
-    const broadcast = {
-      name: this.state.broadcast.name,
-      scheduledTime: this.state.broadcast.scheduledTime,
-      botId: this.props.activeBotId,
-      messages: messages.messages,
+
+    let broadcast
+    try {
+      broadcast = this.getBroadcast()
+    } catch (e) {
+      this.uiActions.openNotification(e.errorMessage)
     }
 
-    if (!broadcast.scheduledTime) {
-      broadcast.scheduledTime = 0
-    }
-
-    if (!this.state.broadcast.id) {
-      this.props.handleCreateBroadcast(broadcast)
+    if (!broadcast.id) {
+      this.broadcastActions.createBroadcast(broadcast)
     } else {
-      this.props.handleUpdateBroadcast(
-        this.state.broadcast.id, broadcast)
+      this.broadcastActions.updateBroadcast(
+        broadcast.id, broadcast)
     }
+    this.uiActions.openNotification('Successfully saved the broadcast')
   }
 
   render() {
-    const sendActions = [
-      <FlatButton
-        label="Cancel"
-        primary
-        onTouchTap={() => this.setState({ dialogOpen: false })}
-      />,
-      <FlatButton
-        label="Yes"
-        secondary
-        keyboardFocused
-        onTouchTap={this.handleSubmit}
-      />,
-    ]
     const styles = this.props.styles
+
+    const dialogActions = bindActionCreators(
+      dialogActionCreators, this.props.dispatch)
 
     return (
       <Card>
-        <Dialog
-          title="Confirm Send"
-          actions={sendActions}
-          modal={false}
-          open={this.state.dialogOpen}
-          onRequestClose={() => this.setState({ dialogOpen: false })}
-        >
-          { 'Are you sure to send this broadcast message?' }
-        </Dialog>
         <CardHeader
           title={
             <TextField
+              hintText="give this broadcast a name"
               errorText={this.state.nameError}
               onChange={this.handleNameChange}
               value={this.state.broadcast.name}
@@ -164,8 +159,15 @@ class BroadcastEditor extends React.Component {
           </div>
           <div style={{ ...styles.infoActionsGroup, ...{ flex: 'none' } }}>
             <FlatButton
-              onClick={() => this.setState({ dialogOpen: true })}
-              label="Send Now"
+              onClick={() => {
+                try {
+                  const broadcast = this.getBroadcast()
+                  dialogActions.openSendBroadcast(broadcast)
+                } catch (e) {
+                  this.uiActions.openNotification(e.errorMessage)
+                }
+              }}
+              label="send now"
               primary
             />
           </div>
@@ -176,31 +178,18 @@ class BroadcastEditor extends React.Component {
 }
 
 BroadcastEditor.propTypes = {
+  dispatch: React.PropTypes.func,
   activeBotId: React.PropTypes.number,
   styles: React.PropTypes.objectOf(stylePropType),
   broadcast: React.PropTypes.shape({
     messages: React.PropTypes.arrayOf(React.PropTypes.shape({})),
   }),
-  handleUpdateBroadcast: React.PropTypes.func,
-  handleCreateBroadcast: React.PropTypes.func,
   handleCloseEditor: React.PropTypes.func,
-  handleShowNotification: React.PropTypes.func,
 }
 
 const ConnectedBroadcastEditor = connect(
   state => ({
     activeBotId: state.bots.active,
-  }),
-  dispatch => ({
-    handleUpdateBroadcast(broadcastId, broadcast) {
-      dispatch(updateBroadcast(broadcastId, broadcast))
-    },
-    handleCreateBroadcast(broadcast) {
-      dispatch(createBroadcast(broadcast))
-    },
-    handleShowNotification(message) {
-      dispatch(openNotification(message))
-    },
   }),
 )(BroadcastEditor)
 

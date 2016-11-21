@@ -252,16 +252,24 @@ export function* confirmSendBroadcastSaga() {
   while (true) {
     const { payload } = yield take(types.DIALOG_BROADCAST_SEND.CONFIRM)
 
-    yield put({
-      type: types.BROADCASTS_UPDATE.REQUEST,
-      payload: {
-        broadcastId: payload.id,
-        broadcast: Object.assign(
-          {}, payload, { status: 'Queued', scheduledTime: 0 }),
-      },
-    })
+    if (payload.id) {
+      yield put({
+        type: types.BROADCASTS_UPDATE.REQUEST,
+        payload: {
+          broadcastId: payload.id,
+          broadcast: Object.assign(
+            {}, payload, { status: 'Queued', scheduledTime: 0 }),
+        },
+      })
+      yield take(types.BROADCASTS_UPDATE.SUCCESS)
+    } else {
+      yield put({
+        type: types.BROADCASTS_CREATE.REQUEST,
+        payload,
+      })
+      yield take(types.BROADCASTS_CREATE.SUCCESS)
+    }
 
-    yield take(types.BROADCASTS_UPDATE.SUCCESS)
     yield put({ type: types.DIALOG_CLOSE })
   }
 }
