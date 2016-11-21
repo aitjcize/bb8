@@ -41,7 +41,7 @@ const BroadcastDelDialog = (props) => {
 BroadcastDelDialog.propTypes = {
   open: React.PropTypes.bool.isRequired,
   dispatch: React.PropTypes.func.isRequired,
-  payload: React.PropTypes.shape({}).isRequired,
+  payload: React.PropTypes.number.isRequired,
 }
 
 const ConnectedBroadcastDelDialog = connect(

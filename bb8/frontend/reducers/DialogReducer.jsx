@@ -1,6 +1,7 @@
 import React from 'react'
 import types from '../constants/ActionTypes'
 
+import BotCreateDialog from '../components/Dialog/BotCreateDialog'
 import BroadcastDateDialog from '../components/Dialog/BroadcastDateDialog'
 import BroadcastSendDialog from '../components/Dialog/BroadcastSendDialog'
 import BroadcastDelDialog from '../components/Dialog/BroadcastDelDialog'
@@ -15,6 +16,12 @@ const INITIAL_STATE = {
 
 function DialogReducer(state = INITIAL_STATE, action) {
   switch (action.type) {
+    case types.DIALOG_BOT_CREATE.OPEN:
+      return {
+        open: true,
+        payload: action.payload,
+        component: <BotCreateDialog />,
+      }
     case types.DIALOG_BROADCAST_DATE.OPEN:
       return {
         open: true,
