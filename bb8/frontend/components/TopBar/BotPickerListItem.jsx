@@ -9,6 +9,14 @@ import Theme from '../../constants/Theme'
 const { palette } = Theme
 
 const styles = {
+  secondaryTextWraper: {
+    width: '100%',
+    height: 'auto',
+    maxHeight: '2.2em',
+    whiteSpace: 'pre-wrap',
+    overflow: 'hidden',
+    display: 'inline-block',
+  },
   selected: {
     color: palette.accent1Color,
   },
@@ -40,12 +48,14 @@ class BotPickerListItem extends React.Component {
       primaryText={name}
       secondaryText={
         <span
-          style={{ ...isActive && styles.selected }}
+          style={{
+            ...styles.secondaryTextWraper,
+            ...isActive ? styles.selected : {},
+          }}
         >
           {description}
         </span>
       }
-      secondaryTextLines={2}
       onTouchTap={() => {
         handleClosePicker()
         onSetActiveBot(id)
@@ -59,7 +69,7 @@ class BotPickerListItem extends React.Component {
       }
       rightIcon={((this.props.outerHover && this.state.hover) ||
         (!this.props.outerHover && isActive)) ? <IconCheck /> : null}
-      style={isActive ? styles.selected : {}}
+      style={ isActive ? styles.selected : {} }
     />)
   }
 }

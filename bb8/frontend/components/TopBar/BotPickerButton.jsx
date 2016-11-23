@@ -27,9 +27,8 @@ const styles = {
     margin: '0 1.5em',
   },
   list: {
-    width: '100%',
+    width: '25vw',
     minWidth: '15em',
-    maxWidth: '25vw',
   },
   menuItem: {
     fontSize: '.875em',
