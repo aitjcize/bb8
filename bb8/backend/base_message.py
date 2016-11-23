@@ -430,7 +430,7 @@ class Message(object):
             self.title = Render(title, variables)
             if payload:
                 if isinstance(payload, str) or isinstance(payload, unicode):
-                    self.payload = str(payload)
+                    self.payload = payload
                 elif isinstance(payload, dict):
                     self.payload = json.dumps(payload)
             else:

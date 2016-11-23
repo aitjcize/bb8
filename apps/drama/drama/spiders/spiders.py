@@ -43,7 +43,6 @@ def build_new_episode_bubble(message, drama, episode):
                        subtitle=drama.description,
                        item_url=TrackedURL(episode.link,
                                            'ItemUrl/PushEpisode'))
-
     b.add_button(
         Message.Button(Message.ButtonType.WEB_URL,
                        u'帶我去看',
@@ -56,8 +55,18 @@ def build_new_episode_bubble(message, drama, episode):
                            {'drama_id': drama.id,
                             'from_episode': episode.serial_number,
                             'backward': True})))
-    b.add_button(Message.Button(Message.ButtonType.ELEMENT_SHARE))
+    b.add_button(
+        Message.Button(Message.ButtonType.POSTBACK,
+                       u'取消追蹤',
+                       payload=EventPayload('UNSUBSCRIBE',
+                                            {'drama_id': drama.id})))
     message.add_bubble(b)
+
+
+def add_quick_replies(m):
+    """Add quick replies."""
+    m.add_quick_reply(
+        Message.QuickReply(Message.QuickReplyType.TEXT, u'關閉通知'))
 
 
 def extract_xpath(response, xpath, default_val=''):
@@ -156,6 +165,8 @@ class DramaSpider(CrawlSpider):
             except (InvalidRequestError, IntegrityError):
                 DatabaseManager.rollback()
 
+        add_quick_replies(msg)
+
         user_ids = [u.id for u in drama.users]
         if bubble_count > 0 and user_ids:
             message_service.Push(
@@ -246,6 +257,8 @@ class VmusDramaSpider(CrawlSpider):
         except (InvalidRequestError, IntegrityError):
             DatabaseManager.rollback()
             return
+
+        add_quick_replies(msg)
 
         user_ids = [u.id for u in drama.users]
         if user_ids:
