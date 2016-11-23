@@ -135,7 +135,7 @@ class DeployConfig(DevelopmentConfig):
 
     # Messaging provider config
     # Facebook
-    FACEBOOK_APP_SECRET = 'd998c8124ef6ef8008ce404e18dfe07f'
+    FACEBOOK_APP_SECRET = '132f7214f7753be8ff8d235af0b7bd20'
 
     # Datadog
     DATADOG_HOST = 'bb8.service.datadog'
