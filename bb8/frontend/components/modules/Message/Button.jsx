@@ -131,7 +131,6 @@ class Button extends React.Component {
     } else if (this.state.type === 'element_share') {
       return {
         type: this.state.type,
-        title: 'Share',
       }
     }
     return {}
