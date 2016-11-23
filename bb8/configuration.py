@@ -88,6 +88,7 @@ class Config(object):
     DATADOG_HOST = scoped_name('bb8.service.datadog')
     ENV_TAG = 'dev'
 
+    # Celery
     class CeleryConfig(object):
         BROKER_URL = os.getenv('REDIS_URI', 'redis://localhost:6379/0')
         CELERY_IMPORTS = (
@@ -141,5 +142,6 @@ class DeployConfig(DevelopmentConfig):
     DATADOG_HOST = 'bb8.service.datadog'
     ENV_TAG = 'prod'
 
+    # Celery
     class CeleryConfig(DevelopmentConfig.CeleryConfig):
         BROKER_URL = 'redis://bb8.service.redis:6379/0'
