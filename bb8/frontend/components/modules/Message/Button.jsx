@@ -259,7 +259,6 @@ class Button extends React.Component {
         this.state.type === 'web_url' && <TextField
           hintText="http://"
           value={this.state.url}
-          ref="urlEditorTextField"
           underlineShow={false}
           autoFocus={this.state.urlEditorOpen}
           onChange={(e) => { this.setState({ url: e.target.value }) }}

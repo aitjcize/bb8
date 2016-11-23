@@ -7,9 +7,10 @@ import uuid from 'node-uuid'
 import SelectField from 'material-ui/SelectField'
 import MenuItem from 'material-ui/MenuItem'
 
-import config from '../config'
-import { createPlatform, updatePlatform } from '../actions/platformActionCreators'
-import { openNotification } from '../actions/uiActionCreators'
+import config from '../../config'
+import { createPlatform, updatePlatform } from '../../actions/platformActionCreators'
+import { openNotification } from '../../actions/uiActionCreators'
+
 
 class PlatformForm extends React.Component {
   constructor(props) {
