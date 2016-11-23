@@ -97,14 +97,20 @@ class BotPickerButton extends React.Component {
           {length === 0 ? null :
             (<div>
               <Subheader> Your Chatbots </Subheader>
-              { ids.map(id =>
-                (<BotListCell
-                  key={id}
-                  data={data[id]}
-                  onSetActiveBot={this.botActions.setActiveBot}
-                  handleClosePicker={this.handleClosePicker}
-                  isActive={id === activeId}
-                />)) }
+              <div
+                onMouseEnter={() => this.setState({ outerHover: true })}
+                onMouseLeave={() => this.setState({ outerHover: false })}
+              >
+                { ids.map(id =>
+                  (<BotListCell
+                    key={id}
+                    data={data[id]}
+                    onSetActiveBot={this.botActions.setActiveBot}
+                    handleClosePicker={this.handleClosePicker}
+                    isActive={id === activeId}
+                    outerHover={this.state.outerHover}
+                  />)) }
+              </div>
             </div>)
           }
         </List>

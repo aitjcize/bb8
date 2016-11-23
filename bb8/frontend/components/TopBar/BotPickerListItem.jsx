@@ -35,6 +35,7 @@ class BotPickerListItem extends React.Component {
       data } = this.props
     const { name, description, id } = data
 
+
     return (<ListItem
       primaryText={name}
       secondaryText={
@@ -56,7 +57,8 @@ class BotPickerListItem extends React.Component {
           {name.slice(0, 2).toUpperCase()}
         </Avatar>
       }
-      rightIcon={(this.state.hover || isActive) ? <IconCheck /> : null}
+      rightIcon={((this.props.outerHover && this.state.hover) ||
+        (!this.props.outerHover && isActive)) ? <IconCheck /> : null}
       style={isActive ? styles.selected : {}}
     />)
   }
@@ -74,6 +76,7 @@ BotPickerListItem.propTypes = {
     description: React.PropTypes.string,
   }),
   isActive: React.PropTypes.bool,
+  outerHover: React.PropTypes.bool,
 }
 
 export default BotPickerListItem
