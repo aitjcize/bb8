@@ -50,6 +50,8 @@ class BotManager extends React.Component {
     this.handleBotSelect = this.handleBotSelect.bind(this)
     this.handleResetBotSelect = this.handleResetBotSelect.bind(this)
 
+    this.outerContainer = undefined
+
     this.state = {
       selectedBotId: undefined,
     }
@@ -64,7 +66,7 @@ class BotManager extends React.Component {
   }
 
   handleResetBotSelect(e) {
-    if (e.target === this.refs.outerContainer) {
+    if (e.target === this.outerContainer) {
       this.setState({
         selectedBotId: undefined,
       })
@@ -85,97 +87,99 @@ class BotManager extends React.Component {
       return null
     })
 
-    return (<div
-      style={styles.container}
-      ref="outerContainer"
-      onClick={this.handleResetBotSelect}
-    >
-      <div style={styles.cols}>
-        <Subheader
-          style={styles.colsHeader}
-        >
-          My Chatbots
-          <FlatButton
-            label="New Chatbot"
-            labelPosition="before"
-            icon={<IconAdd />}
-          />
-        </Subheader>
-
-        <Paper>
-          <List>
-            { botIds.map((id, index) =>
-              (<div
-                key={id}
-              >
-                {index !== 0 && <Divider />}
-                <ListItem
-                  primaryText={bots[id].name}
-                  secondaryText={bots[id].description}
-                  secondaryTextLines={2}
-                  onClick={() => this.handleBotSelect(id)}
-                  style={{
-                    ...this.state.selectedBotId && this.state.selectedBotId !== id && {
-                      opacity: 0.3,
-                    },
-                  }}
-                  rightAvatar={
-                    bots[id].platforms && <Avatar size={32}>
-                      { Object.keys(bots[id].platforms).length }
-                    </Avatar>
-                  }
-                />
-              </div>)
-            )}
-          </List>
-        </Paper>
-      </div>
+    return (
       <div
-        style={{
-          ...styles.cols,
-          ...{ flex: 2 },
-        }}
+        style={styles.container}
+        ref={(c) => { this.outerContainer = c }}
+        onClick={this.handleResetBotSelect}
       >
-        <Subheader
-          style={styles.colsHeader}
+        <div style={styles.cols}>
+          <Subheader
+            style={styles.colsHeader}
+          >
+            My Chatbots
+            <FlatButton
+              label="New Chatbot"
+              labelPosition="before"
+              icon={<IconAdd />}
+            />
+          </Subheader>
+
+          <Paper>
+            <List>
+              { botIds.map((id, index) =>
+                (<div
+                  key={id}
+                >
+                  {index !== 0 && <Divider />}
+                  <ListItem
+                    primaryText={bots[id].name}
+                    secondaryText={bots[id].description}
+                    secondaryTextLines={2}
+                    onClick={() => this.handleBotSelect(id)}
+                    style={{
+                      ...this.state.selectedBotId && this.state.selectedBotId !== id && {
+                        opacity: 0.3,
+                      },
+                    }}
+                    rightAvatar={
+                      bots[id].platforms && <Avatar size={32}>
+                        { Object.keys(bots[id].platforms).length }
+                      </Avatar>
+                    }
+                  />
+                </div>)
+              )}
+            </List>
+          </Paper>
+        </div>
+        <div
+          style={{
+            ...styles.cols,
+            ...{ flex: 2 },
+          }}
         >
-          Platforms
-          <FlatButton
-            label="New Platform"
-            labelPosition="before"
-            icon={<IconAdd />}
+          <Subheader
+            style={styles.colsHeader}
+          >
+            Platforms
+            <FlatButton
+              label="New Platform"
+              labelPosition="before"
+              icon={<IconAdd />}
+            />
+          </Subheader>
+          <Platforms
+            selectedBotId={this.state.selectedBotId}
           />
-        </Subheader>
-        <Platforms
-          selectedBotId={this.state.selectedBotId}
-        />
-        {
-          this.state.selectedBotId && (
-            <div
-              style={{
-                fontSize: '.8em',
-                margin: '1em 0',
-                padding: '0 1em',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'flex-start',
-              }}
-            >
-              <span>
-                {'Add new Platform and assign to Bot: '}
-                <b>{bots[this.state.selectedBotId].name}</b>
-              </span>
-              <FlatButton
-                label="New Platform"
-                style={{ margin: '.5em 0' }}
-                labelPosition="before"
-                icon={<IconAdd />}
-              />
-            </div>
-          )
-        }
+          {
+            this.state.selectedBotId && (
+              <div
+                style={{
+                  fontSize: '.8em',
+                  margin: '1em 0',
+                  padding: '0 1em',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                }}
+              >
+                <span>
+                  {'Add new Platform and assign to Bot: '}
+                  <b>{bots[this.state.selectedBotId].name}</b>
+                </span>
+                <FlatButton
+                  label="New Platform"
+                  style={{ margin: '.5em 0' }}
+                  labelPosition="before"
+                  icon={<IconAdd />}
+                />
+              </div>
+            )
+          }
+        </div>
       </div>
-    </div>)
+    )
   }
 }
 
