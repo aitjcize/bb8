@@ -59,7 +59,7 @@ class TextCardMessage extends React.Component {
     if (this.state.buttonIds.length < 3) {
       const id = uniqueId('buttons_message')
       this.idBut[id] = {
-        type: 'web_url',
+        type: undefined,
         title,
         url: '',
       }
@@ -131,7 +131,14 @@ class TextCardMessage extends React.Component {
             ...this.props.editorWidth && { width: this.props.editorWidth },
           }}
         >
-          <CardText>
+          <CardText
+            style={{
+              padding: '1em',
+              minHeight: '5em',
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
             <TextField
               hintText="Text to send"
               value={this.state.text}
@@ -163,8 +170,9 @@ class TextCardMessage extends React.Component {
                   disableShare
                   readOnly={this.props.readOnly}
                   ref={(b) => { this.loadFromJSON(b, id) }}
+                  onRemoveClicked={() => this.onRemoveClicked(id)}
                 />
-                {!this.props.readOnly && this.state.hoverIndex === index &&
+                {!this.props.readOnly && this.state.hoverIndex === index && false &&
                 <FloatingActionButton
                   mini
                   secondary

@@ -1,17 +1,53 @@
 import React from 'react'
 
-import ActionSettings from 'material-ui/svg-icons/action/settings'
-import ActionExitToApp from 'material-ui/svg-icons/action/exit-to-app'
-import SocialShare from 'material-ui/svg-icons/social/share'
-import ContentLink from 'material-ui/svg-icons/content/link'
+import IconRemoveCircle from 'material-ui/svg-icons/content/remove-circle'
+import IconChevronRight from 'material-ui/svg-icons/navigation/chevron-right'
+import IconShare from 'material-ui/svg-icons/social/share'
+import IconLink from 'material-ui/svg-icons/content/link'
+import IconLinearScale from 'material-ui/svg-icons/editor/linear-scale'
 
-import FloatingActionButton from 'material-ui/FloatingActionButton'
 import Popover from 'material-ui/Popover'
 import TextField from 'material-ui/TextField'
-import { ListItem } from 'material-ui/List'
-import Menu from 'material-ui/Menu'
-import MenuItem from 'material-ui/MenuItem'
+import { List, ListItem } from 'material-ui/List'
+import FlatButton from 'material-ui/FlatButton'
+import IconButton from 'material-ui/IconButton'
+import Subheader from 'material-ui/Subheader'
+import Divider from 'material-ui/Divider'
 
+const styles = {
+  listItemInnerDiv: {
+    padding: 0,
+    display: 'flex',
+    alignItems: 'center',
+  },
+  deleteButton: {
+    overflow: 'hidden',
+    display: 'flex',
+    justifyContent: 'flex-end',
+    width: 0,
+    padding: 0,
+    opacity: 0,
+    transform: 'scale(.5)',
+    transition: '.15s',
+  },
+  deleteButtonHover: {
+    width: '1em',
+    padding: '0 0 0 1em',
+    opacity: 1,
+    transform: 'scale(1)',
+    transition: '.24s .15s ease-out',
+  },
+  deleteButtonIconContainer: {
+    padding: 0,
+    width: 'auto',
+    height: 'auto',
+    cursor: 'pointer',
+  },
+  actionMenuPopoverScrollArea: {
+    overflowY: 'scroll',
+    maxHeight: '30vh',
+  },
+}
 
 class Button extends React.Component {
 
@@ -29,13 +65,17 @@ class Button extends React.Component {
       disableShare: false,
       readOnly: false,
     }
+    this.state = {
+      actionMenuOpen: false,
+    }
   }
 
   clearState() {
     this.state = {
-      type: 'web_url',
-      typeMenuOpen: false,
-      typeAnchorEl: undefined,
+      // type: 'web_url',
+      type: undefined,
+      // typeMenuOpen: false,
+      // typeAnchorEl: undefined,
 
       title: '',
       titleEditing: true,
@@ -45,7 +85,7 @@ class Button extends React.Component {
       urlEditorError: undefined,
 
       payload: undefined,
-      payloadEditorOpen: false,
+      // payloadEditorOpen: false,
     }
   }
 
@@ -91,6 +131,7 @@ class Button extends React.Component {
     } else if (this.state.type === 'element_share') {
       return {
         type: this.state.type,
+        title: 'Share',
       }
     }
     return {}
@@ -99,215 +140,210 @@ class Button extends React.Component {
   fromJSON(msg) {
     this.clearState()
     this.setState({ titleEditing: false, ...msg })
-    if (msg.type === 'element_share') {
-      this.setState({ title: 'Share' })
-    }
+    // if (msg.type === 'element_share') {
+      // this.setState({ title: 'Share' })
+    // }
   }
 
   render() {
-    if (!this.props.readOnly && this.state.titleEditing) {
-      return (
-        <div>
-          <TextField
-            hintText="Button title"
-            value={this.state.title}
-            underlineShow={false}
-            style={{ marginLeft: '1em' }}
-            inputStyle={{ textAlign: 'center' }}
-            hintStyle={{ left: '35%' }}
-            onChange={(e) => {
-              if (this.state.type !== 'element_share') {
-                this.setState({ title: e.target.value })
-              }
-            }}
-            onBlur={() => {
-              if (this.state.title !== '') {
-                this.setState({ titleEditing: false })
-              }
-            }}
-            onKeyPress={(e) => {
-              if (e.nativeEvent.code === 'Enter' &&
-                  this.state.title !== '') {
-                this.setState({ titleEditing: false })
-              }
-            }}
-          />
+    const actionMenuPopover = (<Popover
+      open={this.state.actionMenuOpen}
+      anchorEl={this.state.actionMenuAnchorEl}
+      anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+      targetOrigin={{ horizontal: 'left', vertical: 'center' }}
+      onRequestClose={() => this.setState({ actionMenuOpen: false })}
+      style={{
+        minWidth: '15vw',
+      }}
+    >
+      <List>
+        <Subheader>Choose Action</Subheader>
+        <div
+          style={styles.actionMenuPopoverScrollArea}
+        >
+          {['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'].map((b, i) => (
+            <ListItem
+              key={i}
+              primaryText={`Action ${b}`}
+              style={{
+                fontSize: '.875em',
+                textTransform: 'capitalize',
+              }}
+              onClick={() => {
+                this.setState({
+                  type: 'postback',
+                  payload: {},
+                  actionMenuOpen: false,
+                })
+              }}
+            />
+            ))}
         </div>
-      )
-    }
-    let typeButton
-    if (this.state.type === 'web_url') {
-      typeButton = <ContentLink />
-    } else if (this.state.type === 'postback') {
-      typeButton = <ActionExitToApp />
-    } else if (this.state.type === 'element_share') {
-      typeButton = <SocialShare />
-    }
-
-    let configPopover
-
-    if (this.state.type === 'web_url') {
-      configPopover = (
-        <Popover
-          open={this.state.urlEditorOpen}
-          anchorEl={this.configAnchorEl}
-          anchorOrigin={{ horizontal: 'middle', vertical: 'center' }}
-          targetOrigin={{ horizontal: 'left', vertical: 'top' }}
-          onRequestClose={() => {
-            if (this.validateUrl()) {
-              this.setState({ urlEditorOpen: false, payload: undefined })
-            }
-          }}
-        >
-          <TextField
-            hintText="Enter URL ..."
-            errorText={this.state.urlEditorError}
-            value={this.state.url}
-            style={{ margin: '0.125em 0.5em' }}
-            onChange={(e) => { this.setState({ url: e.target.value }, () => this.validateUrl()) }}
-            onKeyPress={(e) => {
-              if (e.nativeEvent.code === 'Enter') {
-                if (this.validateUrl()) {
-                  this.setState({ urlEditorOpen: false, payload: undefined })
-                }
-              }
-            }}
-          />
-        </Popover>
-      )
-    } else if (this.state.type === 'postback') {
-      configPopover = (
-        <Popover
-          open={this.state.payloadEditorOpen}
-          anchorEl={this.configAnchorEl}
-          anchorOrigin={{ horizontal: 'middle', vertical: 'center' }}
-          targetOrigin={{ horizontal: 'left', vertical: 'top' }}
-          onRequestClose={() => {
-            if (this.state.payload !== undefined) {
-              this.setState({ payloadEditorOpen: false })
-            }
-          }}
-        >
-          <Menu>
-            <MenuItem
-              primaryText="A"
-              onClick={() => {
-                this.setState({
-                  payload: {},
-                  payloadEditorOpen: false,
-                })
-              }}
-            />
-            <MenuItem
-              primaryText="B"
-              onClick={() => {
-                this.setState({
-                  payload: {},
-                  payloadEditorOpen: false,
-                })
-              }}
-            />
-          </Menu>
-        </Popover>
-      )
-    }
-    return (
-      <div style={{ position: 'relative' }}>
+      </List>
+      <Divider />
+      <List>
         <ListItem
-          primaryText={this.state.title}
-          innerDivStyle={{ textAlign: 'center' }}
+          primaryText="Share"
           onClick={() => {
-            if (!this.props.readOnly && this.state.type !== 'element_share') {
-              this.setState({ titleEditing: true })
-            }
+            this.setState({
+              type: 'element_share',
+              actionMenuOpen: false,
+            })
           }}
         />
-        {!this.props.readOnly &&
+        <ListItem
+          primaryText="Open link"
+          onClick={() => {
+            this.setState({
+              type: 'web_url',
+              urlEditorOpen: true,
+              actionMenuOpen: false,
+            })
+          }}
+        />
+      </List>
+    </Popover>)
+
+    return (
+      <ListItem
+        innerDivStyle={styles.listItemInnerDiv}
+        onMouseEnter={() => this.setState({ hover: true })}
+        onMouseLeave={() => this.setState({ hover: false })}
+      >
+        <div
+          style={{
+            ...styles.deleteButton,
+            ...(!this.state.titleEditing && !this.state.urlEditorOpen && this.state.hover) ||
+            this.state.titleEditing ? styles.deleteButtonHover : {},
+          }}
+        >
+          <IconButton
+            style={styles.deleteButtonIconContainer}
+            onClick={this.props.onRemoveClicked}
+          >
+            <IconRemoveCircle />
+          </IconButton>
+        </div>
+        {
+        !this.state.urlEditorOpen && <TextField
+          hintText="Button title"
+          value={this.state.type === 'element_share' ? 'Share' : this.state.title}
+          underlineShow={false}
+          disabled={this.state.type === 'element_share'}
+          onFocus={() => {
+            this.setState({ titleEditing: true })
+          }}
+          onChange={(e) => {
+            if (this.state.type !== 'element_share') {
+              this.setState({ title: e.target.value })
+            }
+          }}
+          onBlur={() => {
+            if (this.state.title !== '') {
+              this.setState({ titleEditing: false })
+            }
+          }}
+          onKeyPress={(e) => {
+            if (e.nativeEvent.code === 'Enter' &&
+                this.state.title !== '') {
+              this.setState({ titleEditing: false })
+            }
+          }}
+          style={{
+            flex: 1,
+            margin: '0 1em',
+          }}
+        />
+        }
+        {
+        this.state.type === 'web_url' && <TextField
+          hintText="http://"
+          value={this.state.url}
+          ref="urlEditorTextField"
+          underlineShow={false}
+          autoFocus={this.state.urlEditorOpen}
+          onChange={(e) => { this.setState({ url: e.target.value }) }}
+          onFocus={() => this.setState({ urlEditorOpen: true })}
+          onBlur={() => this.setState({ urlEditorOpen: false })}
+          onKeyPress={(e) => {
+            if (e.nativeEvent.code === 'Enter') {
+              if (this.validateUrl()) {
+                this.setState({ urlEditorOpen: false, payload: undefined })
+              }
+            }
+          }}
+          style={{
+            ...{
+              flex: 2,
+              margin: '0 1em',
+            },
+            ...!this.state.urlEditorOpen ? {
+              fontSize: '.875em',
+            } : {},
+          }}
+          inputStyle={{
+            ...!this.state.urlEditorOpen ? { color: '#BBBBBB' } : {},
+            ...this.state.urlEditorError ? { color: 'red' } : {},
+          }}
+        />
+        }
         <div>
-          <FloatingActionButton
-            mini
+          {
+          this.state.titleEditing || this.state.urlEditorOpen ? <FlatButton
+            label="done"
+            hoverColor="transparent"
+            rippleColor="transparent"
+            style={{ margin: '0 .5em' }}
+            onClick={() => this.setState({ urlEditorOpen: false, titleEditing: false })}
+          /> : <div
             onClick={(e) => {
               this.setState({
-                typeMenuOpen: true,
-                typeAnchorEl: e.currentTarget,
+                actionMenuOpen: true,
+                actionMenuAnchorEl: e.currentTarget,
+                hover: false,
               })
             }}
-            style={{ position: 'absolute', right: '2.875em', top: '0.2em' }}
-          >
-            {typeButton}
-          </FloatingActionButton>
-          <Popover
-            open={this.state.typeMenuOpen}
-            anchorEl={this.state.typeAnchorEl}
-            anchorOrigin={{ horizontal: 'middle', vertical: 'center' }}
-            targetOrigin={{ horizontal: 'left', vertical: 'top' }}
-            onRequestClose={() => { this.setState({ typeMenuOpen: false }) }}
-          >
-            <Menu>
-              <MenuItem
-                primaryText="Link"
-                checked={this.state.type === 'web_url'}
-                insetChildren
-                onClick={() => {
-                  this.setState({
-                    type: 'web_url',
-                    typeMenuOpen: false,
-                    urlEditorOpen: true,
-                  })
-                }}
-              />
-              <MenuItem
-                primaryText="Action"
-                checked={this.state.type === 'postback'}
-                insetChildren
-                onClick={() => {
-                  this.setState({
-                    type: 'postback',
-                    typeMenuOpen: false,
-                    payloadEditorOpen: true,
-                  })
-                }}
-              />
-              {!this.props.disableShare &&
-              <MenuItem
-                primaryText="Share"
-                checked={this.state.type === 'element_share'}
-                insetChildren
-                onClick={() => {
-                  this.setState({
-                    title: 'Share',
-                    type: 'element_share',
-                    typeMenuOpen: false,
-                  })
-                }}
-              />
-              }
-            </Menu>
-          </Popover>
-
-          <FloatingActionButton
-            mini
-            style={{ position: 'absolute', right: '0.2em', top: '0.2em' }}
-            onClick={() => {
-              if (this.state.type === 'web_url') {
-                this.setState({ urlEditorOpen: true })
-              } else if (this.state.type === 'postback') {
-                this.setState({ payloadEditorOpen: true })
-              }
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '0 .5em',
             }}
-            ref={(x) => {
-              if (x) {
-                this.configAnchorEl = x.refs.container.refs.enhancedButton
-              }
-            }}
-            disabled={this.state.type === 'element_share'}
           >
-            <ActionSettings />
-          </FloatingActionButton>
-          {configPopover}
+            {
+            !this.state.type && <FlatButton
+              label="actions"
+              labelPosition="before"
+              hoverColor="transparent"
+              rippleColor="transparent"
+              labelStyle={{ color: '#BBBBBB' }}
+            />
+            }
+            {
+            this.state.type === 'postback' && <IconButton>
+              <IconLinearScale />
+            </IconButton>
+            }
+            {
+            this.state.type === 'element_share' && <IconButton>
+              <IconShare />
+            </IconButton>
+            }
+            {
+            this.state.type === 'web_url' && <IconButton
+              tooltip={this.state.url ? this.state.url : false}
+              tooltipPosition="top-right"
+            >
+              <IconLink />
+            </IconButton>
+            }
+            <IconChevronRight
+              style={{ marginLeft: '-.5em' }}
+            />
+          </div>
+          }
         </div>
-        }
-      </div>
+        {actionMenuPopover}
+      </ListItem>
     )
   }
 }
@@ -315,6 +351,7 @@ class Button extends React.Component {
 Button.propTypes = {
   disableShare: React.PropTypes.bool,
   readOnly: React.PropTypes.bool,
+  onRemoveClicked: React.PropTypes.func,
 }
 
 export default Button
