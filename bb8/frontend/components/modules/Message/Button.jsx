@@ -140,9 +140,6 @@ class Button extends React.Component {
   fromJSON(msg) {
     this.clearState()
     this.setState({ titleEditing: false, ...msg })
-    // if (msg.type === 'element_share') {
-      // this.setState({ title: 'Share' })
-    // }
   }
 
   render() {
@@ -182,6 +179,7 @@ class Button extends React.Component {
       </List>
       <Divider />
       <List>
+        {!this.props.disableShare &&
         <ListItem
           primaryText="Share"
           onClick={() => {
@@ -191,6 +189,7 @@ class Button extends React.Component {
             })
           }}
         />
+        }
         <ListItem
           primaryText="Open link"
           onClick={() => {
