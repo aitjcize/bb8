@@ -226,6 +226,10 @@ def send_message_batch(user, messages):
         raise RuntimeError('HTTP %d: %s' % (response.status_code,
                                             response.text))
 
+    for r in response.json():
+        if r and r['code'] != 200:
+            raise RuntimeError('HTTP %d: %s' % (r['code'], r['body']))
+
 
 def send_message(unused_user, messages):
     """Send message to the user."""
