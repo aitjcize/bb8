@@ -37,8 +37,7 @@ def properties():
 def schema():
     return {
         'type': 'object',
-        'required': ['send_payload_to_current_node', 'api_key', 'query_term',
-                     'language', 'region', 'bounds'],
+        'required': ['send_payload_to_current_node', 'api_key', 'query_term'],
         'additionalProperties': True,
         'properties': {
             'send_payload_to_current_node': {'type': 'boolean'},
@@ -105,8 +104,8 @@ def run(config, unused_user_input, unused_env, variables):
         py_bounds.append([(b[0]['lat'], b[0]['long']),
                           (b[1]['lat'], b[1]['long'])])
 
-    results = api.query_top_n(3, query_term, cfg['language'],
-                              cfg['region'], py_bounds,
+    results = api.query_top_n(3, query_term, cfg.get('language'),
+                              cfg.get('region'), py_bounds,
                               cfg.get('center', None))
 
     in_currrent = config['send_payload_to_current_node']

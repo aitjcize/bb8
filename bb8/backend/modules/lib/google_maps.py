@@ -29,23 +29,40 @@ class GoogleMapsPlaceAPI(object):
             return ' '.join([name, address])
 
     def query_top_n(self, n, address, language, region, bounds, center=None):
-        """Query top *n* possible location that matches *address*."""
+        """Query top *n* possible location that matches *address*.
+
+        Args:
+          n: int. number of max return values
+          address: str. the address to query
+          language: str. the locale code (i.e. zh_TW). None for not specified.
+          region: str. the country code (i.e. TW). None for not specified.
+          bounds: array of [(lower_lat, lower_lng), (upper_lat, upper_lng)].
+                  Empty for not specified.
+          center: dict. {'lat': float, 'long': float}. None for not specified.
+        """
 
         # Calculate the max bounding box that cover all bounds
-        lats = reduce(lambda x, y: x + y,
-                      [[b[0][0], b[1][0]] for b in bounds], [])
-        longs = reduce(lambda x, y: x + y,
-                       [[b[0][1], b[1][1]] for b in bounds], [])
+        if bounds:
+            lats = reduce(lambda x, y: x + y,
+                          [[b[0][0], b[1][0]] for b in bounds], [])
+            longs = reduce(lambda x, y: x + y,
+                           [[b[0][1], b[1][1]] for b in bounds], [])
 
-        max_bounds = [(min(lats), min(longs)), (max(lats), max(longs))]
+            max_bounds = [(min(lats), min(longs)), (max(lats), max(longs))]
+        else:
+            bounds = [[[-999, -999], [999, 999]]]
+            max_bounds = None
 
         params = {
             'key': self._api_key,
             'query': address,
-            'language': language,
-            'region': region,
-            'bounds': '%f,%f|%f,%f' % (max_bounds[0] + max_bounds[1])
         }
+        if language:
+            params['language'] = language
+        if region:
+            params['region'] = region
+        if max_bounds:
+            params['bounds'] = '%f,%f|%f,%f' % (max_bounds[0] + max_bounds[1])
         response = requests.request(
             'GET',
             self.API_ENDPOINT,
