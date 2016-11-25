@@ -5,6 +5,7 @@ import BotCreateDialog from '../components/Dialog/BotCreateDialog'
 import BroadcastDateDialog from '../components/Dialog/BroadcastDateDialog'
 import BroadcastSendDialog from '../components/Dialog/BroadcastSendDialog'
 import BroadcastDelDialog from '../components/Dialog/BroadcastDelDialog'
+import PlatformDelDialog from '../components/Dialog/PlatformDelDialog'
 
 const DEFAULT_COMPONENT = null
 
@@ -40,9 +41,14 @@ function DialogReducer(state = INITIAL_STATE, action) {
         payload: action.payload,
         component: <BroadcastDelDialog />,
       }
+    case types.DIALOG_PLATFORM_DEL.OPEN:
+      return {
+        open: true,
+        payload: action.payload,
+        component: <PlatformDelDialog />,
+      }
     case types.DIALOG_CLOSE:
       return INITIAL_STATE
-
     default:
       return state
   }

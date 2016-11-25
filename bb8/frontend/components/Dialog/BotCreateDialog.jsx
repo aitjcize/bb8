@@ -135,13 +135,11 @@ class BotCreateDialog extends React.Component {
 BotCreateDialog.propTypes = {
   open: React.PropTypes.bool,
   dispatch: React.PropTypes.func.isRequired,
-  payload: React.PropTypes.shape({}).isRequired,
 }
 
 const ConnectedBotCreateDialog = connect(
   state => ({
     open: state.dialog.open,
-    payload: state.dialog.payload,
   }),
 )(BotCreateDialog)
 

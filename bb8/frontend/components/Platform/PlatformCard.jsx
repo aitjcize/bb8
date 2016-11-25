@@ -1,5 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
 
 import Avatar from 'material-ui/Avatar'
 import Chip from 'material-ui/Chip'
@@ -16,7 +17,7 @@ import {
 } from 'material-ui/Card'
 
 import { FacebookIcon, LineIcon } from '../../assets/svgIcon'
-
+import * as dialogActionCreators from '../../actions/dialogActionCreators'
 
 const styles = {
   cardHeaderRightGroup: {
@@ -32,6 +33,9 @@ class PlatformCard extends React.Component {
 
     this.handlePopoverOpen = this.handlePopoverOpen.bind(this)
     this.handleRequestClose = this.handleRequestClose.bind(this)
+
+    this.dialogActions = bindActionCreators(
+      dialogActionCreators, this.props.dispatch)
 
     this.state = {
       popoverOpen: false,
@@ -54,9 +58,6 @@ class PlatformCard extends React.Component {
 
   render() {
     const { platform, bots, isFirst, selectedBotId } = this.props
-
-      // console.log(platform)
-      // console.log(platform.botId)
 
     const cardHeaderRightGroup = (
       <div
@@ -99,7 +100,7 @@ class PlatformCard extends React.Component {
               platform.botId && <div>
                 <Divider />
                 <MenuItem
-                  primaryText="Detech"
+                  primaryText="Detach"
                 />
               </div>
             }
@@ -136,20 +137,27 @@ class PlatformCard extends React.Component {
         {cardHeaderRightGroup}
       </CardHeader>
       {!selectedBotId && <CardActions>
-        <FlatButton label="Edit" onTouchTap={this.props.handleEdit} />
-        <FlatButton label="Delete" secondary onTouchTap={this.props.handleOpen} />
+        <FlatButton
+          label="Edit"
+          onTouchTap={this.props.handleEdit}
+        />
+        <FlatButton
+          label="Delete"
+          secondary
+          onTouchTap={() =>
+            this.dialogActions.openDelPlatform(this.props.platform.id)}
+        />
       </CardActions>}
     </Card>)
   }
 }
 
 PlatformCard.propTypes = {
+  dispatch: React.PropTypes.func,
   platform: React.PropTypes.shape({
-    // name: React.PropTypes.string,
-    // typeEnum: React.PropTypes.string,
-  }),
+    id: React.PropTypes.number.isRequired,
+  }).isRequired,
   bots: React.PropTypes.shape({}),
-  handleOpen: React.PropTypes.func,
   handleEdit: React.PropTypes.func,
   isFirst: React.PropTypes.bool,
   selectedBotId: React.PropTypes.number,
