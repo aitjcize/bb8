@@ -347,7 +347,6 @@ class Button extends React.Component {
 
 Button.propTypes = {
   disableShare: React.PropTypes.bool,
-  readOnly: React.PropTypes.bool,
   onRemoveClicked: React.PropTypes.func,
 }
 

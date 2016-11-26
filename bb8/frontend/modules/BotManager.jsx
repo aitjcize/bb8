@@ -1,25 +1,18 @@
 import React from 'react'
-
 import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
 
 import Subheader from 'material-ui/Subheader'
 import { List, ListItem } from 'material-ui/List'
 import Paper from 'material-ui/Paper'
-// import IconButton from 'material-ui/IconButton'
-// import {
-  // Toolbar,
-  // ToolbarGroup,
-  // ToolbarSeparator,
-  // ToolbarTitle
-// } from 'material-ui/Toolbar';
 import FlatButton from 'material-ui/FlatButton'
 import Divider from 'material-ui/Divider'
 import Avatar from 'material-ui/Avatar'
 
 import IconAdd from 'material-ui/svg-icons/content/add'
-// import IconAddCircleOutline from 'material-ui/svg-icons/Content/add-circle-outline'
 
 import Platforms from './Platforms'
+import * as dialogActionCreators from '../actions/dialogActionCreators'
 
 const styles = {
   container: {
@@ -49,6 +42,9 @@ class BotManager extends React.Component {
 
     this.handleBotSelect = this.handleBotSelect.bind(this)
     this.handleResetBotSelect = this.handleResetBotSelect.bind(this)
+
+    this.dialogActions = bindActionCreators(
+      dialogActionCreators, this.props.dispatch)
 
     this.outerContainer = undefined
 
@@ -102,6 +98,7 @@ class BotManager extends React.Component {
               label="New Chatbot"
               labelPosition="before"
               icon={<IconAdd />}
+              onClick={this.dialogActions.openBotCreate}
             />
           </Subheader>
 
@@ -184,6 +181,7 @@ class BotManager extends React.Component {
 }
 
 BotManager.propTypes = {
+  dispatch: React.PropTypes.func,
   botIds: React.PropTypes.arrayOf(React.PropTypes.number),
   bots: React.PropTypes.objectOf(React.PropTypes.shape({})),
   platformIds: React.PropTypes.arrayOf(React.PropTypes.number),
@@ -198,18 +196,8 @@ const mapStateToProps = state => ({
   activeId: state.bots.active,
 })
 
-// const mapDispatchToProps = dispatch => ({
-  // onSetActiveBot(id) {
-    // dispatch(setActiveBot(id))
-  // },
-  // dispatchGetAllBots() {
-    // dispatch(getAllBots())
-  // },
-// })
-
 const ConnectedBotManager = connect(
   mapStateToProps,
-  // mapDispatchToProps,
 )(BotManager)
 
 export default ConnectedBotManager

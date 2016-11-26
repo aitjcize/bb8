@@ -11,6 +11,7 @@
     "rules": {
       "no-constant-condition": 0,
       "semi": [2, "never"],
-      "new-cap": 0
+      "new-cap": 0,
+      "jsx-a11y/no-static-element-interactions": 0
     }
 }

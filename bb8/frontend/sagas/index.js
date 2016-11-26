@@ -288,6 +288,20 @@ export function* confirmDelBroadcastSaga() {
   }
 }
 
+export function* confirmDelPlatformSaga() {
+  while (true) {
+    const { payload } = yield take(types.DIALOG_PLATFORM_DEL.CONFIRM)
+
+    yield put({
+      type: types.PLATFORMS_DELETE.REQUEST,
+      payload,
+    })
+
+    yield take(types.PLATFORMS_DELETE.SUCCESS)
+    yield put({ type: types.DIALOG_CLOSE })
+  }
+}
+
 export default function* root() {
   /* General Saga */
   yield fork(initializeAppSaga)
@@ -317,4 +331,5 @@ export default function* root() {
   yield fork(confirmBroadcastDateSaga)
   yield fork(confirmSendBroadcastSaga)
   yield fork(confirmDelBroadcastSaga)
+  yield fork(confirmDelPlatformSaga)
 }
