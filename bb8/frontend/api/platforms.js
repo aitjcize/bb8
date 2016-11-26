@@ -26,7 +26,7 @@ const platforms = {
 
   updatePlatform(platformId, platform) {
     return fetch('PUT', `/api/platforms/${platformId}`, { ...platform, deployed: true })
-      .then(response => ({ response: normalize(response, Platform) }))
+      .then(() => ({ response: normalize({ ...platform, id: platformId }, Platform) }))
       .catch(error => ({ error }))
   },
 

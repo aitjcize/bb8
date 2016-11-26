@@ -18,6 +18,7 @@ import {
 
 import { FacebookIcon, LineIcon } from '../../assets/svgIcon'
 import * as dialogActionCreators from '../../actions/dialogActionCreators'
+import * as platformActionCreators from '../../actions/platformActionCreators'
 
 const styles = {
   cardHeaderRightGroup: {
@@ -36,6 +37,8 @@ class PlatformCard extends React.Component {
 
     this.dialogActions = bindActionCreators(
       dialogActionCreators, this.props.dispatch)
+    this.platformActions = bindActionCreators(
+      platformActionCreators, this.props.dispatch)
 
     this.state = {
       popoverOpen: false,
@@ -93,6 +96,13 @@ class PlatformCard extends React.Component {
               <MenuItem
                 key={b.id}
                 primaryText={b.name}
+                onTouchTap={
+                  () => {
+                    this.platformActions.updatePlatform(
+                      platform.id, { ...platform, botId: b.id })
+                    this.setState({ popoverOpen: false })
+                  }
+                }
                 style={{ fontSize: '.875em' }}
               />
             ))}
@@ -101,6 +111,13 @@ class PlatformCard extends React.Component {
                 <Divider />
                 <MenuItem
                   primaryText="Detach"
+                  onTouchTap={
+                    () => {
+                      this.platformActions.updatePlatform(
+                        platform.id, { ...platform, botId: null })
+                      this.setState({ popoverOpen: false })
+                    }
+                  }
                 />
               </div>
             }
