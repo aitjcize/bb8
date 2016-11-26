@@ -117,11 +117,15 @@ class BroadcastEditor extends React.Component {
     const dialogActions = bindActionCreators(
       dialogActionCreators, this.props.dispatch)
 
+    const isSent = (this.props.broadcast.status === 'Sent' ||
+                    this.props.broadcast.status === 'Sending')
+
     return (
       <Card>
         <CardHeader
           title={
             <TextField
+              disabled={isSent}
               hintText="give this broadcast a name"
               errorText={this.state.nameError}
               onChange={this.handleNameChange}
@@ -140,6 +144,7 @@ class BroadcastEditor extends React.Component {
           }}
         />
         <Message
+          readOnly={isSent}
           maxMessages={5}
           ref={(m) => {
             this.editor = m
@@ -147,10 +152,13 @@ class BroadcastEditor extends React.Component {
         />
         <CardActions style={styles.infoActionsContainer}>
           <div style={styles.infoActionsGroup}>
-            <FlatButton
-              onClick={() => this.handleSubmit(this.props.broadcast)}
-              label="Save"
-            />
+            {
+             !isSent &&
+             <FlatButton
+               onClick={() => this.handleSubmit(this.props.broadcast)}
+               label="Save"
+             />
+            }
             <FlatButton
               onClick={this.props.handleCloseEditor}
               label="Cancel"
@@ -158,18 +166,21 @@ class BroadcastEditor extends React.Component {
             />
           </div>
           <div style={{ ...styles.infoActionsGroup, ...{ flex: 'none' } }}>
-            <FlatButton
-              onClick={() => {
-                try {
-                  const broadcast = this.getBroadcast()
-                  dialogActions.openSendBroadcast(broadcast)
-                } catch (e) {
-                  this.uiActions.openNotification(e.errorMessage)
-                }
-              }}
-              label="send now"
-              primary
-            />
+            {
+              !isSent &&
+              <FlatButton
+                onClick={() => {
+                  try {
+                    const broadcast = this.getBroadcast()
+                    dialogActions.openSendBroadcast(broadcast)
+                  } catch (e) {
+                    this.uiActions.openNotification(e.errorMessage)
+                  }
+                }}
+                label="send now"
+                primary
+              />
+            }
           </div>
         </CardActions>
       </Card>
@@ -182,6 +193,7 @@ BroadcastEditor.propTypes = {
   activeBotId: React.PropTypes.number,
   styles: React.PropTypes.objectOf(stylePropType),
   broadcast: React.PropTypes.shape({
+    status: React.PropTypes.string,
     messages: React.PropTypes.arrayOf(React.PropTypes.shape({})),
   }),
   handleCloseEditor: React.PropTypes.func,
