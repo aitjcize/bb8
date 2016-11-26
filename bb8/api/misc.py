@@ -123,7 +123,7 @@ def image_convert_url():
     return response
 
 
-@app.route('/redirect/<int:bot_id>/<platform_user_ident>')
+@app.route('/api/r/<int:bot_id>/<platform_user_ident>')
 def redirect_track_url(bot_id, platform_user_ident):
     """Handler for tracking URL
 

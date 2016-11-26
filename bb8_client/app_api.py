@@ -68,7 +68,7 @@ def CacheImage(link):
 
 def TrackedURL(link, path_name):
     """Wraps given *link* with in tracking API."""
-    return ('https://%s:%s/redirect/{{bot_id}}/'
+    return ('https://%s:%s/api/r/{{bot_id}}/'
             '{{user.platform_user_ident}}?path=%s&url=%s' %
             (config.RESOURCE_HOSTNAME, config.HTTP_PORT, path_name,
              urllib.quote(link)))
