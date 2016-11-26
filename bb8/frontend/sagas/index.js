@@ -302,6 +302,37 @@ export function* confirmDelPlatformSaga() {
   }
 }
 
+export function* confirmCreatePlatformSaga() {
+  while (true) {
+    const { payload } = yield take(types.DIALOG_PLATFORM_CREATE.CONFIRM)
+
+    yield put({
+      type: types.PLATFORMS_CREATE.REQUEST,
+      payload,
+    })
+
+    yield take(types.PLATFORMS_CREATE.SUCCESS)
+    yield put({ type: types.DIALOG_CLOSE })
+  }
+}
+
+export function* confirmUpdatePlatformSaga() {
+  while (true) {
+    const { payload } = yield take(types.DIALOG_PLATFORM_UPDATE.CONFIRM)
+
+    yield put({
+      type: types.PLATFORMS_UPDATE.REQUEST,
+      payload: {
+        platformId: payload.id,
+        platform: payload,
+      },
+    })
+
+    yield take(types.PLATFORMS_UPDATE.SUCCESS)
+    yield put({ type: types.DIALOG_CLOSE })
+  }
+}
+
 export default function* root() {
   /* General Saga */
   yield fork(initializeAppSaga)
@@ -332,4 +363,6 @@ export default function* root() {
   yield fork(confirmSendBroadcastSaga)
   yield fork(confirmDelBroadcastSaga)
   yield fork(confirmDelPlatformSaga)
+  yield fork(confirmCreatePlatformSaga)
+  yield fork(confirmUpdatePlatformSaga)
 }

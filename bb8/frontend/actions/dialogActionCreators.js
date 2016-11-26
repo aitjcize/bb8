@@ -57,3 +57,22 @@ export const confirmDelPlatform = platformId => ({
   type: types.DIALOG_PLATFORM_DEL.CONFIRM,
   payload: platformId,
 })
+
+export const openCreatePlatform = () => ({
+  type: types.DIALOG_PLATFORM_CREATE.OPEN,
+})
+
+export const openUpdatePlatform = platform => ({
+  type: types.DIALOG_PLATFORM_UPDATE.OPEN,
+  payload: platform,
+})
+
+export const confirmCreatePlatform = platform => ({
+  type: types.DIALOG_PLATFORM_CREATE.CONFIRM,
+  payload: platform,
+})
+
+export const confirmUpdatePlatform = platform => ({
+  type: types.DIALOG_PLATFORM_UPDATE.CONFIRM,
+  payload: platform,
+})

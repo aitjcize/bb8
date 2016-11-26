@@ -25,9 +25,6 @@ class Platforms extends React.Component {
   constructor(props) {
     super(props)
 
-    this.handleOpenDrawer = this.handleOpenDrawer.bind(this)
-    this.handleCloseDrawer = this.handleCloseDrawer.bind(this)
-
     this.platformActions = bindActionCreators(
       platformActionCreators, this.props.dispatch)
 
@@ -41,14 +38,6 @@ class Platforms extends React.Component {
     this.platformActions.getPlatforms()
   }
 
-  handleOpenDrawer(plat) {
-    this.setState({ editingPlatform: plat, rightDrawerOpen: true })
-  }
-
-  handleCloseDrawer() {
-    this.setState({ rightDrawerOpen: false })
-  }
-
   render() {
     return (
       <Paper>
@@ -59,7 +48,6 @@ class Platforms extends React.Component {
               <PlatformCard
                 key={id}
                 activeBotId={this.props.activeBotId}
-                handleEdit={() => this.handleOpenDrawer(plat)}
                 platform={plat}
                 isFirst={index === 0}
                 selectedBotId={this.props.selectedBotId}

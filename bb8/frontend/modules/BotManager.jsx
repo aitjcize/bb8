@@ -143,6 +143,7 @@ class BotManager extends React.Component {
             <FlatButton
               label="New Platform"
               labelPosition="before"
+              onClick={() => this.dialogActions.openCreatePlatform()}
               icon={<IconAdd />}
             />
           </Subheader>
@@ -170,6 +171,7 @@ class BotManager extends React.Component {
                   style={{ margin: '.5em 0' }}
                   labelPosition="before"
                   icon={<IconAdd />}
+                  onClick={() => this.dialogActions.openCreatePlatform()}
                 />
               </div>
             )

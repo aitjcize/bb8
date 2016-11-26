@@ -156,7 +156,8 @@ class PlatformCard extends React.Component {
       {!selectedBotId && <CardActions>
         <FlatButton
           label="Edit"
-          onTouchTap={this.props.handleEdit}
+          onTouchTap={() =>
+            this.dialogActions.openUpdatePlatform(this.props.platform)}
         />
         <FlatButton
           label="Delete"
@@ -175,7 +176,6 @@ PlatformCard.propTypes = {
     id: React.PropTypes.number.isRequired,
   }).isRequired,
   bots: React.PropTypes.shape({}),
-  handleEdit: React.PropTypes.func,
   isFirst: React.PropTypes.bool,
   selectedBotId: React.PropTypes.number,
 }

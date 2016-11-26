@@ -135,7 +135,7 @@ class Message extends React.Component {
   }
 
   render() {
-    const showAddButton = (
+    const showAddButton = (!this.props.readOnly &&
       this.state.messageInfos.length < this.props.maxMessages)
 
 

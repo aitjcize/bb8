@@ -109,6 +109,7 @@ class BroadcastItem extends React.Component {
   renderCell() {
     const { broadcast } = this.props
     const { name, status, scheduledTime } = broadcast
+    const isSent = broadcast.status === 'Sent' || broadcast.status === 'Sending'
 
     return (<Card
       style={styles.infoContainer}
@@ -121,6 +122,7 @@ class BroadcastItem extends React.Component {
       >
         <div style={styles.infoHeaderGroupRight}>
           <Toggle
+            disabled={isSent}
             label={broadcast.status === 'Draft' ? 'Set schedule' : 'Scheduled'}
             toggled={broadcast.status !== 'Draft'}
             style={styles.infoHeaderToggle}
@@ -148,21 +150,25 @@ class BroadcastItem extends React.Component {
         <div style={styles.infoActionsGroup}>
           <FlatButton
             onClick={() => this.props.handleEdit(broadcast)}
-            label="edit"
+            label={isSent ? 'view' : 'edit'}
           />
           <FlatButton
+            disabled={isSent}
             onClick={this.props.handleDelete}
             label="discard"
             secondary
           />
         </div>
-        <div style={{ ...styles.infoActionsGroup, ...{ flex: 'none' } }}>
-          <FlatButton
-            onClick={this.props.handleSend}
-            label="Send Now"
-            primary
-          />
-        </div>
+        {
+          !isSent &&
+          <div style={{ ...styles.infoActionsGroup, ...{ flex: 'none' } }}>
+            <FlatButton
+              onClick={this.props.handleSend}
+              label="Send Now"
+              primary
+            />
+          </div>
+        }
       </CardActions>
     </Card>)
   }
