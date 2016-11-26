@@ -6,6 +6,7 @@ import BroadcastDateDialog from '../components/Dialog/BroadcastDateDialog'
 import BroadcastSendDialog from '../components/Dialog/BroadcastSendDialog'
 import BroadcastDelDialog from '../components/Dialog/BroadcastDelDialog'
 import PlatformDelDialog from '../components/Dialog/PlatformDelDialog'
+import PlatformDialog from '../components/Dialog/PlatformDialog'
 
 const DEFAULT_COMPONENT = null
 
@@ -17,6 +18,13 @@ const INITIAL_STATE = {
 
 function DialogReducer(state = INITIAL_STATE, action) {
   switch (action.type) {
+    case types.DIALOG_PLATFORM_UPDATE.OPEN:
+    case types.DIALOG_PLATFORM_CREATE.OPEN:
+      return {
+        open: true,
+        payload: action.payload,
+        component: <PlatformDialog />,
+      }
     case types.DIALOG_BOT_CREATE.OPEN:
       return {
         open: true,
