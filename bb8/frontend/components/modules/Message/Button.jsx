@@ -254,14 +254,18 @@ class Button extends React.Component {
         />
         }
         {
-        this.state.type === 'web_url' && <TextField
+        this.state.type === 'web_url' && !this.state.titleEditing && <TextField
           hintText="http://"
           value={this.state.url}
           underlineShow={false}
           autoFocus={this.state.urlEditorOpen}
           onChange={(e) => { this.setState({ url: e.target.value }) }}
           onFocus={() => this.setState({ urlEditorOpen: true })}
-          onBlur={() => this.setState({ urlEditorOpen: false })}
+          onBlur={() => {
+            if (this.validateUrl()) {
+              this.setState({ urlEditorOpen: false, payload: undefined })
+            }
+          }}
           onKeyPress={(e) => {
             if (e.nativeEvent.code === 'Enter') {
               if (this.validateUrl()) {
@@ -328,7 +332,7 @@ class Button extends React.Component {
             {
             this.state.type === 'web_url' && <IconButton
               tooltip={this.state.url ? this.state.url : false}
-              tooltipPosition="top-right"
+              tooltipPosition="top-left"
             >
               <IconLink />
             </IconButton>

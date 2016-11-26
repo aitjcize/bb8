@@ -3,13 +3,14 @@ import uniqueId from 'lodash/uniqueId'
 
 import { Card, CardText, CardMedia } from 'material-ui/Card'
 import Divider from 'material-ui/Divider'
-// import Popover from 'material-ui/Popover'
 import TextField from 'material-ui/TextField'
 import FlatButton from 'material-ui/FlatButton'
+import List from 'material-ui/List'
 
 import Button from './Button'
 import Styles from './Styles'
 
+import LogoSvg from '../../../assets/logoLight.svg'
 
 const styles = {
   container: {
@@ -23,6 +24,10 @@ const styles = {
     backgroundRepeat: 'no-repeat',
     backgroundPosition: 'center',
     backgroundSize: 'cover',
+  },
+  emptyCover: {
+    backgroundImage: `url(${LogoSvg})`,
+    backgroundSize: 'contain',
   },
   coverActionContainer: {
     display: 'flex',
@@ -91,7 +96,7 @@ class Bubble extends React.Component {
     if (this.state.buttonIds.length < 3) {
       const id = uniqueId('buttons_message')
       this.idBut[id] = {
-        type: 'web_url',
+        type: undefined,
         title,
         url: '',
       }
@@ -176,6 +181,7 @@ class Bubble extends React.Component {
           <div
             style={{
               ...styles.cover,
+              ...!this.state.imageUrl ? styles.emptyCover : {},
               ...this.state.imageUrl && {
                 backgroundImage: `url(${this.state.imageUrl})`,
               },
@@ -289,8 +295,7 @@ class Bubble extends React.Component {
             }}
           />
         </CardText>
-        <Divider />
-        <CardMedia>
+        <List>
           <div>
             {this.state.buttonIds.map((id, index) => (
               <div
@@ -303,57 +308,57 @@ class Bubble extends React.Component {
                   this.setState({ hoverIndex: undefined })
                 }}
               >
+                <Divider />
                 <Button
                   readOnly={this.props.readOnly}
                   ref={(b) => { this.loadFromJSON(b, id) }}
                   onRemoveClicked={() => { this.onRemoveClicked(id) }}
                 />
-                <Divider />
               </div>
             ))}
             {!this.props.readOnly && showAddButton && (
-            <div>
-              <Divider />
-              <TextField
-                fullWidth
-                underlineShow={false}
-                value={this.state.addButtonTextBuffer}
-                hintText={!this.state.addButtonTextEditing && 'New Button'}
-                inputStyle={{ textAlign: 'center' }}
-                hintStyle={{
-                  textAlign: 'center',
-                  width: '100%',
-                  color: '#29D3A4',
-                }}
-                onChange={(e) => {
-                  this.setState({ addButtonTextBuffer: e.target.value })
-                }}
-                onFocus={() => {
-                  this.setState({ addButtonTextEditing: true })
-                }}
-                onBlur={() => {
-                  if (this.state.addButtonTextBuffer) {
-                    this.addButton(this.state.addButtonTextBuffer)
-                  }
-                  this.setState({
-                    addButtonTextEditing: false,
-                    addButtonTextBuffer: '',
-                  })
-                }}
-                onKeyPress={(e) => {
-                  if (e.nativeEvent.code === 'Enter' && e.target.value) {
-                    this.addButton(this.state.addButtonTextBuffer)
+              <div>
+                <Divider />
+                <TextField
+                  fullWidth
+                  underlineShow={false}
+                  value={this.state.addButtonTextBuffer}
+                  hintText={!this.state.addButtonTextEditing && 'New Button'}
+                  inputStyle={{ textAlign: 'center' }}
+                  hintStyle={{
+                    textAlign: 'center',
+                    width: '100%',
+                    color: '#29D3A4',
+                  }}
+                  onChange={(e) => {
+                    this.setState({ addButtonTextBuffer: e.target.value })
+                  }}
+                  onFocus={() => {
+                    this.setState({ addButtonTextEditing: true })
+                  }}
+                  onBlur={() => {
+                    if (this.state.addButtonTextBuffer) {
+                      this.addButton(this.state.addButtonTextBuffer)
+                    }
                     this.setState({
-                      addButtonTextEditing: this.state.buttonIds.length < 2,
+                      addButtonTextEditing: false,
                       addButtonTextBuffer: '',
                     })
-                  }
-                }}
-              />
-            </div>
+                  }}
+                  onKeyPress={(e) => {
+                    if (e.nativeEvent.code === 'Enter' && e.target.value) {
+                      this.addButton(this.state.addButtonTextBuffer)
+                      this.setState({
+                        addButtonTextEditing: this.state.buttonIds.length < 2,
+                        addButtonTextBuffer: '',
+                      })
+                    }
+                  }}
+                />
+              </div>
             )}
           </div>
-        </CardMedia>
+        </List>
       </Card>
     )
   }
