@@ -12,7 +12,7 @@ from flask import g, request
 
 from bb8.api.error import AppError
 from bb8.constant import HTTPStatus, CustomError, Key
-from bb8.backend.database import Account
+from bb8.backend.database import AccountUser
 
 
 def login_required(func):
@@ -32,7 +32,8 @@ def login_required(func):
 
         try:
             token = parts[1]
-            g.account = Account.from_auth_token(token)
+            g.account_user = AccountUser.from_auth_token(token)
+            g.account = g.account_user.account
         except RuntimeError:
             raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
                            CustomError.ERR_UNAUTHENTICATED,

@@ -18,11 +18,12 @@ import pytz
 from bb8 import app, config
 from bb8.backend.bot_parser import get_bot_filename, parse_bot_from_file
 from bb8.backend.database import DatabaseManager
-from bb8.backend.database import (Account, Bot, CollectedDatum, Conversation,
-                                  Event, Node, Module, Platform,
+from bb8.backend.database import (Account, AccountUser, Bot, CollectedDatum,
+                                  Conversation, Event, Node, Module, Platform,
                                   ModuleTypeEnum, PlatformTypeEnum, SenderEnum,
                                   User, Broadcast, FeedEnum, Feed, PublicFeed,
-                                  OAuthInfo, OAuthProviderEnum)
+                                  OAuthInfo, OAuthProviderEnum,
+                                  ThreadStatusEnum, Label)
 
 from bb8.backend.test_utils import reset_and_setup_bots
 
@@ -69,8 +70,9 @@ class DatabaseUnittest(unittest.TestCase):
         """Populate data into all tables and make sure there are no error."""
         DatabaseManager.reset()
 
-        account = Account(name=u'Test Account',
-                          email='test@test.com', passwd='test_hashed').add()
+        account = Account(name=u'Test Account').add()
+        account_user = AccountUser(name=u'Test Account', email='test@test.com',
+                                   passwd='test_hashed', account=account).add()
 
         bot = Bot(name=u'test', description=u'test', interaction_timeout=120,
                   session_timeout=86400).add()
@@ -87,19 +89,19 @@ class DatabaseUnittest(unittest.TestCase):
         oauth2 = OAuthInfo(provider=OAuthProviderEnum.Github,
                            provider_ident='mock-github-id').add()
 
-        account.oauth_infos.append(oauth1)
-        account.oauth_infos.append(oauth2)
+        account_user.oauth_infos.append(oauth1)
+        account_user.oauth_infos.append(oauth2)
         DatabaseManager.commit()
 
-        account_ = Account.get_by(id=account.id, single=True)
-        self.assertNotEquals(account_, None)
-        self.assertEquals(len(account_.oauth_infos), 2)
+        account_user_ = AccountUser.get_by(id=account_user.id, single=True)
+        self.assertNotEquals(account_user_, None)
+        self.assertEquals(len(account_user_.oauth_infos), 2)
 
         oauth_ = OAuthInfo.get_by(provider_ident='mock-facebook-id',
                                   single=True)
         self.assertNotEquals(oauth_, None)
-        self.assertNotEquals(oauth_.account, None)
-        self.assertEquals(oauth_.account.id, account.id)
+        self.assertNotEquals(oauth_.account_user, None)
+        self.assertEquals(oauth_.account_user.id, account_user.id)
 
         # Test for bot
         account.bots.append(bot)
@@ -184,8 +186,7 @@ class DatabaseUnittest(unittest.TestCase):
         self.assertNotEquals(Broadcast.get_by(id=bc.id, single=True), None)
 
         # PublicFeed, Feed
-        account = Account(name=u'Test Account - 1',
-                          email='test1@test.com', passwd='test_hashed').add()
+        account = Account(name=u'Test Account - 1').add()
         feed1 = Feed(url='example.com/rss', type=FeedEnum.RSS,
                      title=u'foo.com', image_url='foo.com/logo').add()
         feed2 = Feed(url='example.com/rss', type=FeedEnum.RSS,
@@ -210,23 +211,38 @@ class DatabaseUnittest(unittest.TestCase):
         DatabaseManager.commit()
         self.assertNotEquals(PublicFeed.get_by(id=pfeed.id, single=True), None)
 
+        # Label
+        label1 = Label(account_id=account.id, name=u'Label1').add()
+        label2 = Label(account_id=account.id, name=u'Label2').add()
+        label3 = Label(account_id=account.id, name=u'Label3').add()
+
+        user.labels.append(label1)
+        user.labels.append(label2)
+        user.labels.append(label3)
+
+        DatabaseManager.commit()
+        user_ = User.get_by(id=user.id, single=True)
+        self.assertNotEquals(user_, None)
+        self.assertEquals(len(user_.labels), 3)
+
     def test_timestamp_update(self):
         """Make sure the updated_at timestamp automatically updates on
         commit."""
-        account = Account(email='test@test.com',
-                          passwd='test_hashed').add()
+        account = Account(name=u'Test account').add()
+        account_user = AccountUser(email='test@test.com',
+                                   passwd='test_hashed', account=account).add()
         DatabaseManager.commit()
 
-        account.refresh()
-        self.assertEquals(account.created_at, account.updated_at)
-        last_updated = account.updated_at
+        account_user.refresh()
+        self.assertEquals(account_user.created_at, account_user.updated_at)
+        last_updated = account_user.updated_at
 
         time.sleep(1)
-        account.email = 'test2@test.com'
+        account_user.email = 'test2@test.com'
         DatabaseManager.commit()
 
-        account.refresh()
-        self.assertNotEquals(last_updated, account.updated_at)
+        account_user.refresh()
+        self.assertNotEquals(last_updated, account_user.updated_at)
 
     def test_Bot_API(self):
         """Test Bot model APIs."""
@@ -270,60 +286,61 @@ class DatabaseUnittest(unittest.TestCase):
         self.assertEquals(Bot.get_by(id=bot1_id, single=True), None)
 
     def test_json_serializer(self):
-        DatabaseManager.reset()
-        account = Account(name=u'tester',
-                          email='test@test.com')
+        account = Account(name=u'Test account').add()
+        account_user = AccountUser(name=u'tester', email='test@test.com',
+                                   account=account)
 
         dt = datetime.datetime(2010, 1, 1, 0, 0, tzinfo=pytz.utc)
-        account.created_at = dt
+        account_user.created_at = dt
 
-        account.__json_public__.append('created_at')
+        account_user.__json_public__.append('created_at')
 
-        d = account.to_json()
+        d = account_user.to_json()
         self.assertEquals(d['created_at'], 1262304000)
         self.assertEquals(d['name'], 'tester')
         self.assertEquals(d['email'], 'test@test.com')
 
     def test_auth(self):
-        DatabaseManager.reset()
-        account = Account(name=u'Test Account 3',
-                          email='test3@test.com').add()
+        account = Account(name=u'Test account').add()
+        account_user = AccountUser(name=u'Test Account 3',
+                                   email='test3@test.com',
+                                   account=account).add()
 
         some_passwd = 'abcdefg'
-        account.set_passwd(some_passwd)
+        account_user.set_passwd(some_passwd)
 
         DatabaseManager.commit()
-        account_ = Account.get_by(id=account.id, single=True)
-        self.assertNotEquals(account_.passwd, some_passwd)
-        self.assertEquals(account_.verify_passwd(some_passwd), True)
-        self.assertEquals(account_.verify_passwd('should be wrong'), False)
+        account_user_ = AccountUser.get_by(id=account_user.id, single=True)
+        self.assertNotEquals(account_user_.passwd, some_passwd)
+        self.assertEquals(account_user_.verify_passwd(some_passwd), True)
+        self.assertEquals(account_user_.verify_passwd('wrong'), False)
 
-        token = account_.auth_token
+        token = account_user_.auth_token
 
-        account_t = Account.from_auth_token(token)
-        self.assertEquals(account_.id, account_t.id)
+        account_user_ = AccountUser.from_auth_token(token)
+        self.assertEquals(account_user_.id, account_user_.id)
 
         fake_token = jwt.encode({
             'iss': 'compose.ai',
-            'sub': account_.id,
+            'sub': account_user_.id,
             'jti': str(uuid.uuid4()),
             'iat': datetime.datetime.utcnow(),
             'exp': datetime.datetime.utcnow() + datetime.timedelta(days=14)
         }, 'im fake secret')
 
         with self.assertRaises(RuntimeError):
-            Account.from_auth_token(fake_token)
+            AccountUser.from_auth_token(fake_token)
 
         outdated_token = jwt.encode({
             'iss': 'compose.ai',
-            'sub': account_.id,
+            'sub': account_user_.id,
             'jti': str(uuid.uuid4()),
             'iat': datetime.datetime.utcnow() - datetime.timedelta(days=30),
             'exp': datetime.datetime.utcnow() - datetime.timedelta(days=15)
         }, config.JWT_SECRET)
 
         with self.assertRaises(RuntimeError):
-            Account.from_auth_token(outdated_token)
+            AccountUser.from_auth_token(outdated_token)
 
 
 if __name__ == '__main__':

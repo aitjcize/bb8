@@ -15,7 +15,7 @@ from bb8 import app
 from bb8.constant import HTTPStatus, CustomError, Key
 from bb8.api.error import AppError
 from bb8.api.middlewares import login_required
-from bb8.backend.database import Account, DatabaseManager
+from bb8.backend.database import Account, AccountUser, DatabaseManager
 
 
 REGISTER_SCHEMA = {
@@ -58,9 +58,15 @@ def email_register():
                        CustomError.ERR_FORM_VALIDATION,
                        'schema validation fail')
 
-    account = Account.get_by(email=data['email'], single=True)
-    if not account:
-        account = Account(email=data['email']).set_passwd(data['passwd']).add()
+    account_user = AccountUser.get_by(email=data['email'], single=True)
+    if not account_user:
+        try:
+            account_user = AccountUser.register(data,
+                                                request.args.get('invite'))
+        except RuntimeError as e:
+            raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
+                           CustomError.ERR_BAD_INVITE_EMAIL,
+                           str(e))
         DatabaseManager.commit()
     else:
         raise AppError(
@@ -68,8 +74,8 @@ def email_register():
             CustomError.ERR_USER_EXISTED,
             'email %s is already taken' % data['email'])
 
-    ret = account.to_json()
-    ret[Key.AUTH_TOKEN] = account.auth_token
+    ret = account_user.to_json()
+    ret[Key.AUTH_TOKEN] = account_user.auth_token
     return jsonify(ret)
 
 
@@ -89,7 +95,7 @@ def social_register():
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
-    account = Account.get_by(email=data['email'], single=True)
+    account = AccountUser.get_by(email=data['email'], single=True)
     if not account or not account.verify_passwd(data['passwd']):
         raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
                        CustomError.ERR_WRONG_PASSWD,
@@ -113,4 +119,4 @@ def verify_email():
 @app.route('/api/me', methods=['GET'])
 @login_required
 def get_me():
-    return jsonify(g.account.to_json())
+    return jsonify(g.account_user.to_json())

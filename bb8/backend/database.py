@@ -58,24 +58,36 @@ class AppContext(object):
         self.context.__exit__(exc_type, exc_value, tb)
 
 
-class Account(DeclarativeBase, ModelMixin, JSONSerializableMixin):
-    __tablename__ = 'account'
+class AccountUser(DeclarativeBase, ModelMixin, JSONSerializableMixin):
+    __tablename__ = 'account_user'
     __table_args__ = (UniqueConstraint('email'),)
 
     __json_public__ = ['name', 'email', 'email_verified', 'timezone']
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    account_id = Column(ForeignKey('account.id'), nullable=False)
     name = Column(Unicode(256), nullable=False, default=u'')
     email = Column(String(256), nullable=False)
     email_verified = Column(Boolean, nullable=False, default=False)
     passwd = Column(String(256), nullable=False)
     timezone = Column(String(32), nullable=False, default='UTC')
 
-    bots = relationship('Bot')
-    platforms = relationship('Platform')
-    broadcasts = relationship('Broadcast')
-    feeds = relationship('Feed', lazy='dynamic')
-    oauth_infos = relationship('OAuthInfo', back_populates='account')
+    account = relationship('Account')
+    oauth_infos = relationship('OAuthInfo', back_populates='account_user')
+
+    @classmethod
+    def register(cls, data, invite=None):
+        if invite:
+            account, payload = Account.from_invite_code(invite)
+            if payload['email'] != data['email']:
+                raise RuntimeError('invitation link not intended for this '
+                                   'email')
+        else:
+            account = Account(name=unicode(data['email'])).add()
+
+        return AccountUser(
+            account=account, email=data['email']
+        ).set_passwd(data['passwd']).add()
 
     def set_passwd(self, passwd):
         self.passwd = bcrypt.encrypt(passwd)
@@ -105,6 +117,39 @@ class Account(DeclarativeBase, ModelMixin, JSONSerializableMixin):
         return cls.get_by(id=payload['sub'], single=True)
 
 
+class Account(DeclarativeBase, ModelMixin, JSONSerializableMixin):
+    __tablename__ = 'account'
+    __table_args__ = (UniqueConstraint('name'),)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(Unicode(256), nullable=False)
+
+    account_users = relationship('AccountUser')
+    bots = relationship('Bot')
+    platforms = relationship('Platform')
+    broadcasts = relationship('Broadcast')
+    feeds = relationship('Feed', lazy='dynamic')
+
+    def invite_code(self, email, expiration=15):
+        payload = {
+            'iss': 'compose.ai',
+            'sub': self.id,
+            'email': email,
+            'jti': str(uuid.uuid4()),  # unique identifier of the token
+            'exp': datetime.utcnow() + timedelta(days=expiration)
+        }
+        token = jwt.encode(payload, config.JWT_SECRET)
+        return token.decode('unicode_escape')
+
+    @classmethod
+    def from_invite_code(cls, token):
+        try:
+            payload = jwt.decode(token, config.JWT_SECRET)
+        except (jwt.DecodeError, jwt.ExpiredSignature):
+            raise RuntimeError('auth token is invalid')
+        return cls.get_by(id=payload['sub'], single=True), payload
+
+
 class OAuthProviderEnum(enum.Enum):
     Facebook = 'Facebook'
     Google = 'Google'
@@ -115,12 +160,12 @@ class OAuthInfo(DeclarativeBase, ModelMixin):
     __tablename__ = 'oauth_info'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    account_id = Column(ForeignKey('account.id'), nullable=False)
+    account_user_id = Column(ForeignKey('account_user.id'), nullable=False)
 
     provider = Column(Enum(OAuthProviderEnum), nullable=False)
     provider_ident = Column(String(256), nullable=False)
 
-    account = relationship('Account', back_populates="oauth_infos")
+    account_user = relationship('AccountUser', back_populates="oauth_infos")
 
 
 class PlatformTypeEnum(enum.Enum):
@@ -205,6 +250,15 @@ class GenderEnum(enum.Enum):
     Female = 'Female'
 
 
+class ThreadStatusEnum(enum.Enum):
+    Read = 'Read'
+    Unread = 'Unread'
+    Assigned = 'Assigned'
+    Open = 'Open'
+    Closed = 'Closed'
+    Archived = 'Archived'
+
+
 class User(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     __tablename__ = 'user'
 
@@ -217,8 +271,8 @@ class User(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     last_seen = Column(DateTime, nullable=False)
     last_admin_seen = Column(DateTime, nullable=False,
                              default=datetime(1970, 1, 1))
-    login_token = deferred(Column(Text, nullable=True))
 
+    # Profile information
     first_name = Column(Unicode(32), nullable=True)
     last_name = Column(Unicode(32), nullable=True)
     locale = Column(String(16), nullable=True)
@@ -231,9 +285,16 @@ class User(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     settings = Column(MutableDict.as_mutable(PickleType), nullable=False,
                       default={'subscribe': False})
 
+    # CRM-related fields
+    assignee = Column(ForeignKey('account_user.id'), nullable=True)
+    status = Column(Enum(ThreadStatusEnum), nullable=True)
+    comment = Column(UnicodeText, nullable=True)
+
+    # Relationship
     platform = relationship('Platform')
     conversations = relationship('Conversation')
     colleted_data = relationship('CollectedDatum')
+    labels = relationship('Label', secondary='user_label')
 
     def delete(self):
         Conversation.delete_by(user_id=self.id)
@@ -480,6 +541,14 @@ class BotDef(DeclarativeBase, ModelMixin, JSONSerializableMixin):
         return bot_def
 
 
+class Label(DeclarativeBase, ModelMixin, JSONSerializableMixin):
+    __tablename__ = 'label'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    account_id = Column(ForeignKey('account.id'), nullable=True)
+    name = Column(Unicode(64), nullable=False)
+
+
 class FeedEnum(enum.Enum):
     RSS = 'RSS'
     ATOM = 'ATOM'
@@ -519,4 +588,11 @@ t_bot_node = Table(
     'bot_node', DeclarativeBase.metadata,
     Column('bot_id', ForeignKey('bot.id'), nullable=False),
     Column('node_id', ForeignKey('node.id'), nullable=False)
+)
+
+
+t_user_label = Table(
+    'user_label', DeclarativeBase.metadata,
+    Column('user_id', ForeignKey('user.id'), nullable=False),
+    Column('label_id', ForeignKey('label.id'), nullable=False)
 )

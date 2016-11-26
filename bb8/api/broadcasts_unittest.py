@@ -15,7 +15,7 @@ from bb8 import app
 # Register request handlers, pylint: disable=W0611
 from bb8.api import accounts, bots, broadcasts
 from bb8.api.test_utils import BearerAuthTestClient
-from bb8.backend.database import (DatabaseManager, Account, Broadcast,
+from bb8.backend.database import (DatabaseManager, AccountUser, Broadcast,
                                   BroadcastStatusEnum)
 from bb8.backend.message import Message
 from bb8.backend.modules import register_all
@@ -77,24 +77,22 @@ class BroadcastAPIUnittest(unittest.TestCase):
     def setup_prerequisite(self):
         register_all()
 
-        self.account1 = Account(
-            name=u'test',
-            email='test@gmail.com').set_passwd('12345678').add()
-        self.account2 = Account(
-            name=u'test2',
-            email='test2@gmail.com').set_passwd('12345678').add()
+        self.account_user1 = AccountUser.register(dict(
+            name=u'test', email='test@gmail.com', passwd='12345678'))
+        self.account_user2 = AccountUser.register(dict(
+            name=u'test2', email='test2@gmail.com', passwd='12345678'))
         DatabaseManager.commit()
 
-        self.login(self.account1)
+        self.login(self.account_user1)
         self.create_bot()
         self.create_broadcast(self.bot_ids[0])
 
-        self.login(self.account2)
+        self.login(self.account_user2)
         self.create_bot()
         self.create_broadcast(self.bot_ids[1])
 
         # Login back as account1
-        self.login(self.account1)
+        self.login(self.account_user1)
 
     def test_broadcast_listing(self):
         """Test broadcast listing."""
@@ -151,7 +149,7 @@ class BroadcastAPIUnittest(unittest.TestCase):
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
 
         # Login as account2, and should have access to the second broadcast
-        self.login(self.account2)
+        self.login(self.account_user2)
         rv = self.app.get('/api/broadcasts/%s' % self.broadcast_ids[1])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
 

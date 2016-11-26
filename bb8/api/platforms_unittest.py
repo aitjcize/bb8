@@ -16,7 +16,7 @@ from bb8.api import accounts, bots, platforms
 from bb8.api.test_utils import BearerAuthTestClient
 from bb8.constant import HTTPStatus, CustomError
 from bb8.backend.platform_parser import get_platform_filename, parse_platform
-from bb8.backend.database import DatabaseManager, Account
+from bb8.backend.database import DatabaseManager, AccountUser
 from bb8.backend.modules import register_all
 
 
@@ -71,24 +71,22 @@ class PlatformAPIUnittest(unittest.TestCase):
     def setup_prerequisite(self):
         register_all()
 
-        self.account1 = Account(
-            name=u'test',
-            email='test@gmail.com').set_passwd('12345678').add()
-        self.account2 = Account(
-            name=u'test2',
-            email='test2@gmail.com').set_passwd('12345678').add()
+        self.account_user1 = AccountUser.register(dict(
+            name=u'test', email='test@gmail.com', passwd='12345678'))
+        self.account_user2 = AccountUser.register(dict(
+            name=u'test2', email='test2@gmail.com', passwd='12345678'))
         DatabaseManager.commit()
 
-        self.login(self.account1)
+        self.login(self.account_user1)
         self.create_bot()
         self.create_platform('dev/bb8.test.platform')
 
-        self.login(self.account2)
+        self.login(self.account_user2)
         self.create_bot()
         self.create_platform('dev/bb8.test2.platform')
 
         # Login back as account1
-        self.login(self.account1)
+        self.login(self.account_user1)
 
     def test_platform_listing(self):
         """Test platform listing."""
@@ -124,7 +122,7 @@ class PlatformAPIUnittest(unittest.TestCase):
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
 
         # Login as account2, and should have access to the second platform
-        self.login(self.account2)
+        self.login(self.account_user2)
         rv = self.app.get('/api/platforms/%s' % self.platform_ids[1])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
 
