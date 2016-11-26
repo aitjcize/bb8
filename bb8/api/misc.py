@@ -129,6 +129,10 @@ def redirect_track_url(bot_id, platform_user_ident):
     This handler allow us to track 'web_url' button clicks by embedding the
     tracking info in the url parameters and sending to GA.
     """
+    # Prevent FB scanning external site and block them 'accidentally'
+    if 'facebookexternalhit' in request.headers.get('User-Agent'):
+        return 'OK'
+
     url = request.args.get('url', None)
     if not url:
         raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
