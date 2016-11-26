@@ -8,17 +8,22 @@
     Copyright 2016 bb8 Authors
 """
 
+import time
+
 from bb8 import config
 from bb8.backend.database import Conversation, PlatformTypeEnum, SenderEnum
 from bb8.backend.messaging_provider import facebook, line
 
 
-def store_conversation(user, messages):
+def store_conversation(user, messages, sender=None):
     if config.STORE_CONVERSATION:
+        sender_enum = SenderEnum.Bot if not sender else SenderEnum.Manual
         for message in messages:
             Conversation(user_id=user.id,
-                         sender_enum=SenderEnum.Bot,
-                         messages=message.as_dict()).add()
+                         sender_enum=sender_enum,
+                         sender=sender,
+                         messages=message.as_dict(),
+                         timestamp=time.time()).add()
 
 
 def get_messaging_provider(platform_type):
@@ -50,14 +55,14 @@ def flush_message(user):
     provider.flush_message(user)
 
 
-def push_message(user, messages):
+def push_message(user, messages, sender=None):
     """Push message to user proactively."""
     if not isinstance(messages, list):
         messages = [messages]
 
     provider = get_messaging_provider(user.platform.type_enum)
     provider.push_message(user, messages)
-    store_conversation(user, messages)
+    store_conversation(user, messages, sender)
 
 
 def download_audio_as_data(user, audio_payload):

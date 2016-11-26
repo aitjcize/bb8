@@ -15,7 +15,7 @@ from bb8 import app
 from bb8.constant import HTTPStatus, CustomError, Key
 from bb8.api.error import AppError
 from bb8.api.middlewares import login_required
-from bb8.backend.database import Account, AccountUser, DatabaseManager
+from bb8.backend.database import AccountUser, DatabaseManager
 
 
 REGISTER_SCHEMA = {

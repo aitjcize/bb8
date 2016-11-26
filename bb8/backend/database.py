@@ -18,8 +18,8 @@ from passlib.hash import bcrypt  # pylint: disable=E0611
 from flask import Flask  # pylint: disable=C0411,C0413
 
 from sqlalchemy import (Boolean, Column, DateTime, Enum, ForeignKey, Integer,
-                        PickleType, Table, Text, String, Unicode, UnicodeText,
-                        func)
+                        Float, PickleType, Table, Text, String, Unicode,
+                        UnicodeText, func)
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
 from sqlalchemy.orm import relationship, deferred
 from sqlalchemy.schema import UniqueConstraint
@@ -432,16 +432,21 @@ class CollectedDatum(DeclarativeBase, ModelMixin):
 
 class SenderEnum(enum.Enum):
     Bot = 'BOT'
-    Human = 'HUMAN'
+    User = 'USER'
+    Manual = 'MANUAL'
 
 
-class Conversation(DeclarativeBase, ModelMixin):
+class Conversation(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     __tablename__ = 'conversation'
+
+    __json_public__ = ['id', 'sender_enum', 'sender', 'messages', 'timestamp']
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(ForeignKey('user.id'), nullable=False)
     sender_enum = Column(Enum(SenderEnum), nullable=False)
+    sender = Column(ForeignKey('account_user.id'), nullable=True)
     messages = Column(PickleType, nullable=False)
+    timestamp = Column(Float, nullable=False)
 
     user = relationship('User')
 

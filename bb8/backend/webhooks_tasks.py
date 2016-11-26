@@ -12,7 +12,7 @@ from flask import g, request
 
 from bb8 import celery, config, statsd
 from bb8.backend.database import (DatabaseManager, User, Platform,
-                                  PlatformTypeEnum, Conversation)
+                                  PlatformTypeEnum, Conversation, SenderEnum)
 from bb8.backend.engine import Engine
 from bb8.backend.message import UserInput
 from bb8.backend.messaging import get_user_profile
@@ -36,12 +36,13 @@ def add_user(platform, sender):
     return user
 
 
-def store_message(user, message):
+def store_conversation(user, message, sender_enum=SenderEnum.User):
     """Store message into conversation table."""
     if config.STORE_CONVERSATION:
         Conversation(user_id=user.id,
-                     sender_enum=SenderEnum.Human,
-                     messages=message).add()
+                     sender_enum=sender_enum,
+                     messages=message,
+                     timestamp=message['timestamp']).add()
 
 
 @celery.task(base=RequestContextTask)
@@ -73,6 +74,8 @@ def facebook_webhook_task():
                     user = User.get_by(platform_id=platform.id,
                                        platform_user_ident=recipient,
                                        single=True)
+
+                    store_conversation(user, messaging, SenderEnum.Manual)
                     engine.process_admin_reply(bot, user, user_input)
                 else:
                     user = User.get_by(platform_id=platform.id,
@@ -85,8 +88,7 @@ def facebook_webhook_task():
                         track(TrackingInfo.Pageview(
                             sender, '/', user_input.ref))
 
-                    store_message(user, messaging)
-
+                    store_conversation(user, messaging)
                     if user_input.valid():
                         engine.run(bot, user, user_input)
 
@@ -120,8 +122,7 @@ def line_webhook_task(provider_ident):
 
             user_input = UserInput.FromLineMessage(entry)
 
-            store_message(user, entry)
-
+            store_conversation(user, entry)
             if user_input.valid():
                 g.line_reply_token = entry['replyToken']
                 engine.run(bot, user, user_input)

@@ -11,13 +11,12 @@ import random
 
 from flask import g
 
-from bb8 import config, logger
+from bb8 import logger
 from bb8.backend import messaging
 from bb8.backend.message import Message
 from bb8.tracking import track, TrackingInfo
 from bb8.backend.database import (Bot, DatabaseManager, Node,
-                                  SupportedPlatform, SenderEnum,
-                                  ModuleTypeEnum)
+                                  SupportedPlatform, ModuleTypeEnum)
 from bb8.backend.metadata import RouteResult
 from bb8.backend.message import InputTransformation
 

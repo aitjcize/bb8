@@ -22,8 +22,7 @@ from bb8.backend.database import (Account, AccountUser, Bot, CollectedDatum,
                                   Conversation, Event, Node, Module, Platform,
                                   ModuleTypeEnum, PlatformTypeEnum, SenderEnum,
                                   User, Broadcast, FeedEnum, Feed, PublicFeed,
-                                  OAuthInfo, OAuthProviderEnum,
-                                  ThreadStatusEnum, Label)
+                                  OAuthInfo, OAuthProviderEnum, Label)
 
 from bb8.backend.test_utils import reset_and_setup_bots
 
@@ -172,7 +171,7 @@ class DatabaseUnittest(unittest.TestCase):
 
         conversation = Conversation(user_id=user.id,
                                     sender_enum=SenderEnum.Bot,
-                                    messages=[]).add()
+                                    messages=[], timestamp=0).add()
         DatabaseManager.commit()
         self.assertNotEquals(Conversation.get_by(id=conversation.id,
                                                  single=True), None)

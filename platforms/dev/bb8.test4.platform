@@ -1,0 +1,9 @@
+{
+  "name": "bb8 unittest fake platform",
+  "type_enum": "Facebook",
+  "deployed": false,
+  "provider_ident": "bb8.test4.platform",
+  "config": {
+    "access_token": "access_token"
+  }
+}
