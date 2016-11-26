@@ -444,6 +444,7 @@ class Rules(object):
                 # not something with units, convert it back.
                 query = query.replace(ur'__MIDTEN__', u'十')
                 query = query.replace(ur'__TENTH__', u'十')
+                query = query.replace(ur'__TENS__', u'十')
                 query = query.replace(ur'__TEN__', u'十')
 
             else:

@@ -203,6 +203,22 @@ class TestCanonize(unittest.TestCase):
             self.canonizer(
                 u'四十八章', units=units),
             u'四十八章')
+        self.assertEqual(
+            self.canonizer(
+                u'七十巷', units=units),
+            u'七十巷')
+        self.assertEqual(
+            self.canonizer(
+                u'七十七巷', units=units),
+            u'七十七巷')
+        self.assertEqual(
+            self.canonizer(
+                u'十巷', units=units),
+            u'十巷')
+        self.assertEqual(
+            self.canonizer(
+                u'七巷', units=units),
+            u'七巷')
 
 
 if __name__ == "__main__":

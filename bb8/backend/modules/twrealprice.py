@@ -284,7 +284,15 @@ def run(unused_config, unused_user_input, env, unused_variables):
         else:  # User entered either an address or criteria; or both.
             query = user_input.Get('query')
             rules = twrealprice_rule.Rules.Create()
-            query = rules.ParseQuery(query)
+
+            try:
+                query = rules.ParseQuery(query)
+            except Exception:
+                traceback.print_exc()
+                return [
+                    Message(
+                        u'查詢字串好像有東西出槌了，請試試別的查詢。' +
+                        u'例如改用阿拉伯數字。')]
 
             address = query.strip()
             _LOG.info(
