@@ -14,4 +14,3 @@ export const closeNotification = () => ({
   type: types.NOTIFICATION_CLOSE,
   payload: null,
 })
-

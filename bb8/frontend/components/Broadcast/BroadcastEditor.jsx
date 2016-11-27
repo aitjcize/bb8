@@ -77,23 +77,23 @@ class BroadcastEditor extends React.Component {
     if (!name) {
       this.setState({
         nameError: 'Please give this broadcast a name',
-        broadcast: Object.assign({}, this.state.broadcast, { name }),
+        broadcast: { ...this.state.broadcast, name },
       })
     } else if (name.length > 30) {
       this.setState({
         nameError: 'The length of name should be smaller than 30',
-        broadcast: Object.assign({}, this.state.broadcast, { name }),
+        broadcast: { ...this.state.broadcast, name },
       })
     } else {
       this.setState({
         nameError: '',
-        broadcast: Object.assign({}, this.state.broadcast, { name }),
+        broadcast: { ...this.state.broadcast, name },
       })
     }
   }
 
   handleSubmit() {
-    this.props.handleCloseEditor()
+    this.broadcastActions.closeBroadcastEditor()
 
     let broadcast
     try {
@@ -160,7 +160,7 @@ class BroadcastEditor extends React.Component {
              />
             }
             <FlatButton
-              onClick={this.props.handleCloseEditor}
+              onClick={this.broadcastActions.closeBroadcastEditor}
               label="Cancel"
               secondary
             />
@@ -177,7 +177,7 @@ class BroadcastEditor extends React.Component {
                     this.uiActions.openNotification(e.errorMessage)
                   }
                 }}
-                label="send now"
+                label="Send Now"
                 primary
               />
             }
@@ -196,7 +196,6 @@ BroadcastEditor.propTypes = {
     status: React.PropTypes.string,
     messages: React.PropTypes.arrayOf(React.PropTypes.shape({})),
   }),
-  handleCloseEditor: React.PropTypes.func,
 }
 
 const ConnectedBroadcastEditor = connect(

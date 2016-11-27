@@ -271,6 +271,7 @@ export function* confirmSendBroadcastSaga() {
     }
 
     yield put({ type: types.DIALOG_CLOSE })
+    yield put({ type: types.BROADCAST_EDITOR_CLOSE })
   }
 }
 

@@ -27,6 +27,10 @@ export default {
   BROADCASTS_UPDATE: createRequestTypes('BROADCASTS_UPDATE'),
   BROADCASTS_DELETE: createRequestTypes('BROADCASTS_DELETE'),
 
+  // Broadcast Editor
+  BROADCAST_EDITOR_OPEN: 'BROADCAST_EDITOR_OPEN',
+  BROADCAST_EDITOR_CLOSE: 'BROADCAST_EDITOR_CLOSE',
+
   // Platforms
   PLATFORMS_LIST: createRequestTypes('PLATFORMS_LIST'),
   PLATFORMS_GET: createRequestTypes('PLATFORMS_GET'),
