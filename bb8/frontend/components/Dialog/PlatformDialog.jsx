@@ -110,6 +110,7 @@ class PlatformDialog extends React.Component {
         title={isUpdating ? 'Edit Platform' : 'New Platform'}
         actions={actions}
         open={this.props.open}
+        onRequestClose={this.dialogActions.closeDialog}
       >
         <TextField
           floatingLabelText="Platform Name"

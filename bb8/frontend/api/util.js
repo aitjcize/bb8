@@ -1,8 +1,11 @@
 import 'isomorphic-fetch'
 import store from 'store2'
 import { camelizeKeys, decamelizeKeys } from 'humps'
+import { hashHistory } from 'react-router'
 
+import reduxStore from '../reduxStore'
 import { AUTH_TOKEN } from '../constants'
+import * as uiActionCreators from '../actions/uiActionCreators'
 
 // make the fetch reject on non 2xx status
 function checkStatus(response) {
@@ -13,7 +16,16 @@ function checkStatus(response) {
     const error = new Error(response.statusText)
     error.response = response
     error.body = camelizeKeys(json)
-    throw error
+    if (error.body.errorCode === 100) {
+      store.clearAll()
+      hashHistory.push('/login')
+      setTimeout(() => reduxStore.dispatch(
+        uiActionCreators.openNotification(
+          'Sorry, your credential is invalid, please login again'
+        )
+      ), 500)
+    }
+    Promise.reject(error)
   })
 }
 

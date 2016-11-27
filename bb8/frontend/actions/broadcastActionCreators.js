@@ -22,3 +22,12 @@ export const delBroadcast = broadcastId => ({
   type: types.BROADCASTS_DELETE.REQUEST,
   payload: broadcastId,
 })
+
+export const openBroadcastEditor = broadcast => ({
+  type: types.BROADCAST_EDITOR_OPEN,
+  payload: broadcast,
+})
+
+export const closeBroadcastEditor = () => ({
+  type: types.BROADCAST_EDITOR_CLOSE,
+})

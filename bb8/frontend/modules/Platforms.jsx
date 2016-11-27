@@ -2,11 +2,10 @@ import React from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import Drawer from 'material-ui/Drawer'
 import Paper from 'material-ui/Paper'
 
 import * as platformActionCreators from '../actions/platformActionCreators'
-import { PlatformCard, PlatformForm } from '../components/Platform'
+import PlatformCard from '../components/Platform/PlatformCard'
 
 const styles = {
   floatButtonContainer: {
@@ -27,11 +26,6 @@ class Platforms extends React.Component {
 
     this.platformActions = bindActionCreators(
       platformActionCreators, this.props.dispatch)
-
-    this.state = {
-      rightDrawerOpen: false,
-      editingPlatform: { config: {} },
-    }
   }
 
   componentWillMount() {
@@ -54,23 +48,6 @@ class Platforms extends React.Component {
               />)
           })
         }
-
-        <Drawer
-          docked={false}
-          width={500}
-          openSecondary
-          open={this.state.rightDrawerOpen}
-          onRequestChange={rightDrawerOpen => this.setState({ rightDrawerOpen })}
-        >
-          {
-            this.state.rightDrawerOpen === false ? null :
-            <PlatformForm
-              handleClose={() =>
-                this.setState({ rightDrawerOpen: false })}
-              platform={this.state.editingPlatform}
-            />
-          }
-        </Drawer>
         <div style={styles.floatButtonContainer} />
       </Paper>
     )
@@ -78,7 +55,7 @@ class Platforms extends React.Component {
 }
 
 Platforms.propTypes = {
-  dispatch: React.PropTypes.func,
+  dispatch: React.PropTypes.func.isRequired,
   activeBotId: React.PropTypes.number,
   platformIds: React.PropTypes.arrayOf(React.PropTypes.number),
   platforms: React.PropTypes.objectOf(React.PropTypes.shape({})),

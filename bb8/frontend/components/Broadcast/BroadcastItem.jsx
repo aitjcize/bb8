@@ -89,19 +89,20 @@ class BroadcastItem extends React.Component {
   constructor(props) {
     super(props)
 
+    this.dialogActions = bindActionCreators(
+      dialogActionCreators, this.props.dispatch)
+    this.broadcastActions = bindActionCreators(
+      broadcastActionCreators, this.props.dispatch)
+
     this.handleToggle = this.handleToggle.bind(this)
     this.renderCell = this.renderCell.bind(this)
   }
 
   handleToggle() {
     if (this.props.broadcast.status === 'Draft') {
-      const actionCreator = bindActionCreators(
-        dialogActionCreators, this.props.dispatch)
-      actionCreator.openBroadcastDate(this.props.broadcast)
+      this.dialogActions.openBroadcastDate(this.props.broadcast)
     } else {
-      const actionCreator = bindActionCreators(
-        broadcastActionCreators, this.props.dispatch)
-      actionCreator.updateBroadcast(this.props.broadcast.id,
+      this.broadcastActions.updateBroadcast(this.props.broadcast.id,
         Object.assign(this.props.broadcast, { status: 'Draft' }))
     }
   }
@@ -149,12 +150,13 @@ class BroadcastItem extends React.Component {
       <CardActions style={styles.infoActionsContainer}>
         <div style={styles.infoActionsGroup}>
           <FlatButton
-            onClick={() => this.props.handleEdit(broadcast)}
+            onClick={
+              () => this.broadcastActions.openBroadcastEditor(broadcast)}
             label={isSent ? 'view' : 'edit'}
           />
           <FlatButton
             disabled={isSent}
-            onClick={this.props.handleDelete}
+            onClick={() => this.dialogActions.openDelBroadcast(broadcast.id)}
             label="discard"
             secondary
           />
@@ -163,7 +165,7 @@ class BroadcastItem extends React.Component {
           !isSent &&
           <div style={{ ...styles.infoActionsGroup, ...{ flex: 'none' } }}>
             <FlatButton
-              onClick={this.props.handleSend}
+              onClick={() => this.dialogActions.openSendBroadcast(broadcast)}
               label="Send Now"
               primary
             />
@@ -207,7 +209,6 @@ class BroadcastItem extends React.Component {
         {
           expanded ? (
             <BroadcastEditor
-              handleCloseEditor={this.props.handleCloseEditor}
               styles={styles}
               broadcast={this.props.broadcast}
             />
@@ -224,10 +225,6 @@ class BroadcastItem extends React.Component {
 
 BroadcastItem.propTypes = {
   dispatch: React.PropTypes.func,
-  handleEdit: React.PropTypes.func,
-  handleCloseEditor: React.PropTypes.func,
-  handleDelete: React.PropTypes.func,
-  handleSend: React.PropTypes.func,
   broadcast: React.PropTypes.shape({
     id: React.PropTypes.number,
     // eslint-disable-next-line react/no-unused-prop-types
