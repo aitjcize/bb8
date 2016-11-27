@@ -12,7 +12,7 @@ from flask import g, request
 
 from bb8 import celery, config, statsd
 from bb8.backend.database import (DatabaseManager, User, Platform,
-                                  PlatformTypeEnum)
+                                  PlatformTypeEnum, Conversation)
 from bb8.backend.engine import Engine
 from bb8.backend.message import UserInput
 from bb8.backend.messaging import get_user_profile
@@ -34,6 +34,14 @@ def add_user(platform, sender):
     track(TrackingInfo.Event(sender, '%s.User' % platform.type_enum.value,
                              'Add', profile_info['first_name']))
     return user
+
+
+def store_message(user, message):
+    """Store message into conversation table."""
+    if config.STORE_CONVERSATION:
+        Conversation(user_id=user.id,
+                     sender_enum=SenderEnum.Human,
+                     messages=message).add()
 
 
 @celery.task(base=RequestContextTask)
@@ -77,6 +85,8 @@ def facebook_webhook_task():
                         track(TrackingInfo.Pageview(
                             sender, '/', user_input.ref))
 
+                    store_message(user, messaging)
+
                     if user_input.valid():
                         engine.run(bot, user, user_input)
 
@@ -109,6 +119,9 @@ def line_webhook_task(provider_ident):
                 user = add_user(platform, sender)
 
             user_input = UserInput.FromLineMessage(entry)
+
+            store_message(user, entry)
+
             if user_input.valid():
                 g.line_reply_token = entry['replyToken']
                 engine.run(bot, user, user_input)

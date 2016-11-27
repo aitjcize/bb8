@@ -15,8 +15,8 @@ from bb8 import config, logger
 from bb8.backend import messaging
 from bb8.backend.message import Message
 from bb8.tracking import track, TrackingInfo
-from bb8.backend.database import (Bot, DatabaseManager, Conversation,
-                                  Node, SupportedPlatform, SenderEnum,
+from bb8.backend.database import (Bot, DatabaseManager, Node,
+                                  SupportedPlatform, SenderEnum,
                                   ModuleTypeEnum)
 from bb8.backend.metadata import RouteResult
 from bb8.backend.message import InputTransformation
@@ -49,11 +49,6 @@ class Engine(object):
 
             g.user = user
             if user_input:
-                if config.STORE_CONVERSATION:
-                    Conversation(user_id=user.id,
-                                 sender_enum=SenderEnum.Human,
-                                 messages=user_input).add()
-
                 # Parse audio as text if there are audio payload
                 user_input.ParseAudioAsText(user)
                 user_input = user_input.RunInputTransformation()
