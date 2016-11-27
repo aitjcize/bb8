@@ -93,13 +93,12 @@ class BroadcastEditor extends React.Component {
   }
 
   handleSubmit() {
-    this.broadcastActions.closeBroadcastEditor()
-
     let broadcast
     try {
       broadcast = this.getBroadcast()
     } catch (e) {
       this.uiActions.openNotification(e.errorMessage)
+      return
     }
 
     if (!broadcast.id) {
@@ -108,7 +107,6 @@ class BroadcastEditor extends React.Component {
       this.broadcastActions.updateBroadcast(
         broadcast.id, broadcast)
     }
-    this.uiActions.openNotification('Successfully saved the broadcast')
   }
 
   render() {

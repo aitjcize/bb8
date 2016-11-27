@@ -4,10 +4,12 @@ import { Link } from 'react-router'
 import { Card } from 'material-ui/Card'
 
 import LoginForm from '../components/LoginForm'
+import Notification from '../components/Notification'
 import LogoPNG from '../assets/logo.png'
 
 const Login = () => (
   <Card className="b-login-card">
+    <Notification />
     <div className="b-login-card__container">
       <span className="b-login-card__title"> Login </span>
       <img className="b-login-card__logo" src={LogoPNG} alt="logo" />

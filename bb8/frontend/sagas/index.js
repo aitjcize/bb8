@@ -1,10 +1,13 @@
 import storage from 'store2'
 import { take, call, put, fork } from 'redux-saga/effects'
 import { hashHistory } from 'react-router'
-import types from '../constants/ActionTypes'
+
 import api from '../api'
+import types from '../constants/ActionTypes'
 import { AUTH_TOKEN } from '../constants'
 import CustomError from '../constants/CustomError'
+import * as broadcastActionCreators from '../actions/broadcastActionCreators'
+import * as uiActionCreators from '../actions/uiActionCreators'
 
 /* General Saga */
 
@@ -183,11 +186,17 @@ export function* createBroadcastSaga() {
     const { response, error } = yield call(api.createBroadcast, payload)
     if (error) {
       yield put({ type: types.BROADCASTS_CREATE.ERROR, payload: error })
+      yield put(broadcastActionCreators.closeBroadcastEditor())
+      yield put(uiActionCreators.openNotification(
+        'Failed to create broadcast'))
     } else {
       yield put({
         type: types.BROADCASTS_CREATE.SUCCESS,
         payload: response,
       })
+      yield put(broadcastActionCreators.closeBroadcastEditor())
+      yield put(uiActionCreators.openNotification(
+        'Successfully create a broadcast'))
     }
   }
 }
@@ -201,11 +210,17 @@ export function* updateBroadcastSaga() {
 
     if (error) {
       yield put({ type: types.BROADCASTS_UPDATE.ERROR, payload: error })
+      yield put(broadcastActionCreators.closeBroadcastEditor())
+      yield put(uiActionCreators.openNotification(
+        'Failed to update the broadcast'))
     } else {
       yield put({
         type: types.BROADCASTS_UPDATE.SUCCESS,
         payload: response,
       })
+      yield put(broadcastActionCreators.closeBroadcastEditor())
+      yield put(uiActionCreators.openNotification(
+        'Successfully update the broadcast'))
     }
   }
 }

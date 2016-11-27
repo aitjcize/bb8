@@ -5,19 +5,14 @@ import { render } from 'react-dom'
 import { Provider } from 'react-redux'
 import { IndexRoute, Router, Route, hashHistory } from 'react-router'
 import { syncHistoryWithStore } from 'react-router-redux'
-import { createStore, applyMiddleware } from 'redux'
-import createSagaMiddleware from 'redux-saga'
 import injectTapEventPlugin from 'react-tap-event-plugin'
-import createLogger from 'redux-logger'
 import storage from 'store2'
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import muiTheme from './constants/Theme'
 import { AUTH_TOKEN } from './constants'
-import rootSaga from './sagas'
-import rootReducer from './reducers'
 
-import initialState from './initialState'
+import reduxStore from './reduxStore'
 
 import modules from './modules'
 import './styles/style.scss'
@@ -38,18 +33,7 @@ const {
 // http://stackoverflow.com/a/34015469/988941
 injectTapEventPlugin()
 
-// Configure middleware and store
-const logger = createLogger()
-
-const sagaMiddleware = createSagaMiddleware()
-const store = createStore(
-  rootReducer,
-  initialState,
-  applyMiddleware(sagaMiddleware, logger),
-)
-sagaMiddleware.run(rootSaga)
-
-syncHistoryWithStore(hashHistory, store)
+syncHistoryWithStore(hashHistory, reduxStore)
 
 function authRequired(nextState, replace) {
   if (!storage.has(AUTH_TOKEN)) {
@@ -65,7 +49,7 @@ function notAuthRequired(nextState, replace) {
 }
 
 render(
-(<Provider store={store}>
+(<Provider store={reduxStore}>
   <MuiThemeProvider muiTheme={muiTheme}>
     <Router history={hashHistory}>
       <Route onEnter={authRequired} path="/" component={App} >
