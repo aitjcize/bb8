@@ -107,7 +107,7 @@ class BotCreateDialog extends React.Component {
         title="New Chatbot"
         actions={actions}
         open={this.props.open}
-        modal
+        onRequestClose={this.dialogActions.closeDialog}
       >
         <Subheader>
           Chatbot name
