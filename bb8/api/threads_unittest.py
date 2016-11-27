@@ -38,6 +38,7 @@ class ThreadAPIUnittest(unittest.TestCase):
         self.bot_ids = []
         self.platform_ids = []
         self.user_ids = []
+        self.label_ids = []
         self.setup_prerequisite()
 
     def tearDown(self):
@@ -120,6 +121,23 @@ class ThreadAPIUnittest(unittest.TestCase):
 
         # Login back as account1
         self.login(self.account_user1)
+
+        # Create some labels
+        rv = self.app.post('/api/labels',
+                           data=json.dumps(dict(
+                               name='Label1',
+                           )), content_type='application/json')
+        self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
+        data = json.loads(rv.data)
+        self.label_ids.append(data['id'])
+
+        rv = self.app.post('/api/labels',
+                           data=json.dumps(dict(
+                               name='Label2',
+                           )), content_type='application/json')
+        self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
+        data = json.loads(rv.data)
+        self.label_ids.append(data['id'])
 
     def test_thread_listing(self):
         """Test thread listing."""
@@ -222,6 +240,80 @@ class ThreadAPIUnittest(unittest.TestCase):
         self.assertEquals(len(data['conversation']), 1)
         self.assertEquals(data['conversation'][0]['sender'],
                           self.account_user1.id)
+
+    def test_thread_add_label(self):
+        """Test adding label to a thread."""
+        rv = self.app.post('/api/threads/%s/labels' % self.user_ids[0],
+                           data=json.dumps(dict(
+                               label_id=self.label_ids[0],
+                           )), content_type='application/json')
+        self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
+
+        # Adding duplicate label should be fine
+        rv = self.app.post('/api/threads/%s/labels' % self.user_ids[0],
+                           data=json.dumps(dict(
+                               label_id=self.label_ids[0],
+                           )), content_type='application/json')
+        self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
+
+        rv = self.app.post('/api/threads/%s/labels' % self.user_ids[0],
+                           data=json.dumps(dict(
+                               label_id=self.label_ids[1],
+                           )), content_type='application/json')
+        self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
+
+        rv = self.app.get('/api/threads/%s/labels' % self.user_ids[0])
+        self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
+        data = json.loads(rv.data)
+        self.assertEquals(len(data['labels']), 2)
+
+    def test_thread_delete_label(self):
+        """Test adding label to a thread."""
+        # Remove a label that is not there in the first place should be fine
+        rv = self.app.delete('/api/threads/%s/labels' % self.user_ids[0],
+                             data=json.dumps(dict(
+                                 label_id=self.label_ids[0],
+                             )), content_type='application/json')
+        self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
+
+        # Add a label
+        rv = self.app.post('/api/threads/%s/labels' % self.user_ids[0],
+                           data=json.dumps(dict(
+                               label_id=self.label_ids[0],
+                           )), content_type='application/json')
+        self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
+
+        # Verify that the label is there
+        rv = self.app.get('/api/threads/%s/labels' % self.user_ids[0])
+        self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
+        data = json.loads(rv.data)
+        self.assertEquals(len(data['labels']), 1)
+
+        # Remove a label that is not there in the first place should be fine
+        rv = self.app.delete('/api/threads/%s/labels' % self.user_ids[0],
+                             data=json.dumps(dict(
+                                 label_id=self.label_ids[1],
+                             )), content_type='application/json')
+        self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
+
+        # Verify that the label is there
+        rv = self.app.get('/api/threads/%s/labels' % self.user_ids[0])
+        self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
+        data = json.loads(rv.data)
+        self.assertEquals(len(data['labels']), 1)
+
+        # Remove the label
+        rv = self.app.delete('/api/threads/%s/labels' % self.user_ids[0],
+                             data=json.dumps(dict(
+                                 label_id=self.label_ids[0],
+                             )), content_type='application/json')
+        self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
+
+        # Verify that the label is there
+        rv = self.app.get('/api/threads/%s/labels' % self.user_ids[0])
+        self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
+        data = json.loads(rv.data)
+        self.assertEquals(len(data['labels']), 0)
 
 
 if __name__ == '__main__':

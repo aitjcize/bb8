@@ -548,10 +548,15 @@ class BotDef(DeclarativeBase, ModelMixin, JSONSerializableMixin):
 
 class Label(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     __tablename__ = 'label'
+    __table_args__ = (UniqueConstraint('account_id', 'name'),)
+
+    __json_public__ = ['id', 'name']
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     account_id = Column(ForeignKey('account.id'), nullable=True)
-    name = Column(Unicode(64), nullable=False)
+    name = Column(Unicode(32), nullable=False)
+
+    account = relationship('Account')
 
 
 class FeedEnum(enum.Enum):

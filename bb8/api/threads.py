@@ -18,7 +18,7 @@ from bb8.api.error import AppError
 from bb8.api.middlewares import login_required
 from bb8.backend import messaging
 from bb8.backend.database import (DatabaseManager, User, Platform,
-                                  AccountUser, Conversation)
+                                  AccountUser, Conversation, Label)
 from bb8.backend.message import Message
 from bb8.constant import HTTPStatus, CustomError
 
@@ -51,6 +51,27 @@ THREAD_POST_SCHEMA = {
     }
 }
 
+LABELING_SCHEMA = {
+    'type': 'object',
+    'required': ['label_id'],
+    'properties': {
+        'label_id': {'type': 'integer'}
+    }
+}
+
+
+def get_account_thread(thread_id):
+    """Get the thread with thread_id which belongs to current account."""
+    try:
+        return User.query(User).join(
+            Platform, User.platform_id == Platform.id).filter(
+                User.id == thread_id,
+                Platform.account_id == g.account.id).one()
+    except NoResultFound:
+        raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
+                       CustomError.ERR_UNAUTHORIZED,
+                       'No thread found')
+
 
 @app.route('/api/threads', methods=['GET'])
 @login_required
@@ -81,15 +102,7 @@ def list_threads():
 @login_required
 def show_thread(thread_id):
     """Show specific thread."""
-    try:
-        User.query(User).join(
-            Platform, User.platform_id == Platform.id).filter(
-                User.id == thread_id,
-                Platform.account_id == g.account.id).one()
-    except NoResultFound:
-        raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
-                       CustomError.ERR_UNAUTHORIZED,
-                       'No thread found')
+    get_account_thread(thread_id)
 
     last_id = request.args.get('last_id')
     limit = request.args.get('limit', _DEFAULT_THREAD_LISTING_COUNT)
@@ -125,16 +138,8 @@ def update_thread(thread_id):
             raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
                            CustomError.ERR_WRONG_PARAM,
                            'assignee does not exist')
-    try:
-        user = User.query(User).join(
-            Platform, User.platform_id == Platform.id).filter(
-                User.id == thread_id,
-                Platform.account_id == g.account.id).one()
-    except NoResultFound:
-        raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
-                       CustomError.ERR_UNAUTHORIZED,
-                       'No thread found')
 
+    user = get_account_thread(thread_id)
     for field in ['assignee', 'status', 'comment']:
         if field in data:
             setattr(user, field, data[field])
@@ -154,15 +159,8 @@ def post_thread(thread_id):
         raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
                        CustomError.ERR_FORM_VALIDATION,
                        'schema validation fail')
-    try:
-        user = User.query(User).join(
-            Platform, User.platform_id == Platform.id).filter(
-                User.id == thread_id,
-                Platform.account_id == g.account.id).one()
-    except NoResultFound:
-        raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
-                       CustomError.ERR_UNAUTHORIZED,
-                       'No thread found')
+
+    user = get_account_thread(thread_id)
 
     try:
         messaging.push_message(user, Message.FromDict(data['message']),
@@ -172,4 +170,67 @@ def post_thread(thread_id):
                        CustomError.ERR_UNAUTHORIZED,
                        'Invalid message')
     DatabaseManager.commit()
+    return jsonify(message='ok')
+
+
+@app.route('/api/threads/<int:thread_id>/labels', methods=['GET'])
+@login_required
+def thread_list_labels(thread_id):
+    """Add a label to thread."""
+    user = get_account_thread(thread_id)
+    return jsonify(labels=[label.to_json() for label in user.labels])
+
+
+@app.route('/api/threads/<int:thread_id>/labels', methods=['POST'])
+@login_required
+def thread_add_label(thread_id):
+    """Add a label to thread."""
+    data = request.json
+    try:
+        jsonschema.validate(data, LABELING_SCHEMA)
+    except jsonschema.exceptions.ValidationError:
+        raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
+                       CustomError.ERR_FORM_VALIDATION,
+                       'schema validation fail')
+
+    label = Label.get_by(id=data['label_id'], account_id=g.account.id,
+                         single=True)
+    if not label:
+        raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
+                       CustomError.ERR_NOT_FOUND,
+                       'no matching label found')
+
+    user = get_account_thread(thread_id)
+    user.labels.append(label)
+
+    DatabaseManager.commit()
+    return jsonify(message='ok')
+
+
+@app.route('/api/threads/<int:thread_id>/labels', methods=['DELETE'])
+@login_required
+def thread_delete_label(thread_id):
+    """Delete a label from thread."""
+    data = request.json
+    try:
+        jsonschema.validate(data, LABELING_SCHEMA)
+    except jsonschema.exceptions.ValidationError:
+        raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
+                       CustomError.ERR_FORM_VALIDATION,
+                       'schema validation fail')
+
+    label = Label.get_by(id=data['label_id'], account_id=g.account.id,
+                         single=True)
+    if not label:
+        raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
+                       CustomError.ERR_NOT_FOUND,
+                       'no matching label found')
+
+    user = get_account_thread(thread_id)
+    try:
+        user.labels.remove(label)
+    except ValueError:
+        DatabaseManager.rollback()
+    else:
+        DatabaseManager.commit()
     return jsonify(message='ok')
