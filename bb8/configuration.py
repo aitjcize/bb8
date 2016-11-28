@@ -124,7 +124,7 @@ class DeployConfig(DevelopmentConfig):
 
     # Server
     HOSTNAME = os.getenv('BB8_HOSTNAME', 'bot.compose.ai')
-    RESOURCE_HOSTNAME = os.getenv('BB8_RESOURCE_HOSTNAME', 'h.compose.ai')
+    RESOURCE_HOSTNAME = os.getenv('BB8_RESOURCE_HOSTNAME', 're.compose.ai')
 
     # Third-Party apps hostname map
     APP_HOSTNAME_MAP = {

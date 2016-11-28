@@ -27,5 +27,5 @@ class DevelopmentConfig(Config):
 
 class DeployConfig(Config):
     HOSTNAME = 'bot.compose.ai'
-    RESOURCE_HOSTNAME = 'h.compose.ai'
+    RESOURCE_HOSTNAME = 're.compose.ai'
     HTTP_PORT = 5000
