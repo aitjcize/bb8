@@ -104,7 +104,9 @@ def schema():
                 'properties': {
                     'end_node_id': {'type': 'string'},
                     'ack_message': {'$ref': '#/definitions/ack_message'},
-                    'collect_as': {'$ref': '#/definitions/collect_as'}
+                    'collect_as': {'$ref': '#/definitions/collect_as'},
+                    'settings_set': { '$ref': '#/definitions/dict_set' },
+                    'memory_set': { '$ref': '#/definitions/dict_set' }
                 }
             }
         },
@@ -137,6 +139,29 @@ def schema():
     }
 
 
+def process_actions(rule, variables):
+    collect_as = rule.get('collect_as')
+    memory_set = rule.get('memory_set')
+    settings_set = rule.get('settings_set')
+
+    if collect_as:
+        CollectedData.Add(
+            collect_as['key'],
+            Render(collect_as.get('value', '{{text}}'), variables))
+
+    if memory_set:
+        value = memory_set.get('value', '{{text}}')
+        if isinstance(value, unicode) or isinstance(value, str):
+            value = Render(value, variables)
+        Memory.Set(memory_set['key'], value)
+
+    if settings_set:
+        value = settings_set.get('value', '{{text}}')
+        if isinstance(value, unicode) or isinstance(value, str):
+            value = Render(value, variables)
+        Settings.Set(settings_set['key'], value)
+
+
 def run(config, user_input, as_root):
     """Run module."""
 
@@ -150,10 +175,6 @@ def run(config, user_input, as_root):
             ack_msg = link.get('ack_message', None)
             return RouteResult(end_node_id, ack_msg, variables)
 
-        collect_as = link['rule'].get('collect_as')
-        memory_set = link['rule'].get('memory_set')
-        settings_set = link['rule'].get('settings_set')
-
         if r_type == 'regexp' and user_input.text:
             for param in link['rule']['params']:
                 m = re.search(unicode(param), user_input.text)
@@ -162,28 +183,12 @@ def run(config, user_input, as_root):
                         'text': user_input.text,
                         'matches': [user_input.text] + list(m.groups())
                     }
-                    if collect_as:
-                        CollectedData.Add(
-                            collect_as['key'],
-                            Render(collect_as.get('value', '{{text}}'),
-                                   new_vars))
-
-                    if memory_set:
-                        value = memory_set.get('value', '{{text}}')
-                        if (isinstance(value, unicode) or
-                                isinstance(value, str)):
-                            value = Render(value, new_vars)
-                        Memory.Set(memory_set['key'], value)
-
-                    if settings_set:
-                        value = settings_set.get('value', '{{text}}')
-                        if (isinstance(value, unicode) or
-                                isinstance(value, str)):
-                            value = Render(value, new_vars)
-                        Settings.Set(settings_set['key'], value)
-
+                    process_actions(link['rule'], new_vars)
                     return ret(link, new_vars)
         elif r_type == 'location' and user_input.location:
+            collect_as = link['rule'].get('collect_as')
+            memory_set = link['rule'].get('memory_set')
+            settings_set = link['rule'].get('settings_set')
             if collect_as:
                 CollectedData.Add(collect_as['key'], user_input.location)
             if memory_set:
@@ -194,24 +199,7 @@ def run(config, user_input, as_root):
         elif r_type == 'event' and user_input.event:
             for param in link['rule']['params']:
                 if re.search(param, user_input.event.key):
-                    new_vars = {
-                        'key': user_input.event.key,
-                        'value': user_input.event.value
-                    }
-                    if memory_set:
-                        value = memory_set.get('value', '{{text}}')
-                        if (isinstance(value, unicode) or
-                                isinstance(value, str)):
-                            value = Render(value, new_vars)
-                        Memory.Set(memory_set['key'], value)
-
-                    if settings_set:
-                        value = settings_set.get('value', '{{text}}')
-                        if (isinstance(value, unicode) or
-                                isinstance(value, str)):
-                            value = Render(value, new_vars)
-                        Settings.Set(settings_set['key'], value)
-
+                    process_actions(link['rule'], user_input.event)
                     return ret(link, {'event': user_input.event})
         elif r_type == 'sticker' and user_input.sticker:
             for param in link['rule']['params']:
@@ -222,13 +210,9 @@ def run(config, user_input, as_root):
         return RouteResult(errored=True)
 
     on_error = config['on_error']
-    collect_as = on_error.get('collect_as')
-    if collect_as:
-        value = collect_as.get('value', '{{text}}')
-        CollectedData.Add(collect_as['key'],
-                          Render(value, {'text': user_input.text}))
-
     variables = {'text': user_input.text}
+    process_actions(on_error, variables)
+
     return RouteResult(Render(on_error['end_node_id'], variables),
                        on_error.get('ack_message'),
                        variables, errored=True)
