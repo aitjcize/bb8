@@ -54,10 +54,10 @@ def schema():
                                         '$ref': '#/definitions/collect_as'
                                     },
                                     'settings_set': {
-                                        '$ref': '#/definitions/dict_set'
+                                        '$ref': '#/definitions/set'
                                     },
                                     'memory_set': {
-                                        '$ref': '#/definitions/dict_set'
+                                        '$ref': '#/definitions/set'
                                     }
                                 }
                             }, {
@@ -105,8 +105,8 @@ def schema():
                     'end_node_id': {'type': 'string'},
                     'ack_message': {'$ref': '#/definitions/ack_message'},
                     'collect_as': {'$ref': '#/definitions/collect_as'},
-                    'settings_set': { '$ref': '#/definitions/dict_set' },
-                    'memory_set': { '$ref': '#/definitions/dict_set' }
+                    'settings_set': {'$ref': '#/definitions/set'},
+                    'memory_set': {'$ref': '#/definitions/set'}
                 }
             }
         },
@@ -127,6 +127,15 @@ def schema():
                     'value': {'type': 'string'}
                 }
             },
+            'set': {
+                'oneOf': [
+                    {'$ref': '#/definitions/dict_set'},
+                    {
+                        'type': 'array',
+                        'items': {'$ref': '#/definitions/dict_set'}
+                    }
+                ]
+            },
             'dict_set': {
                 'type': 'object',
                 'required': ['key'],
@@ -145,21 +154,33 @@ def process_actions(rule, variables):
     settings_set = rule.get('settings_set')
 
     if collect_as:
-        CollectedData.Add(
-            collect_as['key'],
-            Render(collect_as.get('value', '{{text}}'), variables))
+        if not isinstance(collect_as, list):
+            collect_as = [collect_as]
+
+        for item in collect_as:
+            CollectedData.Add(
+                item['key'],
+                Render(item.get('value', '{{text}}'), variables))
 
     if memory_set:
-        value = memory_set.get('value', '{{text}}')
-        if isinstance(value, unicode) or isinstance(value, str):
-            value = Render(value, variables)
-        Memory.Set(memory_set['key'], value)
+        if not isinstance(memory_set, list):
+            memory_set = [memory_set]
+
+        for item in memory_set:
+            value = item.get('value', '{{text}}')
+            if isinstance(value, unicode) or isinstance(value, str):
+                value = Render(value, variables)
+            Memory.Set(item['key'], value)
 
     if settings_set:
-        value = settings_set.get('value', '{{text}}')
-        if isinstance(value, unicode) or isinstance(value, str):
-            value = Render(value, variables)
-        Settings.Set(settings_set['key'], value)
+        if not isinstance(settings_set, list):
+            settings_set = [settings_set]
+
+        for item in settings_set:
+            value = item.get('value', '{{text}}')
+            if isinstance(value, unicode) or isinstance(value, str):
+                value = Render(value, variables)
+            Settings.Set(item['key'], value)
 
 
 def run(config, user_input, as_root):

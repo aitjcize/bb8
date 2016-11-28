@@ -37,7 +37,10 @@ class DefaultUnittest(unittest.TestCase, BaseTestMixin):
                     'params': [u'^action1-([0-9])$', u'action[23]-1'],
                     'collect_as': {'key': 'action'},
                     'memory_set': {'key': 'action'},
-                    'settings_set': {'key': 'action'}
+                    'settings_set': [
+                        {'key': 'action1'},
+                        {'key': 'action2'}
+                    ]
                 },
                 'end_node_id': 'Node1',
                 'ack_message': 'action1 activated'
@@ -92,7 +95,8 @@ class DefaultUnittest(unittest.TestCase, BaseTestMixin):
         self.assertEquals(result.variables['matches'], ['action1-0', '0'])
         self.assertEquals(CollectedData.GetLast('action'), 'action1-0')
         self.assertEquals(self.user_1.memory['action'], 'action1-0')
-        self.assertEquals(self.user_1.settings['action'], 'action1-0')
+        self.assertEquals(self.user_1.settings['action1'], 'action1-0')
+        self.assertEquals(self.user_1.settings['action2'], 'action1-0')
 
         result = default.run(config, UserInput.Text('action2-1'), False)
         self.assertEquals(result.end_node_id, 'Node1')
