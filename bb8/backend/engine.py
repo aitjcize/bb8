@@ -8,17 +8,21 @@
 
 import datetime
 import random
+import re
 
 from flask import g
 
 from bb8 import logger
 from bb8.backend import messaging
-from bb8.backend.message import Message
+from bb8.backend.message import Message, Render
 from bb8.tracking import track, TrackingInfo
 from bb8.backend.database import (Bot, DatabaseManager, Node,
                                   SupportedPlatform, ModuleTypeEnum)
 from bb8.backend.metadata import RouteResult
 from bb8.backend.message import InputTransformation
+
+
+HAS_VARIABLE_RE = re.compile('{{(.*?)}}')
 
 
 class Engine(object):
@@ -148,9 +152,12 @@ class Engine(object):
                 user.session.input_transformation = (
                     InputTransformation.get())
 
+            next_node_id = node.next_node_id
+            if next_node_id and re.search(HAS_VARIABLE_RE, next_node_id):
+                next_node_id = Render(next_node_id, {})
+
             # Goto the next node
-            user.goto(node.next_node_id if node.next_node_id else
-                      Bot.ROOT_STABLE_ID)
+            user.goto(next_node_id if next_node_id else Bot.ROOT_STABLE_ID)
 
             # Content modules 'consumes' users input, so don't pass it to the
             # next step.

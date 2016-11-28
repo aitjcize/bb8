@@ -138,10 +138,15 @@ def parse_bot(bot_json, to_bot_id=None, source='bot_json'):
     for stable_id, node in nodes.iteritems():
         n = Node.get_by(id=id_map[stable_id], single=True)
         if n.module.type != ModuleTypeEnum.Router:
-            if n.next_node_id and n.next_node_id not in id_map.keys():
-                raise RuntimeError(
-                    'next_node_id `%s\' is invalid for node `%s\'' %
-                    (n.next_node_id, n.stable_id))
+            if n.next_node_id:
+                if re.search(HAS_VARIABLE_RE, n.next_node_id):
+                    logger.info('Rendered next_node_id `%s\', check '
+                                'skipped ...' % n.next_node_id)
+                    continue
+                elif n.next_node_id not in id_map.keys():
+                    raise RuntimeError(
+                        'next_node_id `%s\' is invalid for node `%s\'' %
+                        (n.next_node_id, n.stable_id))
         else:
             pm = n.module.get_python_module()
             for end_node_id in pm.get_linkages(n.config):
