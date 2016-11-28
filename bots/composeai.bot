@@ -167,10 +167,27 @@
                 },
                 "ack_message": "",
                 "end_node_id": "{{'BetaProgramAlreadyRegistered' if memory.beta else 'RequestBetaProgram'}}"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)thanks?"]
+                },
+                "end_node_id": "Thanks",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "sticker",
+                  "params": ["369239263222822", "369239343222814", "369239383222810"]
+                },
+                "end_node_id": "Thanks",
+                "ack_message": ""
               }
             ],
             "on_error": {
-              "end_node_id": "Root"
+              "ack_message": "I didn't quite get that, can you rephrase?",
+              "end_node_id": "RootRouter"
             }
           }
         }
@@ -638,6 +655,21 @@
               {
                 "content_type": "text",
                 "title": "I'm done now"
+              }
+            ]
+          }
+        }
+      },
+      "Thanks": {
+        "name": "Thanks",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "Thank you too! Be sure to like our fans page :) https://goo.gl/T1QQ2t"
               }
             ]
           }
