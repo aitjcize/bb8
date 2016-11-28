@@ -1,0 +1,9 @@
+{
+  "name": "Compose.ai Partners official bot",
+  "type_enum": "Facebook",
+  "deployed": true,
+  "provider_ident": "317499591965696",
+  "config": {
+    "access_token": "EAAZAi0GnycPEBABi03ZAqW2AaZCLFH1kamsfGq7XmiZAZA10pVcdkgtaZAAQhziopOPrSaPv3SxCdS9Sv93Yw9BpgrbZAzzHlvlpf6UIgtHZAIBy0LWw3Kx62KyDDbZBm5vjmnZCQQ6vA9cTEkdcOFjHhvex72QV1Mv8iVJa1vnaVpMQZDZD"
+  }
+}
