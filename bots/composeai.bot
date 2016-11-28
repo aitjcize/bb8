@@ -13,13 +13,23 @@
       "get_start_button": {"message": {"text": "Hi"}},
       "persistent_menu": [
         {
-          "type": "web_url",
-          "title": "粉絲頁",
-          "url": "http://goo.gl/t715Ph"
+          "type": "postback",
+          "title": "About Compose.ai",
+          "payload": {"message": {"text": "compose.ai"}}
+        },
+        {
+          "type": "postback",
+          "title": "Try our bots!",
+          "payload": {"message": {"text": "demo"}}
+        },
+        {
+          "type": "postback",
+          "title": "Request Beta Program",
+          "payload": {"message": {"text": "beta"}}
         },
         {
           "type": "web_url",
-          "title": "Compose.ai 官方網站",
+          "title": "Powered by Compose.ai",
           "url": "http://compose.ai"
         }
       ]
@@ -329,7 +339,7 @@
           "config": {
             "messages": [
               {
-                "text": "Why use Compose.ai? Because Compose.ai is awesome! .. JK, because I provide:"
+                "text": "Why use Compose.ai? Because Compose.ai is awesome! .. JK.., because Compoase.ai provides the following features:"
               },
               {
                 "text": "1. Built-in scenario templates for brands, e-commerce, media, and financial institutions\n2. Self-service chatbot flow and broadcast editor\n3. Analytics tool for performance monitor\n4. Supports multiple platforms - Facebook messenger, Line, Wechat, and Viber\n5. Our AI understands and answers user requests"
