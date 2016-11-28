@@ -238,7 +238,7 @@
                   "params": ["YES"]
                 },
                 "ack_message": "",
-                "end_node_id": "{{'BetaProgramAlreadyRegistered' if memory.beta else 'RequestBetaProgram'}}"
+                "end_node_id": "RequestBetaProgram"
               },
               {
                 "rule": {
@@ -290,7 +290,7 @@
       "WhatCanChatbotsDo": {
         "name": "What can chatbots do?",
         "expect_input": false,
-        "next_node_id": "PromptSignUpBetaQuestion",
+        "next_node_id": "{{'Root' if memory.beta else 'PromptSignUpBetaQuestion'}}",
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
@@ -314,7 +314,7 @@
           "config": {
             "messages": [
               {
-                "text": "1. 90% of our time on mobile is spent on email or messaging platforms\n2. Over 3 billion of people are messaging on the world\n3. A new interaction model that increase open rates from 10% to 80% and CTRs from 8% to 30%!4. Bot makes your brand more human."
+                "text": "1. 90% of our time on mobile is spent on email or messaging platforms\n2. Over 3 billion of people are messaging on the world\n3. A new interaction model that increase open rates from 10% to 80% and CTRs from 8% to 30%!\n4. Bot makes your brand more human."
               }
             ]
           }
