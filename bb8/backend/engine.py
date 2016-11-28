@@ -177,9 +177,14 @@ class Engine(object):
             if result.ack_message:
                 self.send_ack_message(user, result.ack_message, variables)
 
-            # Goto the next node
-            user.goto(result.end_node_id if result.end_node_id else
-                      Bot.ROOT_STABLE_ID)
+            if user.session.node_id == result.end_node_id:
+                # We are going back to the same node, clear user-input to
+                # avoid infinite loop.
+                user_input = None
+            else:
+                # Goto the next node
+                user.goto(result.end_node_id if result.end_node_id else
+                          Bot.ROOT_STABLE_ID)
 
             # Run next module
             return self.step(bot, user, user_input, variables, depth=depth + 1)
