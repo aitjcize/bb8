@@ -281,7 +281,7 @@
           "config": {
             "messages": [
               {
-                "text": "A chatbot is a service powered by artificial intelligence, which users interact with via chat interfaces. The service could be any number of things, ranging from functional to fun, and it could live in any major chat product (Facebook Messenger, LINE, Wechat, Viber, Text Messages, etc.)."
+                "text": "A chatbot is a service powered by artificial intelligence, which users interact via chat interfaces. The service could be any number of things, ranging from functional to fun, and it could live in any major chat product (Facebook Messenger, LINE, Wechat, Viber, Text Messages, etc.)."
               }
             ]
           }
