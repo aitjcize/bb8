@@ -445,7 +445,7 @@ class Message(base_message.Message):
 
             payload = data.get('payload')
             if payload and isinstance(payload, dict):
-                payload['node_id'] = g.node.stable_id
+                payload['node_id'] = g.node.next_node_id
                 payload = json.dumps(payload)
 
             return cls(Message.ButtonType(data['type']),
@@ -560,6 +560,20 @@ class Message(base_message.Message):
                 'payload': 1000
             }
         }
+
+        @classmethod
+        def FromDict(cls, data, variables=None):
+            """Construct QuickReply object given a quick reply dictionary."""
+            jsonschema.validate(data, cls.schema())
+
+            payload = data.get('payload')
+            if payload and isinstance(payload, dict):
+                payload['node_id'] = g.node.next_node_id
+                payload = json.dumps(payload)
+
+            return cls(Message.QuickReplyType(data['content_type']),
+                       data.get('title'), payload,
+                       data.get('acceptable_inputs'), variables)
 
         def apply_limits(self, platform_type):
             limits = self.limits[platform_type]
