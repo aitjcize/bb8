@@ -1,0 +1,662 @@
+{
+  "platforms": {
+    "Facebook": "193883957676271"
+  },
+  "bot": {
+    "name": "Compose.ai",
+    "description": "Compose.ai fans page bot",
+    "interaction_timeout": 120,
+    "admin_interaction_timeout": 10,
+    "session_timeout": 0,
+    "ga_id": "UA-79887532-4",
+    "settings": {
+      "get_start_button": {"message": {"text": "Hi"}},
+      "persistent_menu": [
+        {
+          "type": "web_url",
+          "title": "粉絲頁",
+          "url": "http://goo.gl/t715Ph"
+        },
+        {
+          "type": "web_url",
+          "title": "Compose.ai 官方網站",
+          "url": "http://compose.ai"
+        }
+      ]
+    },
+    "nodes": {
+      "Start": {
+        "name": "Start",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "Hi {{user.first_name}}! I am BB8, the Compose.ai virtual assistant! I can help you create your own Chatbots to engage your audience closer and smarter without any coding knowledge - on Facebook Messenger, Line, Wechat and Viber!"
+              }
+            ]
+          }
+        }
+      },
+      "Root": {
+        "name": "Root",
+        "description": "Main bot operation node",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "What can I do you for?"
+              }
+            ],
+            "quick_replies": [
+              {
+                "content_type": "text",
+                "title": "What is a Chatbot?"
+              },
+              {
+                "content_type": "text",
+                "title": "Why Chatbots?"
+              },
+              {
+                "content_type": "text",
+                "title": "What does it do?"
+              },
+              {
+                "content_type": "text",
+                "title": "Demo"
+              },
+              {
+                "content_type": "text",
+                "title": "Compose.ai?"
+              },
+              {
+                "content_type": "text",
+                "title": "Leave a message"
+              },
+              {
+                "content_type": "text",
+                "title": "Request Beta Program"
+              }
+            ]
+          }
+        }
+      },
+      "RootRouter": {
+        "name": "RootRouter",
+        "expect_input": true,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)(hi|hey|hello|yo|ya)\\b", "(?i)how are (yo)?u", "嗨", "你好"]
+                },
+                "ack_message": "",
+                "end_node_id": "PromptSignUpBetaDesc"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)what is( a)? chatbot"]
+                },
+                "ack_message": "",
+                "end_node_id": "WhatIsAChatbot"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)why chatbots"]
+                },
+                "ack_message": "",
+                "end_node_id": "WhyNeedOne"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)what does (it|chatbots?) do"]
+                },
+                "ack_message": "",
+                "end_node_id": "WhatCanChatbotsDo"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)Demo"]
+                },
+                "ack_message": "",
+                "end_node_id": "Demo"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)Compose.ai", "(?i)why you"]
+                },
+                "ack_message": "",
+                "end_node_id": "WhyUs"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)leave( a)? message"]
+                },
+                "ack_message": "",
+                "end_node_id": "LeaveAMessage"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)beta"]
+                },
+                "ack_message": "",
+                "end_node_id": "{{'BetaProgramAlreadyRegistered' if memory.beta else 'RequestBetaProgram'}}"
+              }
+            ],
+            "on_error": {
+              "end_node_id": "Root"
+            }
+          }
+        }
+      },
+      "PromptSignUpBetaDesc": {
+        "name": "PromptSignUpBetaDesc",
+        "expect_input": false,
+        "next_node_id": "{{'Root' if memory.beta else 'PromptSignUpBetaQuestion'}}",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "Hi, {{user.first_name}}! Nice to meet you!"
+              },
+              {
+                "text": "Compose.ai helps you build Chatbots on facebook messenger, LINE, and other messaging apps.  It only takes 3 minutes to setup your own Chatbot!"
+              }
+            ]
+          }
+        }
+      },
+      "PromptSignUpBetaQuestion": {
+        "name": "PromptSignUpBetaQuestion",
+        "expect_input": false,
+        "next_node_id": "PromptSignUpBetaRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "Would you like to sign up for our beta program?"
+              }
+            ],
+            "quick_replies": [
+              {
+                "content_type": "text",
+                "title": "Yes",
+                "payload": {"message": {"text": "YES"}},
+                "acceptable_inputs": ["(?i)ok", "(?i)^y$"]
+              },
+              {
+                "content_type": "text",
+                "title": "What is a Chatbot?",
+                "payload": {"message": {"text": "WHAT"}},
+                "acceptable_inputs": ["(?i)what is it"]
+              },
+              {
+                "content_type": "text",
+                "title": "Why have one?",
+                "payload": {"message": {"text": "WHY"}},
+                "acceptable_inputs": ["(?i)why"]
+              },
+              {
+                "content_type": "text",
+                "title": "No",
+                "payload": {"message": {"text": "NO"}},
+                "acceptable_inputs": ["(?i)(n)"]
+              }
+            ]
+          }
+        }
+      },
+      "PromptSignUpBetaRouter": {
+        "name": "PromptSignUpBetaRouter",
+        "expect_input": true,
+        "next_node_id": "PromptSignUpBetaQuestion",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["YES"]
+                },
+                "ack_message": "",
+                "end_node_id": "{{'BetaProgramAlreadyRegistered' if memory.beta else 'RequestBetaProgram'}}"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["NO"]
+                },
+                "ack_message": "Ok, Off you go.",
+                "end_node_id": "Root"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["WHAT"]
+                },
+                "ack_message": "",
+                "end_node_id": "WhatIsAChatbot"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["WHY"]
+                },
+                "ack_message": "",
+                "end_node_id": "WhatCanChatbotsDo"
+              }
+            ],
+            "on_error": {
+              "ack_message": "I didn't quite get that, can you rephrase?",
+              "end_node_id": "PromptSignUpBetaRouter"
+            }
+          }
+        }
+      },
+      "WhatIsAChatbot": {
+        "name": "What is a chatbot",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "A chatbot is a service powered by artificial intelligence, which users interact with via chat interfaces. The service could be any number of things, ranging from functional to fun, and it could live in any major chat product (Facebook Messenger, LINE, Wechat, Viber, Text Messages, etc.)."
+              }
+            ]
+          }
+        }
+      },
+      "WhatCanChatbotsDo": {
+        "name": "What can chatbots do?",
+        "expect_input": false,
+        "next_node_id": "PromptSignUpBetaQuestion",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "A Chatbot is an intelligent way to engage your audience. It increases delivery rates from 10% to 80% and CTRs from 8% to 30%!  With a chatbot, you can"
+              },
+              {
+                "text": "1. Send news, promotions and alerts to your subscribers.\n2. Cross sell by delivering offers that are tailored to their specific needs and interests.\n3. Provide on-time customer service.\n4. Set forms & survey to get customers feedback."
+              }
+            ]
+          }
+        }
+      },
+      "WhyNeedOne": {
+        "name": "Why do I need one?",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "1. 90% of our time on mobile is spent on email or messaging platforms\n2. Over 3 billion of people are messaging on the world\n3. A new interaction model that increase open rates from 10% to 80% and CTRs from 8% to 30%!4. Bot makes your brand more human."
+              }
+            ]
+          }
+        }
+      },
+      "WhyUs": {
+        "name": "Why Compose.ai?",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "Why use Compose.ai? Because Compose.ai is awesome! .. JK, because I provide:"
+              },
+              {
+                "text": "1. Built-in scenario templates for brands, e-commerce, media, and financial institutions\n2. Self-service chatbot flow and broadcast editor\n3. Analytics tool for performance monitor\n4. Supports multiple platforms - Facebook messenger, Line, Wechat, and Viber Our AI understands and answers user requests"
+              }
+            ]
+          }
+        }
+      },
+      "LeaveAMessage": {
+        "name": "Leave a message",
+        "expect_input": false,
+        "next_node_id": "LeaveAMessageRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "Please enter your message:"
+              }
+            ]
+          }
+        }
+      },
+      "LeaveAMessageRouter": {
+        "name": "Leave a message",
+        "expect_input": true,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [".*"],
+                  "collect_as": {"key": "message"}
+                },
+                "ack_message": "Thanks for the message. The humans will get back to you ASAP ;)",
+                "end_node_id": "Root"
+              }
+            ],
+            "on_error": {
+              "ack_message": "I only read text, please re-enter",
+              "end_node_id": "LeaveAMessageRouter"
+            }
+          }
+        }
+      },
+      "Demo": {
+        "name": "Demo",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "generic",
+                    "elements": [
+                      {
+                        "buttons": [
+                          {
+                            "url": "http://m.me/chat.youbike?ref=bot",
+                            "type": "web_url",
+                            "title": "Try it"
+                          },
+                          {
+                            "type": "element_share"
+                          }
+                        ],
+                        "subtitle": "Provides Ubike station information",
+                        "image_url": "http://i.imgur.com/42BEOXe.png",
+                        "title": "Youbike 小幫手"
+                      },
+                      {
+                        "buttons": [
+                          {
+                            "url": "http://m.me/chat.news?ref=bot",
+                            "type": "web_url",
+                            "title": "Try it"
+                          },
+                          {
+                            "type": "element_share"
+                          }
+                        ],
+                        "subtitle": "A news aggregation bot",
+                        "image_url": "http://i.imgur.com/0eCpkUj.png",
+                        "title": "新聞小幫手"
+                      },
+                      {
+                        "buttons": [
+                          {
+                            "url": "http://m.me/chat.dramabot?ref=bot",
+                            "type": "web_url",
+                            "title": "Try it"
+                          },
+                          {
+                            "type": "element_share"
+                          }
+                        ],
+                        "subtitle": "Provides drama information and new episode notification",
+                        "image_url": "http://i.imgur.com/sbNVF6H.png",
+                        "title": "追劇吧"
+                      },
+                      {
+                        "buttons": [
+                          {
+                            "url": "http://m.me/twrealprice?ref=bot",
+                            "type": "web_url",
+                            "title": "Try it"
+                          },
+                          {
+                            "type": "element_share"
+                          }
+                        ],
+                        "subtitle": "Provides Taiwan housing price information",
+                        "image_url": "http://i.imgur.com/o7LgCo3.png",
+                        "title": "全台實價登錄網站"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "BetaProgramAlreadyRegistered": {
+        "name": "User already signed up for beta",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "You've already applied for the beta program, stay tuned :D"
+              }
+            ]
+          }
+        }
+      },
+      "RequestBetaProgram": {
+        "name": "Request beta program",
+        "expect_input": false,
+        "next_node_id": "BetaProgramEmail",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "I need some information before signing you up. Be sure to enter real information to increase your changes to be selected for the beta program :)"
+              }
+            ]
+          }
+        }
+      },
+      "BetaProgramEmail": {
+        "name": "Ask user for email",
+        "expect_input": false,
+        "next_node_id": "BetaProgramEmailRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "What is your email address? (Please use company email if you have one)"
+              }
+            ]
+          }
+        }
+      },
+      "BetaProgramEmailRouter": {
+        "name": "Parse email and route",
+        "expect_input": true,
+        "next_node_id": "BetaProgramEmail",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)(stop|abort|exit)"]
+                },
+                "ack_message": "Alrighty.",
+                "end_node_id": "Root"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"],
+                  "memory_set": {"key": "email"}
+                },
+                "ack_message": "",
+                "end_node_id": "BetaProgramPage"
+              }
+            ],
+            "on_error": {
+              "ack_message": "Please enter a correct email:",
+              "end_node_id": "BetaProgramEmailRouter"
+            }
+          }
+        }
+      },
+      "BetaProgramPage": {
+        "name": "Ask user for fans page or website URL",
+        "expect_input": false,
+        "next_node_id": "BetaProgramPageRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "What is your facebook fans page or company website?"
+              }
+            ],
+            "quick_replies": [
+              {
+                "content_type": "text",
+                "title": "I don't have one",
+                "payload": {"message": {"text": "dont have"}}
+              }
+            ]
+          }
+        }
+      },
+      "BetaProgramPageRouter": {
+        "name": "Parse url and route",
+        "expect_input": true,
+        "next_node_id": "BetaProgramEmail",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)(stop|abort|exit)"]
+                },
+                "ack_message": "Alrighty.",
+                "end_node_id": "Root"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["dont have", "(?i)no", "(?i)skip"],
+                  "memory_set": [
+                    {"key": "url", "value": null},
+                    {"key": "beta", "value": true}
+                  ]
+                },
+                "ack_message": "Ok, that's fine.",
+                "end_node_id": "BetaProgramDone"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["^https?://[^\\s/$.?#].[^\\s]*$"],
+                  "memory_set": [
+                    {"key": "url"},
+                    {"key": "beta", "value": true}
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "BetaProgramDone"
+              }
+            ],
+            "on_error": {
+              "ack_message": "Please enter the correct url for your company website or page:",
+              "end_node_id": "BetaProgramPageRouter"
+            }
+          }
+        }
+      },
+      "BetaProgramDone": {
+        "name": "Prompt user that it's done",
+        "expect_input": false,
+        "next_node_id": "BetaProgramDoneRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "You are all set. If you have furthur inquries, just leave us a message!"
+              }
+            ],
+            "quick_replies": [
+              {
+                "content_type": "text",
+                "title": "Leave a message"
+              },
+              {
+                "content_type": "text",
+                "title": "I'm done now"
+              }
+            ]
+          }
+        }
+      },
+      "BetaProgramDoneRouter": {
+        "name": "Parse url and route",
+        "expect_input": true,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)Leave a message", "(?i)message"]
+                },
+                "ack_message": "",
+                "end_node_id": "LeaveAMessage"
+              }
+            ],
+            "on_error": {
+              "ack_message": "",
+              "end_node_id": "Root"
+            }
+          }
+        }
+      }
+    }
+  }
+}
