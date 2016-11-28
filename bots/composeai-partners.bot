@@ -3,8 +3,8 @@
     "Facebook": "317499591965696"
   },
   "bot": {
-    "name": "Compose.ai",
-    "description": "Compose.ai fans page bot",
+    "name": "Compose.ai Partner",
+    "description": "Compose.ai Partner fans page bot",
     "interaction_timeout": 120,
     "admin_interaction_timeout": 10,
     "session_timeout": 0,
