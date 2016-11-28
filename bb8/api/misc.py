@@ -70,7 +70,7 @@ def cache_image():
         shutil.copyfileobj(response.raw, fio)
 
     blob = storage.blob.Blob(hash_name, bucket)
-    blob.upload_from_filename(fio.name)
+    blob.upload_from_filename(fio.name, response.headers.get('Content-Type'))
     os.unlink(fio.name)
 
     return redirect(blob.public_url)
