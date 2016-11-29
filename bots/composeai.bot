@@ -61,7 +61,7 @@
           "config": {
             "messages": [
               {
-                "text": "What can I do you for?"
+                "text": "What can I do for you?"
               }
             ],
             "quick_replies": [
@@ -148,7 +148,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)Compose.ai", "(?i)why you", "(?i)who are (you|u)"]
+                  "params": ["(?i)Compose.?ai", "(?i)why you", "(?i)who are (you|u)"]
                 },
                 "ack_message": "",
                 "end_node_id": "WhyUs"
@@ -160,6 +160,28 @@
                 },
                 "ack_message": "",
                 "end_node_id": "LeaveAMessage"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)h[ae]h[ae]", "(?i)h[ae]\\b", "(?i)lol"]
+                },
+                "ack_message": ["LOL", "Funny hum?"],
+                "end_node_id": "RootRouter"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)what.*your name", "(?i)have a name"]
+                },
+                "ack_message": "I'm bb8, the Compose.ai virtual assistant!"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)(what)? can (you|u) do"]
+                },
+                "ack_message": "I help anwser Chatbot related questions for Compose.ai :)"
               },
               {
                 "rule": {
@@ -179,11 +201,26 @@
               },
               {
                 "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)(shit|damn|f[ux][cx]k|screw|shame)"]
+                },
+                "ack_message": ["{{matches#1}} you too", "well... that's rude, human \ud83d\ude12"],
+                "end_node_id": "RootRouter"
+              },
+              {
+                "rule": {
                   "type": "sticker",
                   "params": ["369239263222822", "369239343222814", "369239383222810"]
                 },
                 "end_node_id": "Thanks",
                 "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "sticker",
+                  "params": [".*"]
+                },
+                "ack_message": [":D", ":)", "><"]
               }
             ],
             "on_error": {
