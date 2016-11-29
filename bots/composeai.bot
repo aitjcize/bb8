@@ -783,7 +783,7 @@
                   ]
                 },
                 "ack_message": "Ok, that's fine.",
-                "end_node_id": "BetaProgramDone"
+                "end_node_id": "BetaProgramGenerateReport"
               },
               {
                 "rule": {
@@ -795,13 +795,33 @@
                   ]
                 },
                 "ack_message": "",
-                "end_node_id": "BetaProgramDone"
+                "end_node_id": "BetaProgramGenerateReport"
               }
             ],
             "on_error": {
               "ack_message": "Please enter the correct url for your company website or page:",
               "end_node_id": "BetaProgramPageRouter"
             }
+          }
+        }
+      },
+      "BetaProgramGenerateReport": {
+        "name": "Generate report",
+        "expect_input": false,
+        "next_node_id": "BetaProgramDone",
+        "module": {
+          "id": "ai.compose.function.core.report",
+          "config": {
+            "admins": [
+              "1274840572534793",
+              "1111176378929436",
+              "1133711460032693",
+              "572398979552052",
+              "1151173601634814"
+            ],
+            "template": "Beta application from: {{user.first_name}} {{user.last_name}} <{{email}}> {{url}}",
+            "keys": ["user", "email", "url"],
+            "report_key": "beta_application_form"
           }
         }
       },
