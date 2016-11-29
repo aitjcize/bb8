@@ -44,6 +44,9 @@
                     "template_type": "generic",
                     "elements": [
                       {
+                        "title": "Youbike 小幫手",
+                        "subtitle": "提供 Youbike 站點及車輛資訊查詢！",
+                        "image_url": "http://i.imgur.com/qcHWL5Q.png",
                         "buttons": [
                           {
                             "url": "http://m.me/chat.youbike",
@@ -53,12 +56,12 @@
                           {
                             "type": "element_share"
                           }
-                        ],
-                        "subtitle": "提供 Youbike 站點及車輛資訊查詢！",
-                        "image_url": "http://i.imgur.com/42BEOXe.png",
-                        "title": "Youbike 小幫手"
+                        ]
                       },
                       {
+                        "title": "新聞小幫手",
+                        "subtitle": "幫您蒐集彙整國內外各大媒體報導的新聞小幫手！",
+                        "image_url": "http://i.imgur.com/VzWkPth.png",
                         "buttons": [
                           {
                             "url": "http://m.me/chat.news",
@@ -68,12 +71,12 @@
                           {
                             "type": "element_share"
                           }
-                        ],
-                        "subtitle": "幫您蒐集彙整國內外各大媒體報導的新聞小幫手！",
-                        "image_url": "http://i.imgur.com/0eCpkUj.png",
-                        "title": "新聞小幫手"
+                        ]
                       },
                       {
+                        "title": "追劇吧",
+                        "subtitle": "幫您追蹤您喜歡的各國影集，也會推薦其他您可能會喜歡的影集唷！",
+                        "image_url": "http://i.imgur.com/kEHkYiC.png",
                         "buttons": [
                           {
                             "url": "http://m.me/chat.dramabot",
@@ -83,12 +86,12 @@
                           {
                             "type": "element_share"
                           }
-                        ],
-                        "subtitle": "幫您追蹤您喜歡的各國影集，也會推薦其他您可能會喜歡的影集唷！",
-                        "image_url": "http://i.imgur.com/sbNVF6H.png",
-                        "title": "追劇吧"
+                        ]
                       },
                       {
+                        "title": "全台實價登錄網站",
+                        "subtitle": "幫您尋找各地點的實價登錄資訊！",
+                        "image_url": "http://i.imgur.com/HyNOQNu.png",
                         "buttons": [
                           {
                             "url": "http://m.me/twrealprice",
@@ -98,10 +101,7 @@
                           {
                             "type": "element_share"
                           }
-                        ],
-                        "subtitle": "幫您尋找各地點的實價登錄資訊！",
-                        "image_url": "http://i.imgur.com/o7LgCo3.png",
-                        "title": "全台實價登錄網站"
+                        ]
                       }
                     ]
                   }
@@ -120,11 +120,10 @@
           "id": "ai.compose.content.core.composeai",
           "config": {
             "bot_admins": {
-              "1274840572534793": [2, 3, 6],
-              "1111176378929436": [2, 3, 6],
-              "1133711460032693": [2, 3, 6],
-              "572398979552052": [2, 3, 6],
-              "1151173601634814": [7]
+              "1298221703586460": [2, 3, 4, 6],
+              "1611833788842177": [2, 3, 4, 6],
+              "1270817222981691": [2, 3, 4, 6],
+              "1169730533108188": [2, 3, 4, 6]
             }
           }
         }
