@@ -3,7 +3,7 @@
     Generates Report
     ~~~~~~~~~~~~~~~~
 
-    Generates report and relay it to bot amdins.
+    Generates report and relay it to bot admins.
 
     Copyright 2016 bb8 Authors
 """
