@@ -323,7 +323,7 @@
           "config": {
             "messages": [
               {
-                "text": "A Chatbot is an intelligent way to engage your audience. It increases delivery rates from 10% to 80% and CTRs from 8% to 30%!  With a chatbot, you can:"
+                "text": "A Chatbot is an intelligent way to engage your audience. It increases open rates from 20% to 85% and CTRs from 2% to 50%!  With a chatbot, you can:"
               },
               {
                 "attachment": {
@@ -352,7 +352,7 @@
                         "image_url": "https://tctechcrunch2011.files.wordpress.com/2016/05/robot-customer-service.png?w=738",
                         "buttons": [
                           {
-                            "url": "http://www.businessinsider.com/chatbots-are-coming-to-financial-services-2016-8",
+                            "url": "http://blog.newstore.com/chatbot-craze-why-mobile-shopping-is-easier-than-ever",
                             "type": "web_url",
                             "title": "View Article"
                           },
