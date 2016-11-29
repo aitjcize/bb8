@@ -132,7 +132,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)what does (it|chatbots?) do"]
+                  "params": ["(?i)what (does|can) (it|chatbots?) do"]
                 },
                 "ack_message": "",
                 "end_node_id": "WhatCanChatbotsDo"
