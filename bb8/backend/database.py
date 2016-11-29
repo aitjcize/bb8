@@ -400,6 +400,7 @@ class ModuleTypeEnum(enum.Enum):
     Content = 'Content'
     Parser = 'Parser'
     Router = 'Router'
+    Function = 'Function'
 
 
 class Module(DeclarativeBase, ModelMixin):
