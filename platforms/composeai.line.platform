@@ -1,5 +1,5 @@
 {
-  "name": "Compose.ai",
+  "name": "Compose.ai official LINE bot",
   "type_enum": "Line",
   "deployed": true,
   "provider_ident": "composeai",

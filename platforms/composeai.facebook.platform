@@ -1,5 +1,5 @@
 {
-  "name": "Compose.ai official bot",
+  "name": "Compose.ai official Messenger bot",
   "type_enum": "Facebook",
   "deployed": true,
   "provider_ident": "193883957676271",

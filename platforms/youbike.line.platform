@@ -1,5 +1,5 @@
 {
-  "name": "Ubike 小幫手",
+  "name": "Ubike 小幫手 LINE",
   "type_enum": "Line",
   "deployed": true,
   "provider_ident": "youbike.composeai",
