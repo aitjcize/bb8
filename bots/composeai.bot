@@ -115,7 +115,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)what is( a)? chatbot"]
+                  "params": ["(?i)what is( a)? (chatbot|it)"]
                 },
                 "ack_message": "",
                 "end_node_id": "WhatIsAChatbot"
@@ -123,7 +123,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)why chatbots"]
+                  "params": ["(?i)why chatbots", "(?i)why.*need"]
                 },
                 "ack_message": "",
                 "end_node_id": "WhyNeedOne"
@@ -147,7 +147,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)Compose.ai", "(?i)why you"]
+                  "params": ["(?i)Compose.ai", "(?i)why you", "(?i)who are (you|u)"]
                 },
                 "ack_message": "",
                 "end_node_id": "WhyUs"
@@ -237,8 +237,8 @@
               },
               {
                 "content_type": "text",
-                "title": "Why have one?",
-                "payload": {"message": {"text": "WHY"}},
+                "title": "What does it do?",
+                "payload": {"message": {"text": "DO"}},
                 "acceptable_inputs": ["(?i)why"]
               },
               {
@@ -278,10 +278,10 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["WHAT"]
+                  "params": ["DO"]
                 },
                 "ack_message": "",
-                "end_node_id": "WhatIsAChatbot"
+                "end_node_id": "WhatCanChatbotsDo"
               },
               {
                 "rule": {
@@ -323,10 +323,77 @@
           "config": {
             "messages": [
               {
-                "text": "A Chatbot is an intelligent way to engage your audience. It increases delivery rates from 10% to 80% and CTRs from 8% to 30%!  With a chatbot, you can"
+                "text": "A Chatbot is an intelligent way to engage your audience. It increases delivery rates from 10% to 80% and CTRs from 8% to 30%!  With a chatbot, you can:"
               },
               {
-                "text": "1. Send news, promotions and alerts to your subscribers.\n2. Cross sell by delivering offers that are tailored to their specific needs and interests.\n3. Provide on-time customer service.\n4. Set forms & survey to get customers feedback."
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "generic",
+                    "elements": [
+                      {
+                        "title": "Push notification",
+                        "subtitle": "Send news, promotions and alerts to your subscribers.",
+                        "image_url": "http://1u88jj3r4db2x4txp44yqfj1.wpengine.netdna-cdn.com/wp-content/uploads/2016/03/Facebook-Messenger-large.jpg",
+                        "buttons": [
+                          {
+                            "url": "http://venturebeat.com/2016/08/16/facebook-messenger-now-lets-chatbots-send-promotions-and-subscription-based-messages/",
+                            "type": "web_url",
+                            "title": "View Article"
+                          },
+                          {
+                            "type": "element_share"
+                          }
+                        ]
+                      },
+                      {
+                        "title": "Personalized content/offers",
+                        "subtitle": "Cross sell by delivering offers tailored to customer needs.",
+                        "image_url": "https://tctechcrunch2011.files.wordpress.com/2016/05/robot-customer-service.png?w=738",
+                        "buttons": [
+                          {
+                            "url": "http://www.businessinsider.com/chatbots-are-coming-to-financial-services-2016-8",
+                            "type": "web_url",
+                            "title": "View Article"
+                          },
+                          {
+                            "type": "element_share"
+                          }
+                        ]
+                      },
+                      {
+                        "title": "Improve customer satisfaction",
+                        "subtitle": "Provides automatic real-time reply and assistent.",
+                        "image_url": "http://1u88jj3r4db2x4txp44yqfj1.wpengine.netdna-cdn.com/wp-content/uploads/2016/10/shutterstock_366626837.jpg",
+                        "buttons": [
+                          {
+                            "url": "http://venturebeat.com/2016/10/18/3-ways-chatbots-deliver-roi-for-customer-service/",
+                            "type": "web_url",
+                            "title": "View Article"
+                          },
+                          {
+                            "type": "element_share"
+                          }
+                        ]
+                      },
+                      {
+                        "title": "Get real-time feedbacks",
+                        "subtitle": "Set forms & survey to get customers feedback.",
+                        "image_url": "http://datagame.io/files/2016/06/chatbot.jpg",
+                        "buttons": [
+                          {
+                            "url": "http://datagame.io/survey-chatbots/",
+                            "type": "web_url",
+                            "title": "View Article"
+                          },
+                          {
+                            "type": "element_share"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
               }
             ]
           }
@@ -341,7 +408,77 @@
           "config": {
             "messages": [
               {
-                "text": "1. 90% of our time on mobile is spent on email or messaging platforms\n2. Over 3 billion of people are messaging on the world\n3. A new interaction model that increase open rates from 10% to 80% and CTRs from 8% to 30%!\n4. Bot makes your brand more human."
+                "text": "Every business needs a chatbot now. Just like apps... right? Anyways, here's why:"
+              },
+              {
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "generic",
+                    "elements": [
+                      {
+                        "title": "Retention!",
+                        "subtitle": "90% of our time on mobile is spent on messaging platforms!",
+                        "image_url": "https://cdn-images-1.medium.com/max/1000/1*C9IKKNTNvrXwLw9dfLQU1w.jpeg",
+                        "buttons": [
+                          {
+                            "url": "https://chatbotsmagazine.com/the-complete-beginner-s-guide-to-chatbots-8280b7b906ca#.g73g82dtm",
+                            "type": "web_url",
+                            "title": "View Article"
+                          },
+                          {
+                            "type": "element_share"
+                          }
+                        ]
+                      },
+                      {
+                        "title": "A lot of users!",
+                        "subtitle": "Over 3 billion of people are messaging on the world!",
+                        "image_url": "https://i1.wp.com/expandedramblings.com/wp-content/uploads/2014/03/12664370183_62fe6fed37_m_telegram-app.jpg?zoom=1.5&resize=240%2C127",
+                        "buttons": [
+                          {
+                            "url": "http://expandedramblings.com/index.php/how-many-people-use-chat-apps/",
+                            "type": "web_url",
+                            "title": "View Article"
+                          },
+                          {
+                            "type": "element_share"
+                          }
+                        ]
+                      },
+                      {
+                        "title": "High delivery rate",
+                        "subtitle": "Increase open rates from 20% to 85% and CTRs from 2% to 50%!",
+                        "image_url": "http://www.marketingdive.com/user_media/cache/c1/d8/c1d867bcb52bac2c6d84a91b4dfde167.jpg",
+                        "buttons": [
+                          {
+                            "url": "http://www.marketingdive.com/news/customer-service-chatbots-holiday-helper-or-nightmare-employee/430791/",
+                            "type": "web_url",
+                            "title": "View Article"
+                          },
+                          {
+                            "type": "element_share"
+                          }
+                        ]
+                      },
+                      {
+                        "title": "Smart :)",
+                        "subtitle": "Bot makes your brand more human!",
+                        "image_url": "https://assets.entrepreneur.com/content/16x9/822/20160728072734-Chat-Bot.jpeg",
+                        "buttons": [
+                          {
+                            "url": "https://www.entrepreneur.com/article/279870",
+                            "type": "web_url",
+                            "title": "View Article"
+                          },
+                          {
+                            "type": "element_share"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
               }
             ]
           }
@@ -359,7 +496,39 @@
                 "text": "Why use Compose.ai? Because Compose.ai is awesome! .. JK.., because Compoase.ai provides the following features:"
               },
               {
-                "text": "1. Built-in scenario templates for brands, e-commerce, media, and financial institutions\n2. Self-service chatbot flow and broadcast editor\n3. Analytics tool for performance monitor\n4. Supports multiple platforms - Facebook messenger, Line, Wechat, and Viber\n5. Our AI understands and answers user requests"
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "generic",
+                    "elements": [
+                      {
+                        "title": "Built-in templates",
+                        "subtitle": "Built-in scenario templates for brands, e-commerce, media, and a lot more.",
+                        "image_url": "https://static.wixstatic.com/media/be2736_659c4bbe33294390b15a6cf716b977ae~mv2.png/v1/fill/w_107,h_97,al_c,q_80,usm_0.66_1.00_0.01/be2736_659c4bbe33294390b15a6cf716b977ae~mv2.webp"
+                      },
+                      {
+                        "title": "Online flow editor",
+                        "subtitle": "Flow editor which you can modify the bot's behavior by yourself.",
+                        "image_url": "https://static.wixstatic.com/media/be2736_cad9845803604254bfb10aff0a702078~mv2.png/v1/fill/w_122,h_142,al_c,q_80,usm_0.66_1.00_0.01/be2736_cad9845803604254bfb10aff0a702078~mv2.webp"
+                      },
+                      {
+                        "title": "Natual Language Understanding",
+                        "subtitle": "Our built-in NLP pipeline makes your bot smart!",
+                        "image_url": "https://static.wixstatic.com/media/be2736_459cc46f2011458cba43a01acdb8348e~mv2.png/v1/fill/w_105,h_122,al_c,q_80,usm_0.66_1.00_0.01/be2736_459cc46f2011458cba43a01acdb8348e~mv2.webp"
+                      },
+                      {
+                        "title": "Multi-Platform support",
+                        "subtitle": "Supports Messenger, LINE, WeChat, Viber, and more coming!",
+                        "image_url": "https://static.wixstatic.com/media/be2736_6f7f15a7c67f463ab85fb39e1e2840cd~mv2.png/v1/fill/w_170,h_165,al_c,q_80,usm_0.66_1.00_0.01/be2736_6f7f15a7c67f463ab85fb39e1e2840cd~mv2.webp"
+                      },
+                      {
+                        "title": "Analytics tool and performance monitor",
+                        "subtitle": "Monitor your chatbot's performance and improve it.",
+                        "image_url": " https://static.wixstatic.com/media/be2736_0393bd43081f4b1f9a15c94aa40fd04e~mv2.png/v1/fill/w_120,h_97,al_c,q_80,usm_0.66_1.00_0.01/be2736_0393bd43081f4b1f9a15c94aa40fd04e~mv2.webp"
+                      }
+                    ]
+                  }
+                }
               }
             ]
           }
