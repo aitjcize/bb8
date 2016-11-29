@@ -590,6 +590,9 @@
                     "template_type": "generic",
                     "elements": [
                       {
+                        "title": "Youbike 小幫手",
+                        "subtitle": "Provides Ubike station information",
+                        "image_url": "http://i.imgur.com/qcHWL5Q.png",
                         "buttons": [
                           {
                             "url": "http://m.me/chat.youbike?ref=bot",
@@ -599,12 +602,12 @@
                           {
                             "type": "element_share"
                           }
-                        ],
-                        "subtitle": "Provides Ubike station information",
-                        "image_url": "http://i.imgur.com/42BEOXe.png",
-                        "title": "Youbike 小幫手"
+                        ]
                       },
                       {
+                        "title": "新聞小幫手",
+                        "subtitle": "A news aggregation bot",
+                        "image_url": "http://i.imgur.com/VzWkPth.png",
                         "buttons": [
                           {
                             "url": "http://m.me/chat.news?ref=bot",
@@ -614,12 +617,12 @@
                           {
                             "type": "element_share"
                           }
-                        ],
-                        "subtitle": "A news aggregation bot",
-                        "image_url": "http://i.imgur.com/0eCpkUj.png",
-                        "title": "新聞小幫手"
+                        ]
                       },
                       {
+                        "title": "追劇吧",
+                        "subtitle": "Provides drama information and new episode notification",
+                        "image_url": "http://i.imgur.com/kEHkYiC.png",
                         "buttons": [
                           {
                             "url": "http://m.me/chat.dramabot?ref=bot",
@@ -629,12 +632,12 @@
                           {
                             "type": "element_share"
                           }
-                        ],
-                        "subtitle": "Provides drama information and new episode notification",
-                        "image_url": "http://i.imgur.com/sbNVF6H.png",
-                        "title": "追劇吧"
+                        ]
                       },
                       {
+                        "title": "全台實價登錄網站",
+                        "subtitle": "Provides Taiwan housing price information",
+                        "image_url": "http://i.imgur.com/HyNOQNu.png",
                         "buttons": [
                           {
                             "url": "http://m.me/twrealprice?ref=bot",
@@ -644,10 +647,7 @@
                           {
                             "type": "element_share"
                           }
-                        ],
-                        "subtitle": "Provides Taiwan housing price information",
-                        "image_url": "http://i.imgur.com/o7LgCo3.png",
-                        "title": "全台實價登錄網站"
+                        ]
                       }
                     ]
                   }
