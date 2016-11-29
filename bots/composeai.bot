@@ -1,6 +1,7 @@
 {
   "platforms": {
-    "Facebook": "193883957676271"
+    "Facebook": "193883957676271",
+    "Line": "composeai"
   },
   "bot": {
     "name": "Compose.ai",
