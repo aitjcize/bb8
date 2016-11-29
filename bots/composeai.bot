@@ -265,7 +265,7 @@
                 "content_type": "text",
                 "title": "Yes",
                 "payload": {"message": {"text": "YES"}},
-                "acceptable_inputs": ["(?i)ok", "(?i)^y$"]
+                "acceptable_inputs": ["(?i)ok", "(?i)^y$", "(?i)sure"]
               },
               {
                 "content_type": "text",
