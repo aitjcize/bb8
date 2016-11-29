@@ -25,7 +25,7 @@
         },
         {
           "type": "postback",
-          "title": "Request Beta Program",
+          "title": "Apply for closed beta",
           "payload": {"message": {"text": "beta"}}
         },
         {
@@ -91,7 +91,7 @@
               },
               {
                 "content_type": "text",
-                "title": "Request Beta Program"
+                "title": "Join closed beta"
               }
             ]
           }
@@ -257,7 +257,7 @@
           "config": {
             "messages": [
               {
-                "text": "Would you like to sign up for our beta program?"
+                "text": "Would you like to sign up for our closed beta?"
               }
             ],
             "quick_replies": [
@@ -730,7 +730,7 @@
         }
       },
       "RequestBetaProgram": {
-        "name": "Request beta program",
+        "name": "Join closed beta program",
         "expect_input": false,
         "next_node_id": "BetaProgramEmail",
         "module": {
