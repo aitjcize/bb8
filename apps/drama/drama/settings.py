@@ -23,7 +23,9 @@ NEWSPIDER_MODULE = 'drama.spiders'
 
 # Crawl responsibly by identifying yourself
 # (and your website) on the user-agent
-# USER_AGENT = 'news (+http://www.yourdomain.com)'
+USER_AGENT = ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) '
+              'AppleWebKit/537.36 (KHTML, like Gecko) '
+              'Chrome/54.0.2840.98 Safari/537.36')
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
