@@ -250,7 +250,7 @@ def run(config, unused_user_input, unused_env, variables):
         drama_id = event.value['drama_id']
         drama_info.unsubscribe(user_id, drama_id)
 
-        return [Message(u'已成功取消訂閱')]
+        return [Message(u'已成功取消追蹤')]
 
     if config['mode'] == 'get_history':
         event = variables['event']
