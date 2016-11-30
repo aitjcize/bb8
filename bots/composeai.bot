@@ -116,6 +116,28 @@
               {
                 "rule": {
                   "type": "regexp",
+                  "params": ["are you a (chat)?bot"]
+                },
+                "ack_message": "Yes I'm BB8 the Compose.ai Bot :)"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)help.*(build|make).*bot"]
+                },
+                "ack_message": "Of course.",
+                "end_node_id": "{{'BetaProgramAlreadyRegistered' if memory.beta else 'PromptSignUpBetaQuestion'}}"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)bye", "(?i)see (you|u)"]
+                },
+                "ack_message": ["See you too!", "Bye :)"]
+              },
+              {
+                "rule": {
+                  "type": "regexp",
                   "params": ["(?i)what is( a)? (chatbot|it)"]
                 },
                 "ack_message": "",
@@ -224,7 +246,7 @@
               }
             ],
             "on_error": {
-              "ack_message": "I didn't quite get that, can you rephrase?",
+              "ack_message": ["I didn't quite get that, can you rephrase?", "hmm...", "right."],
               "end_node_id": "RootRouter"
             }
           }
@@ -907,21 +929,6 @@
           }
         }
       },
-      "Thanks": {
-        "name": "Thanks",
-        "expect_input": false,
-        "next_node_id": "RootRouter",
-        "module": {
-          "id": "ai.compose.content.core.message",
-          "config": {
-            "messages": [
-              {
-                "text": "Thank you too! Be sure to like our fans page :) https://goo.gl/T1QQ2t"
-              }
-            ]
-          }
-        }
-      },
       "BetaProgramDoneRouter": {
         "name": "Parse url and route",
         "expect_input": true,
@@ -943,6 +950,21 @@
               "ack_message": "",
               "end_node_id": "Root"
             }
+          }
+        }
+      },
+      "Thanks": {
+        "name": "Thanks",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "Thank you too! Be sure to like our fans page :) https://goo.gl/T1QQ2t"
+              }
+            ]
           }
         }
       }
