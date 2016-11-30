@@ -8,7 +8,6 @@
 """
 
 import importlib
-import urllib
 from datetime import datetime, timedelta
 
 from flask import g
@@ -69,15 +68,14 @@ def GetgRPCService(name):
 def CacheImage(link):
     """Wrap the image specified by *link* and return the cached URL."""
     return 'https://{0}:{1}/api/util/cache_image?url={2}'.format(
-        config.RESOURCE_HOSTNAME, config.HTTP_PORT, urllib.quote(link))
+        config.RESOURCE_HOSTNAME, config.HTTP_PORT, link)
 
 
 def TrackedURL(link, path_name):
     """Wraps given link with in tracking API."""
     return ('https://%s:%s/api/r/{{bot_id}}/'
             '{{user.platform_user_ident}}?path=%s&url=%s' %
-            (config.RESOURCE_HOSTNAME, config.HTTP_PORT, path_name,
-             urllib.quote(link)))
+            (config.RESOURCE_HOSTNAME, config.HTTP_PORT, path_name, link))
 
 
 class Memory(object):

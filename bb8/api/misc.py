@@ -11,7 +11,6 @@ import hashlib
 import os
 import shutil
 import tempfile
-import urllib
 import urllib2
 import urlparse
 from cStringIO import StringIO
@@ -36,7 +35,7 @@ def cache_image():
     """Cache the image and return the cached URL."""
     gs_client = storage.Client(project=config.GCP_PROJECT)
     bucket = gs_client.get_bucket('cached-pictures')
-    url = urllib.unquote(request.args['url'])
+    url = request.args['url']
     host = urlparse.urlparse(url).netloc
 
     if not url:
@@ -152,4 +151,4 @@ def redirect_track_url(bot_id, platform_user_ident):
     g.ga_id = ret[0]
     track(TrackingInfo.Pageview(platform_user_ident, '/Redirect/%s' % path))
 
-    return redirect(urllib.unquote(url))
+    return redirect(url)
