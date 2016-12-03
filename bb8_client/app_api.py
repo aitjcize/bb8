@@ -63,7 +63,7 @@ class MessagingService(object):
 def CacheImage(link, width=500):
     """Wrap the image specified by *link* and return the cached URL."""
     link = link[link.index('//') + 2:]
-    return 'https://images.weserv.nl/?url={0}&w={1}'.format(
+    return 'https://images.weserv.nl/?url={0}&q=95&h={1}'.format(
         urllib.quote(link), width)
 
 
