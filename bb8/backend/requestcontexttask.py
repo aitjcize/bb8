@@ -22,6 +22,31 @@ from bb8.backend.database import DatabaseSession
 __all__ = ['RequestContextTask']
 
 
+class RequestContext(object):
+    def __init__(self, req):
+        self.path = req.path
+        self.base_url = req.base_url
+        self.method = req.method
+        self.headers = dict(req.headers)
+        self.data = req.data
+        self.query_string = None
+        if '?' in req.url:
+            self.query_string = req.url[(req.url.find('?') + 1):]
+
+    def __repr__(self):
+        return '<RequestContext>'
+
+    def as_dict(self):
+        return {
+            'path': self.path,
+            'base_url': self.base_url,
+            'method': self.method,
+            'headers': self.headers,
+            'data': self.data,
+            'query_string': self.query_string
+        }
+
+
 # pylint: disable=W0223
 class RequestContextTask(Task):
     """Base class for tasks that originate from Flask request handlers
@@ -47,7 +72,7 @@ class RequestContextTask(Task):
         if context is None or has_request_context():
             return call()
 
-        with app.test_request_context(**context):
+        with app.test_request_context(**context.as_dict()):
             with DatabaseSession():
                 result = call()
                 # process a fake "Response" so that
@@ -84,16 +109,4 @@ class RequestContextTask(Task):
         """
         if not has_request_context():
             return
-
-        # keys correspond to arguments of :meth:`Flask.test_request_context`
-        context = {
-            'path': request.path,
-            'base_url': request.url_root,
-            'method': request.method,
-            'headers': dict(request.headers),
-            'data': request.data
-        }
-        if '?' in request.url:
-            context['query_string'] = request.url[(request.url.find('?') + 1):]
-
-        kwargs[self.CONTEXT_ARG_NAME] = context
+        kwargs[self.CONTEXT_ARG_NAME] = RequestContext(request)
