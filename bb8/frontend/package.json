@@ -67,6 +67,7 @@
     "stylelint-config-standard": "^13.0.2",
     "url-loader": "^0.5.7",
     "validator": "^6.1.0",
+    "vanilla-masker": "^1.0.9",
     "webpack": "^1.12.13",
     "webpack-dev-server": "^1.14.1",
     "whatwg-fetch": "^1.0.0"
