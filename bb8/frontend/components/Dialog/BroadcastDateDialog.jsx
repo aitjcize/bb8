@@ -1,12 +1,19 @@
 import React from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
+import VMasker from 'vanilla-masker'
+import Moment from 'moment'
 
+import DatePicker from 'material-ui/DatePicker'
 import Dialog from 'material-ui/Dialog'
 import FlatButton from 'material-ui/FlatButton'
 import TextField from 'material-ui/TextField'
 
 import * as dialogActionCreators from '../../actions/dialogActionCreators'
+import * as uiActionCreators from '../../actions/uiActionCreators'
+
+const leftPad = (integer, totalSize) =>
+  `${'0'.repeat(totalSize - integer.toString().length)}${integer}`
 
 class BroadcastDateDialog extends React.Component {
   constructor(props) {
@@ -14,26 +21,63 @@ class BroadcastDateDialog extends React.Component {
 
     this.handleDateChange = this.handleDateChange.bind(this)
     this.handleTimeChange = this.handleTimeChange.bind(this)
-    this.state = {
-      date: new Date(),
+
+    const d = this.props.payload.scheduledTime
+
+    if (!d) {
+      this.state = {
+        dateVal: '',
+        dateError: '',
+        timeVal: '',
+        timeError: '',
+      }
+    } else {
+      const date = new Date(d * 1000)
+      this.state = {
+        dateVal: Moment(date).format('YYYY-MM-DD'),
+        timeVal: `${leftPad(date.getHours(), 2)}:${leftPad(date.getMinutes(), 2)}`,
+      }
     }
   }
 
-  // FIXME(kevin): temporarily disable lint until this is implemented
-  // eslint-disable-next-line class-methods-use-this
-  handleDateChange() {
+  get date() {
+    const dateArray = Moment(this.state.dateVal).format('YYYY-MM-DD')
+                          .split('-')
+                          .map(elem => parseInt(elem, 10))
+    const timeArray = this.state.timeVal.split(':')
+                          .map(elem => parseInt(elem, 10))
 
+    const d = new Date()
+    d.setFullYear(dateArray[0], dateArray[1] - 1, dateArray[2])
+    d.setHours(...timeArray)
+
+    return d
   }
 
-  // FIXME(kevin): temporarily disable lint until this is implemented
-  // eslint-disable-next-line class-methods-use-this
-  handleTimeChange() {
+  handleDateChange(e, date) {
+    this.setState({ dateVal: Moment(date).format('MM-DD-YYYY') })
+  }
 
+  handleTimeChange(e) {
+    const mask = '99:99'
+    const maskValue = VMasker.toPattern(e.target.value, mask)
+    const values = maskValue.split(':').map(elem => parseInt(elem, 10))
+    if (values.length !== 2) {
+      this.setState({ timeVal: maskValue, timeError: 'please provide the time in hh:mm format' })
+    } else if (values[0] === '' || values[0] < 0 || values[0] > 24) {
+      this.setState({ timeVal: maskValue, timeError: 'the hour should be between 0 and 24' })
+    } else if (values[1] === '' || values[1] < 0 || values[1] > 60) {
+      this.setState({ timeVal: maskValue, timeError: 'the minute should be between 0 and 60' })
+    } else {
+      this.setState({ timeVal: maskValue, timeError: '' })
+    }
   }
 
   render() {
     const actionCreators = bindActionCreators(
       dialogActionCreators, this.props.dispatch)
+    const uiActions = bindActionCreators(
+      uiActionCreators, this.props.dispatch)
 
     const actions = [
       <FlatButton
@@ -45,11 +89,19 @@ class BroadcastDateDialog extends React.Component {
         label="Save"
         secondary
         keyboardFocused
-        onTouchTap={() =>
-          actionCreators.confirmBroadcastDate(
-            this.props.payload, this.state.date)}
+        onTouchTap={() => {
+          if (this.state.timeError) {
+            uiActions.openNotification('Please pick a correct date and time')
+          } else {
+            actionCreators.confirmBroadcastDate(
+              this.props.payload, this.date)
+          }
+        }}
       />,
     ]
+
+    const minDate = new Date()
+    minDate.setHours(0, 0, 0, 0)
 
     return (
       <Dialog
@@ -58,12 +110,18 @@ class BroadcastDateDialog extends React.Component {
         open={this.props.open}
         onRequestClose={actionCreators.closeDialog}
       >
-        <TextField
-          hintText="mm/dd/yyyy"
+        <DatePicker
+          hintText="yyyy-mm-dd"
+          minDate={minDate}
+          autoOk
+          value={Moment(this.state.dateVal).toDate()}
           onChange={this.handleDateChange}
         />
+
         <TextField
-          hintText="hh/mm"
+          hintText="hh:mm"
+          errorText={this.state.timeError}
+          value={this.state.timeVal}
           onChange={this.handleTimeChange}
         />
       </Dialog>
@@ -74,7 +132,9 @@ class BroadcastDateDialog extends React.Component {
 BroadcastDateDialog.propTypes = {
   open: React.PropTypes.bool.isRequired,
   dispatch: React.PropTypes.func.isRequired,
-  payload: React.PropTypes.shape({}).isRequired,
+  payload: React.PropTypes.shape({
+    scheduledTime: React.PropTypes.number.isRequired,
+  }).isRequired,
 }
 
 const ConnectedBroadcastDateDialog = connect(
