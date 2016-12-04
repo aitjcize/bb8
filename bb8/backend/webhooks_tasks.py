@@ -63,6 +63,12 @@ def facebook_webhook_task():
             bot = platform.bot
             g.ga_id = bot.ga_id
 
+            # TODO(aitjcize): bot should always have a account in the future
+            # even for our own bots (compose.ai).
+            if bot.account and not bot.account.valid():
+                # Account is not valid, don't process events for it.
+                continue
+
             for messaging in entry['messaging']:
                 msg = messaging.get('message', None)
                 sender = messaging['sender']['id']

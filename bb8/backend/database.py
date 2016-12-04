@@ -7,6 +7,7 @@
 """
 
 import importlib
+import time
 import uuid
 
 from datetime import datetime, timedelta
@@ -75,20 +76,6 @@ class AccountUser(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     account = relationship('Account')
     oauth_infos = relationship('OAuthInfo', back_populates='account_user')
 
-    @classmethod
-    def register(cls, data, invite=None):
-        if invite:
-            account, payload = Account.from_invite_code(invite)
-            if payload['email'] != data['email']:
-                raise RuntimeError('invitation link not intended for this '
-                                   'email')
-        else:
-            account = Account(name=unicode(data['email'])).add()
-
-        return AccountUser(
-            account=account, email=data['email']
-        ).set_passwd(data['passwd']).add()
-
     def set_passwd(self, passwd):
         self.passwd = bcrypt.encrypt(passwd)
         return self
@@ -117,18 +104,31 @@ class AccountUser(DeclarativeBase, ModelMixin, JSONSerializableMixin):
         return cls.get_by(id=payload['sub'], single=True)
 
 
+class AccountTierEnum(enum.Enum):
+    Free = 'Free'
+    Trial = 'Trial'
+    Basic = 'Basic'
+
+
 class Account(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     __tablename__ = 'account'
     __table_args__ = (UniqueConstraint('name'),)
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(Unicode(256), nullable=False)
+    stripe_customer_id = Column(String(128), nullable=True)
+    membership = Column(Enum(AccountTierEnum), nullable=False,
+                        default=AccountTierEnum.Free)
+    active_until = Column(Integer, nullable=False, default=0)
 
     account_users = relationship('AccountUser')
     bots = relationship('Bot')
     platforms = relationship('Platform')
     broadcasts = relationship('Broadcast')
     feeds = relationship('Feed', lazy='dynamic')
+
+    def active(self):
+        return time.time() < self.active_until
 
     def invite_code(self, email, expiration=15):
         payload = {

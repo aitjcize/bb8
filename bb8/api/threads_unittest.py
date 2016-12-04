@@ -20,6 +20,7 @@ from bb8.api import accounts, bots, platforms
 from bb8.api.test_utils import BearerAuthTestClient
 from bb8.constant import HTTPStatus, CustomError
 from bb8.backend.platform_parser import get_platform_filename, parse_platform
+from bb8.backend import account
 from bb8.backend.database import (DatabaseManager, AccountUser, User,
                                   SenderEnum, Conversation)
 from bb8.backend.message import Message
@@ -91,9 +92,9 @@ class ThreadAPIUnittest(unittest.TestCase):
     def setup_prerequisite(self):
         register_all()
 
-        self.account_user1 = AccountUser.register(dict(
+        self.account_user1 = account.register(dict(
             name=u'test', email='test@gmail.com', passwd='12345678'))
-        self.account_user2 = AccountUser.register(dict(
+        self.account_user2 = account.register(dict(
             name=u'test2', email='test2@gmail.com', passwd='12345678'))
         DatabaseManager.commit()
 

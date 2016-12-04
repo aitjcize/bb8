@@ -15,6 +15,7 @@ from bb8 import app
 from bb8.api import accounts, bots
 from bb8.api.test_utils import BearerAuthTestClient
 from bb8.constant import HTTPStatus, CustomError
+from bb8.backend import account
 from bb8.backend.bot_parser import get_bot_filename, parse_bot_from_file
 from bb8.backend.database import DatabaseManager, AccountUser
 from bb8.backend.modules import register_all
@@ -57,9 +58,9 @@ class BotAPIUnittest(unittest.TestCase):
     def setup_prerequisite(self):
         register_all()
 
-        self.account_user1 = AccountUser.register(dict(
+        self.account_user1 = account.register(dict(
             name=u'test', email='test@gmail.com', passwd='12345678'))
-        self.account_user2 = AccountUser.register(dict(
+        self.account_user2 = account.register(dict(
             name=u'test2', email='test2@gmail.com', passwd='12345678'))
         DatabaseManager.commit()
 

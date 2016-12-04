@@ -88,6 +88,21 @@ class Config(object):
     DATADOG_HOST = scoped_name('bb8.service.datadog')
     ENV_TAG = 'dev'
 
+    # Stripe
+    STRIPE_API_KEY = 'sk_test_4XMwouS8QrK95TxVSe1dJi3M'
+    # Basic Auth: composeai:ad9e0957a41257
+    STRIPE_WEBHOOK_CREDENTIAL = 'Y29tcG9zZWFpOmFkOWUwOTU3YTQxMjU3'
+    STRIPE_PLANS = [
+        {
+            'name': 'Basic Plan',
+            'id': 'basic-monthly',
+            'interval': 'month',
+            'currency': 'usd',
+            'amount': 7,
+            'trial_period_days': 7
+        }
+    ]
+
     # Celery
     class CeleryConfig(object):
         broker_url = os.getenv('REDIS_URI', 'redis://localhost:6379/0')
