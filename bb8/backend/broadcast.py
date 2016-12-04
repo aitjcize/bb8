@@ -43,8 +43,8 @@ def broadcast_task(broadcast_id):
         if not broadcast:
             return
 
-        # Only QUEUED broadcast can be scheduled.
-        if broadcast.status != BroadcastStatusEnum.QUEUED:
+        # Only Queued broadcast can be scheduled.
+        if broadcast.status != BroadcastStatusEnum.Queued:
             return
 
         # The user may have changed the broadcasting time, ignore it as it
@@ -52,7 +52,7 @@ def broadcast_task(broadcast_id):
         if broadcast.scheduled_time >= datetime.now():
             return
 
-        broadcast.status = BroadcastStatusEnum.SENDING
+        broadcast.status = BroadcastStatusEnum.Sending
         try:
             DatabaseManager.commit()
         except (InvalidRequestError, IntegrityError):
@@ -73,12 +73,12 @@ def broadcast_task(broadcast_id):
         broadcast_message_async(bot, messages)
 
         # pylint: disable=R0204
-        broadcast.status = BroadcastStatusEnum.SENT
+        broadcast.status = BroadcastStatusEnum.Sent
 
 
 def schedule_broadcast(broadcast):
     """Schedule a broadcast."""
-    if broadcast.status == BroadcastStatusEnum.QUEUED:
+    if broadcast.status == BroadcastStatusEnum.Queued:
         broadcast_task.apply_async((broadcast.id,),
                                    eta=broadcast.scheduled_time)
 
@@ -102,8 +102,8 @@ def parse_broadcast(broadcast_json, to_broadcast_id=None):
 
     if to_broadcast_id:
         broadcast = Broadcast.get_by(id=to_broadcast_id, single=True)
-        if broadcast.status not in [BroadcastStatusEnum.DRAFT,
-                                    BroadcastStatusEnum.QUEUED]:
+        if broadcast.status not in [BroadcastStatusEnum.Draft,
+                                    BroadcastStatusEnum.Queued]:
             raise BroadcastUnmodifiableError
 
         # Update existing broadcast.

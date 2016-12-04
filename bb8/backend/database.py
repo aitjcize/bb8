@@ -432,9 +432,9 @@ class CollectedDatum(DeclarativeBase, ModelMixin):
 
 
 class SenderEnum(enum.Enum):
-    Bot = 'BOT'
-    User = 'USER'
-    Manual = 'MANUAL'
+    Bot = 'Bot'
+    User = 'User'
+    Manual = 'Manual'
 
 
 class Conversation(DeclarativeBase, ModelMixin, JSONSerializableMixin):
@@ -463,10 +463,10 @@ class Event(DeclarativeBase, ModelMixin):
 
 
 class BroadcastStatusEnum(enum.Enum):
-    DRAFT = 'Draft'
-    QUEUED = 'Queued'
-    SENDING = 'Sending'
-    SENT = 'Sent'
+    Draft = 'Draft'
+    Queued = 'Queued'
+    Sending = 'Sending'
+    Sent = 'Sent'
 
 
 class Broadcast(DeclarativeBase, ModelMixin, JSONSerializableMixin):
@@ -482,7 +482,7 @@ class Broadcast(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     messages = Column(PickleType, nullable=False)
     scheduled_time = Column(DateTime, nullable=True)
     status = Column(Enum(BroadcastStatusEnum), nullable=False,
-                    default=BroadcastStatusEnum.DRAFT)
+                    default=BroadcastStatusEnum.Draft)
 
     account = relationship('Account')
 

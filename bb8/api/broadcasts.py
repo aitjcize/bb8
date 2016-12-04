@@ -86,8 +86,8 @@ def update_broadcast(broadcast_id):
 def delete_broadcast(broadcast_id):
     """Delete a broadcast."""
     broadcast = get_account_broadcast_by_id(broadcast_id)
-    if broadcast.status in [BroadcastStatusEnum.SENT,
-                            BroadcastStatusEnum.SENDING]:
+    if broadcast.status in [BroadcastStatusEnum.Sent,
+                            BroadcastStatusEnum.Sending]:
         raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
                        CustomError.ERR_WRONG_PARAM,
                        'Broadcast not deletable')

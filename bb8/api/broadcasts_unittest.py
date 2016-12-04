@@ -184,7 +184,7 @@ class BroadcastAPIUnittest(unittest.TestCase):
 
         # Set status to Sent, the broadcast should be unmodifiable
         b = Broadcast.get_by(id=broadcast_id, single=True)
-        b.status = BroadcastStatusEnum.SENT
+        b.status = BroadcastStatusEnum.Sent
         DatabaseManager.commit()
 
         input_data = {
@@ -206,9 +206,9 @@ class BroadcastAPIUnittest(unittest.TestCase):
 
         broadcast_id = data['broadcasts'][0]['id']
 
-        # Set broadcast status to SENT
+        # Set broadcast status to Sent
         b = Broadcast.get_by(id=broadcast_id, single=True)
-        b.status = BroadcastStatusEnum.SENT
+        b.status = BroadcastStatusEnum.Sent
         DatabaseManager.commit()
 
         # Delete the broadcast (should fail becuase it's sent already)
@@ -216,9 +216,9 @@ class BroadcastAPIUnittest(unittest.TestCase):
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
         data = json.loads(rv.data)
 
-        # Set broadcast status back to QUEUED
+        # Set broadcast status back to Queued
         b2 = Broadcast.get_by(id=broadcast_id, single=True)
-        b2.status = BroadcastStatusEnum.QUEUED
+        b2.status = BroadcastStatusEnum.Queued
         DatabaseManager.commit()
 
         # Delete the broadcast
