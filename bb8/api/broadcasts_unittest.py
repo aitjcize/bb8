@@ -15,6 +15,7 @@ from bb8 import app
 # Register request handlers, pylint: disable=W0611
 from bb8.api import accounts, bots, broadcasts
 from bb8.api.test_utils import BearerAuthTestClient
+from bb8.backend import account
 from bb8.backend.database import (DatabaseManager, AccountUser, Broadcast,
                                   BroadcastStatusEnum)
 from bb8.backend.message import Message
@@ -77,9 +78,9 @@ class BroadcastAPIUnittest(unittest.TestCase):
     def setup_prerequisite(self):
         register_all()
 
-        self.account_user1 = AccountUser.register(dict(
+        self.account_user1 = account.register(dict(
             name=u'test', email='test@gmail.com', passwd='12345678'))
-        self.account_user2 = AccountUser.register(dict(
+        self.account_user2 = account.register(dict(
             name=u'test2', email='test2@gmail.com', passwd='12345678'))
         DatabaseManager.commit()
 

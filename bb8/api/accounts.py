@@ -15,6 +15,7 @@ from bb8 import app
 from bb8.constant import HTTPStatus, CustomError, Key
 from bb8.api.error import AppError
 from bb8.api.middlewares import login_required
+from bb8.backend.account import register
 from bb8.backend.database import AccountUser, DatabaseManager
 
 
@@ -61,8 +62,7 @@ def email_register():
     account_user = AccountUser.get_by(email=data['email'], single=True)
     if not account_user:
         try:
-            account_user = AccountUser.register(data,
-                                                request.args.get('invite'))
+            account_user = register(data, request.args.get('invite'))
         except RuntimeError as e:
             raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
                            CustomError.ERR_BAD_INVITE_EMAIL,
