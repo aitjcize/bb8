@@ -646,7 +646,8 @@
               "1111176378929436",
               "1133711460032693",
               "572398979552052",
-              "1151173601634814"
+              "1151173601634814",
+              "843143795788327"
             ],
             "template": "New private message from {{user.first_name}} {{user.last_name}}: {{message}}",
             "keys": ["user", "message"],
@@ -896,7 +897,8 @@
               "1111176378929436",
               "1133711460032693",
               "572398979552052",
-              "1151173601634814"
+              "1151173601634814",
+              "843143795788327"
             ],
             "template": "Beta application from: {{user.first_name}} {{user.last_name}} <{{email}}> {{url}}",
             "keys": ["user", "email", "url"],
