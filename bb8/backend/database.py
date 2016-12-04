@@ -189,6 +189,7 @@ class Bot(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     settings = Column(PickleType, nullable=True)
     staging = deferred(Column(PickleType, nullable=True))
 
+    account = relationship('Account')
     bot_defs = relationship('BotDef')
     nodes = relationship('Node')
     platforms = relationship('Platform')
