@@ -1,11 +1,11 @@
 import React from 'react'
 import { Field, reduxForm } from 'redux-form'
-
-import TextField from 'material-ui/TextField'
-import RaisedButton from 'material-ui/RaisedButton'
 import validator from 'validator'
 
-import { startLogin } from '../actions/accountActionCreators'
+import RaisedButton from 'material-ui/RaisedButton'
+
+import renderTextField from './util'
+import { startLogin } from '../../actions/accountActionCreators'
 
 
 function validate(values) {
@@ -22,41 +22,11 @@ function validate(values) {
   return errors
 }
 
-const renderTextField = ({ input, label, meta: { touched, error }, ...custom }) => (
-  <TextField
-    fullWidth
-    hintText={label}
-    floatingLabelText={label}
-    errorText={touched && error}
-    {...input}
-    {...custom}
-  />
-)
-
-renderTextField.propTypes = {
-  input: React.PropTypes.shape({
-    checked: React.PropTypes.bool,
-    name: React.PropTypes.string,
-    onBlur: React.PropTypes.func,
-    onChange: React.PropTypes.func,
-    onDragStart: React.PropTypes.func,
-    onDrop: React.PropTypes.func,
-    onFocus: React.PropTypes.func,
-    value: React.PropTypes.string,
-  }),
-  label: React.PropTypes.string,
-  meta: React.PropTypes.shape({
-    touched: React.PropTypes.bool,
-    error: React.PropTypes.string,
-  }),
-}
-
-function handleSubmit(value, dispatch) {
-  dispatch(startLogin(value.email, value.passwd))
-}
-
 const LoginForm = props => (
-  <form onSubmit={props.handleSubmit(handleSubmit)}>
+  <form
+    onSubmit={props.handleSubmit((value, dispatch) =>
+      dispatch(startLogin(value.email, value.passwd)))}
+  >
     <div>
       <Field name="email" component={renderTextField} label="Email" />
     </div>

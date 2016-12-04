@@ -48,6 +48,23 @@ export function* loginSaga() {
   }
 }
 
+export function* signupSaga() {
+  while (true) {
+    const request = yield take(types.ACCOUNTS_SIGNUP.REQUEST)
+    const { email, passwd, timezone } = request.payload
+
+    const { response, error } = yield call(api.signup, email, passwd, timezone)
+    if (error) {
+      yield put({ type: types.ACCOUNTS_SIGNUP.ERROR, payload: error })
+      hashHistory.push('/signup')
+    } else {
+      storage.set(AUTH_TOKEN, response.authToken)
+      yield put({ type: types.ACCOUNTS_SIGNUP.SUCCESS, payload: response })
+      hashHistory.push('/')
+    }
+  }
+}
+
 /* Bots Sagas */
 
 export function* setActiveBotSaga() {
@@ -355,6 +372,7 @@ export default function* root() {
 
   /* Authorization Saga */
   yield fork(loginSaga)
+  yield fork(signupSaga)
   yield fork(logoutSaga)
 
   /* Bots Saga */

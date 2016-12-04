@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 
 import { Card } from 'material-ui/Card'
 
-import LoginForm from '../components/LoginForm'
+import LoginForm from '../components/forms/LoginForm'
 import Notification from '../components/Notification'
 import LogoPNG from '../assets/logo.png'
 
