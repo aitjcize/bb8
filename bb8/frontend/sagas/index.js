@@ -1,8 +1,13 @@
+import async from 'async'
+import omit from 'lodash/omit'
 import storage from 'store2'
-import { take, call, put, fork } from 'redux-saga/effects'
+import { camelizeKeys } from 'humps'
 import { hashHistory } from 'react-router'
+import { normalize, arrayOf } from 'normalizr'
+import { take, call, put, fork } from 'redux-saga/effects'
 
 import api from '../api'
+import { FBPage } from '../constants/Schema'
 import types from '../constants/ActionTypes'
 import { AUTH_TOKEN } from '../constants'
 import CustomError from '../constants/CustomError'
@@ -16,6 +21,46 @@ export function* initializeAppSaga() {
     yield take(types.INITIALIZE_APP)
 
     yield put({ type: types.BOTS_LIST.REQUEST })
+  }
+}
+
+export function* facebookPagesSaga() {
+  const iteratee = (item, callback) => {
+    // eslint-disable-next-line no-undef
+    FB.api(item, (resp) => {
+      callback(null, resp)
+    })
+  }
+
+  const refreshPage = () =>
+    new Promise((resolve) => {
+      // eslint-disable-next-line no-undef
+      FB.login(() => {
+        // eslint-disable-next-line no-undef
+        FB.api('/me/accounts', (resp) => {
+          const paths = resp.data.map(r =>
+            `/${r.id}?fields=about,picture,name`)
+
+          async.map(paths, iteratee, (err, results) => {
+            const pages = resp.data.map(
+              (d, idx) => camelizeKeys(omit(Object.assign(d, {
+                ...results[idx], pageId: d.id, id: idx,
+              }), ['perms', 'category'])))
+
+            resolve(pages)
+          })
+        })
+      }, { scope: 'manage_pages' })
+    })
+
+  while (true) {
+    yield take(types.FB_REFRESH_PAGES.REQUEST)
+
+    const pages = yield call(refreshPage)
+    yield put({
+      type: types.FB_REFRESH_PAGES.SUCCESS,
+      payload: normalize(pages, arrayOf(FBPage)),
+    })
   }
 }
 
@@ -126,8 +171,8 @@ export function* createPlatformSaga() {
 
     const { response, error } = yield call(api.createPlatform, payload)
 
-    if (error && error.body.errorCode === CustomError.errDuplicateEntry) {
-      yield put({ type: types.NOTIFICATION_OPEN, payload: 'This provider id is already in used' })
+    if (error && error.body) {
+      yield put({ type: types.NOTIFICATION_OPEN, payload: error.body.message })
     }
 
     if (error) {
@@ -369,6 +414,9 @@ export function* confirmUpdatePlatformSaga() {
 export default function* root() {
   /* General Saga */
   yield fork(initializeAppSaga)
+
+  /* Facebook Saga */
+  yield fork(facebookPagesSaga)
 
   /* Authorization Saga */
   yield fork(loginSaga)

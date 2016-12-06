@@ -29,12 +29,24 @@ const BroadcastRecord = {
   messages: null,
 }
 
+const FBPageRecord = {
+  about: null,
+  access_token: null,
+  name: null,
+  pageId: null,
+  picture: null,
+}
+
 export const Bot = new Schema('bots', BotRecord, { idAttribute: 'id' })
+
 export const Platform = new Schema('platforms', PlatformRecord, {
   idAttribute: 'id',
 })
+
 export const Broadcast = new Schema('broadcasts', BroadcastRecord, {
   idAttribute: 'id',
 })
 
-export default Bot
+export const FBPage = new Schema('fbpages', FBPageRecord, {
+  idAttribute: 'id',
+})

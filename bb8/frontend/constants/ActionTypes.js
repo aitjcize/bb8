@@ -4,6 +4,9 @@ export default {
   // General
   INITIALIZE_APP: 'INITIALIZE_APP',
 
+  // Misc
+  FB_REFRESH_PAGES: createRequestTypes('FB_REFRESH_PAGES'),
+
   // Accounts
   ACCOUNTS_SIGNUP: createRequestTypes('ACCOUNTS_SIGNUP'),
   ACCOUNTS_LOGIN: createRequestTypes('ACCOUNTS_LOGIN'),
