@@ -38,3 +38,52 @@ body {
 .b-toolbar {
   z-index: 200;
 }
+
+.gapi-analytics-data-chart .google-visualization-table-table th {
+  vertical-align: middle !important;
+}
+
+.google-visualization-table-table {
+  font-size: .875em !important;
+  background-color: transparent !important;
+
+  thead {
+    font-weight: 800 !important;
+    color: #444 !important;
+    font-style: italic !important;
+  }
+
+  td, th {
+    text-align: center !important;
+    padding: .5em 1.5em !important;
+    white-space: nowrap !important;
+    border-color: transparent !important;
+    transition: .24s ease-out;
+
+    &:first-child {
+      text-align: left !important;
+    }
+  }
+
+  &:hover {
+    color: #ddd !important;
+
+    tr:hover td {
+      color: #757575 !important;
+      font-weight: bold;
+    }
+  }
+
+  .ga-table-headerRow {}
+  .ga-table-tableRow {
+
+  }
+  .ga-table-oddTableRow {}
+  .ga-table-selectedTableRow {}
+  .ga-table-hoverTableRow {}
+  .ga-table-headerCell {
+    padding: .5em;
+  }
+  .ga-table-tableCell {}
+  .ga-table-rowNumberCell {}
+}
