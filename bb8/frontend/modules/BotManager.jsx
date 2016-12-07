@@ -111,13 +111,25 @@ class BotManager extends React.Component {
                   {index !== 0 && <Divider />}
                   <ListItem
                     primaryText={bots[id].name}
-                    secondaryText={bots[id].description}
-                    secondaryTextLines={2}
+                    secondaryText={
+                      <span
+                        style={{
+                          width: '100%',
+                          height: 'auto',
+                          maxHeight: '2.2em',
+                          whiteSpace: 'pre-wrap',
+                          overflow: 'hidden',
+                          display: 'inline-block',
+                        }}
+                      >
+                        {bots[id].description}
+                      </span>
+                    }
                     onClick={() => this.handleBotSelect(id)}
                     style={{
-                      ...this.state.selectedBotId && this.state.selectedBotId !== id && {
+                      ...this.state.selectedBotId && this.state.selectedBotId !== id ? {
                         opacity: 0.3,
-                      },
+                      } : {}
                     }}
                     rightAvatar={
                       bots[id].platforms && <Avatar size={32}>

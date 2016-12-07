@@ -1,32 +1,185 @@
 import React from 'react'
 import CircularProgress from 'material-ui/CircularProgress'
+import Paper from 'material-ui/Paper'
+
+const styles = {
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    position: 'relative',
+    flex: 1,
+    padding: '1em .5em',
+  },
+  loader: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rows: {
+    display: 'flex',
+    padding: '.5em 1em',
+    marginBottom: '1em',
+  },
+  item: {
+    flex: 1,
+    marginBottom: '1.5em',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+  },
+  tableContainer: {
+    marginLeft: '1.5em',
+  },
+}
 
 const drawDiagram = (startDate, endDate, viewId, callback) => {
   if (!viewId) return
 
   const gaViewId = `ga:${viewId}`
 
+  const pieDefaultOption = {
+    width: '100%',
+    height: 400,
+    pieHole: 5 / 9,
+    sliceVisibilityThreshold: 0.1,
+    backgroundColor: 'transparent',
+    chartArea: {
+      left: 16,
+      right: 16,
+      top: 16,
+      bottom: 16,
+    },
+    legend: {
+      position: 'labeled',
+    },
+  }
+
+  const tableDefaultOption = {
+    width: '100%',
+    cssClassNames: {
+      headerRow: 'ga-table-headerRow',
+      tableRow: 'ga-table-tableRow',
+      oddTableRow: 'ga-table-oddTableRow',
+      selectedTableRow: 'ga-table-selectedTableRow',
+      hoverTableRow: 'ga-table-hoverTableRow',
+      headerCell: 'ga-table-headerCell',
+      tableCell: 'ga-table-tableCell',
+      rowNumberCell: 'ga-table-rowNumberCell',
+    },
+  }
+
+  const lineDefaultOption = {
+    width: '100%',
+    height: 350,
+    backgroundColor: 'transparent',
+    chartArea: {
+      left: 16,
+      right: 16,
+    },
+  }
+
   // eslint-disable-next-line no-undef
-  const dataChart1 = new gapi.analytics.googleCharts.DataChart({
+  const userTypePie = new gapi.analytics.googleCharts.DataChart({
     query: {
       ids: gaViewId,
       'start-date': startDate,
       'end-date': endDate,
-      metrics: 'ga:sessions',
-      dimensions: 'ga:date',
+      metrics: 'ga:users',
+      dimensions: 'ga:userType',
     },
     chart: {
-      container: 'chart-1-container',
-      type: 'LINE',
+      container: 'user-type-pie',
+      type: 'PIE',
+      options: pieDefaultOption,
+    },
+  })
+  userTypePie.execute()
+
+  // eslint-disable-next-line no-undef
+  const userTypeTable = new gapi.analytics.googleCharts.DataChart({
+    query: {
+      ids: gaViewId,
+      'start-date': startDate,
+      'end-date': endDate,
+      metrics: 'ga:users',
+      dimensions: 'ga:userType',
+      'max-results': 7,
+    },
+    chart: {
+      container: 'user-type-table',
+      type: 'TABLE',
       options: {
         width: '100%',
+        cssClassNames: {
+          headerRow: 'ga-table-headerRow',
+          tableRow: 'ga-table-tableRow',
+          oddTableRow: 'ga-table-oddTableRow',
+          selectedTableRow: 'ga-table-selectedTableRow',
+          hoverTableRow: 'ga-table-hoverTableRow',
+          headerCell: 'ga-table-headerCell',
+          tableCell: 'ga-table-tableCell',
+          rowNumberCell: 'ga-table-rowNumberCell',
+        },
       },
     },
   })
-  dataChart1.execute()
+  userTypeTable.execute()
 
   // eslint-disable-next-line no-undef
-  const dataChart2 = new gapi.analytics.googleCharts.DataChart({
+  const userSessionLine = new gapi.analytics.googleCharts.DataChart({
+    query: {
+      ids: gaViewId,
+      'start-date': startDate,
+      'end-date': endDate,
+      metrics: 'ga:users, ga:sessions',
+      dimensions: 'ga:date',
+    },
+    chart: {
+      container: 'user-session-line',
+      type: 'LINE',
+      options: lineDefaultOption,
+    },
+  })
+  userSessionLine.execute()
+
+  // eslint-disable-next-line no-undef
+  const userSessionTable = new gapi.analytics.googleCharts.DataChart({
+    query: {
+      ids: gaViewId,
+      'start-date': startDate,
+      'end-date': endDate,
+      metrics: 'ga:newusers,ga:pageviews',
+      dimensions: 'ga:date',
+      sort: '-ga:date',
+      'max-results': 10,
+    },
+    chart: {
+      container: 'user-session-table',
+      type: 'TABLE',
+      options: {
+        width: '100%',
+        cssClassNames: {
+          headerRow: 'ga-table-headerRow',
+          tableRow: 'ga-table-tableRow',
+          oddTableRow: 'ga-table-oddTableRow',
+          selectedTableRow: 'ga-table-selectedTableRow',
+          hoverTableRow: 'ga-table-hoverTableRow',
+          headerCell: 'ga-table-headerCell',
+          tableCell: 'ga-table-tableCell',
+          rowNumberCell: 'ga-table-rowNumberCell',
+        },
+      },
+    },
+  })
+  userSessionTable.execute()
+
+  // eslint-disable-next-line no-undef
+  const eventCategoryPie = new gapi.analytics.googleCharts.DataChart({
     query: {
       ids: gaViewId,
       'start-date': startDate,
@@ -35,17 +188,33 @@ const drawDiagram = (startDate, endDate, viewId, callback) => {
       dimensions: 'ga:eventCategory',
     },
     chart: {
-      container: 'chart-2-container',
-      type: 'LINE',
-      options: {
-        width: '100%',
-      },
+      container: 'event-catagory-pie',
+      type: 'PIE',
+      options: pieDefaultOption,
     },
   })
-  dataChart2.execute()
+  eventCategoryPie.execute()
 
   // eslint-disable-next-line no-undef
-  const dataChart3 = new gapi.analytics.googleCharts.DataChart({
+  const eventCategoryTable = new gapi.analytics.googleCharts.DataChart({
+    query: {
+      ids: gaViewId,
+      'start-date': startDate,
+      'end-date': endDate,
+      metrics: 'ga:users',
+      dimensions: 'ga:eventCategory',
+      'max-results': 10,
+    },
+    chart: {
+      container: 'event-catagory-table',
+      type: 'TABLE',
+      options: tableDefaultOption,
+    },
+  })
+  eventCategoryTable.execute()
+
+  // eslint-disable-next-line no-undef
+  const pagePathPie = new gapi.analytics.googleCharts.DataChart({
     query: {
       ids: gaViewId,
       'start-date': startDate,
@@ -53,21 +222,18 @@ const drawDiagram = (startDate, endDate, viewId, callback) => {
       metrics: 'ga:pageviews',
       dimensions: 'ga:pagePath',
       sort: '-ga:pageviews',
-      'max-results': 10,
+      'max-results': 5,
     },
     chart: {
-      container: 'chart-3-container',
+      container: 'pagepath-pie',
       type: 'PIE',
-      options: {
-        width: '100%',
-        pieHole: 3 / 9,
-      },
+      options: pieDefaultOption,
     },
   })
-  dataChart3.execute()
+  pagePathPie.execute()
 
   // eslint-disable-next-line no-undef
-  const dataChart4 = new gapi.analytics.googleCharts.DataChart({
+  const pagePathTable = new gapi.analytics.googleCharts.DataChart({
     query: {
       ids: gaViewId,
       'start-date': startDate,
@@ -78,51 +244,14 @@ const drawDiagram = (startDate, endDate, viewId, callback) => {
       'max-results': 10,
     },
     chart: {
-      container: 'chart-4-container',
+      container: 'pagepath-table',
       type: 'TABLE',
+      options: tableDefaultOption,
     },
   })
-  dataChart4.execute()
+  pagePathTable.execute()
 
-  // eslint-disable-next-line no-undef
-  const dataChart5 = new gapi.analytics.googleCharts.DataChart({
-    query: {
-      ids: gaViewId,
-      'start-date': startDate,
-      'end-date': endDate,
-      metrics: 'ga:newUsers',
-      dimensions: 'ga:date',
-    },
-    chart: {
-      container: 'chart-5-container',
-      type: 'LINE',
-      options: {
-        width: '100%',
-      },
-    },
-  })
-  dataChart5.execute()
-
-  // eslint-disable-next-line no-undef
-  const dataChart6 = new gapi.analytics.googleCharts.DataChart({
-    query: {
-      ids: gaViewId,
-      'start-date': startDate,
-      'end-date': endDate,
-      metrics: 'ga:pageViews',
-      dimensions: 'ga:date',
-    },
-    chart: {
-      container: 'chart-6-container',
-      type: 'LINE',
-      options: {
-        width: '100%',
-      },
-    },
-  })
-  dataChart6.execute()
-
-  dataChart1.on('success', callback)
+  userTypePie.on('success', callback)
 }
 
 const CLIENT_ID = '791471658501-jdp3nf8jc1aueei26qhh73npe35r167o.apps.googleusercontent.com'
@@ -153,34 +282,6 @@ class Diagrams extends React.Component {
     this.mapping = {}
   }
 
-  componentDidMount() {
-    const gaId = this.state.gaId
-
-    // eslint-disable-next-line no-undef
-    gapi.analytics.ready(() => {
-      // eslint-disable-next-line no-undef
-      if (!gapi.analytics.auth.isAuthorized()) {
-        // eslint-disable-next-line no-undef
-        gapi.analytics.auth.authorize({
-          container: 'embed-api-auth-container',
-          clientid: CLIENT_ID,
-          userInfoLabel: '',
-        })
-        // eslint-disable-next-line no-undef
-        gapi.analytics.auth.on('success', () => {
-          document.getElementById('embed-api-auth-container').style.display = 'none'
-          this.loadMapping().then(mapping => this.setState({ viewId: mapping[gaId] }))
-        })
-      } else {
-        this.loadMapping().then(mapping => this.setState({ viewId: mapping[gaId] }))
-      }
-      // eslint-disable-next-line no-undef
-      gapi.analytics.auth.on('needsAuthorization', () => {
-        this.setState({ loading: false })
-      })
-    })
-  }
-
   componentWillReceiveProps(props) {
     const { startDate, endDate, gaId } = props
     this.setState({ startDate, endDate, gaId })
@@ -197,7 +298,6 @@ class Diagrams extends React.Component {
         })
         // eslint-disable-next-line no-undef
         gapi.analytics.auth.on('success', () => {
-          document.getElementById('embed-api-auth-container').style.display = 'none'
           this.loadMapping().then(mapping => this.setState({ viewId: mapping[gaId] }))
         })
       } else {
@@ -245,17 +345,51 @@ class Diagrams extends React.Component {
 
   render() {
     return (
-      <div>
-        { this.state.loading ? <CircularProgress size={80} thickness={5} /> : null }
-        <div id="embed-api-auth-container" />
-        <div id="chart-1-container" />
-        <div id="chart-2-container" />
-        <div id="chart-3-container" />
-        <div id="chart-4-container" />
-        <div id="chart-5-container" />
-        <div id="chart-6-container" />
-        <div id="chart-7-container" />
-      </div>)
+      <div
+        style={styles.container}
+      >
+        <div id="embed-api-auth-container" style={{ display: 'none' }} />
+        {
+        this.state.loading ? <div style={styles.loader}>
+          <CircularProgress thickness={5} />
+        </div> : null
+        }
+        <Paper style={styles.rows}>
+          <div id="user-session-line" style={styles.item} />
+          <div
+            id="user-session-table"
+            style={{
+              ...styles.item,
+              ...styles.tableContainer,
+              ...{ flex: 'none' },
+            }}
+          />
+        </Paper>
+        <Paper style={styles.rows}>
+          <div style={styles.item}>
+            <div id="user-type-pie" />
+            <div
+              id="user-type-table"
+              style={styles.tableContainer}
+            />
+          </div>
+          <div style={styles.item}>
+            <div id="event-catagory-pie" />
+            <div id="event-catagory-table" style={styles.tableContainer} />
+          </div>
+        </Paper>
+        <Paper style={styles.rows}>
+          <div id="pagepath-pie" style={styles.item} />
+          <div
+            id="pagepath-table"
+            style={{
+              ...styles.item,
+              ...styles.tableContainer,
+            }}
+          />
+        </Paper>
+      </div>
+    )
   }
 }
 

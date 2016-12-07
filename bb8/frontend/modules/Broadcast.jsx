@@ -17,9 +17,9 @@ const styles = {
   },
   floatButton: {
     position: 'fixed',
-    right: '1em',
-    bottom: '1em',
-    margin: '1.5em',
+    right: 0,
+    bottom: 0,
+    margin: '2.5em',
   },
 }
 

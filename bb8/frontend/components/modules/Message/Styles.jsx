@@ -1,8 +1,9 @@
 const Styles = {
   card: {
     overflow: 'hidden',
-    margin: '0 .25em',
+    margin: '.25em',
     width: '25vw',
+    minWidth: '20em',
     flex: 'none',
   },
   buttonGroup: {
