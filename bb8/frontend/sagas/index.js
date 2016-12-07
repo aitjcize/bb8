@@ -320,7 +320,7 @@ export function* confirmBroadcastDateSaga() {
       },
     })
 
-    yield take(types.BROADCASTS_UPDATE.SUCCESS)
+    yield take([types.BROADCASTS_UPDATE.SUCCESS, types.BROADCASTS_UPDATE.ERROR])
     yield put({ type: types.DIALOG_CLOSE })
   }
 }
@@ -338,13 +338,13 @@ export function* confirmSendBroadcastSaga() {
             {}, payload, { status: 'Queued', scheduledTime: 0 }),
         },
       })
-      yield take(types.BROADCASTS_UPDATE.SUCCESS)
+      yield take([types.BROADCASTS_UPDATE.SUCCESS, types.BROADCASTS_UPDATE.ERROR])
     } else {
       yield put({
         type: types.BROADCASTS_CREATE.REQUEST,
         payload,
       })
-      yield take(types.BROADCASTS_CREATE.SUCCESS)
+      yield take([types.BROADCASTS_CREATE.SUCCESS, types.BROADCASTS_CREATE.ERROR])
     }
 
     yield put({ type: types.DIALOG_CLOSE })
@@ -361,7 +361,7 @@ export function* confirmDelBroadcastSaga() {
       payload,
     })
 
-    yield take(types.BROADCASTS_DELETE.SUCCESS)
+    yield take([types.BROADCASTS_DELETE.SUCCESS, types.BROADCASTS_DELETE.ERROR])
     yield put({ type: types.DIALOG_CLOSE })
   }
 }
@@ -375,7 +375,7 @@ export function* confirmDelPlatformSaga() {
       payload,
     })
 
-    yield take(types.PLATFORMS_DELETE.SUCCESS)
+    yield take([types.PLATFORMS_DELETE.SUCCESS, types.PLATFORMS_DELETE.ERROR])
     yield put({ type: types.DIALOG_CLOSE })
   }
 }
@@ -389,7 +389,7 @@ export function* confirmCreatePlatformSaga() {
       payload,
     })
 
-    yield take(types.PLATFORMS_CREATE.SUCCESS)
+    yield take([types.PLATFORMS_CREATE.SUCCESS, types.PLATFORMS_CREATE.ERROR])
     yield put({ type: types.DIALOG_CLOSE })
   }
 }
@@ -406,7 +406,7 @@ export function* confirmUpdatePlatformSaga() {
       },
     })
 
-    yield take(types.PLATFORMS_UPDATE.SUCCESS)
+    yield take([types.PLATFORMS_UPDATE.SUCCESS, types.PLATFORMS_UPDATE.ERROR])
     yield put({ type: types.DIALOG_CLOSE })
   }
 }
