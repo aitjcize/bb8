@@ -129,7 +129,7 @@ class BotManager extends React.Component {
                     style={{
                       ...this.state.selectedBotId && this.state.selectedBotId !== id ? {
                         opacity: 0.3,
-                      } : {}
+                      } : {},
                     }}
                     rightAvatar={
                       bots[id].platforms && <Avatar size={32}>
