@@ -44,7 +44,7 @@ body {
 }
 
 .google-visualization-table-table {
-  font-size: .875em !important;
+  font-size: 0.875em !important;
   background-color: transparent !important;
 
   thead {
@@ -53,12 +53,13 @@ body {
     font-style: italic !important;
   }
 
-  td, th {
+  td,
+  th {
     text-align: center !important;
-    padding: .5em 1.5em !important;
+    padding: 0.5em 1.5em !important;
     white-space: nowrap !important;
     border-color: transparent !important;
-    transition: .24s ease-out;
+    transition: 0.24s ease-out;
 
     &:first-child {
       text-align: left !important;
@@ -74,16 +75,7 @@ body {
     }
   }
 
-  .ga-table-headerRow {}
-  .ga-table-tableRow {
-
-  }
-  .ga-table-oddTableRow {}
-  .ga-table-selectedTableRow {}
-  .ga-table-hoverTableRow {}
   .ga-table-headerCell {
-    padding: .5em;
+    padding: 0.5em;
   }
-  .ga-table-tableCell {}
-  .ga-table-rowNumberCell {}
 }
