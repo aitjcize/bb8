@@ -69,7 +69,7 @@ class BotPickerListItem extends React.Component {
       }
       rightIcon={((this.props.outerHover && this.state.hover) ||
         (!this.props.outerHover && isActive)) ? <IconCheck /> : null}
-      style={ isActive ? styles.selected : {} }
+      style={isActive ? styles.selected : {}}
     />)
   }
 }
