@@ -10,25 +10,57 @@
 
     An example of server's response:
 
-        [
-            {
-                'text': 'MSG',
-            },
-            {
-                'attachment': {
-                    'type': 'template',
-                    'payload': {
-                        'template_type': 'generic',
-                        'elements': [
-                            {'title': 'TITLE', 'subtitle': 'SUBTITLE'}
-                        ]
-                    }
-                }
-            },
-        ]
+    {
+      "messages": [
+        /*** Pure text message ***/
+        {
+          "text": "A regular message"
+        },
 
-    User will get a plain text message and a Bubble message with title and
-    subtitle.
+        /*** Bubbles ***/
+        {
+          "attachment": {
+            "type": "template",
+            "payload": {
+              "template_type": "generic",
+              "elements": [
+                {
+                  "title": "Main Title", "subtitle": "Sub-title",
+                  "image_url": "http://xxx.ooo"
+                },
+                {
+                  "title": "Main Title", "subtitle": "Sub-title",
+                  "image_url": "http://xxx.ooo"
+                }
+              ]
+            }
+          }
+        },
+
+        /*** Buttons ***/
+        {
+          "attachment": {
+            "type": "template",
+            "payload": {
+              "template_type": "button",
+              "text": "Main title",
+              "buttons": [{
+                "type": "postback",
+                "title": "Shown to user",
+                "payload": "Postback to bot"
+              }]
+            }
+          }
+        }
+      ],
+      "memory": {
+        "whatever_key_0": "whatever_value_0",
+        "whatever_key_1": "whatever_value_1"
+      }
+    }
+
+    This module also supports JSON transform too, which converts the server's
+    response to the format that that commando parses (the above format).
 """
 
 import json
@@ -36,8 +68,10 @@ import logging
 
 import requests
 
-from bb8.backend.module_api import (Message, Render, SupportedPlatform,
-                                    ModuleTypeEnum, PureContentModule)
+from bb8.backend.module_api import (Message, Render, SupportedPlatform, Memory,
+                                    Settings, ModuleTypeEnum,
+                                    PureContentModule)
+from jinja2 import Environment, DictLoader
 
 
 _LOG = logging.getLogger(__name__)
@@ -93,6 +127,36 @@ def FetchData(url, params=[], method='post'):  # pylint: disable=W0102
     return json.loads(resp.text)
 
 
+def Transform(transform, js, unused_debug):
+    """Transform the input JSON into output JSON.
+
+    Args:
+      transform: list of dict. The dict includes:
+                   'type': the transform type.
+                   'template': str or list of str. The template.
+                               JSON doesn't support multiple lines. The
+                               workaround is list of str.
+                 The JSON data is transformed in order.
+      js: object from JSON.
+      debug: bool. True to return debug message.
+
+    Returns:
+      An object for JSON.
+      debug_msg: array. debug messages back to user.
+    """
+    debug_msg = []
+    for trans in transform:
+        if trans['type'] == 'jinja':
+            template_json = '\n'.join(trans['template'])
+
+            env = Environment(loader=DictLoader({'XXX.html': template_json}))
+            tmpl = env.get_template('XXX.html')
+            js_str = tmpl.render(transform_input=js)  # pylint: disable=E1101
+            js = json.loads(js_str)
+
+    return js, debug_msg
+
+
 @PureContentModule
 def run(config, unused_user_input, unused_env, variables):
     msgs = []  # The output messages.
@@ -104,15 +168,37 @@ def run(config, unused_user_input, unused_env, variables):
         (Render(x[0], variables), Render(x[1], variables))
         for x in params]
 
+    debug = config.get('debug')
+    on_error = config.get(
+        'on_error',
+        u'Ooops! Something wrong while) talking to remote server.')
+
     try:
         js = FetchData(url=url, params=params, method=method)
 
-        for m in js:
+        transform = config.get('transform')
+        if transform:
+            js, debug_msg = Transform(transform, js, debug)
+            if debug_msg:
+                msgs += debug_msg
+
+        messages = js.get('messages', [])
+        for m in messages:
             msg = Message.FromDict(m)
             msgs.append(msg)
 
+        memory = js.get('memory', {})
+        for k, v in memory.iteritems():
+            Memory.Set(k, v)
+
+        settings = js.get('settings', {})
+        for k, v in settings.iteritems():
+            Settings.Set(k, v)
+
     except Exception as e:
         _LOG.exception(e)
-        msgs.append(Message(u'我好像壞掉了，快通知管理員。'))
+        msgs.append(Message(on_error))
+        if debug:
+            msgs.append(Message('Got an exception in commando: %r' % e))
 
     return msgs
