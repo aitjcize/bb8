@@ -25,6 +25,7 @@ const defaultConfig = {
   },
   entry: {
     app: './index',
+    fbsdk: './assets/fbsdk',
   },
   output: {
     path: path.resolve(__dirname, './dist'),
@@ -40,7 +41,7 @@ const defaultConfig = {
         {
           test: /\.jsx?$/,
           loader: 'eslint',
-          exclude: /node_modules/
+          exclude: /node_modules/,
         },
     ],
     loaders: [

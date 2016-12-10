@@ -1,8 +1,13 @@
+import async from 'async'
+import omit from 'lodash/omit'
 import storage from 'store2'
-import { take, call, put, fork } from 'redux-saga/effects'
+import { camelizeKeys } from 'humps'
 import { hashHistory } from 'react-router'
+import { normalize, arrayOf } from 'normalizr'
+import { take, call, put, fork } from 'redux-saga/effects'
 
 import api from '../api'
+import { FBPage } from '../constants/Schema'
 import types from '../constants/ActionTypes'
 import { AUTH_TOKEN } from '../constants'
 import CustomError from '../constants/CustomError'
@@ -16,6 +21,46 @@ export function* initializeAppSaga() {
     yield take(types.INITIALIZE_APP)
 
     yield put({ type: types.BOTS_LIST.REQUEST })
+  }
+}
+
+export function* facebookPagesSaga() {
+  const iteratee = (item, callback) => {
+    // eslint-disable-next-line no-undef
+    FB.api(item, (resp) => {
+      callback(null, resp)
+    })
+  }
+
+  const refreshPage = () =>
+    new Promise((resolve) => {
+      // eslint-disable-next-line no-undef
+      FB.login(() => {
+        // eslint-disable-next-line no-undef
+        FB.api('/me/accounts', (resp) => {
+          const paths = resp.data.map(r =>
+            `/${r.id}?fields=about,picture,name`)
+
+          async.map(paths, iteratee, (err, results) => {
+            const pages = resp.data.map(
+              (d, idx) => camelizeKeys(omit(Object.assign(d, {
+                ...results[idx], pageId: d.id, id: idx,
+              }), ['perms', 'category'])))
+
+            resolve(pages)
+          })
+        })
+      }, { scope: 'manage_pages' })
+    })
+
+  while (true) {
+    yield take(types.FB_REFRESH_PAGES.REQUEST)
+
+    const pages = yield call(refreshPage)
+    yield put({
+      type: types.FB_REFRESH_PAGES.SUCCESS,
+      payload: normalize(pages, arrayOf(FBPage)),
+    })
   }
 }
 
@@ -43,6 +88,23 @@ export function* loginSaga() {
     } else {
       storage.set(AUTH_TOKEN, response.authToken)
       yield put({ type: types.ACCOUNTS_LOGIN.SUCCESS, payload: response })
+      hashHistory.push('/')
+    }
+  }
+}
+
+export function* signupSaga() {
+  while (true) {
+    const request = yield take(types.ACCOUNTS_SIGNUP.REQUEST)
+    const { email, passwd, timezone } = request.payload
+
+    const { response, error } = yield call(api.signup, email, passwd, timezone)
+    if (error) {
+      yield put({ type: types.ACCOUNTS_SIGNUP.ERROR, payload: error })
+      hashHistory.push('/signup')
+    } else {
+      storage.set(AUTH_TOKEN, response.authToken)
+      yield put({ type: types.ACCOUNTS_SIGNUP.SUCCESS, payload: response })
       hashHistory.push('/')
     }
   }
@@ -109,8 +171,8 @@ export function* createPlatformSaga() {
 
     const { response, error } = yield call(api.createPlatform, payload)
 
-    if (error && error.body.errorCode === CustomError.errDuplicateEntry) {
-      yield put({ type: types.NOTIFICATION_OPEN, payload: 'This provider id is already in used' })
+    if (error && error.body) {
+      yield put({ type: types.NOTIFICATION_OPEN, payload: error.body.message })
     }
 
     if (error) {
@@ -258,7 +320,7 @@ export function* confirmBroadcastDateSaga() {
       },
     })
 
-    yield take(types.BROADCASTS_UPDATE.SUCCESS)
+    yield take([types.BROADCASTS_UPDATE.SUCCESS, types.BROADCASTS_UPDATE.ERROR])
     yield put({ type: types.DIALOG_CLOSE })
   }
 }
@@ -276,13 +338,13 @@ export function* confirmSendBroadcastSaga() {
             {}, payload, { status: 'Queued', scheduledTime: 0 }),
         },
       })
-      yield take(types.BROADCASTS_UPDATE.SUCCESS)
+      yield take([types.BROADCASTS_UPDATE.SUCCESS, types.BROADCASTS_UPDATE.ERROR])
     } else {
       yield put({
         type: types.BROADCASTS_CREATE.REQUEST,
         payload,
       })
-      yield take(types.BROADCASTS_CREATE.SUCCESS)
+      yield take([types.BROADCASTS_CREATE.SUCCESS, types.BROADCASTS_CREATE.ERROR])
     }
 
     yield put({ type: types.DIALOG_CLOSE })
@@ -299,7 +361,7 @@ export function* confirmDelBroadcastSaga() {
       payload,
     })
 
-    yield take(types.BROADCASTS_DELETE.SUCCESS)
+    yield take([types.BROADCASTS_DELETE.SUCCESS, types.BROADCASTS_DELETE.ERROR])
     yield put({ type: types.DIALOG_CLOSE })
   }
 }
@@ -313,7 +375,7 @@ export function* confirmDelPlatformSaga() {
       payload,
     })
 
-    yield take(types.PLATFORMS_DELETE.SUCCESS)
+    yield take([types.PLATFORMS_DELETE.SUCCESS, types.PLATFORMS_DELETE.ERROR])
     yield put({ type: types.DIALOG_CLOSE })
   }
 }
@@ -327,7 +389,7 @@ export function* confirmCreatePlatformSaga() {
       payload,
     })
 
-    yield take(types.PLATFORMS_CREATE.SUCCESS)
+    yield take([types.PLATFORMS_CREATE.SUCCESS, types.PLATFORMS_CREATE.ERROR])
     yield put({ type: types.DIALOG_CLOSE })
   }
 }
@@ -344,7 +406,7 @@ export function* confirmUpdatePlatformSaga() {
       },
     })
 
-    yield take(types.PLATFORMS_UPDATE.SUCCESS)
+    yield take([types.PLATFORMS_UPDATE.SUCCESS, types.PLATFORMS_UPDATE.ERROR])
     yield put({ type: types.DIALOG_CLOSE })
   }
 }
@@ -353,8 +415,12 @@ export default function* root() {
   /* General Saga */
   yield fork(initializeAppSaga)
 
+  /* Facebook Saga */
+  yield fork(facebookPagesSaga)
+
   /* Authorization Saga */
   yield fork(loginSaga)
+  yield fork(signupSaga)
   yield fork(logoutSaga)
 
   /* Bots Saga */

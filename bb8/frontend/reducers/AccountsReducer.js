@@ -7,7 +7,7 @@ const INITIAL_STATE = {}
 
 function AccountsReducer(state = INITIAL_STATE, action) {
   switch (action.type) {
-    case types.ACCOUNTS_REGISTER.SUCCESS:
+    case types.ACCOUNTS_SIGNUP.SUCCESS:
     case types.ACCOUNTS_LOGIN.SUCCESS:
       return Object.assign({}, action.payload)
 

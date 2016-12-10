@@ -3,6 +3,7 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import uuid from 'node-uuid'
 
+import DropDownMenu from 'material-ui/DropDownMenu'
 import Dialog from 'material-ui/Dialog'
 import FlatButton from 'material-ui/FlatButton'
 import TextField from 'material-ui/TextField'
@@ -12,6 +13,15 @@ import MenuItem from 'material-ui/MenuItem'
 import config from '../../config'
 import * as platformActionCreators from '../../actions/platformActionCreators'
 import * as dialogActionCreators from '../../actions/dialogActionCreators'
+
+const styles = {
+  dropdownStyle: {
+    width: '10em',
+  },
+  listStyle: {
+    width: '30em',
+  },
+}
 
 class PlatformDialog extends React.Component {
   constructor(props) {
@@ -28,9 +38,10 @@ class PlatformDialog extends React.Component {
     this.handleAccessTokenChange = this.handleAccessTokenChange.bind(this)
     this.handleChannelSecretChange = this.handleChannelSecretChange.bind(this)
     this.handleTypeEnumChange = this.handleTypeEnumChange.bind(this)
+    this.handlePageChange = this.handlePageChange.bind(this)
 
     this.state = {
-      platform: props.payload,
+      platform: { ...props.payload, typeEnum: props.payload.typeEnum || 'Facebook' },
     }
   }
 
@@ -84,6 +95,21 @@ class PlatformDialog extends React.Component {
     }
   }
 
+  handlePageChange(e, key, idx) {
+    this.setState({ selectedId: idx })
+    const page = this.props.pages[idx]
+
+    this.setState({
+      platform: {
+        ...this.state.platform,
+        typeEnum: 'Facebook',
+        name: page.name,
+        providerIdent: page.pageId,
+        config: { accessToken: page.accessToken },
+      },
+    })
+  }
+
 
   render() {
     const platform = this.state.platform
@@ -105,6 +131,27 @@ class PlatformDialog extends React.Component {
       />,
     ]
 
+    const fbPagePicker = (
+      <DropDownMenu
+        listStyle={styles.listStyle}
+        value={this.state.selectedId}
+        onChange={this.handlePageChange}
+      >
+        {
+          Object.keys(this.props.pages).map((idx) => {
+            const page = this.props.pages[idx]
+
+            return (<MenuItem
+              key={idx}
+              value={idx}
+              primaryText={page.name}
+              secondaryText={page.about.length < 15 ? page.about : `${page.about.substring(0, 15)}...`}
+              leftIcon={<img alt="page" src={page.picture.data.url} />}
+            />)
+          })
+        }
+      </DropDownMenu>)
+
     return (
       <Dialog
         title={isUpdating ? 'Edit Platform' : 'New Platform'}
@@ -112,12 +159,6 @@ class PlatformDialog extends React.Component {
         open={this.props.open}
         onRequestClose={this.dialogActions.closeDialog}
       >
-        <TextField
-          floatingLabelText="Platform Name"
-          hintText="Platform Name"
-          value={platform.name}
-          onChange={this.handleNameChange}
-        />
         <SelectField
           floatingLabelText="Platform Type"
           value={platform.typeEnum}
@@ -126,8 +167,16 @@ class PlatformDialog extends React.Component {
           <MenuItem value={'Facebook'} primaryText="Facebook" />
           <MenuItem value={'Line'} primaryText="Line" />
         </SelectField>
+
         {
-          platform.typeEnum === 'Line' ?
+          platform.typeEnum === 'Facebook' ? fbPagePicker :
+          <div>
+            <TextField
+              floatingLabelText="Platform Name"
+              hintText="Platform Name"
+              value={platform.name}
+              onChange={this.handleNameChange}
+            />
             <div>
               Webhook: { config.LINE_WEBHOOK + platform.providerIdent }
             </div> :
@@ -137,23 +186,19 @@ class PlatformDialog extends React.Component {
               value={platform.providerIdent}
               onChange={this.handleProviderIdentChange}
             />
-        }
-
-        <TextField
-          hintText="Access Token"
-          floatingLabelText="Access Token"
-          value={platform.config.accessToken}
-          onChange={this.handleAccessTokenChange}
-        />
-
-        {
-          platform.typeEnum === 'Line' &&
+            <TextField
+              hintText="Access Token"
+              floatingLabelText="Access Token"
+              value={platform.config.accessToken}
+              onChange={this.handleAccessTokenChange}
+            />
             <TextField
               floatingLabelText="Channel Secret"
               hintText="Channel Secret"
               value={platform.config.channelSecret}
               onChange={this.handleChannelSecretChange}
             />
+          </div>
         }
       </Dialog>
     )
@@ -164,8 +209,10 @@ PlatformDialog.propTypes = {
   open: React.PropTypes.bool.isRequired,
   dispatch: React.PropTypes.func.isRequired,
   payload: React.PropTypes.shape({
+    typeEnum: React.PropTypes.string,
     config: React.PropTypes.shape({}),
   }),
+  pages: React.PropTypes.shape({}),
 }
 
 PlatformDialog.defaultProps = {
@@ -176,6 +223,7 @@ PlatformDialog.defaultProps = {
 
 const ConnectedPlatformDialog = connect(
   state => ({
+    pages: state.entities.fbpages,
     open: state.dialog.open,
     payload: state.dialog.payload,
   }),

@@ -25,7 +25,7 @@ function checkStatus(response) {
         )
       ), 500)
     }
-    Promise.reject(error)
+    return Promise.reject(error)
   })
 }
 
