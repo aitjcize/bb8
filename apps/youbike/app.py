@@ -145,7 +145,8 @@ class YoubikeAPI(object):
         self._data = json.loads(data)
 
     def _parse_data(self):
-        self.stations = self._data['retVal']
+        self.stations = {k: v for k, v in self._data['retVal'].iteritems()
+                         if v['lat'] and v['lng']}
         self.coordinates = dict(
             (str(x['sno']), (float(x['lat']), float(x['lng'])))
             for x in self.stations.values())
