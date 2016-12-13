@@ -15,6 +15,13 @@ const auth = {
     .then(response => ({ response }))
     .catch(error => ({ error }))
   },
+  social_auth(email, provider, providerToken) {
+    return fetch('POST', '/api/social_auth', {
+      email, provider, providerToken,
+    })
+    .then(response => ({ response }))
+    .catch(error => ({ error }))
+  },
 }
 
 export default auth
