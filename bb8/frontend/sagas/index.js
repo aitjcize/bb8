@@ -1,7 +1,4 @@
-import async from 'async'
-import omit from 'lodash/omit'
 import storage from 'store2'
-import { camelizeKeys } from 'humps'
 import { hashHistory } from 'react-router'
 import { normalize, arrayOf } from 'normalizr'
 import { take, call, put, fork } from 'redux-saga/effects'
@@ -13,6 +10,7 @@ import { AUTH_TOKEN } from '../constants'
 import CustomError from '../constants/CustomError'
 import * as broadcastActionCreators from '../actions/broadcastActionCreators'
 import * as uiActionCreators from '../actions/uiActionCreators'
+import * as fbAPI from '../api/facebook'
 
 /* General Saga */
 
@@ -25,38 +23,11 @@ export function* initializeAppSaga() {
 }
 
 export function* facebookPagesSaga() {
-  const iteratee = (item, callback) => {
-    // eslint-disable-next-line no-undef
-    FB.api(item, (resp) => {
-      callback(null, resp)
-    })
-  }
-
-  const refreshPage = () =>
-    new Promise((resolve) => {
-      // eslint-disable-next-line no-undef
-      FB.login(() => {
-        // eslint-disable-next-line no-undef
-        FB.api('/me/accounts', (resp) => {
-          const paths = resp.data.map(r =>
-            `/${r.id}?fields=about,picture,name`)
-
-          async.map(paths, iteratee, (err, results) => {
-            const pages = resp.data.map(
-              (d, idx) => camelizeKeys(omit(Object.assign(d, {
-                ...results[idx], pageId: d.id, id: idx,
-              }), ['perms', 'category'])))
-
-            resolve(pages)
-          })
-        })
-      }, { scope: 'manage_pages' })
-    })
-
   while (true) {
     yield take(types.FB_REFRESH_PAGES.REQUEST)
 
-    const pages = yield call(refreshPage)
+    const pages = yield call(fbAPI.refreshPage)
+
     yield put({
       type: types.FB_REFRESH_PAGES.SUCCESS,
       payload: normalize(pages, arrayOf(FBPage)),
@@ -65,6 +36,35 @@ export function* facebookPagesSaga() {
 }
 
 /* Authorization Sagas */
+
+export function* facebookAuthSaga() {
+  while (true) {
+    yield take(types.FACEBOOK_AUTH.REQUEST)
+
+    const { authResponse, error } = yield call(fbAPI.authorize)
+
+    if (error) {
+      yield put(uiActionCreators.openNotification(
+        'Failed to authorize with Facebook, please try again later'))
+      yield put({ type: types.FACEBOOK_AUTH.ERROR, payload: error })
+      // eslint-disable-next-line no-continue
+      continue
+    }
+    const { email } = yield call(fbAPI.fetchMe)
+    const { response, err } = yield call(api.social_auth, email, 'Facebook', authResponse.accessToken)
+
+    if (err) {
+      yield put(uiActionCreators.openNotification(
+        'Failed to sign up'))
+      yield put({ type: types.FACEBOOK_AUTH.ERROR, payload: err })
+      // eslint-disable-next-line no-continue
+      continue
+    }
+    storage.set(AUTH_TOKEN, response.authToken)
+    yield put({ type: types.FACEBOOK_AUTH.ERROR, payload: response })
+    hashHistory.push('/')
+  }
+}
 
 export function* logoutSaga() {
   while (true) {
@@ -419,6 +419,7 @@ export default function* root() {
   yield fork(facebookPagesSaga)
 
   /* Authorization Saga */
+  yield fork(facebookAuthSaga)
   yield fork(loginSaga)
   yield fork(signupSaga)
   yield fork(logoutSaga)

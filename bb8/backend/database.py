@@ -76,6 +76,48 @@ class AccountUser(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     account = relationship('Account')
     oauth_infos = relationship('OAuthInfo', back_populates='account_user')
 
+    @classmethod
+    def register(cls, data, invite=None):
+        if invite:
+            account, payload = Account.from_invite_code(invite)
+            if payload['email'] != data['email']:
+                raise RuntimeError('invitation link not intended for this '
+                                   'email')
+        else:
+            account = Account(name=unicode(data['email'])).add()
+
+        return AccountUser(
+            account=account, email=data['email']
+        ).set_passwd(data['passwd']).add()
+
+    @classmethod
+    def register_oauth(cls, email, unused_provider, provider_ident):
+        oauth_info = OAuthInfo.get_by(
+            provider=OAuthProviderEnum.Facebook,
+            provider_ident=provider_ident, single=True)
+
+        # if the user is already exists, log him in
+        if oauth_info:
+            return oauth_info.account_user
+
+        account_user = AccountUser.get_by(
+            email=email, single=True)
+
+        if account_user:
+            return account_user
+
+        account = Account(name=provider_ident).add()
+
+        u = AccountUser(
+            account=account, email=email, passwd='',
+        ).add()
+
+        oauth_info = OAuthInfo(
+            account_user=u,
+            provider=OAuthProviderEnum.Facebook,
+            provider_ident=provider_ident).add()
+        return u
+
     def set_passwd(self, passwd):
         self.passwd = bcrypt.encrypt(passwd)
         return self
