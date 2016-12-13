@@ -56,11 +56,21 @@
       "memory": {
         "whatever_key_0": "whatever_value_0",
         "whatever_key_1": "whatever_value_1"
+      },
+      "settings": {
+        "whatever_key_0": "whatever_value_0",
+        "whatever_key_1": "whatever_value_1"
       }
     }
 
     This module also supports JSON transform too, which converts the server's
     response to the format that that commando parses (the above format).
+
+    If the url is not specified in the config, this means not to fetch data
+    from external website. Instead, the transform must be configured. This is
+    useful for the case that output the values in settings and memory.
+
+    The jinja document: http://jinja.pocoo.org/docs/dev/templates/
 """
 
 import json
@@ -151,7 +161,13 @@ def Transform(transform, js, unused_debug):
 
             env = Environment(loader=DictLoader({'XXX.html': template_json}))
             tmpl = env.get_template('XXX.html')
-            js_str = tmpl.render(transform_input=js)  # pylint: disable=E1101
+            js_str = tmpl.render(  # pylint: disable=E1101
+                transform_input=js,
+                memory=Memory.All(),
+                settings=Settings.All()
+                )
+
+            # TODO: loose restriction on the tailing , in JSON
             js = json.loads(js_str)
 
     return js, debug_msg
@@ -161,7 +177,7 @@ def Transform(transform, js, unused_debug):
 def run(config, unused_user_input, unused_env, variables):
     msgs = []  # The output messages.
 
-    url = Render(config['url'], variables)
+    url = Render(config.get('url'), variables)
     method = config.get('method', 'post')
     params = config.get('params', [])
     params = [
@@ -174,13 +190,19 @@ def run(config, unused_user_input, unused_env, variables):
         u'Ooops! Something wrong while) talking to remote server.')
 
     try:
-        js = FetchData(url=url, params=params, method=method)
+        if url:
+            js = FetchData(url=url, params=params, method=method)
+        else:
+            js = None  # Loopback. Process data in memory or settings.
 
         transform = config.get('transform')
         if transform:
             js, debug_msg = Transform(transform, js, debug)
             if debug_msg:
                 msgs += debug_msg
+
+        if not url and not transform:
+            raise ValueError('Neither url or transform is not specified')
 
         messages = js.get('messages', [])
         for m in messages:
