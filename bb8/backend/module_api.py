@@ -94,6 +94,10 @@ class Memory(object):
     def Clear(cls):
         return g.user.memory.clear()
 
+    @classmethod
+    def All(cls):
+        return g.user.memory
+
 
 class Settings(object):
     """API wrapper for User.settings dictionary."""
@@ -112,6 +116,10 @@ class Settings(object):
         """Clear all non-protected fields."""
         g.user.settings = dict((f, g.user.settings[f])
                                for f in cls.__protected_fields__)
+
+    @classmethod
+    def All(cls):
+        return g.user.settings
 
 
 class CollectedData(object):
