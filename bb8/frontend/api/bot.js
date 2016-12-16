@@ -37,6 +37,24 @@ const bot = {
       .then(response => ({ response }))
       .catch(error => ({ error }))
   },
+
+  deployBot(botId) {
+    return fetch('PUT', `/api/bots/${botId}`, {})
+      .then(response => ({ response }))
+      .catch(error => ({ error }))
+  },
+
+  listBotDefRevisions(botId) {
+    return fetch('GET', `/api/bots/${botId}/revisions`, {})
+      .then(response => ({ response }))
+      .catch(error => ({ error }))
+  },
+
+  getBotDefRevision(botId, version) {
+    return fetch('GET', `/api/bots/${botId}/revisions/${version}`, {})
+      .then(response => ({ response }))
+      .catch(error => ({ error }))
+  },
 }
 
 export default bot
