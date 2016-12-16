@@ -91,9 +91,9 @@ class AccountUser(DeclarativeBase, ModelMixin, JSONSerializableMixin):
         ).set_passwd(data['passwd']).add()
 
     @classmethod
-    def register_oauth(cls, email, unused_provider, provider_ident):
+    def register_oauth(cls, email, provider, provider_ident):
         oauth_info = OAuthInfo.get_by(
-            provider=OAuthProviderEnum.Facebook,
+            provider=provider,
             provider_ident=provider_ident, single=True)
 
         # if the user is already exists, log him in
@@ -108,15 +108,15 @@ class AccountUser(DeclarativeBase, ModelMixin, JSONSerializableMixin):
 
         account = Account(name=provider_ident).add()
 
-        u = AccountUser(
+        user = AccountUser(
             account=account, email=email, passwd='',
         ).add()
 
         oauth_info = OAuthInfo(
-            account_user=u,
-            provider=OAuthProviderEnum.Facebook,
+            account_user=user,
+            provider=provider,
             provider_ident=provider_ident).add()
-        return u
+        return user
 
     def set_passwd(self, passwd):
         self.passwd = bcrypt.encrypt(passwd)

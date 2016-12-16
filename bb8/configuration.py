@@ -24,6 +24,10 @@ class Config(object):
     BB8_ROOT = '/tmp/bb8.%s' % os.getenv('BB8_SCOPE', 'nobody')
     LOCK_DIR = BB8_ROOT + '/lock'
 
+    # OAuth
+    FACEBOOK_OAUTH_APP_ID = '1797497130479857'
+    FACEBOOK_OAUTH_APP_SECRET = '132f7214f7753be8ff8d235af0b7bd20'
+
     # Number of threads that serve the requests. This should be the same
     # as processes * threads in uwsgi.ini
     N_THREADS = 32
