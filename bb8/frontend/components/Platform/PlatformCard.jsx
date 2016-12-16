@@ -16,7 +16,8 @@ import {
   CardHeader,
 } from 'material-ui/Card'
 
-import { FacebookIcon, LineIcon } from '../../assets/svgIcon'
+import FbMessengerIcon from '../../assets/svgIcon/FbMessengerIcon'
+import LineIcon from '../../assets/svgIcon/LineIcon'
 import * as dialogActionCreators from '../../actions/dialogActionCreators'
 import * as platformActionCreators from '../../actions/platformActionCreators'
 
@@ -139,7 +140,7 @@ class PlatformCard extends React.Component {
         title={platform.name}
         subtitle={platform.botId ? 'Active' : 'Ready for assign'}
         avatar={platform.typeEnum === 'Facebook' ? <Avatar
-          icon={<FacebookIcon />}
+          icon={<FbMessengerIcon />}
           backgroundColor="#0084FF"
         /> : <Avatar
           icon={<LineIcon />}
