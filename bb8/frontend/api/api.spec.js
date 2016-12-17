@@ -89,10 +89,29 @@ describe('API testing', () => {
         expect(typeof response.entities).toEqual('object')
         return response.result
       })
-      .then((botId) => api.updateBot(botId, mockUpdatedBot))
-      .then((resp) => {
-        expect(resp.response.message).toEqual('ok')
-      })
+      .then((botId) =>
+        api.updateBot(botId, mockUpdatedBot)
+          .then((resp) => {
+            expect(resp.response.message).toEqual('ok')
+          })
+          .then(() => api.deployBot(botId))
+          .then((resp) => {
+            expect(typeof resp.response.version).toEqual('number')
+          })
+          .then(() => api.listBotDefRevisions(botId))
+          .then((resp) => {
+            expect(Array.isArray(resp.response.botDefs)).toEqual(true)
+            expect(resp.response.botDefs.length).toBeGreaterThan(0)
+            expect(resp.response.botDefs[0].botId).toEqual(botId)
+            return resp.response.botDefs[0].version
+          })
+          .then(version => api.getBotDefRevision(botId, version))
+          .then((resp) => {
+            const response = resp.response
+            expect(typeof response.botJson.bot).toEqual('object')
+            expect(response.botId).toEqual(botId)
+          })
+      )
       .catch((error) => console.log(error))
   )
 

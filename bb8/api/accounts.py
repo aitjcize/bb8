@@ -17,6 +17,7 @@ from bb8.api.error import AppError
 from bb8.api.middlewares import login_required
 from bb8.backend.account import register
 from bb8.backend.database import AccountUser, DatabaseManager
+from bb8.backend.oauth import verify_facebook
 
 
 REGISTER_SCHEMA = {
@@ -37,13 +38,17 @@ REGISTER_SCHEMA = {
     }
 }
 
-SOCIAL_REGISTER_SCHEMA = {
+SOCIAL_AUTH_SCHEMA = {
     'type': 'object',
-    'required': ['provider', 'provider_ident'],
+    'required': ['email', 'provider', 'provider_token'],
     'additionalProperties': False,
     'properties': {
-        'provider': {'enum': ['Facebook', 'Google', 'Github']},
-        'provider_ident': {'type': 'string'}
+        'email': {
+            'type': 'string',
+            'pattern': r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)'
+        },
+        'provider': {'enum': ['Facebook']},
+        'provider_token': {'type': 'string'}
     }
 }
 
@@ -79,17 +84,38 @@ def email_register():
     return jsonify(ret)
 
 
-@app.route('/api/social_register', methods=['POST'])
-def social_register():
+@app.route('/api/social_auth', methods=['POST'])
+def social_auth():
     data = request.json
     try:
-        jsonschema.validate(data, SOCIAL_REGISTER_SCHEMA)
+        jsonschema.validate(data, SOCIAL_AUTH_SCHEMA)
     except Exception:
         raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
                        CustomError.ERR_FORM_VALIDATION,
                        'schema validation fail')
 
-    # TODO(aitjcize): implement this
+    try:
+        facebook_id = verify_facebook(data['provider_token'])
+    except Exception:
+        raise AppError(
+            HTTPStatus.STATUS_CLIENT_ERROR,
+            CustomError.ERR_UNAUTHENTICATED,
+            'Invalid facebook token: %s' % data['provider_token'])
+
+    try:
+        account_user = AccountUser.register_oauth(
+            data['email'], data['provider'], facebook_id)
+    except Exception:
+        raise AppError(
+            HTTPStatus.STATUS_CLIENT_ERROR,
+            CustomError.ERR_WRONG_PARAM,
+            'Cannot register the user')
+
+    DatabaseManager.commit()
+
+    ret = account_user.to_json()
+    ret[Key.AUTH_TOKEN] = account_user.auth_token
+    return jsonify(ret)
 
 
 @app.route('/api/login', methods=['POST'])
@@ -104,11 +130,6 @@ def login():
     ret = account.to_json()
     ret[Key.AUTH_TOKEN] = account.auth_token
     return jsonify(ret)
-
-
-@app.route('/api/social_login', methods=['POST'])
-def social_login():
-    return jsonify(message='ok')
 
 
 @app.route('/api/verify_email', methods=['GET'])

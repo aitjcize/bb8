@@ -1,5 +1,9 @@
 import types from '../constants/ActionTypes'
 
+export const startfacebookAuth = () => ({
+  type: types.FACEBOOK_AUTH.REQUEST,
+})
+
 export const startLogin = (email, passwd) => ({
   type: types.ACCOUNTS_LOGIN.REQUEST,
   payload: {

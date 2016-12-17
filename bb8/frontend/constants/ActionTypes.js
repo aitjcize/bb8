@@ -8,6 +8,7 @@ export default {
   FB_REFRESH_PAGES: createRequestTypes('FB_REFRESH_PAGES'),
 
   // Accounts
+  FACEBOOK_AUTH: createRequestTypes('FACEBOOK_AUTH'),
   ACCOUNTS_SIGNUP: createRequestTypes('ACCOUNTS_SIGNUP'),
   ACCOUNTS_LOGIN: createRequestTypes('ACCOUNTS_LOGIN'),
   ACCOUNTS_LOGOUT: 'ACCOUNTS_LOGOUT',
