@@ -74,6 +74,13 @@ case $USER in
     export APP_RPC_PORT=10004
     export WEBPACK_PORT=8085
     ;;
+  lai)
+    export MYSQL_PORT=3314
+    export REDIS_PORT=6386
+    export HTTP_PORT=7006
+    export APP_RPC_PORT=10005
+    export WEBPACK_PORT=8086
+    ;;
 esac
 
 
