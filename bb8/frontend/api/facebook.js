@@ -17,7 +17,7 @@ export const authorize = () =>
           return
         }
         reject({ error: new Error('Cannot authorize via Facebook') })
-      }, { scope: 'public_profile,email' })
+      }, { scope: 'public_profile,email,manage_pages' })
     })
   })
 
