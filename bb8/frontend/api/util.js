@@ -30,7 +30,7 @@ function checkStatus(response) {
 }
 
 
-export default function (method, path, body, shouldDecamelize = true) {
+export default function (method, path, body, shouldDecamelize = true, shouldCamelize = true) {
   const normedPath = process.env.NODE_ENV === 'test' ?
     `http://localhost:${process.env.HTTP_PORT}${path}` : path
 
@@ -51,8 +51,9 @@ export default function (method, path, body, shouldDecamelize = true) {
     config.body = JSON.stringify(
       shouldDecamelize ? decamelizeKeys(body) : body)
   }
-  return fetch(normedPath, config)
+  const promise = fetch(normedPath, config)
     .then(checkStatus)
     .then(response => response.json())
-    .then(json => camelizeKeys(json))
+
+  return shouldCamelize ? promise.then(json => camelizeKeys(json)) : promise
 }

@@ -5,7 +5,7 @@ import { Broadcast } from '../constants/Schema'
 
 const broadcast = {
   getAllBroadcasts(botId) {
-    return fetch('GET', `/api/bots/${botId}/broadcasts`, {})
+    return fetch('GET', `/api/bots/${botId}/broadcasts`, {}, true, false)
       .then(response => ({
         response: normalize(response.broadcasts, arrayOf(Broadcast)),
       }))
@@ -13,7 +13,7 @@ const broadcast = {
   },
 
   getBroadcast(broadcastId) {
-    return fetch('GET', `/api/broadcasts/${broadcastId}`, {})
+    return fetch('GET', `/api/broadcasts/${broadcastId}`, {}, true, false)
       .then(response => ({ response: normalize(response, Broadcast) }))
       .catch(error => ({ error }))
   },
