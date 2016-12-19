@@ -24,10 +24,6 @@ class Config(object):
     BB8_ROOT = '/tmp/bb8.%s' % os.getenv('BB8_SCOPE', 'nobody')
     LOCK_DIR = BB8_ROOT + '/lock'
 
-    # OAuth
-    FACEBOOK_OAUTH_APP_ID = '1797497130479857'
-    FACEBOOK_OAUTH_APP_SECRET = '132f7214f7753be8ff8d235af0b7bd20'
-
     # Number of threads that serve the requests. This should be the same
     # as processes * threads in uwsgi.ini
     N_THREADS = 32
@@ -79,7 +75,8 @@ class Config(object):
     # Facebook
     FACEBOOK_WEBHOOK_PATH = BOT_WEBHOOOK_ROOT + '/facebook'
     FACEBOOK_WEBHOOK_VALIDATION_TOKEN = 'meow_meow_meow'
-    FACEBOOK_APP_SECRET = 'd9750fb43ea8158cff33444d917c2185'
+    FACEBOOK_APP_ID = '1663575030609051'
+    FACEBOOK_APP_SECRET = 'a4dd467d54ffe8eef263bc58f3fcc750'
 
     # Line
     LINE_WEBHOOK_PATH = BOT_WEBHOOOK_ROOT + '/line/<provider_ident>'
@@ -156,6 +153,7 @@ class DeployConfig(DevelopmentConfig):
 
     # Messaging provider config
     # Facebook
+    FACEBOOK_APP_ID = '1797497130479857'
     FACEBOOK_APP_SECRET = '132f7214f7753be8ff8d235af0b7bd20'
 
     # Datadog
