@@ -13,7 +13,6 @@ import IconAdd from 'material-ui/svg-icons/content/add'
 
 import Platforms from './Platforms'
 import * as dialogActionCreators from '../actions/dialogActionCreators'
-import * as miscActionCreators from '../actions/miscActionCreators'
 
 const styles = {
   container: {
@@ -52,10 +51,6 @@ class BotManager extends React.Component {
     this.state = {
       selectedBotId: undefined,
     }
-  }
-
-  componentWillMount() {
-    this.props.dispatch(miscActionCreators.refreshFacebookPages())
   }
 
   handleBotSelect(id) {

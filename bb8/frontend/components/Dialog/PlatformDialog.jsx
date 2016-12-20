@@ -16,6 +16,7 @@ import IconArrowDropDown from 'material-ui/svg-icons/navigation/arrow-drop-down'
 import config from '../../config'
 import * as platformActionCreators from '../../actions/platformActionCreators'
 import * as dialogActionCreators from '../../actions/dialogActionCreators'
+import * as miscActionCreators from '../../actions/miscActionCreators'
 
 import FbMessengerIcon from '../../assets/svgIcon/FbMessengerIcon'
 import LineIcon from '../../assets/svgIcon/LineIcon'
@@ -63,6 +64,10 @@ class PlatformDialog extends React.Component {
     this.state = {
       platform: { ...props.payload, typeEnum: props.payload.typeEnum || 'Facebook' },
     }
+  }
+
+  componentDidMount() {
+    this.props.dispatch(miscActionCreators.refreshFacebookPages())
   }
 
   handleNameChange(e, name) {
@@ -190,25 +195,26 @@ class PlatformDialog extends React.Component {
       </Popover>
     </div>)
 
-    const facebookForm = (
-      <DropDownMenu
-        listStyle={styles.listStyle}
-        value={this.state.selectedId}
-        onChange={this.handlePageChange}
-      >
-        {
-          Object.keys(this.props.pages).map((idx) => {
-            const page = this.props.pages[idx]
-            return (<MenuItem
-              key={idx}
-              value={idx}
-              primaryText={page.name}
-              secondaryText={page.about.length < 15 ? page.about : `${page.about.substring(0, 15)}...`}
-              leftIcon={<img alt="page" src={page.picture.data.url} />}
-            />)
-          })
-        }
-      </DropDownMenu>)
+    const facebookForm =
+      this.props.pages ?
+        (<DropDownMenu
+          listStyle={styles.listStyle}
+          value={this.state.selectedId}
+          onChange={this.handlePageChange}
+        >
+          {
+            Object.keys(this.props.pages).map((idx) => {
+              const page = this.props.pages[idx]
+              return (<MenuItem
+                key={idx}
+                value={idx}
+                primaryText={page.name}
+                secondaryText={page.about.length < 15 ? page.about : `${page.about.substring(0, 15)}...`}
+                leftIcon={<img alt="page" src={page.picture.data.url} />}
+              />)
+            })
+          }
+        </DropDownMenu>) : <div> You do not have any fans page associated to you </div>
 
     const lineForm = [
       <div style={styles.rows}>
