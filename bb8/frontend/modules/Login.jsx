@@ -1,11 +1,13 @@
 import React from 'react'
-import { Link } from 'react-router'
 
 import Paper from 'material-ui/Paper'
+import Avatar from 'material-ui/Avatar'
+import IconSwapHoriz from 'material-ui/svg-icons/action/swap-horiz'
 
-import LoginForm from '../components/forms/LoginForm'
 import FacebookAuth from '../components/FacebookAuth'
 import Notification from '../components/Notification'
+
+import ComposeaiLogo from '../assets/logo.svg'
 
 const styles = {
   container: {
@@ -20,30 +22,13 @@ const styles = {
     width: '25vw',
     minWidth: '30em',
     position: 'relative',
-  },
-  rows: {
     display: 'flex',
-    flexDirection: 'column',
     alignItems: 'center',
-    margin: '1em 4vw',
-  },
-  loginForm: {
-    alignSelf: 'stretch',
+    justifyContent: 'space-around',
+    padding: '2vw',
   },
   facebookAuthButton: {
-    margin: '1.5em 0',
-  },
-  link: {
-    color: '#1DE9B6',
-    fontWeight: 'bold',
-    padding: '0 .5em',
-  },
-  signupHint: {
-    position: 'absolute',
-    width: '100%',
-    textAlign: 'center',
-    fontSize: '.875em',
-    margin: '.5em 0',
+    marginRight: '2em',
   },
 }
 
@@ -51,17 +36,18 @@ const Login = () => (
   <div style={styles.container}>
     <Paper style={styles.loginBox}>
       <Notification />
-      <div style={styles.rows}>
-        <LoginForm style={styles.loginForm} />
-      </div>
-      <div style={styles.rows}>
-        or
-        <FacebookAuth style={styles.facebookAuthButton} />
-      </div>
-      <div style={styles.signupHint}>
-        Do not have account yet?
-        <Link to="/signup" style={styles.link} > Signup now </Link>
-      </div>
+      <Avatar
+        style={{
+          backgroundImage: `url(${ComposeaiLogo})`,
+          backgroundSize: '60%',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          width: '4em',
+          height: '4em',
+        }}
+      />
+      <IconSwapHoriz />
+      <FacebookAuth style={styles.facebookAuthButton} />
     </Paper>
   </div>
 )
