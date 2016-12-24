@@ -18,3 +18,8 @@ export const startSignup = (email, passwd, timezone) => ({
     email, passwd, timezone,
   },
 })
+
+export const logout = () => ({
+  type: types.ACCOUNTS_LOGOUT,
+  payload: {},
+})
