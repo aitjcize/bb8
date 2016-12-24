@@ -13,7 +13,7 @@ export const authorize = () =>
       // eslint-disable-next-line no-undef
       FB.login((response) => {
         if (response.status === 'connected') {
-          resolve({ authResponse: resp.authResponse })
+          resolve({ authResponse: response.authResponse })
           return
         }
         reject({ error: new Error('Cannot authorize via Facebook') })

@@ -8,12 +8,11 @@ import {
   CardActions,
 } from 'material-ui/Card'
 
-import MenuItem from 'material-ui/Menu'
+import MenuItem from 'material-ui/MenuItem'
 import Divider from 'material-ui/Divider'
 import TextField from 'material-ui/TextField'
 import SelectField from 'material-ui/SelectField'
 import FlatButton from 'material-ui/FlatButton'
-import Subheader from 'material-ui/Subheader'
 
 import {
   CarouselMessage,
@@ -168,11 +167,11 @@ class LandingPage extends React.Component {
                 </div>
                 <div>
                   <SelectField
+                    floatingLabelText="Card Type"
                     value={1}
                     style={{ width: 'auto' }}
                     labelStyle={{ paddingRight: '1.5em', margin: '0 3em' }}
                   >
-                    <Subheader>choose a type</Subheader>
                     <MenuItem value={1} primaryText="Text Card" />
                     <MenuItem value={2} primaryText="Image" />
                     <MenuItem value={3} primaryText="Carousel" />

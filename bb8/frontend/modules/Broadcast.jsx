@@ -59,13 +59,14 @@ class Broadcast extends React.Component {
     return (
       <div style={styles.container}>
         {
-          this.props.editor.open && !this.props.editor.broadcastId &&
-            <BroadcastItem
-              broadcast={{}}
-              expanded={!this.props.editor.broadcastId}
-              isFirst
-              isLast
-            />
+          ((this.props.editor.open && !this.props.editor.broadcastId) ||
+           (!this.props.futureBroadcasts.length && !this.props.pastBroadcasts.length)) &&
+           <BroadcastItem
+             broadcast={{}}
+             expanded={!this.props.editor.broadcastId}
+             isFirst
+             isLast
+           />
         }
         {
           this.props.futureBroadcasts.map((b, idx) =>

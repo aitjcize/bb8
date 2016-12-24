@@ -1,8 +1,13 @@
 import React from 'react'
+import { connect } from 'react-redux'
 
 import IconMoreVert from 'material-ui/svg-icons/navigation/more-vert'
 import { ToolbarGroup } from 'material-ui/Toolbar'
-import FlatButton from 'material-ui/FlatButton'
+import IconMenu from 'material-ui/IconMenu'
+import IconButton from 'material-ui/IconButton'
+import MenuItem from 'material-ui/MenuItem'
+
+import { logout } from '../../actions/accountActionCreators'
 
 const styles = {
   container: {
@@ -15,30 +20,23 @@ const styles = {
   },
 }
 
-class RightToolbarGroup extends React.Component {
-
-  constructor(props) {
-    super(props)
-
-
-    // TODO: popover
-    this.state = {
-      open: false,
-    }
-  }
-
-  render() {
-    return (
-      <ToolbarGroup style={styles.container}>
-        <FlatButton
-          icon={<IconMoreVert />}
-          style={styles.button}
-        />
-      </ToolbarGroup>)
-  }
-}
+const RightToolbarGroup = props =>
+  (<ToolbarGroup style={styles.container}>
+    <IconMenu
+      iconButtonElement={<IconButton> <IconMoreVert /> </IconButton>}
+      anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
+      targetOrigin={{ horizontal: 'right', vertical: 'top' }}
+    >
+      <MenuItem
+        onClick={() => props.dispatch(logout())}
+        primaryText="Sign out"
+      />
+    </IconMenu>
+  </ToolbarGroup>)
 
 RightToolbarGroup.propTypes = {
+  dispatch: React.PropTypes.func,
 }
 
-export default RightToolbarGroup
+const ConnectedRightToolbarGroup = connect()(RightToolbarGroup)
+export default ConnectedRightToolbarGroup

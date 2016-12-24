@@ -21,7 +21,6 @@ const {
   Analytics,
   App,
   Broadcast,
-  Dashboard,
   Flow,
   Help,
   Login,
@@ -53,8 +52,7 @@ render(
   <MuiThemeProvider muiTheme={muiTheme}>
     <Router history={hashHistory}>
       <Route onEnter={authRequired} path="/" component={App} >
-        <IndexRoute component={Dashboard} />
-        <Route path="dashboard" component={Dashboard} />
+        <IndexRoute component={BotManager} />
         <Route path="flow" component={Flow} />
         <Route path="broadcast" component={Broadcast} />
         <Route path="botmanager" component={BotManager} />
