@@ -4,13 +4,15 @@ import { connect } from 'react-redux'
 import uuid from 'node-uuid'
 
 import Avatar from 'material-ui/Avatar'
-import DropDownMenu from 'material-ui/DropDownMenu'
 import Dialog from 'material-ui/Dialog'
 import FlatButton from 'material-ui/FlatButton'
 import TextField from 'material-ui/TextField'
 import Paper from 'material-ui/Paper'
 import Popover from 'material-ui/Popover'
+import Divider from 'material-ui/Divider'
+import Subheader from 'material-ui/Subheader'
 import { Menu, MenuItem } from 'material-ui/Menu'
+import { List, ListItem } from 'material-ui/List'
 import IconArrowDropDown from 'material-ui/svg-icons/navigation/arrow-drop-down'
 
 import config from '../../config'
@@ -28,11 +30,11 @@ const styles = {
     alignItems: 'flex-start',
   },
   bodyStyle: {
-    paddingRight: '10%',
   },
   rows: {
     display: 'flex',
     alignItems: 'center',
+    paddingRight: '10%',
   },
   hintStyle: {
     color: '#bbb',
@@ -41,6 +43,10 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     cursor: 'pointer',
+  },
+  emptyState: {
+    textAlign: 'center',
+    margin: '1.5em 0',
   },
 }
 
@@ -122,7 +128,7 @@ class PlatformDialog extends React.Component {
     }
   }
 
-  handlePageChange(e, key, idx) {
+  handlePageChange(idx) {
     this.setState({ selectedId: idx })
     const page = this.props.pages[idx]
 
@@ -195,26 +201,36 @@ class PlatformDialog extends React.Component {
       </Popover>
     </div>)
 
-    const facebookForm =
-      this.props.pages ?
-        (<DropDownMenu
-          listStyle={styles.listStyle}
-          value={this.state.selectedId}
-          onChange={this.handlePageChange}
-        >
-          {
-            Object.keys(this.props.pages).map((idx) => {
-              const page = this.props.pages[idx]
-              return (<MenuItem
+    const facebookForm = Object.values(this.props.pages).length > 0 ? (
+      <List>
+        <Subheader>Choose from existing facebook page:</Subheader>
+        {
+          Object.keys(this.props.pages).map((idx) => {
+            const page = this.props.pages[idx]
+            const { selectedId } = this.state
+            const { available } = page
+
+            return [
+              idx > 0 && <Divider />,
+              <ListItem
                 key={idx}
                 value={idx}
                 primaryText={page.name}
-                secondaryText={page.about.length < 15 ? page.about : `${page.about.substring(0, 15)}...`}
-                leftIcon={<img alt="page" src={page.picture.data.url} />}
-              />)
-            })
-          }
-        </DropDownMenu>) : <div> You do not have any fans page associated to you </div>
+                secondaryText={page.about}
+                leftAvatar={<Avatar src={page.picture.data.url} />}
+                onClick={() => available && this.handlePageChange(idx)}
+                innerDivStyle={{
+                  ...(selectedId && selectedId !== idx) || !available ? { opacity: 0.3 } : {},
+                }}
+                disabled={!available}
+              />,
+            ]
+          })
+        }
+      </List>
+    ) : (<Subheader style={styles.emptyState}>
+      {'You don\'t have any page.'}
+    </Subheader>)
 
     const lineForm = [
       <div style={styles.rows}>
@@ -231,22 +247,26 @@ class PlatformDialog extends React.Component {
           fullWidth
         />
       </div>,
-      <TextField
-        floatingLabelText="Channel Access Token"
-        value={platform.config.accessToken}
-        onChange={this.handleAccessTokenChange}
-        onFocus={(e) => { e.target.select() }}
-        multiLine
-        fullWidth
-      />,
-      <TextField
-        floatingLabelText="Webhook Url"
-        value={`${config.LINE_WEBHOOK}${platform.providerIdent}`}
-        fullWidth
-        onFocus={(e) => { e.target.select() }}
-        errorText="Paste url to channel settings"
-        errorStyle={styles.hintStyle}
-      />,
+      <div style={styles.rows}>
+        <TextField
+          floatingLabelText="Channel Access Token"
+          value={platform.config.accessToken}
+          onChange={this.handleAccessTokenChange}
+          onFocus={(e) => { e.target.select() }}
+          multiLine
+          fullWidth
+        />
+      </div>,
+      <div style={styles.rows}>
+        <TextField
+          floatingLabelText="Webhook Url"
+          value={`${config.LINE_WEBHOOK}${platform.providerIdent}`}
+          fullWidth
+          onFocus={(e) => { e.target.select() }}
+          errorText="Paste url to channel settings"
+          errorStyle={styles.hintStyle}
+        />
+      </div>,
     ]
 
     const title = (<div style={styles.titleStyle}>
@@ -311,11 +331,19 @@ PlatformDialog.defaultProps = {
 }
 
 const ConnectedPlatformDialog = connect(
-  state => ({
-    pages: state.entities.fbpages,
-    open: state.dialog.open,
-    payload: state.dialog.payload,
-  }),
+  (state) => {
+    const providerIdents = state.platforms.ids.map(
+      idx => state.entities.platforms[idx].providerIdent)
+
+    return {
+      pages: state.entities.fbpages ? Object.keys(state.entities.fbpages).map(idx => ({
+        available: providerIdents.indexOf(state.entities.fbpages[idx].pageId) === -1,
+        ...state.entities.fbpages[idx],
+      })) : [],
+      open: state.dialog.open,
+      payload: state.dialog.payload,
+    }
+  }
 )(PlatformDialog)
 
 export default ConnectedPlatformDialog
