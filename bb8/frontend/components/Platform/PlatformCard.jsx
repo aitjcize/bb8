@@ -4,9 +4,10 @@ import { bindActionCreators } from 'redux'
 
 import Avatar from 'material-ui/Avatar'
 import Chip from 'material-ui/Chip'
+import Paper from 'material-ui/Paper'
 import Divider from 'material-ui/Divider'
 import FlatButton from 'material-ui/FlatButton'
-import IconContentLink from 'material-ui/svg-icons/content/link'
+import IconSwapHoriz from 'material-ui/svg-icons/action/swap-horiz'
 import { Menu, MenuItem } from 'material-ui/Menu'
 import Popover from 'material-ui/Popover'
 import Subheader from 'material-ui/Subheader'
@@ -64,25 +65,39 @@ class PlatformCard extends React.Component {
     const { platform, bots, isFirst, selectedBotId } = this.props
 
     const cardHeaderRightGroup = (
-      <div
-        style={styles.cardHeaderRightGroup}
-      >
-        {platform.botId ? <Chip
-          onClick={this.handlePopoverOpen}
+      <div style={styles.cardHeaderRightGroup}>
+        {platform.botId ? <Paper
+          zDepth={this.state.dropdownHover ? 0 : 1}
+          style={{ overflow: 'hidden', borderRadius: '10em' }}
         >
-          <Avatar>
-            <IconContentLink />
-          </Avatar>
-          {
-            bots[platform.botId] && bots[platform.botId].name
-          }
-        </Chip> : <FlatButton
-          label="Assign a bot"
+          <Chip
+            onClick={this.handlePopoverOpen}
+            style={{
+              ...{
+                minWidth: '5em',
+                transition: '.24s ease-out',
+                cursor: 'pointer',
+              },
+              ...this.state.dropdownHover ? { opacity: 0.5 } : {},
+            }}
+            onMouseEnter={() => this.setState({ dropdownHover: true })}
+            onMouseLeave={() => this.setState({ dropdownHover: false })}
+          >
+            <Avatar>
+              <IconSwapHoriz />
+            </Avatar>
+            {
+              bots[platform.botId] && bots[platform.botId].name
+            }
+          </Chip>
+        </Paper> : <FlatButton
+          label="Assign"
           labelPosition="before"
           onClick={this.handlePopoverOpen}
           icon={
-            <IconContentLink />
+            <IconSwapHoriz />
           }
+          style={{ textTransform: 'capitalize' }}
         />}
         <Popover
           open={this.state.popoverOpen}
@@ -91,8 +106,8 @@ class PlatformCard extends React.Component {
           targetOrigin={{ horizontal: 'right', vertical: 'top' }}
           onRequestClose={this.handleRequestClose}
         >
-          <Menu style={{ maxWidth: '25vw' }}>
-            <Subheader>Assign a bot</Subheader>
+          <Menu style={{ maxWidth: '25vw', minWidth: '10vw' }}>
+            <Subheader>Choose a bot</Subheader>
             {Object.values(bots).map(b => (
               <MenuItem
                 key={b.id}

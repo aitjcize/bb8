@@ -3,22 +3,10 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
 import Paper from 'material-ui/Paper'
+import Subheader from 'material-ui/Subheader'
 
 import * as platformActionCreators from '../actions/platformActionCreators'
 import PlatformCard from '../components/Platform/PlatformCard'
-
-const styles = {
-  floatButtonContainer: {
-    position: 'absolute',
-    right: 0,
-    bottom: 0,
-    padding: '1.25em',
-    border: 'yellow 1px solid',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-}
 
 class Platforms extends React.Component {
   constructor(props) {
@@ -33,24 +21,39 @@ class Platforms extends React.Component {
   }
 
   render() {
-    return (
+    const { platforms, platformIds, selectedBotId } = this.props
+
+    return (<div>
       <Paper>
         {
-          this.props.platformIds.map((id, index) => {
-            const plat = this.props.platforms[id]
-            return (!this.props.selectedBotId || this.props.selectedBotId === plat.botId) && (
+          platformIds.filter(id =>
+            !selectedBotId || platforms[id].botId === selectedBotId).map((id, index) => (
               <PlatformCard
                 key={id}
                 activeBotId={this.props.activeBotId}
-                platform={plat}
+                platform={platforms[id]}
                 isFirst={index === 0}
-                selectedBotId={this.props.selectedBotId}
-              />)
-          })
+                selectedBotId={selectedBotId}
+              />
+            ))
         }
-        <div style={styles.floatButtonContainer} />
       </Paper>
-    )
+      {
+        selectedBotId &&
+        platformIds.filter(id => !platforms[id].botId).length > 0 && [
+          <Subheader style={{ marginTop: '1.5em' }}>Quick add from existing platforms:</Subheader>,
+          platformIds.filter(id => !platforms[id].botId).map((id, index) => (
+            <PlatformCard
+              key={id}
+              activeBotId={this.props.activeBotId}
+              platform={platforms[id]}
+              isFirst={index === 0}
+              selectedBotId={selectedBotId}
+            />
+          )),
+        ]
+      }
+    </div>)
   }
 }
 

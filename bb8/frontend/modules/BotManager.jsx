@@ -5,11 +5,13 @@ import { bindActionCreators } from 'redux'
 import Subheader from 'material-ui/Subheader'
 import { List, ListItem } from 'material-ui/List'
 import Paper from 'material-ui/Paper'
+import Chip from 'material-ui/Chip'
 import FlatButton from 'material-ui/FlatButton'
 import Divider from 'material-ui/Divider'
-import Avatar from 'material-ui/Avatar'
+import IconButton from 'material-ui/IconButton'
 
 import IconAdd from 'material-ui/svg-icons/content/add'
+import IconShortText from 'material-ui/svg-icons/editor/short-text'
 
 import Platforms from './Platforms'
 import * as dialogActionCreators from '../actions/dialogActionCreators'
@@ -26,13 +28,22 @@ const styles = {
   cols: {
     flex: 1,
     padding: '.5em',
-    overflow: 'hidden',
     marginBottom: '10vh',
   },
   colsHeader: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  hintText: {
+    textAlign: 'center',
+    margin: '1.5em 0',
+  },
+  hintTextLink: {
+    color: '#757575',
+    padding: '.5em',
+    textDecoration: 'underline',
+    cursor: 'pointer',
   },
 }
 
@@ -71,17 +82,7 @@ class BotManager extends React.Component {
 
   render() {
     const { botIds, bots, platforms, platformIds } = this.props
-
-    platformIds.map((id) => {
-      const botId = platforms[id].botId
-      if (!botId) return null
-
-      if (!bots[botId].platforms) bots[botId].platforms = {}
-
-      bots[botId].platforms[id] = platforms[id]
-
-      return null
-    })
+    const { selectedBotId } = this.state
 
     return (
       <div
@@ -94,22 +95,26 @@ class BotManager extends React.Component {
             style={styles.colsHeader}
           >
             My Chatbots
-            <FlatButton
-              label="New Chatbot"
-              labelPosition="before"
-              icon={<IconAdd />}
+            <IconButton
               onClick={this.dialogActions.openBotCreate}
-            />
+              tooltip="Add new chatbot"
+              tooltipPosition="bottom-center"
+            >
+              <IconAdd />
+            </IconButton>
           </Subheader>
-
           <Paper>
-            <List>
-              { botIds.map((id, index) =>
-                (<div
-                  key={id}
-                >
-                  {index !== 0 && <Divider />}
+            {
+              <List
+                style={{
+                  ...Object.keys(botIds).length === 1 || selectedBotId ? { padding: 0 } : {},
+                }}
+              >
+                { botIds.map((id, index) =>
+                !(selectedBotId && selectedBotId !== id) && [
+                  !selectedBotId && index !== 0 && <Divider />,
                   <ListItem
+                    key={id}
                     primaryText={bots[id].name}
                     secondaryText={
                       <span
@@ -126,20 +131,33 @@ class BotManager extends React.Component {
                       </span>
                     }
                     onClick={() => this.handleBotSelect(id)}
-                    style={{
-                      ...this.state.selectedBotId && this.state.selectedBotId !== id ? {
+                    disabled={!!selectedBotId}
+                    innerDivStyle={{
+                      ...selectedBotId && selectedBotId !== id ? {
                         opacity: 0.3,
                       } : {},
                     }}
-                    rightAvatar={
-                      bots[id].platforms && <Avatar size={32}>
-                        { Object.keys(bots[id].platforms).length }
-                      </Avatar>
-                    }
-                  />
-                </div>)
+                    rightAvatar={<span>
+                      {
+                        selectedBotId ?
+                        bots[id].gaId && (<Chip>{`gaId: #${bots[id].gaId}`}</Chip>) :
+                        (platformIds.filter(v => platforms[v].botId === id).length > 0)
+                        && <IconShortText />
+                      }
+                    </span>}
+                  />,
+                  selectedBotId === id && <div style={{ padding: '.5em' }}>
+                    <FlatButton
+                      label="edit"
+                    />
+                    <FlatButton
+                      label="delete"
+                    />
+                  </div>,
+                ]
               )}
-            </List>
+              </List>
+            }
           </Paper>
         </div>
         <div
@@ -151,43 +169,44 @@ class BotManager extends React.Component {
           <Subheader
             style={styles.colsHeader}
           >
-            Platforms
-            <FlatButton
-              label="New Platform"
-              labelPosition="before"
+            {
+              selectedBotId ? <span>
+                {'Platforms for '}
+                <b style={{ color: '#757575' }}>
+                  {selectedBotId && bots[selectedBotId].name}
+                </b>
+              </span> : 'All Platforms'
+            }
+
+            <IconButton
               onClick={() => this.dialogActions.openCreatePlatform()}
-              icon={<IconAdd />}
-            />
+              tooltip="Add platform"
+              tooltipPosition="bottom-center"
+            >
+              <IconAdd />
+            </IconButton>
           </Subheader>
-          <Platforms
-            selectedBotId={this.state.selectedBotId}
-          />
           {
-            this.state.selectedBotId && (
-              <div
-                style={{
-                  fontSize: '.8em',
-                  margin: '1em 0',
-                  padding: '0 1em',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'flex-start',
-                }}
+            platformIds.length === 0 ? <Subheader style={styles.hintText}>
+              {'You don\'t have any platforms.'}
+              <b
+                style={styles.hintTextLink}
+                onClick={() => this.dialogActions.openCreatePlatform()}
               >
-                <span>
-                  {'Add new Platform and assign to Bot: '}
-                  <b>{bots[this.state.selectedBotId].name}</b>
-                </span>
-                <FlatButton
-                  label="New Platform"
-                  style={{ margin: '.5em 0' }}
-                  labelPosition="before"
-                  icon={<IconAdd />}
-                  onClick={() => this.dialogActions.openCreatePlatform()}
-                />
-              </div>
-            )
+                Create new
+              </b>
+              !
+            </Subheader> :
+            selectedBotId &&
+            Object.keys(platforms).filter(v =>
+              platforms[v].botId === selectedBotId).length === 0 &&
+              <Subheader style={styles.hintText}>
+                {`There are no platforms assigned to ${bots[selectedBotId].name}.`}
+              </Subheader>
           }
+          <Platforms
+            selectedBotId={selectedBotId}
+          />
         </div>
       </div>
     )
