@@ -1,11 +1,22 @@
 import React from 'react'
 import { Field, reduxForm } from 'redux-form'
 import validator from 'validator'
+import stylePropType from 'react-style-proptype'
 
 import RaisedButton from 'material-ui/RaisedButton'
 
 import renderTextField from './util'
 import { startLogin } from '../../actions/accountActionCreators'
+
+const styles = {
+  fields: {
+    marginBottom: '1em',
+  },
+  inputPasswd: {
+    letterSpacing: '.2em',
+    cursor: 'text',
+  },
+}
 
 
 function validate(values) {
@@ -26,19 +37,31 @@ const LoginForm = props => (
   <form
     onSubmit={props.handleSubmit((value, dispatch) =>
       dispatch(startLogin(value.email, value.passwd)))}
+    style={props.style}
   >
-    <div>
-      <Field name="email" component={renderTextField} label="Email" />
+    <div style={styles.fields}>
+      <Field
+        name="email"
+        component={renderTextField}
+        floatingLabelText="Email"
+      />
+      <Field
+        name="passwd"
+        component={renderTextField}
+        type="password"
+        inputStyle={styles.inputPasswd}
+        floatingLabelText="Password"
+        readOnly
+        onFocus={(e) => { e.target.removeAttribute('readonly') }}
+      />
     </div>
-    <div>
-      <Field name="passwd" component={renderTextField} label="Password" />
-    </div>
-    <RaisedButton className="b-login-card__button" type="submit" label="Login" fullWidth primary />
+    <RaisedButton type="submit" label="Login" fullWidth primary />
   </form>
 )
 
 LoginForm.propTypes = {
   handleSubmit: React.PropTypes.func,
+  style: stylePropType,
 }
 
 export default reduxForm({

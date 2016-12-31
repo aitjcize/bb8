@@ -1,27 +1,55 @@
 import React from 'react'
-import { Link } from 'react-router'
 
-import { Card } from 'material-ui/Card'
+import Paper from 'material-ui/Paper'
+import Avatar from 'material-ui/Avatar'
+import IconSwapHoriz from 'material-ui/svg-icons/action/swap-horiz'
 
-import LoginForm from '../components/forms/LoginForm'
 import FacebookAuth from '../components/FacebookAuth'
 import Notification from '../components/Notification'
-import LogoPNG from '../assets/logo.png'
+
+import ComposeaiLogo from '../assets/logo.svg'
+
+const styles = {
+  container: {
+    height: '100vh',
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loginBox: {
+    width: '25vw',
+    minWidth: '30em',
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    padding: '2vw',
+  },
+  facebookAuthButton: {
+    marginRight: '2em',
+  },
+}
 
 const Login = () => (
-  <Card className="b-login-card">
-    <Notification />
-    <div className="b-login-card__container">
-      <span className="b-login-card__title"> Login </span>
-      <img className="b-login-card__logo" src={LogoPNG} alt="logo" />
-      <LoginForm />
-      <FacebookAuth />
-      <div className="b-login-card__bottom">
-        Do not have account yet? go to
-        <Link to="/signup" > Signup </Link>
-      </div>
-    </div>
-  </Card>
+  <div style={styles.container}>
+    <Paper style={styles.loginBox}>
+      <Notification />
+      <Avatar
+        style={{
+          backgroundImage: `url(${ComposeaiLogo})`,
+          backgroundSize: '60%',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          width: '4em',
+          height: '4em',
+        }}
+      />
+      <IconSwapHoriz />
+      <FacebookAuth style={styles.facebookAuthButton} />
+    </Paper>
+  </div>
 )
 
 export default Login
