@@ -163,6 +163,20 @@ export function* updateBotSaga() {
   }
 }
 
+export function* deployBotSaga() {
+  while (true) {
+    const { payload } = yield take(types.BOTS_DEPLOY.REQUEST)
+
+    const { response, error } = yield call(api.deployBot, payload)
+
+    if (error) {
+      yield put({ type: types.BOTS_DEPLOY.ERROR, payload: error })
+    } else {
+      yield put({ type: types.BOTS_DEPLOY.SUCCESS, payload: response })
+    }
+  }
+}
+
 export function* deleteBotSaga() {
   while (true) {
     const { payload } = yield take(types.BOTS_DELETE.REQUEST)
@@ -174,6 +188,35 @@ export function* deleteBotSaga() {
       yield put({ type: types.BOTS_DELETE.ERROR, payload: error })
     } else {
       yield put({ type: types.BOTS_DELETE.SUCCESS, payload: botId })
+    }
+  }
+}
+
+export function* listBotDefRevisionsSaga() {
+  while (true) {
+    const { payload } = yield take(types.BOTS_LIST_DEF_REVISIONS.REQUEST)
+
+    const { response, error } = yield call(api.listBotDefRevisions, payload)
+
+    if (error) {
+      yield put({ type: types.BOTS_LIST_DEF_REVISIONS.ERROR, payload: error })
+    } else {
+      yield put({ type: types.BOTS_LIST_DEF_REVISIONS.SUCCESS, payload: response })
+    }
+  }
+}
+
+export function* getBotDefRevision() {
+  while (true) {
+    const { payload: { botId, version } } =
+      yield take(types.BOTS_GET_DEF_REVISIONS)
+
+    const { response, error } = yield call(api.getBotDefRevision, botId, version)
+
+    if (error) {
+      yield put({ type: types.BOTS_GET_DEF_REVISIONS.ERROR, payload: error })
+    } else {
+      yield put({ type: types.BOTS_GET_DEF_REVISIONS.SUCCESS, payload: response })
     }
   }
 }
@@ -473,6 +516,9 @@ export default function* root() {
   yield fork(createBotSaga)
   yield fork(updateBotSaga)
   yield fork(deleteBotSaga)
+  yield fork(deployBotSaga)
+  yield fork(listBotDefRevisionsSaga)
+  yield fork(getBotDefRevision)
 
   /* Platform Saga */
   yield fork(fetchPlatformsSaga)

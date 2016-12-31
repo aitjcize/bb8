@@ -16,11 +16,13 @@ export default {
   ACCOUNTS_VERIFY_EMAIL: createRequestTypes('ACCOUNTS_VERIFY_EMAIL'),
 
   // Bots
+  BOTS_GET_DEF_REVISIONS: createRequestTypes('BOTS_GET_DEF_REVISIONS'),
+  BOTS_LIST_DEF_REVISIONS: createRequestTypes('BOTS_LIST_DEF_REVISIONS'),
+  BOTS_DEPLOY: createRequestTypes('BOTS_DEPLOY'),
   BOTS_LIST: createRequestTypes('BOTS_LIST'),
   BOTS_GET: createRequestTypes('BOTS_GET'),
   BOTS_CREATE: createRequestTypes('BOTS_CREATE'),
   BOTS_UPDATE: createRequestTypes('BOTS_UPDATE'),
-  BOTS_DEPLOY: createRequestTypes('BOTS_DEPLOY'),
   BOTS_DELETE: createRequestTypes('BOTS_DELETE'),
   BOTS_SET_ACTIVE: 'BOTS_SET_ACTIVE',
 
