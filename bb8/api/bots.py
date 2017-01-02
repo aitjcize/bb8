@@ -74,19 +74,18 @@ def show_bot(bot_id):
 @app.route('/api/bots/<int:bot_id>', methods=['PATCH'])
 @login_required
 def update_bot(bot_id):
-    """Modify a bot staging area."""
+    """Only modify the name and description of the bot"""
     bot = get_account_bot_by_id(bot_id)
     try:
-        validate_bot_schema(request.json)
-    except Exception as e:
-        logger.exception(e)
+        jsonschema.validate(request.json['bot'], BOT_CREATE_SCHEMA)
+    except Exception:
         raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
                        CustomError.ERR_WRONG_PARAM,
-                       'Bot definition parsing failed')
+                       'The request json must contain'
+                       ' name and description')
 
     bot.name = request.json['bot']['name']
     bot.description = request.json['bot']['description']
-    bot.staging = request.json
     DatabaseManager.commit()
     return jsonify(message='ok')
 
@@ -113,6 +112,24 @@ def deploy_bot(bot_id):
 def delete_bot(bot_id):
     bot = get_account_bot_by_id(bot_id)
     bot.delete()
+    DatabaseManager.commit()
+    return jsonify(message='ok')
+
+
+@app.route('/api/bots/<int:bot_id>/revisions', methods=['PUT'])
+@login_required
+def update_bot_def_revisions(bot_id):
+    """Modify bot staging area."""
+    bot = get_account_bot_by_id(bot_id)
+    try:
+        validate_bot_schema(request.json)
+    except Exception as e:
+        logger.exception(e)
+        raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
+                       CustomError.ERR_WRONG_PARAM,
+                       'Bot definition parsing failed')
+
+    bot.staging = request.json
     DatabaseManager.commit()
     return jsonify(message='ok')
 

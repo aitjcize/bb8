@@ -92,7 +92,8 @@ describe('API testing', () => {
       .then((botId) =>
         api.updateBot(botId, mockUpdatedBot)
           .then((resp) => {
-            expect(resp.response.message).toEqual('ok')
+            expect(typeof resp.response.result).toEqual('number')
+            expect(typeof resp.response.entities).toEqual('object')
           })
           .then(() => api.deployBot(botId))
           .then((resp) => {

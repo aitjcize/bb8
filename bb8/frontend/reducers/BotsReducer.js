@@ -36,7 +36,10 @@ function BotsReducer(state = INITIAL_STATE, action) {
           action.payload : state.active,
       }
     case types.BOTS_UPDATE.SUCCESS:
-      return state
+      return {
+        ...state,
+        payload: action.payload,
+      }
     default:
       return state
   }

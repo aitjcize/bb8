@@ -20,10 +20,15 @@ export const createBot = bot => ({
   payload: bot,
 })
 
-export const updateBot = (botId, bot) => ({
+export const updateBot = (botId, botObj) => ({
   type: types.BOTS_UPDATE.REQUEST,
   payload: {
     botId,
-    bot,
+    botObj,
   },
+})
+
+export const deleteBot = botId => ({
+  type: types.BOTS_DELETE.REQUEST,
+  payload: botId,
 })

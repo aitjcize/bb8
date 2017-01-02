@@ -1,7 +1,8 @@
 import React from 'react'
 import types from '../constants/ActionTypes'
 
-import BotCreateDialog from '../components/Dialog/BotCreateDialog'
+import BotDialog from '../components/Dialog/BotDialog'
+import BotDeleteDialog from '../components/Dialog/BotDeleteDialog'
 import BroadcastDateDialog from '../components/Dialog/BroadcastDateDialog'
 import BroadcastSendDialog from '../components/Dialog/BroadcastSendDialog'
 import BroadcastDelDialog from '../components/Dialog/BroadcastDelDialog'
@@ -29,7 +30,19 @@ function DialogReducer(state = INITIAL_STATE, action) {
       return {
         open: true,
         payload: action.payload,
-        component: <BotCreateDialog />,
+        component: <BotDialog />,
+      }
+    case types.DIALOG_BOT_UPDATE.OPEN:
+      return {
+        open: true,
+        payload: action.payload,
+        component: <BotDialog />,
+      }
+    case types.DIALOG_BOT_DELETE.OPEN:
+      return {
+        open: true,
+        payload: action.payload,
+        component: <BotDeleteDialog />,
       }
     case types.DIALOG_BROADCAST_DATE.OPEN:
       return {

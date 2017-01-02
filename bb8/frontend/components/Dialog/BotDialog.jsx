@@ -13,11 +13,12 @@ import * as dialogActionCreators from '../../actions/dialogActionCreators'
 const NAME_LIMIT = 30
 const DESC_LIMIT = 150
 
-class BotCreateDialog extends React.Component {
+class BotDialog extends React.Component {
   constructor(props) {
     super(props)
 
     this.handleCreateBot = this.handleCreateBot.bind(this)
+    this.handleUpdateBot = this.handleUpdateBot.bind(this)
     this.handleNameChange = this.handleNameChange.bind(this)
     this.handleDescChange = this.handleDescChange.bind(this)
 
@@ -25,9 +26,9 @@ class BotCreateDialog extends React.Component {
       dialogActionCreators, this.props.dispatch)
 
     this.state = {
-      name: '',
+      name: (props.payload && props.payload.name) || '',
       nameError: '',
-      description: '',
+      description: (props.payload && props.payload.description) || '',
       descriptionError: '',
     }
   }
@@ -45,6 +46,25 @@ class BotCreateDialog extends React.Component {
       botActionCreators, this.props.dispatch)
 
     botActions.createBot(bot)
+    this.dialogActions.closeDialog()
+  }
+
+  handleUpdateBot() {
+    if (this.state.nameError || this.state.descriptionError) {
+      return
+    }
+    const botActions = bindActionCreators(
+      botActionCreators, this.props.dispatch)
+
+    botActions.updateBot(
+      this.props.payload.botId, {
+        bot: {
+          name: this.state.name,
+          description: this.state.description,
+        },
+      }
+    )
+
     this.dialogActions.closeDialog()
   }
 
@@ -89,6 +109,7 @@ class BotCreateDialog extends React.Component {
   }
 
   render() {
+    const isUpdating = !!(this.props.payload && this.props.payload.botId)
     const actions = [
       <FlatButton
         label="Cancel"
@@ -96,15 +117,15 @@ class BotCreateDialog extends React.Component {
         onTouchTap={this.dialogActions.closeDialog}
       />,
       <FlatButton
-        label="Create"
+        label={isUpdating ? 'Update' : 'Create'}
         primary
-        onTouchTap={this.handleCreateBot}
+        onTouchTap={isUpdating ? this.handleUpdateBot : this.handleCreateBot}
       />,
     ]
 
     return (
       <Dialog
-        title="New Chatbot"
+        title={isUpdating ? 'Update Chatbot' : 'New Chatbot'}
         actions={actions}
         open={this.props.open}
         onRequestClose={this.dialogActions.closeDialog}
@@ -132,15 +153,21 @@ class BotCreateDialog extends React.Component {
   }
 }
 
-BotCreateDialog.propTypes = {
-  open: React.PropTypes.bool,
-  dispatch: React.PropTypes.func.isRequired,
+BotDialog.propTypes = {
+  open: React.PropTypes.bool.isRequired,
+  payload: React.PropTypes.shape({
+    botId: React.PropTypes.number.isRequired,
+    name: React.PropTypes.string.isRequired,
+    description: React.PropTypes.string.isRequired,
+  }),
+  dispatch: React.PropTypes.func.isRequired.isRequired,
 }
 
-const ConnectedBotCreateDialog = connect(
+const ConnectedBotDialog = connect(
   state => ({
     open: state.dialog.open,
+    payload: state.dialog.payload,
   }),
-)(BotCreateDialog)
+)(BotDialog)
 
-export default ConnectedBotCreateDialog
+export default ConnectedBotDialog

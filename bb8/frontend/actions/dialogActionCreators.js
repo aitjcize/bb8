@@ -6,6 +6,8 @@ export const closeDialog = () => ({
   payload: {},
 })
 
+/* Bot Dialog */
+
 export const openBotCreate = () => ({
   type: types.DIALOG_BOT_CREATE.OPEN,
   payload: null,
@@ -15,6 +17,30 @@ export const confirmBotCreate = bot => ({
   type: types.DIALOG_BOT_CREATE.CONFIRM,
   payload: bot,
 })
+
+export const openBotUpdate = (botId, name, description) => ({
+  type: types.DIALOG_BOT_UPDATE.OPEN,
+  payload: {
+    botId, name, description,
+  },
+})
+
+export const confirmBotUpdate = bot => ({
+  type: types.DIALOG_BOT_UPDATE.CONFIRM,
+  payload: bot,
+})
+
+export const openBotDelete = botId => ({
+  type: types.DIALOG_BOT_DELETE.OPEN,
+  payload: botId,
+})
+
+export const confirmBotDelete = botId => ({
+  type: types.DIALOG_BOT_DELETE.CONFIRM,
+  payload: botId,
+})
+
+/* Broadcast Dialog */
 
 export const openBroadcastDate = broadcast => ({
   type: types.DIALOG_BROADCAST_DATE.OPEN,
@@ -47,6 +73,8 @@ export const confirmDelBroadcast = broadcastId => ({
   type: types.DIALOG_BROADCAST_DEL.CONFIRM,
   payload: broadcastId,
 })
+
+/* Platform Dialog */
 
 export const openDelPlatform = platformId => ({
   type: types.DIALOG_PLATFORM_DEL.OPEN,

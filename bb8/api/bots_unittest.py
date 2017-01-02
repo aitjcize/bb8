@@ -116,9 +116,9 @@ class BotAPIUnittest(unittest.TestCase):
             bot_json_text = f.read()
 
         # Modify the staging area
-        rv = self.app.patch('/api/bots/%d' % self.bot_ids[0],
-                            data=bot_json_text,
-                            content_type='application/json')
+        rv = self.app.put('/api/bots/%d/revisions' % self.bot_ids[0],
+                          data=bot_json_text,
+                          content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
 
         # Commit the bot
@@ -139,12 +139,28 @@ class BotAPIUnittest(unittest.TestCase):
                             content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
 
+        # Test update name and description
+        rv = self.app.patch('/api/bots/%d' % self.bot_ids[0],
+                            data=json.dumps({
+                                'bot': {
+                                    'name': 'a_new_bot',
+                                    'description': 'test_description'
+                                }}),
+                            content_type='application/json')
+        self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
+
+        # The bot name should changed when the bot is saved
+        rv = self.app.get('/api/bots/%d' % self.bot_ids[0])
+        self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
+        data = json.loads(rv.data)
+        self.assertEquals(data['name'], 'a_new_bot')
+        self.assertEquals(data['description'], 'test_description')
+
         # Add another new revision
         bot_json = json.loads(bot_json_text)
-        bot_json['bot']['name'] = 'a_new_bot'
-        rv = self.app.patch('/api/bots/%d' % self.bot_ids[0],
-                            data=json.dumps(bot_json),
-                            content_type='application/json')
+        rv = self.app.put('/api/bots/%d/revisions' % self.bot_ids[0],
+                          data=json.dumps(bot_json),
+                          content_type='application/json')
         data = json.loads(rv.data)
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
 
@@ -164,7 +180,7 @@ class BotAPIUnittest(unittest.TestCase):
         rv = self.app.get('/api/bots/%d' % self.bot_ids[0])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
-        self.assertEquals(data['name'], 'a_new_bot')
+        self.assertEquals(data['name'], 'simple')
 
         # Test bot revision listing
         rv = self.app.get('/api/bots/%d/revisions' % self.bot_ids[0])
@@ -180,7 +196,7 @@ class BotAPIUnittest(unittest.TestCase):
         rv = self.app.get('/api/bots/%d/revisions/2' % self.bot_ids[0])
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
         data = json.loads(rv.data)
-        self.assertEquals(data['bot_json']['bot']['name'], u'a_new_bot')
+        self.assertEquals(data['bot_json']['bot']['name'], u'simple')
 
     def test_bot_deletion(self):
         bot_file = get_bot_filename('test/bot_fmt_test.bot')
@@ -188,9 +204,9 @@ class BotAPIUnittest(unittest.TestCase):
             bot_json_text = f.read()
 
         # Make a revision
-        rv = self.app.patch('/api/bots/%d' % self.bot_ids[0],
-                            data=bot_json_text,
-                            content_type='application/json')
+        rv = self.app.put('/api/bots/%d/revisions' % self.bot_ids[0],
+                          data=bot_json_text,
+                          content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
 
         rv = self.app.put('/api/bots/%d' % self.bot_ids[0])

@@ -149,6 +149,35 @@ export function* createBotSaga() {
   }
 }
 
+export function* updateBotSaga() {
+  while (true) {
+    const { payload } = yield take(types.BOTS_UPDATE.REQUEST)
+
+    const { response, error } = yield call(api.updateBot, payload.botId, payload.botObj)
+
+    if (error) {
+      yield put({ type: types.BOTS_UPDATE.ERROR, payload: error })
+    } else {
+      yield put({ type: types.BOTS_UPDATE.SUCCESS, payload: response })
+    }
+  }
+}
+
+export function* deleteBotSaga() {
+  while (true) {
+    const { payload } = yield take(types.BOTS_DELETE.REQUEST)
+    const botId = payload
+
+    const { error } = yield call(api.deleteBot, botId)
+
+    if (error) {
+      yield put({ type: types.BOTS_DELETE.ERROR, payload: error })
+    } else {
+      yield put({ type: types.BOTS_DELETE.SUCCESS, payload: botId })
+    }
+  }
+}
+
 /* Platform Sagas */
 
 export function* fetchPlatformsSaga() {
@@ -308,6 +337,20 @@ export function* deleteBroadcastSaga() {
 
 /* Dialog Saga */
 
+export function* confirmDelBotSaga() {
+  while (true) {
+    const { payload } = yield take(types.DIALOG_BOT_DELETE.CONFIRM)
+
+    yield put({
+      type: types.BOTS_DELETE.REQUEST,
+      payload,
+    })
+
+    yield take([types.BOTS_DELETE.SUCCESS, types.BOTS_DELETE.ERROR])
+    yield put({ type: types.DIALOG_CLOSE })
+  }
+}
+
 export function* confirmBroadcastDateSaga() {
   while (true) {
     const { payload } = yield take(types.DIALOG_BROADCAST_DATE.CONFIRM)
@@ -428,6 +471,8 @@ export default function* root() {
   yield fork(setActiveBotSaga)
   yield fork(getAllBotsSaga)
   yield fork(createBotSaga)
+  yield fork(updateBotSaga)
+  yield fork(deleteBotSaga)
 
   /* Platform Saga */
   yield fork(fetchPlatformsSaga)
@@ -446,6 +491,7 @@ export default function* root() {
   yield fork(confirmSendBroadcastSaga)
   yield fork(confirmDelBroadcastSaga)
   yield fork(confirmDelPlatformSaga)
+  yield fork(confirmDelBotSaga)
   yield fork(confirmCreatePlatformSaga)
   yield fork(confirmUpdatePlatformSaga)
 }
