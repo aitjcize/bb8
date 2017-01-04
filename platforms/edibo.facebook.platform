@@ -1,0 +1,9 @@
+{
+  "name": "Edibo 機器人 - 台灣版 Messenger",
+  "type_enum": "Facebook",
+  "deployed": true,
+  "provider_ident": "243146796119681",
+  "config": {
+    "access_token": "EAAZAi0GnycPEBAEfkQpZBk0UZAZAknP7Wxam6lubrXYS7pP4eEDYgJJhd6Ix1Q1RgWBjAoGkggbYpYTZB2tfUZCq8gXgmc1qCD55ZAs2ptM8KgMMfAw0ZBGqrrLq7MeCjBy3yQGqnMSA3eglrtHJY5RJ09cAMaLR2m4eBKuZBrZAhN0AZDZD"
+  }
+}
