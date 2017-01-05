@@ -209,7 +209,7 @@ export function* listBotDefRevisionsSaga() {
 export function* getBotDefRevision() {
   while (true) {
     const { payload: { botId, version } } =
-      yield take(types.BOTS_GET_DEF_REVISIONS)
+      yield take(types.BOTS_GET_DEF_REVISIONS.REQUEST)
 
     const { response, error } = yield call(api.getBotDefRevision, botId, version)
 
