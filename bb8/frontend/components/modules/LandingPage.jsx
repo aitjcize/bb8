@@ -16,9 +16,7 @@ import FlatButton from 'material-ui/FlatButton'
 
 import {
   CarouselMessage,
-  // eslint-disable-next-line no-unused-vars
   ImageMessage,
-  // eslint-disable-next-line no-unused-vars
   TextCardMessage,
 } from './Message'
 
@@ -65,27 +63,43 @@ const styles = {
   },
 }
 
+const cardTypeEnum = {
+  Disable: 0,
+  Text: 1,
+  Image: 2,
+  Carousel: 3,
+}
+
 class LandingPage extends React.Component {
 
   constructor(props) {
     super(props)
+
+    this.editors = []
 
     this.state = {
       intro: '',
       content: [
         {
           requestText: 'Feature',
-          type: 'carousel',
+          type: cardTypeEnum.Carousel,
         },
         {
           requestText: 'Demo',
-          type: 'carousel',
+          type: cardTypeEnum.Carousel,
         },
         {
           requestText: 'Product',
-          type: 'carousel',
+          type: cardTypeEnum.Carousel,
         },
       ],
+      contacts: {
+        name: '',
+        email: '',
+        phone: '',
+        openHour: '',
+        website: '',
+      },
       errorMessage: [{}, {}, {}, {}, {}],
     }
   }
@@ -157,6 +171,11 @@ class LandingPage extends React.Component {
                 <div>
                   When customer says
                   <TextField
+                    onChange={(e) => {
+                      const stateContent = this.state.content
+                      stateContent[idx].requestText = e.target.value
+                      this.setState({ content: stateContent })
+                    }}
                     value={this.state.content[idx].requestText}
                     inputStyle={styles.textFieldInput}
                     style={{ width: 'auto', minWidth: '10em' }}
@@ -168,19 +187,52 @@ class LandingPage extends React.Component {
                 <div>
                   <SelectField
                     floatingLabelText="Card Type"
-                    value={1}
+                    value={b.type || cardTypeEnum.Text}
+                    onChange={(e, selectIdx, selectPayload) => {
+                      this.setState((state) => {
+                        const stateContent = state.content
+                        stateContent[idx].type = selectPayload
+                        return {
+                          ...state,
+                          content: stateContent,
+                        }
+                      })
+                    }}
                     style={{ width: 'auto' }}
                     labelStyle={{ paddingRight: '1.5em', margin: '0 3em' }}
                   >
-                    <MenuItem value={1} primaryText="Text Card" />
-                    <MenuItem value={2} primaryText="Image" />
-                    <MenuItem value={3} primaryText="Carousel" />
+                    <MenuItem value={cardTypeEnum.Text} primaryText="Text Card" />
+                    <MenuItem value={cardTypeEnum.Image} primaryText="Image" />
+                    <MenuItem value={cardTypeEnum.Carousel} primaryText="Carousel" />
                     <Divider />
-                    <MenuItem value={null} primaryText="Disable" />
+                    <MenuItem value={cardTypeEnum.Disable} primaryText="Disable" />
                   </SelectField>
                 </div>
               </div>
-              <CarouselMessage />
+              {
+                b.type === cardTypeEnum.Text &&
+                <TextCardMessage
+                  ref={(m) => {
+                    this.editors[idx] = m
+                  }}
+                />
+              }
+              {
+                b.type === cardTypeEnum.Image &&
+                <ImageMessage
+                  ref={(m) => {
+                    this.editors[idx] = m
+                  }}
+                />
+              }
+              {
+                b.type === cardTypeEnum.Carousel &&
+                <CarouselMessage
+                  ref={(m) => {
+                    this.editors[idx] = m
+                  }}
+                />
+              }
             </div>
           ))
           }
@@ -196,26 +248,56 @@ class LandingPage extends React.Component {
           <div style={styles.formWrapper}>
             <div style={styles.formRow}>
               <TextField
+                value={this.state.contacts.name}
+                onChange={(e) => {
+                  const contacts = this.state.contacts
+                  contacts.name = e.target.value
+                  this.setState({ ...this.state, contacts })
+                }}
                 floatingLabelText="Business name"
                 fullWidth
               />
             </div>
             <div style={styles.formRow}>
               <TextField
+                value={this.state.contacts.email}
+                onChange={(e) => {
+                  const contacts = this.state.contacts
+                  contacts.email = e.target.value
+                  this.setState({ ...this.state, contacts })
+                }}
                 floatingLabelText="Email"
                 fullWidth
               />
               <TextField
+                value={this.state.contacts.phone}
+                onChange={(e) => {
+                  const contacts = this.state.contacts
+                  contacts.phone = e.target.value
+                  this.setState({ ...this.state, contacts })
+                }}
                 floatingLabelText="Phone number"
                 fullWidth
               />
             </div>
             <div style={styles.formRow}>
               <TextField
+                value={this.state.contacts.openHour}
+                onChange={(e) => {
+                  const contacts = this.state.contacts
+                  contacts.openHour = e.target.value
+                  this.setState({ ...this.state, contacts })
+                }}
                 floatingLabelText="Open hour"
                 fullWidth
               />
               <TextField
+                value={this.state.contacts.website}
+                onChange={(e) => {
+                  const contacts = this.state.contacts
+                  contacts.website = e.target.value
+                  this.setState({ ...this.state, contacts })
+                }}
                 floatingLabelText="Website"
                 fullWidth
               />
@@ -239,6 +321,17 @@ class LandingPage extends React.Component {
                 </span>
                 <TextField
                   fullWidth
+                  onChange={(e) => {
+                    const value = e.target.value
+                    this.setState((state) => {
+                      const errMsgs = state.errorMessage
+                      errMsgs[idx] = value
+                      return {
+                        ...state,
+                        errorMessage: errMsgs,
+                      }
+                    })
+                  }}
                   style={styles.errorMessageInputField}
                 />
               </div>

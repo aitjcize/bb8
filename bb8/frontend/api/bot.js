@@ -40,19 +40,34 @@ const bot = {
 
   deployBot(botId) {
     return fetch('PUT', `/api/bots/${botId}`, {})
-      .then(response => ({ response }))
+      .then(response => ({
+        response: normalize({
+          id: botId,
+          version: response.version,
+        }, Bot),
+      }))
       .catch(error => ({ error }))
   },
 
   listBotDefRevisions(botId) {
     return fetch('GET', `/api/bots/${botId}/revisions`, {})
-      .then(response => ({ response }))
+      .then(response => ({
+        response: normalize({
+          id: botId,
+          botDefs: response.botDefs,
+        }, Bot),
+      }))
       .catch(error => ({ error }))
   },
 
   getBotDefRevision(botId, version) {
     return fetch('GET', `/api/bots/${botId}/revisions/${version}`, {})
-      .then(response => ({ response }))
+      .then(response => ({
+        response: normalize({
+          id: botId,
+          botJson: response.botJson,
+        }, Bot),
+      }))
       .catch(error => ({ error }))
   },
 }

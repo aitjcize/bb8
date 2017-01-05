@@ -97,20 +97,30 @@ describe('API testing', () => {
           })
           .then(() => api.deployBot(botId))
           .then((resp) => {
-            expect(typeof resp.response.version).toEqual('number')
+            const botId = resp.response.result
+            const entities = resp.response.entities
+            expect(typeof botId).toEqual('number')
+            expect(typeof entities.bots[botId]).toEqual('object')
+            expect(typeof entities.bots[botId].version).toEqual('number')
           })
           .then(() => api.listBotDefRevisions(botId))
           .then((resp) => {
-            expect(Array.isArray(resp.response.botDefs)).toEqual(true)
-            expect(resp.response.botDefs.length).toBeGreaterThan(0)
-            expect(resp.response.botDefs[0].botId).toEqual(botId)
-            return resp.response.botDefs[0].version
+            const botId = resp.response.result
+            const entities = resp.response.entities
+            expect(typeof botId).toEqual('number')
+            expect(typeof entities.bots[botId]).toEqual('object')
+            expect(Array.isArray(entities.bots[botId].botDefs)).toEqual(true)
+            expect(entities.bots[botId].botDefs.length).toBeGreaterThan(0)
+            expect(entities.bots[botId].botDefs[0].botId).toEqual(botId)
+            return entities.bots[botId].botDefs[0].version
           })
           .then(version => api.getBotDefRevision(botId, version))
           .then((resp) => {
-            const response = resp.response
-            expect(typeof response.botJson.bot).toEqual('object')
-            expect(response.botId).toEqual(botId)
+            const botId = resp.response.result
+            const entities = resp.response.entities
+            expect(typeof botId).toEqual('number')
+            expect(typeof entities.bots[botId]).toEqual('object')
+            expect(typeof entities.bots[botId].botJson.bot).toEqual('object')
           })
       )
       .catch((error) => console.log(error))
