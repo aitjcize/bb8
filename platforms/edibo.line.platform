@@ -1,0 +1,10 @@
+{
+  "name": "Edibo 機器人 - 台灣版 LINE",
+  "type_enum": "Line",
+  "deployed": true,
+  "provider_ident": "ediboZhTw",
+  "config": {
+    "access_token": "jmVYtbsP3xegG5gcxPHF7Plc25avkmhC9aWr3zlUPQ1PTkDR2EY7qM9+JnJah4uc62Q72kkV7lHqXgkbEFQ9w0AqVf8DHq33YBP9d6DYoewSgmOJJZLyALuxtJPhI7lqyjUX2t/KK5qtg8f4vvRyRwdB04t89/1O/w1cDnyilFU=",
+    "channel_secret": "3508ce4f5642ccca1f79a0430e649999"
+  }
+}

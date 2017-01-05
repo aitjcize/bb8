@@ -26,7 +26,7 @@ HAS_VARIABLE_RE = re.compile('{{(.*?)}}')
 
 
 class Engine(object):
-    STEP_MAX_DEPTH = 6
+    STEP_MAX_DEPTH = 10
 
     def send_ack_message(self, user, message, variables):
         """Send text message.
