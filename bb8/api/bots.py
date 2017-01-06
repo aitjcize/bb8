@@ -21,10 +21,10 @@ from bb8.backend.bot_parser import validate_bot_schema, parse_bot
 BOT_CREATE_SCHEMA = {
     'type': 'object',
     'required': ['name', 'description'],
-    'additionalProperties': False,
     'properties': {
         'name': {'type': 'string'},
         'description': {'type': 'string'},
+        'ga_id': {'type': 'string'},
     }
 }
 
@@ -86,6 +86,7 @@ def update_bot(bot_id):
 
     bot.name = request.json['bot']['name']
     bot.description = request.json['bot']['description']
+    bot.ga_id = request.json['bot']['ga_id']
     DatabaseManager.commit()
     return jsonify(message='ok')
 

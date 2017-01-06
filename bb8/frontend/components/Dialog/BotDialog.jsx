@@ -12,6 +12,7 @@ import * as dialogActionCreators from '../../actions/dialogActionCreators'
 
 const NAME_LIMIT = 30
 const DESC_LIMIT = 150
+const GAID_LIMIT = 50
 
 class BotDialog extends React.Component {
   constructor(props) {
@@ -21,6 +22,7 @@ class BotDialog extends React.Component {
     this.handleUpdateBot = this.handleUpdateBot.bind(this)
     this.handleNameChange = this.handleNameChange.bind(this)
     this.handleDescChange = this.handleDescChange.bind(this)
+    this.handleGaIdChange = this.handleGaIdChange.bind(this)
 
     this.dialogActions = bindActionCreators(
       dialogActionCreators, this.props.dispatch)
@@ -30,6 +32,8 @@ class BotDialog extends React.Component {
       nameError: '',
       description: (props.payload && props.payload.description) || '',
       descriptionError: '',
+      gaId: (props.payload && props.payload.gaId) || '',
+      gaIdError: '',
     }
   }
 
@@ -40,6 +44,10 @@ class BotDialog extends React.Component {
     const bot = {
       name: this.state.name,
       description: this.state.description,
+    }
+
+    if (this.state.gaId && !this.state.gaIdError) {
+      bot.gaId = this.state.gaId
     }
 
     const botActions = bindActionCreators(
@@ -56,14 +64,16 @@ class BotDialog extends React.Component {
     const botActions = bindActionCreators(
       botActionCreators, this.props.dispatch)
 
-    botActions.updateBot(
-      this.props.payload.botId, {
-        bot: {
-          name: this.state.name,
-          description: this.state.description,
-        },
-      }
-    )
+    const bot = {
+      name: this.state.name,
+      description: this.state.description,
+    }
+
+    if (this.state.gaId && !this.state.gaIdError) {
+      bot.gaId = this.state.gaId
+    }
+
+    botActions.updateBot(this.props.payload.botId, { bot })
 
     this.dialogActions.closeDialog()
   }
@@ -108,6 +118,26 @@ class BotDialog extends React.Component {
     }
   }
 
+  handleGaIdChange(e) {
+    const val = e.target.value
+    if (!val) {
+      this.setState({
+        gaId: val,
+        gaIdError: 'Please provide a Google Analytics ID for this bot',
+      })
+    } else if (val.length > GAID_LIMIT) {
+      this.setState({
+        gaId: val,
+        gaIdError: `The length of the Google Analytics ID should be larger than ${GAID_LIMIT}`,
+      })
+    } else {
+      this.setState({
+        gaId: val,
+        gaIdError: '',
+      })
+    }
+  }
+
   render() {
     const isUpdating = !!(this.props.payload && this.props.payload.botId)
     const actions = [
@@ -148,6 +178,15 @@ class BotDialog extends React.Component {
           value={this.state.description}
           onChange={this.handleDescChange}
         />
+        <Subheader>
+          Provide a Google Analytics ID
+        </Subheader>
+        <TextField
+          hintText="Google Analytics ID for this bot"
+          errorText={this.state.gaIdError}
+          value={this.state.gaId}
+          onChange={this.handleGaIdChange}
+        />
       </Dialog>
     )
   }
@@ -159,6 +198,7 @@ BotDialog.propTypes = {
     botId: React.PropTypes.number.isRequired,
     name: React.PropTypes.string.isRequired,
     description: React.PropTypes.string.isRequired,
+    gaId: React.PropTypes.string,
   }),
   dispatch: React.PropTypes.func.isRequired.isRequired,
 }

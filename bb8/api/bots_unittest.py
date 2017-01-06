@@ -139,12 +139,13 @@ class BotAPIUnittest(unittest.TestCase):
                             content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
 
-        # Test update name and description
+        # Test update name, description and ga_id
         rv = self.app.patch('/api/bots/%d' % self.bot_ids[0],
                             data=json.dumps({
                                 'bot': {
                                     'name': 'a_new_bot',
-                                    'description': 'test_description'
+                                    'description': 'test_description',
+                                    'ga_id': '123',
                                 }}),
                             content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
@@ -155,6 +156,7 @@ class BotAPIUnittest(unittest.TestCase):
         data = json.loads(rv.data)
         self.assertEquals(data['name'], 'a_new_bot')
         self.assertEquals(data['description'], 'test_description')
+        self.assertEquals(data['ga_id'], '123')
 
         # Add another new revision
         bot_json = json.loads(bot_json_text)

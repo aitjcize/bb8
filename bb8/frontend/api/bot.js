@@ -25,7 +25,7 @@ const bot = {
   },
 
   updateBot(botId, botObj) {
-    return fetch('PATCH', `/api/bots/${botId}`, botObj, false)
+    return fetch('PATCH', `/api/bots/${botId}`, botObj)
       .then(() => ({ response: normalize({ ...botObj.bot, id: botId }, Bot) }))
       .catch(error => ({ error }))
   },

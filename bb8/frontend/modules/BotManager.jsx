@@ -150,7 +150,8 @@ class BotManager extends React.Component {
                     <FlatButton
                       label="edit"
                       onClick={() =>
-                        this.dialogActions.openBotUpdate(id, bots[id].name, bots[id].description)}
+                        this.dialogActions.openBotUpdate(
+                          id, bots[id].name, bots[id].description, bots[id].gaId)}
                     />
                     <FlatButton
                       label="delete"

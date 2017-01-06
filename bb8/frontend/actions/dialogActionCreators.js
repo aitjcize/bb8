@@ -18,10 +18,10 @@ export const confirmBotCreate = bot => ({
   payload: bot,
 })
 
-export const openBotUpdate = (botId, name, description) => ({
+export const openBotUpdate = (botId, name, description, gaId) => ({
   type: types.DIALOG_BOT_UPDATE.OPEN,
   payload: {
-    botId, name, description,
+    botId, name, description, gaId,
   },
 })
 
