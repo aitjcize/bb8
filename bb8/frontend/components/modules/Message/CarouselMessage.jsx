@@ -62,7 +62,16 @@ class CarouselMessage extends React.Component {
   }
 
   valid() {
-    return this.state.bubbleIds.length > 0
+    if (this.state.bubbleIds.length === 0) {
+      return false
+    }
+
+    for (const id of this.state.bubbleIds) {
+      if (!this.bubbles[id].valid()) {
+        return false
+      }
+    }
+    return true
   }
 
   fromJSON(msg) {
