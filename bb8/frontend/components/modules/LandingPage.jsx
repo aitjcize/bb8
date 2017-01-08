@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { Validator } from 'jsonschema'
+
 import {
   Card,
   CardText,
@@ -19,6 +21,8 @@ import {
   ImageMessage,
   TextCardMessage,
 } from './Message'
+
+import BotSchema from '../../schema/bot.schema.json'
 
 
 const styles = {
@@ -70,12 +74,97 @@ const cardTypeEnum = {
   Carousel: 3,
 }
 
+const BOT_TEMPLATE = {
+  bot: {
+    name: 'No name',
+    description: '',
+    interaction_timeout: 120,
+    admin_interaction_timeout: 10,
+    session_timeout: 0,
+    ga_id: '',
+    settings: {
+      get_start_button: { message: { text: 'Hi' } },
+      persistent_menu: [
+        {
+          type: 'web_url',
+          title: 'Powered by Compose.ai',
+          url: 'http://compose.ai',
+        },
+      ],
+    },
+    nodes: {
+      Start: {
+        name: 'Start',
+        expect_input: false,
+        next_node_id: 'Root',
+        module: {
+          id: 'ai.compose.content.core.message',
+          config: {},
+        },
+      },
+      Root: {
+        name: 'Root',
+        description: 'Main bot operation node',
+        expect_input: false,
+        next_node_id: 'RootRouter',
+        module: {
+          id: 'ai.compose.content.core.message',
+          config: {
+            messages: [
+              {
+                text: 'What can I do for you?',
+              },
+            ],
+            quick_replies: [],
+          },
+        },
+      },
+      RootRouter: {
+        name: 'RootRouter',
+        expect_input: true,
+        next_node_id: 'Root',
+        module: {
+          id: 'ai.compose.router.core.default',
+          config: {
+            links: [
+              {
+                rule: {
+                  type: 'regexp',
+                  params: ['(?i)contact'],
+                },
+                ack_message: '',
+                end_node_id: 'ContactInfo',
+              },
+            ],
+            on_error: {
+              ack_message: [],
+              end_node_id: 'RootRouter',
+            },
+          },
+        },
+      },
+      ContactInfo: {
+        name: 'ContactInfo',
+        expect_input: false,
+        next_node_id: 'Root',
+        module: {
+          id: 'ai.compose.content.core.message',
+          config: {
+            messages: [],
+          },
+        },
+      },
+    },
+  },
+}
+
 class LandingPage extends React.Component {
 
   constructor(props) {
     super(props)
 
     this.editors = []
+    this.toBot = this.toBot.bind(this)
 
     this.state = {
       intro: '',
@@ -100,8 +189,82 @@ class LandingPage extends React.Component {
         openHour: '',
         website: '',
       },
-      errorMessage: [{}, {}, {}, {}, {}],
+      errorMessage: ['', '', '', '', ''],
     }
+  }
+
+  toBot() {
+    const botfile = Object.assign({}, BOT_TEMPLATE)
+
+    // Bot name
+    botfile.bot.name = this.state.contacts.name || 'No name'
+    botfile.bot.description = this.state.contacts.website
+
+    // Start node
+    botfile.bot.nodes.Start.module.config.messages = [
+      { text: this.state.intro },
+    ]
+
+    for (let i = 0; i < this.state.content.length; i += 1) {
+      if (this.editors[i].valid()) {
+        const section = this.state.content[i]
+
+        // Root quick replies
+        botfile.bot.nodes.Root.module.config.quick_replies.push({
+          content_type: 'text',
+          title: section.requestText,
+        })
+
+        // Links
+        botfile.bot.nodes.RootRouter.module.config.links.push({
+          rule: {
+            type: 'regexp',
+            params: [`(?i)${section.requestText}`],
+          },
+          end_node_id: section.requestText,
+        })
+
+        // Nodes
+        botfile.bot.nodes[section.requestText] = {
+          name: section.requestText,
+          expect_input: false,
+          next_node_id: 'Root',
+          module: {
+            id: 'ai.compose.content.core.message',
+            config: {
+              messages: [
+                this.editors[i].toJSON(),
+              ],
+            },
+          },
+        }
+      }
+    }
+
+    // Error messages
+    botfile.bot.nodes.RootRouter.module.config.on_error.ack_message = []
+    for (const msg of this.state.errorMessage) {
+      if (msg) {
+        botfile.bot.nodes.RootRouter.module.config.on_error.ack_message.push(msg)
+      }
+    }
+
+    // Contact info
+    botfile.bot.nodes.ContactInfo.module.config.messages = [
+      {
+        text: 'You can reach us through the following information:',
+      },
+      {
+        text: `Email: ${this.state.contacts.email}\nPhone: ${this.state.contacts.phone}`,
+      },
+    ]
+
+    const v = new Validator()
+    const result = v.validate(botfile, BotSchema)
+    if (!result.valid) {
+      // Show error message in snackbar
+    }
+    return botfile
   }
 
   render() {
@@ -321,6 +484,7 @@ class LandingPage extends React.Component {
                 </span>
                 <TextField
                   fullWidth
+                  value={this.state.errorMessage[idx]}
                   onChange={(e) => {
                     const value = e.target.value
                     this.setState((state) => {
@@ -342,6 +506,9 @@ class LandingPage extends React.Component {
         <CardActions>
           <FlatButton
             label="save"
+            onClick={() => {
+              this.toBot()
+            }}
           />
         </CardActions>
       </Card>
