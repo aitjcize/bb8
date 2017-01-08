@@ -5,7 +5,7 @@
   },
   "bot": {
     "name": "Edibo",
-    "description": "Provide the information for Taiwan estate",
+    "description": "Give you idea what to eat",
     "interaction_timeout": 120,
     "admin_interaction_timeout": 10,
     "session_timeout": 0,
@@ -99,7 +99,7 @@
                   "memory_set": {"key": "ajax_root", "value": "http://eating-ideas.appspot.com"}
                 },
                 "end_node_id": "TestTaste",
-                "ack_message": "接下來，我會問你五個食物，回答想吃或是不想吃。之後我會針對你的回答，推薦你食物。"
+                "ack_message": "接下來，我會問你五個食物，回答想吃或是不想吃。之後我會針對你的回答，推薦你食物。你使用越久，機器人就會越了解你喔！"
               },
               {
                 "rule": {
@@ -680,6 +680,10 @@
                   "          \"payload\": \"{{transform_input[2].food}}\"",
                   "          {% endif %}",
                   "          {% endif %}",
+                  "          {% else %}",
+                  "          \"type\": \"postback\",",
+                  "          \"title\": \"沒有可以推薦的，重來一次吧。\",",
+                  "          \"payload\": \"reset\"",
                   "          {% endif %}",
                   "        }]",
                   "      }",
@@ -704,7 +708,7 @@
                   "        }, {",
                   "          {% endif %}",
                   "          \"type\": \"postback\",",
-                  "          \"title\": \"都不喜歡，我要重選。\",",
+                  "          \"title\": \"我都不喜歡，我要重選。\",",
                   "          \"payload\": \"reset\"",
                   "        }]",
                   "      }",
@@ -819,7 +823,7 @@
               }
             ],
             "debug": 0,
-            "on_error": "我好像壞掉了，快通知管理員。"
+            "on_error": "我好像壞掉了，快通知管理員。(GetLocalRestaurants)"
           }
         }
       },
@@ -868,7 +872,7 @@
               }
             ],
             "debug": 0,
-            "on_error": "我好像壞掉了，快通知管理員。"
+            "on_error": "我好像壞掉了，快通知管理員。(GetLocalRestaurantsDetails0)"
           }
         }
       },
@@ -906,7 +910,7 @@
               }
             ],
             "debug": 0,
-            "on_error": "我好像壞掉了，快通知管理員。"
+            "on_error": "我好像壞掉了，快通知管理員。(GetLocalRestaurantsDetails1)"
           }
         }
       },
@@ -944,7 +948,7 @@
               }
             ],
             "debug": 0,
-            "on_error": "我好像壞掉了，快通知管理員。"
+            "on_error": "我好像壞掉了，快通知管理員。(GetLocalRestaurantsDetails2)"
           }
         }
       },
@@ -982,7 +986,7 @@
               }
             ],
             "debug": 0,
-            "on_error": "我好像壞掉了，快通知管理員。"
+            "on_error": "我好像壞掉了，快通知管理員。(GetLocalRestaurantsDetails3)"
           }
         }
       },
@@ -1020,7 +1024,7 @@
               }
             ],
             "debug": 0,
-            "on_error": "我好像壞掉了，快通知管理員。"
+            "on_error": "我好像壞掉了，快通知管理員。(GetLocalRestaurantsDetails4)"
           }
         }
       },
@@ -1110,7 +1114,7 @@
               }
             ],
             "debug": 0,
-            "on_error": "我好像壞掉了，快通知管理員。"
+            "on_error": "我好像壞掉了，快通知管理員。(GetLocalRestaurantsShow)"
           }
         }
       },
