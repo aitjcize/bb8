@@ -110,7 +110,7 @@ class PlatformDialog extends React.Component {
     if (typeEnum === 'Line') {
       this.setState({
         platform: {
-          ...this.state.platform,
+          ...this.props.payload,
           typeEnum,
           providerIdent: uuid.v4(),
         },
@@ -183,22 +183,26 @@ class PlatformDialog extends React.Component {
       >
         {platform.typeEnum === 'Line' ? LineAvatar : FbAvatar}
       </Paper>
-      <IconArrowDropDown />
-      <Popover
-        open={this.state.platformTypePickerOpen}
-        anchorEl={this.state.platformTypePickerEl}
-        anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
-        targetOrigin={{ horizontal: 'right', vertical: 'top' }}
-        onRequestClose={() => this.setState({
-          platformTypePickerOpen: false,
-          platformTypePickerHover: false,
-        })}
-      >
-        <Menu style={{ minWidth: '10em' }}>
-          <MenuItem primaryText="Facebook" onClick={() => this.handleTypeEnumChange('Facebook')} />
-          <MenuItem primaryText="Line" onClick={() => this.handleTypeEnumChange('Line')} />
-        </Menu>
-      </Popover>
+      { !isUpdating && (
+        <div>
+          <IconArrowDropDown />
+          <Popover
+            open={this.state.platformTypePickerOpen}
+            anchorEl={this.state.platformTypePickerEl}
+            anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
+            targetOrigin={{ horizontal: 'right', vertical: 'top' }}
+            onRequestClose={() => this.setState({
+              platformTypePickerOpen: false,
+              platformTypePickerHover: false,
+            })}
+          >
+            <Menu style={{ minWidth: '10em' }}>
+              <MenuItem primaryText="Facebook" onClick={() => this.handleTypeEnumChange('Facebook')} />
+              <MenuItem primaryText="Line" onClick={() => this.handleTypeEnumChange('Line')} />
+            </Menu>
+          </Popover>
+        </div>)
+      }
     </div>)
 
     const facebookForm = Object.values(this.props.pages).length > 0 ? (
@@ -263,7 +267,7 @@ class PlatformDialog extends React.Component {
           value={`${config.LINE_WEBHOOK}${platform.providerIdent}`}
           fullWidth
           onFocus={(e) => { e.target.select() }}
-          errorText="Paste url to channel settings"
+          errorText="Paste this webhook url to LINE@ channel settings"
           errorStyle={styles.hintStyle}
         />
       </div>,
