@@ -1,6 +1,7 @@
 import React from 'react'
 
 import { Validator } from 'jsonschema'
+import update from 'immutability-helper'
 
 import {
   Card,
@@ -167,29 +168,71 @@ class LandingPage extends React.Component {
     this.toBot = this.toBot.bind(this)
 
     this.state = {
-      intro: '',
+      intro: {
+        text: '',
+        errorText: '',
+      },
       content: [
         {
           requestText: 'Feature',
           type: cardTypeEnum.Carousel,
+          errorText: '',
         },
         {
           requestText: 'Demo',
           type: cardTypeEnum.Carousel,
+          errorText: '',
         },
         {
           requestText: 'Product',
           type: cardTypeEnum.Carousel,
+          errorText: '',
         },
       ],
       contacts: {
-        name: '',
-        email: '',
-        phone: '',
-        openHour: '',
-        website: '',
+        name: {
+          text: '',
+          errorText: '',
+        },
+        email: {
+          text: '',
+          errorText: '',
+        },
+        phone: {
+          text: '',
+          errorText: '',
+        },
+        openHour: {
+          text: '',
+          errorText: '',
+        },
+        website: {
+          text: '',
+          errorText: '',
+        },
       },
-      errorMessage: ['', '', '', '', ''],
+      errorMessages: [
+        {
+          text: '',
+          errorText: '',
+        },
+        {
+          text: '',
+          errorText: '',
+        },
+        {
+          text: '',
+          errorText: '',
+        },
+        {
+          text: '',
+          errorText: '',
+        },
+        {
+          text: '',
+          errorText: '',
+        },
+      ],
     }
   }
 
@@ -243,7 +286,7 @@ class LandingPage extends React.Component {
 
     // Error messages
     botfile.bot.nodes.RootRouter.module.config.on_error.ack_message = []
-    for (const msg of this.state.errorMessage) {
+    for (const msg of this.state.errorMessages) {
       if (msg) {
         botfile.bot.nodes.RootRouter.module.config.on_error.ack_message.push(msg)
       }
@@ -268,7 +311,7 @@ class LandingPage extends React.Component {
   }
 
   render() {
-    const { content, errorMessage } = this.state
+    const { content, errorMessages } = this.state
     const introMaxLength = 150
 
     return (
@@ -297,12 +340,26 @@ class LandingPage extends React.Component {
             <TextField
               multiLine
               rows={3}
-              value={this.state.intro}
+              value={this.state.intro.text}
+              errorText={this.state.intro.errorText}
               fullWidth
               onChange={(e) => {
-                if (e.target.value.length <= introMaxLength) {
-                  this.setState({ intro: e.target.value })
+                const val = e.target.value
+
+                let errorMessage = ''
+                if (!val) {
+                  errorMessage = 'Please add a description for this bot'
+                } else if (val.length > introMaxLength) {
+                  errorMessage = `The length should be lower than ${introMaxLength}`
                 }
+                this.setState(prevState =>
+                  update(prevState, {
+                    intro: {
+                      text: { $set: val },
+                      errorMessage: { $set: errorMessage },
+                    },
+                  })
+                )
               }}
             />
             <span
@@ -312,7 +369,7 @@ class LandingPage extends React.Component {
                 padding: '0 1.5em',
               }}
             >
-              {`${this.state.intro.length}/${introMaxLength}`}
+              {`${this.state.intro.text.length}/${introMaxLength}`}
             </span>
           </div>
         </CardText>
@@ -334,12 +391,27 @@ class LandingPage extends React.Component {
                 <div>
                   When customer says
                   <TextField
+                    errorText={b.errorText}
                     onChange={(e) => {
-                      const stateContent = this.state.content
-                      stateContent[idx].requestText = e.target.value
-                      this.setState({ content: stateContent })
+                      const val = e.target.value
+                      let errorText = ''
+                      if (!val) {
+                        errorText = 'Please add a request text'
+                      } else if (val.length > 30) {
+                        errorText = 'The length should be lower than 30'
+                      }
+                      this.setState(prevState =>
+                        update(prevState, {
+                          content: {
+                            [idx]: {
+                              requestText: { $set: val },
+                              errorText: { $set: errorText },
+                            },
+                          },
+                        })
+                      )
                     }}
-                    value={this.state.content[idx].requestText}
+                    value={b.requestText}
                     inputStyle={styles.textFieldInput}
                     style={{ width: 'auto', minWidth: '10em' }}
                   />
@@ -352,14 +424,15 @@ class LandingPage extends React.Component {
                     floatingLabelText="Card Type"
                     value={b.type || cardTypeEnum.Text}
                     onChange={(e, selectIdx, selectPayload) => {
-                      this.setState((state) => {
-                        const stateContent = state.content
-                        stateContent[idx].type = selectPayload
-                        return {
-                          ...state,
-                          content: stateContent,
-                        }
-                      })
+                      this.setState(prevState =>
+                        update(prevState, {
+                          content: {
+                            [idx]: {
+                              type: { $set: selectPayload },
+                            },
+                          },
+                        })
+                      )
                     }}
                     style={{ width: 'auto' }}
                     labelStyle={{ paddingRight: '1.5em', margin: '0 3em' }}
@@ -411,11 +484,26 @@ class LandingPage extends React.Component {
           <div style={styles.formWrapper}>
             <div style={styles.formRow}>
               <TextField
-                value={this.state.contacts.name}
+                errorText={this.state.contacts.name.errorText}
+                value={this.state.contacts.name.text}
                 onChange={(e) => {
-                  const contacts = this.state.contacts
-                  contacts.name = e.target.value
-                  this.setState({ ...this.state, contacts })
+                  const val = e.target.value
+                  let errorText = ''
+                  if (!val) {
+                    errorText = 'Please enter the name'
+                  } else if (val.length > 30) {
+                    errorText = 'The length should be lower than 30'
+                  }
+                  this.setState(prevState =>
+                    update(prevState, {
+                      contacts: {
+                        name: {
+                          text: { $set: val },
+                          errorText: { $set: errorText },
+                        },
+                      },
+                    })
+                  )
                 }}
                 floatingLabelText="Business name"
                 fullWidth
@@ -423,21 +511,51 @@ class LandingPage extends React.Component {
             </div>
             <div style={styles.formRow}>
               <TextField
-                value={this.state.contacts.email}
+                errorText={this.state.contacts.email.errorText}
+                value={this.state.contacts.email.text}
                 onChange={(e) => {
-                  const contacts = this.state.contacts
-                  contacts.email = e.target.value
-                  this.setState({ ...this.state, contacts })
+                  const val = e.target.value
+                  let errorText = ''
+                  if (!val) {
+                    errorText = 'Please enter the email'
+                  } else if (val.length > 30) {
+                    errorText = 'The length should be lower than 30'
+                  }
+                  this.setState(prevState =>
+                    update(prevState, {
+                      contacts: {
+                        email: {
+                          text: { $set: val },
+                          errorText: { $set: errorText },
+                        },
+                      },
+                    })
+                  )
                 }}
                 floatingLabelText="Email"
                 fullWidth
               />
               <TextField
-                value={this.state.contacts.phone}
+                errorText={this.state.contacts.phone.errorText}
+                value={this.state.contacts.phone.text}
                 onChange={(e) => {
-                  const contacts = this.state.contacts
-                  contacts.phone = e.target.value
-                  this.setState({ ...this.state, contacts })
+                  const val = e.target.value
+                  let errorText = ''
+                  if (!val) {
+                    errorText = 'Please enter the phone'
+                  } else if (val.length > 30) {
+                    errorText = 'The length should be lower than 30'
+                  }
+                  this.setState(prevState =>
+                    update(prevState, {
+                      contacts: {
+                        phone: {
+                          text: { $set: val },
+                          errorText: { $set: errorText },
+                        },
+                      },
+                    })
+                  )
                 }}
                 floatingLabelText="Phone number"
                 fullWidth
@@ -445,21 +563,51 @@ class LandingPage extends React.Component {
             </div>
             <div style={styles.formRow}>
               <TextField
-                value={this.state.contacts.openHour}
+                value={this.state.contacts.openHour.text}
+                errorText={this.state.contacts.openHour.errorText}
                 onChange={(e) => {
-                  const contacts = this.state.contacts
-                  contacts.openHour = e.target.value
-                  this.setState({ ...this.state, contacts })
+                  const val = e.target.value
+                  let errorText = ''
+                  if (!val) {
+                    errorText = 'Please enter the open hour'
+                  } else if (val.length > 30) {
+                    errorText = 'The length should be lower than 30'
+                  }
+                  this.setState(prevState =>
+                    update(prevState, {
+                      contacts: {
+                        openHour: {
+                          text: { $set: val },
+                          errorText: { $set: errorText },
+                        },
+                      },
+                    })
+                  )
                 }}
                 floatingLabelText="Open hour"
                 fullWidth
               />
               <TextField
-                value={this.state.contacts.website}
+                value={this.state.contacts.website.text}
+                errorText={this.state.contacts.website.errorText}
                 onChange={(e) => {
-                  const contacts = this.state.contacts
-                  contacts.website = e.target.value
-                  this.setState({ ...this.state, contacts })
+                  const val = e.target.value
+                  let errorText = ''
+                  if (!val) {
+                    errorText = 'Please enter the website'
+                  } else if (val.length > 30) {
+                    errorText = 'The length should be lower than 30'
+                  }
+                  this.setState(prevState =>
+                    update(prevState, {
+                      contacts: {
+                        website: {
+                          text: { $set: val },
+                          errorText: { $set: errorText },
+                        },
+                      },
+                    })
+                  )
                 }}
                 floatingLabelText="Website"
                 fullWidth
@@ -477,24 +625,33 @@ class LandingPage extends React.Component {
         >
           <div style={styles.formWrapper}>
             {
-            errorMessage.map((b, idx) => (
+            errorMessages.map((b, idx) => (
               <div key={idx} style={styles.errorMessageInputContainer}>
                 <span style={{ fontStyle: 'italic', color: '#bbb' }}>
                   {`${idx + 1}. `}
                 </span>
                 <TextField
                   fullWidth
-                  value={this.state.errorMessage[idx]}
+                  value={this.state.errorMessages[idx].text}
+                  errorText={this.state.errorMessages[idx].errorText}
                   onChange={(e) => {
-                    const value = e.target.value
-                    this.setState((state) => {
-                      const errMsgs = state.errorMessage
-                      errMsgs[idx] = value
-                      return {
-                        ...state,
-                        errorMessage: errMsgs,
-                      }
-                    })
+                    const val = e.target.value
+                    let errorText = ''
+                    if (!val) {
+                      errorText = 'Please enter the error message'
+                    } else if (val.length > 50) {
+                      errorText = 'The length should be lower than 50'
+                    }
+                    this.setState(prevState =>
+                      update(prevState, {
+                        errorMessages: {
+                          [idx]: {
+                            text: { $set: val },
+                            errorText: { $set: errorText },
+                          },
+                        },
+                      })
+                    )
                   }}
                   style={styles.errorMessageInputField}
                 />
