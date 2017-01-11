@@ -90,10 +90,24 @@ describe('API testing', () => {
         return response.result
       })
       .then((botId) =>
-        api.updateBot(botId, mockUpdatedBot)
+        api.updateBot(botId, {
+            bot: {
+              name: 'abc',
+              description: 'cde',
+            },
+          })
           .then((resp) => {
             expect(typeof resp.response.result).toEqual('number')
             expect(typeof resp.response.entities).toEqual('object')
+          })
+          .then(() => api.updateBotDefRevisions(botId,
+            mockUpdatedBot,
+          ))
+          .then((resp) => {
+            const botId = resp.response.result
+            const entities = resp.response.entities
+            expect(typeof botId).toEqual('number')
+            expect(typeof entities.bots[botId]).toEqual('object')
           })
           .then(() => api.deployBot(botId))
           .then((resp) => {
