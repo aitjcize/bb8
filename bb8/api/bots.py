@@ -86,7 +86,10 @@ def update_bot(bot_id):
 
     bot.name = request.json['bot']['name']
     bot.description = request.json['bot']['description']
-    bot.ga_id = request.json['bot']['ga_id']
+
+    if 'ga_id' in request.json['bot']:
+        bot.ga_id = request.json['bot']['ga_id']
+
     DatabaseManager.commit()
     return jsonify(message='ok')
 

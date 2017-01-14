@@ -49,6 +49,17 @@ const bot = {
       .catch(error => ({ error }))
   },
 
+  updateBotDefRevisions(botId, botDef) {
+    return fetch('PUT', `/api/bots/${botId}/revisions`, botDef, false)
+      .then(() => ({
+        response: normalize({
+          id: botId,
+          botDef,
+        }, Bot),
+      }))
+      .catch(error => ({ error }))
+  },
+
   listBotDefRevisions(botId) {
     return fetch('GET', `/api/bots/${botId}/revisions`, {})
       .then(response => ({
