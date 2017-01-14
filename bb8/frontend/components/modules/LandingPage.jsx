@@ -1,4 +1,5 @@
 import React from 'react'
+import { connect } from 'react-redux'
 
 import { Validator } from 'jsonschema'
 import update from 'immutability-helper'
@@ -24,6 +25,7 @@ import {
 } from './Message'
 
 import BotSchema from '../../schema/bot.schema.json'
+import * as botActionCreators from '../../actions/botActionCreators'
 
 
 const styles = {
@@ -240,12 +242,12 @@ class LandingPage extends React.Component {
     const botfile = Object.assign({}, BOT_TEMPLATE)
 
     // Bot name
-    botfile.bot.name = this.state.contacts.name || 'No name'
-    botfile.bot.description = this.state.contacts.website
+    botfile.bot.name = this.state.contacts.name.text || 'No name'
+    botfile.bot.description = this.state.contacts.website.text
 
     // Start node
     botfile.bot.nodes.Start.module.config.messages = [
-      { text: this.state.intro },
+      { text: this.state.intro.text },
     ]
 
     for (let i = 0; i < this.state.content.length; i += 1) {
@@ -264,6 +266,7 @@ class LandingPage extends React.Component {
             type: 'regexp',
             params: [`(?i)${section.requestText}`],
           },
+          ack_message: '',
           end_node_id: section.requestText,
         })
 
@@ -288,7 +291,7 @@ class LandingPage extends React.Component {
     botfile.bot.nodes.RootRouter.module.config.on_error.ack_message = []
     for (const msg of this.state.errorMessages) {
       if (msg) {
-        botfile.bot.nodes.RootRouter.module.config.on_error.ack_message.push(msg)
+        botfile.bot.nodes.RootRouter.module.config.on_error.ack_message.push(msg.text)
       }
     }
 
@@ -298,7 +301,7 @@ class LandingPage extends React.Component {
         text: 'You can reach us through the following information:',
       },
       {
-        text: `Email: ${this.state.contacts.email}\nPhone: ${this.state.contacts.phone}`,
+        text: `Email: ${this.state.contacts.email.text}\nPhone: ${this.state.contacts.phone.text}`,
       },
     ]
 
@@ -311,6 +314,7 @@ class LandingPage extends React.Component {
   }
 
   render() {
+    const botId = this.props.activeBotId
     const { content, errorMessages } = this.state
     const introMaxLength = 150
 
@@ -664,7 +668,10 @@ class LandingPage extends React.Component {
           <FlatButton
             label="save"
             onClick={() => {
-              this.toBot()
+              const botDef = this.toBot()
+              this.props.dispatch(
+                botActionCreators.updateBotDefRevisions(botId, botDef)
+              )
             }}
           />
         </CardActions>
@@ -673,4 +680,13 @@ class LandingPage extends React.Component {
   }
 }
 
-export default LandingPage
+LandingPage.propTypes = {
+  activeBotId: React.PropTypes.number.isRequired,
+  dispatch: React.PropTypes.func.isRequired,
+}
+
+const ConnectedLandingPage = connect(state => ({
+  activeBotId: state.bots.active,
+}))(LandingPage)
+
+export default ConnectedLandingPage

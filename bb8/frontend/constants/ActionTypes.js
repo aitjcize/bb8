@@ -23,6 +23,7 @@ export default {
   BOTS_GET: createRequestTypes('BOTS_GET'),
   BOTS_CREATE: createRequestTypes('BOTS_CREATE'),
   BOTS_UPDATE: createRequestTypes('BOTS_UPDATE'),
+  BOTS_UPDATE_DEFS: createRequestTypes('BOTS_UPDATE_DEFS'),
   BOTS_DELETE: createRequestTypes('BOTS_DELETE'),
   BOTS_SET_ACTIVE: 'BOTS_SET_ACTIVE',
 

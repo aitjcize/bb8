@@ -28,7 +28,20 @@ export const updateBot = (botId, botObj) => ({
   },
 })
 
+export const updateBotDefRevisions = (botId, botDef) => ({
+  type: types.BOTS_UPDATE_DEFS.REQUEST,
+  payload: {
+    botId,
+    botDef,
+  },
+})
+
 export const deleteBot = botId => ({
   type: types.BOTS_DELETE.REQUEST,
+  payload: botId,
+})
+
+export const deployBot = botId => ({
+  type: types.BOTS_DEPLOY.REQUEST,
   payload: botId,
 })
