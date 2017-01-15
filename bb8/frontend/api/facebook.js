@@ -1,3 +1,4 @@
+import 'isomorphic-fetch'
 import { camelizeKeys } from 'humps'
 import omit from 'lodash/omit'
 import async from 'async'
@@ -28,6 +29,17 @@ export const fetchMe = () => authorize()
       FB.api('/me?fields=name,email', resp => resolve(resp))
     })
   )
+
+export const subscribeApp = pageToken =>
+  fetch(`https://graph.facebook.com/v2.8/me/subscribed_apps?access_token=${pageToken}`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+  })
+  .then(resp => resp.json())
+  .catch(error => Promise.reject(error))
 
 export const refreshPage = () => {
   const iteratee = (item, callback) => {

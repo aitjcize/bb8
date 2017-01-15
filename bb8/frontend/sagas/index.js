@@ -277,6 +277,15 @@ export function* updatePlatformSaga() {
   while (true) {
     const { payload: { platformId, platform } } = yield take(types.PLATFORMS_UPDATE.REQUEST)
 
+    if (platform.typeEnum === 'Facebook') {
+      const { error } = yield call(fbAPI.subscribeApp, platform.config.accessToken)
+      if (error) {
+        yield put({ type: types.NOTIFICATION_OPEN, payload: 'Cannot attach bot to your facebook fans page, please try again later' })
+        // eslint-disable-next-line no-continue
+        continue
+      }
+    }
+
     const { response, error } = yield call(api.updatePlatform, platformId, platform)
 
     if (error && error.body.errorCode === CustomError.errDuplicateEntry) {
