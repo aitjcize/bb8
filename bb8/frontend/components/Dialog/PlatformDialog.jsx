@@ -30,6 +30,7 @@ const styles = {
     alignItems: 'flex-start',
   },
   bodyStyle: {
+    overflowY: 'scroll',
   },
   rows: {
     display: 'flex',
