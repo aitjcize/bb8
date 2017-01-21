@@ -22,10 +22,10 @@ import {
   CarouselMessage,
   ImageMessage,
   TextCardMessage,
-} from './Message'
+} from '../components/modules/Message'
 
-import BotSchema from '../../schema/bot.schema.json'
-import * as botActionCreators from '../../actions/botActionCreators'
+import BotSchema from '../schema/bot.schema.json'
+import * as botActionCreators from '../actions/botActionCreators'
 
 
 const styles = {

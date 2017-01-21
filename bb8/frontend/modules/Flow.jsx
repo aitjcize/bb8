@@ -1,5 +1,5 @@
 import React from 'react'
-import LandingPage from '../components/modules/LandingPage'
+import LandingPage from './LandingPage'
 
 const styles = {
   container: {
