@@ -678,6 +678,13 @@ class Message(base_message.Message):
                             'data': but.payload
                         })
 
+                if not buttons:
+                    buttons.append({
+                        'type': 'postback',
+                        'label': ' ',
+                        'data': ' '
+                    })
+
                 for unused_i in range(max_buttons - len(buttons)):
                     buttons.append({
                         'type': 'postback',
