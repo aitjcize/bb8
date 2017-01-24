@@ -97,7 +97,7 @@ validate-bots:
 	make -C bots
 
 cloud-sql:
-	 @if [ "$$BB8_DEPLOY" = "true" ] && [ ! `ls -A $(CLOUD_SQL_DIR)` ]; then \
+	 @if [ "$$BB8_DEPLOY" = "true" ] && [ ! `pgrep cloud_sql_proxy` ]; then \
 	    echo 'Starting CloudSQL proxy ...'; \
 	    sudo $(CURDIR)/bin/cloud_sql_proxy -dir=$(CLOUD_SQL_DIR) >/dev/null 2>&1 & \
 	  fi
