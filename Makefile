@@ -97,7 +97,10 @@ validate-bots:
 	make -C bots
 
 cloud-sql:
-	sudo $(CURDIR)/bin/cloud_sql_proxy -dir=$(CLOUD_SQL_DIR) &
+	 @if [ "$$BB8_DEPLOY" = "true" ] && [ ! `ls -A $(CLOUD_SQL_DIR)` ]; then \
+	    echo 'Starting CloudSQL proxy ...'; \
+	    sudo $(CURDIR)/bin/cloud_sql_proxy -dir=$(CLOUD_SQL_DIR) >/dev/null 2>&1 & \
+	  fi
 
 cleanup-docker:
 	@docker rm $(docker ps --all --quiet --filter status=exited --no-trunc)
@@ -111,5 +114,5 @@ clean:
 test-deploy:
 	@BB8_DEPLOY=false bb8ctl start
 
-deploy:
+deploy: cloud-sql
 	@BB8_DEPLOY=true HTTP_PORT=5000 bb8ctl start
