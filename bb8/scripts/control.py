@@ -306,7 +306,7 @@ class BB8(object):
         instance, running = docker_get_instance(redis_service)
         if instance and not running:
             run('docker rm -f %s' % redis_service)
-        if not instance:
+        if not running:
             run('docker run ' +
                 '--net=%s ' % BB8_NETWORK +
                 '--net-alias=%s ' % redis_service +
@@ -316,7 +316,7 @@ class BB8(object):
         instance, running = docker_get_instance(datadog_service)
         if instance and not running:
             run('docker rm -f %s' % datadog_service)
-        if not instance:
+        if not running:
             run('docker run ' +
                 '--net=%s ' % BB8_NETWORK +
                 '--net-alias=%s ' % datadog_service +
