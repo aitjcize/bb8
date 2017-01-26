@@ -1,0 +1,1146 @@
+{
+  "platforms": {
+      "Facebook": "243146796119681",
+      "Line": "ediboZhTw"
+  },
+  "bot": {
+    "name": "Fortune",
+    "description": "The fortune teller",
+    "interaction_timeout": 120,
+    "admin_interaction_timeout": 10,
+    "session_timeout": 0,
+    "ga_id": "FIXME",
+    "settings": {
+      "get_start_button": {"message": {"text": "Hi"}},
+      "persistent_menu": [
+        {
+          "type": "web_url",
+          "title": "粉絲頁",
+          "url": "https://www.facebook.com/ediboZhTw"
+        },
+        {
+          "type": "web_url",
+          "title": "Compose.ai 官方網站",
+          "url": "http://compose.ai"
+        }
+      ]
+    },
+    "nodes": {
+      "Start": {
+        "name": "First time user",
+        "description": "First time user",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "嗨 {{user.first_name}}，Fortune 可以幫你找出想吃的東西，他會學習你的嗜好。由 compose.ai 公司提供技術支援與維運支援。"
+              }
+            ]
+          }
+        }
+      },
+
+      "Root": {
+        "name": "Root",
+        "description": "Root node, show usage",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "輸入「抽籤」，幫你卜個卦。"
+              }
+            ],
+            "quick_replies": [
+              {
+                "content_type": "text",
+                "title": "抽籤"
+              }
+            ]
+          }
+        }
+      },
+
+      "RootRouter": {
+        "name": "RootRouter",
+        "description": "Root router",
+        "expect_input": true,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(使用)?說明", "tutorial", "^\\?", "(?i)help", "幫助", "怎麼用?", "^？", "不會用", "求救"]
+                },
+                "end_node_id": "Root",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["抽籤"],
+                  "memory_set": {"key": "seed", "value": "{{memory.seed * 1117 + 2017 % 60 if memory.seed else user.platform_user_ident % 60}}"}
+                },
+                "end_node_id": "GotoPoetry",
+                "ack_message": "抽籤中..."
+              }
+            ],
+            "on_error": {
+              "end_node_id": "Root",
+              "ack_message": "我不了解你的指令，可以再輸入一次，或輸入「使用說明」喔。"
+            }
+          }
+        }
+      },
+
+      "GotoPoetry": {
+        "name": "GotoPoetry",
+        "description": "GotoPoetry",
+        "expect_input": false,
+        "next_node_id": "poetry{{memory.seed}}",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "DEBUG: 抽到第 {{memory.seed}} 籤"
+              }
+            ]
+          }
+        }
+      },
+
+
+
+      "poetry0": {
+        "name": "poetry0",
+        "description": "poetry0",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "日出便見風雲散，光明清淨照世間，一向前途通大道，萬事清吉保平安。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry1": {
+        "name": "poetry1",
+        "description": "poetry1",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "於今此景正當時，看看欲吐百花魁，若能遇得春色到，一洒清吉脫塵埃。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry2": {
+        "name": "poetry2",
+        "description": "poetry2",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "勸君把定心莫虛，天註衣祿自有餘，和合重重常吉慶，時來終遇得明珠。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry3": {
+        "name": "poetry3",
+        "description": "poetry3",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "風恬浪靜可行舟，恰是中秋月一輪，凡事不須多憂慮，福祿自有慶家門。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry4": {
+        "name": "poetry4",
+        "description": "poetry4",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "只恐前途命有變 ，勸君作急可宜先，且守長江無大事，命逢太白守身邊。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry5": {
+        "name": "poetry5",
+        "description": "poetry5",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "風雲致雨落洋洋，天災時氣必有傷，命內此事難和合，更逢一足出外鄉。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry6": {
+        "name": "poetry6",
+        "description": "poetry6",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "雲開月出正分明，不須進退問前程，婚姻皆由天註定，和合清吉萬事成。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry7": {
+        "name": "poetry7",
+        "description": "poetry7",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "禾稻看看結成完，此事必定兩相全，回到家中寬心坐，妻兒皷腹樂團圓。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry8": {
+        "name": "poetry8",
+        "description": "poetry8",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "龍虎相隨在深山，君爾何須背後看，不知此去相愛愉，他日與我卻無干。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry9": {
+        "name": "poetry9",
+        "description": "poetry9",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "花開結子一半枯，可惜今年汝虛度，漸漸日落西山去，勸君不用向前途。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry10": {
+        "name": "poetry10",
+        "description": "poetry10",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "靈雞漸漸見分明，凡事且看子丑寅，雲開月出照天下，郎君即便見太平。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry11": {
+        "name": "poetry11",
+        "description": "poetry11",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "長江風浪漸漸靜，于今得進可安寧，必有貴人相扶助，凶事脫出見太平。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry12": {
+        "name": "poetry12",
+        "description": "poetry12",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "命中正逢羅孛關，用盡心機總未休，作福問神難得過，恰是行舟上高灘。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry13": {
+        "name": "poetry13",
+        "description": "poetry13",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "財中漸漸見分明，花開花謝結子成，寬心且看月中桂，郎君即便見太平。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry14": {
+        "name": "poetry14",
+        "description": "poetry14",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "八十原來是太公，看看晚景遇文王，目下緊事休相問，勸君且守待運通。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry15": {
+        "name": "poetry15",
+        "description": "poetry15",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "不須作福不須求，用盡心機總未休，陽世不知陰世事，官法如爐不自由。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry16": {
+        "name": "poetry16",
+        "description": "poetry16",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "舊恨重重未改為，家中禍患不臨身，須當謹防宜作福，龍蛇交會得和合。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry17": {
+        "name": "poetry17",
+        "description": "poetry17",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "君問中間此言因，看看祿馬拱前程，若得貴人多得利，和合自有兩分明。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry18": {
+        "name": "poetry18",
+        "description": "poetry18",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "富貴由命天註定，心高必然誤君期，不然且回依舊路，雲開月出自分明。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry19": {
+        "name": "poetry19",
+        "description": "poetry19",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "前途功名未得意，只恐命內有交加，兩家必定防損失，勸君且退莫咨嗟。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry20": {
+        "name": "poetry20",
+        "description": "poetry20",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "十方佛法有靈通，大難禍患不相同，紅日當空常照耀，還有貴人到家堂。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry21": {
+        "name": "poetry21",
+        "description": "poetry21",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "太公家業八十成，月出光輝四海明，命內自然逢大吉，茅屋中間百事亨。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry22": {
+        "name": "poetry22",
+        "description": "poetry22",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "欲去長江水闊茫，前途未遂運未通，如今絲綸常在手，只恐魚水不相逢。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry23": {
+        "name": "poetry23",
+        "description": "poetry23",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "月出光輝四海明，前途祿位見太平，浮雲掃退終無事，可保禍患不臨身。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry24": {
+        "name": "poetry24",
+        "description": "poetry24",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "總是前途莫心勞，求神問聖枉是多，但看雞犬日過後，不須作福事如何。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry25": {
+        "name": "poetry25",
+        "description": "poetry25",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "選出牡丹第一枝，勸君折取莫遲疑，世間若問相知處，萬事逢春正及時。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry26": {
+        "name": "poetry26",
+        "description": "poetry26",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "君爾寬心且自由，門庭清吉家無憂，財寶自然終吉利，凡事無傷不用求。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry27": {
+        "name": "poetry27",
+        "description": "poetry27",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "於今莫作此當時，虎落平陽被犬欺，世間凡事何難定，千山萬水也遲疑。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry28": {
+        "name": "poetry28",
+        "description": "poetry28",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "枯木可惜未逢春，如今反在暗中藏，寬心且守風霜退，還君依舊作乾坤。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry29": {
+        "name": "poetry29",
+        "description": "poetry29",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "漸漸看此月中和，過後須防未得高，改變顏色前途去，凡事必定見重勞。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry30": {
+        "name": "poetry30",
+        "description": "poetry30",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "綠柳蒼蒼正當時，任君此去作乾坤，花果結實無殘謝，福祿自有慶家門。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry31": {
+        "name": "poetry31",
+        "description": "poetry31",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "龍虎相交在門前，此事必定兩相連，黃金忽然變成鐵，何用作福問神仙。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry32": {
+        "name": "poetry32",
+        "description": "poetry32",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "欲去長江水闊茫，行舟把定未遭風，戶內用心再作福，看看魚水得相逢。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry33": {
+        "name": "poetry33",
+        "description": "poetry33",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "危險高山行過盡，莫嫌此路有重重，若見蘭桂漸漸發，長蛇反轉變成龍。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry34": {
+        "name": "poetry34",
+        "description": "poetry34",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "此事何須用心機，前途變怪自然知，看看此去得和合，漸漸脫出見太平。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry35": {
+        "name": "poetry35",
+        "description": "poetry35",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "福如東海壽如山，君爾何須嘆苦難，命內自然逢大吉，祈保分明自平安。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry36": {
+        "name": "poetry36",
+        "description": "poetry36",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "運逢得意身顯變，君爾身中皆有益，一向前途無難事，決意之中保清吉。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry37": {
+        "name": "poetry37",
+        "description": "poetry37",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "名顯有意在中央，不須祈禱心自安，看看早晚日過後，即時得意在其間。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry38": {
+        "name": "poetry38",
+        "description": "poetry38",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "意中若問神仙路，勸爾且退望高樓，寬心且守寬心坐，必然遇得貴人扶。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry39": {
+        "name": "poetry39",
+        "description": "poetry39",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "平生富貴成祿位，君家門戶定光輝，此中必定無損失，夫妻百歲喜相隨。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry40": {
+        "name": "poetry40",
+        "description": "poetry40",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "今行到此實難推，歌歌暢飲自徘徊，雞犬相聞消息近，婚姻夙世結成雙。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry41": {
+        "name": "poetry41",
+        "description": "poetry41",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "一重江水一重山，誰知此去路又難，任他改求終不過，是非終久未得安。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry42": {
+        "name": "poetry42",
+        "description": "poetry42",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "一年作事急如飛，君爾寬心莫遲疑，貴人還在千里外，音信月中漸漸知。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry43": {
+        "name": "poetry43",
+        "description": "poetry43",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "客到前途多得利，君爾何故兩相疑，雖是中間逢進退，月出光輝得運時。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry44": {
+        "name": "poetry44",
+        "description": "poetry44",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "花開今已結成果，富貴榮華終到老，君子小人相會合，萬事清吉莫煩惱。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry45": {
+        "name": "poetry45",
+        "description": "poetry45",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "功名得意與君顯，前途富貴喜安然，若遇一輪明月照，十五團圓光滿天。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry46": {
+        "name": "poetry46",
+        "description": "poetry46",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "君爾何須問聖跡，自己心中皆有益，於今且看月中旬，凶事脫出化成吉。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry47": {
+        "name": "poetry47",
+        "description": "poetry47",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "陽世作事未和同，雲遮月色正朦朧，心中意欲前途去，只恐命內運未通。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry48": {
+        "name": "poetry48",
+        "description": "poetry48",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "言語雖多不可從，風雲靜處未行龍，暗中終得明消息，君爾何須問重重。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry49": {
+        "name": "poetry49",
+        "description": "poetry49",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "佛前發誓無異心，且看前途得好音，此物原來本是鐵，也能變化得成金。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry50": {
+        "name": "poetry50",
+        "description": "poetry50",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "東西南北不堪行，前途此事正可當，勸君把定莫煩惱，家門自有保安康。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry51": {
+        "name": "poetry51",
+        "description": "poetry51",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "功名事業本由天，不須掛念意懸懸，若問中間遲與速，風雲際會在眼前。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry52": {
+        "name": "poetry52",
+        "description": "poetry52",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "看君來問心中事，積善之家慶有餘，運亨財子雙雙至，指日喜氣溢門閭。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry53": {
+        "name": "poetry53",
+        "description": "poetry53",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "孤燈寂寂夜沉沉，萬事清吉萬事成，若逢陰中有善果，燒得好香達神明。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry54": {
+        "name": "poetry54",
+        "description": "poetry54",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "須知進退總虛言，看看發暗未必全，珠玉深藏還未變，心中但得枉徒然。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry55": {
+        "name": "poetry55",
+        "description": "poetry55",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "病中若得苦心勞，到底完全總未遭，去後不須回頭問，心中事務盡消磨。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry56": {
+        "name": "poetry56",
+        "description": "poetry56",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "勸君把定心莫虛，前途清吉得運時，到底中間無大事，又遇神仙守安居。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry57": {
+        "name": "poetry57",
+        "description": "poetry57",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "蛇身意欲變成龍，只恐命內運未通，久病且作寬心坐，言語雖多不可從。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry58": {
+        "name": "poetry58",
+        "description": "poetry58",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "有心作福莫遲疑，求名清吉正當時，此事必能成會合，財寶自然喜相隨。"
+              }
+            ]
+          }
+        }
+      },
+
+      "poetry59": {
+        "name": "poetry59",
+        "description": "poetry59",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              { 
+                "text": "月出光輝本清吉，浮雲總是蔽蔭色，戶內用心再作福，當官分理便有益。"
+              }
+            ]
+          }
+        }
+      }
+
+
+    }
+  }
+}
