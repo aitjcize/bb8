@@ -10,6 +10,7 @@
 """
 
 import json
+import random
 import re
 import sys
 
@@ -349,6 +350,9 @@ def Render(tmpl, variables):
     if hasattr(g, 'user'):
         variables['settings'] = g.user.settings
         variables['memory'] = g.user.memory
+
+    # Inject some useful modules
+    variables['randint'] = random.randint
 
     # Inject data query object
     variables['data'] = DataQuery
