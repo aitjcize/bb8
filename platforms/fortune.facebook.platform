@@ -1,0 +1,9 @@
+{
+  "name": "籤詩三兩三 Messenger",
+  "type_enum": "Facebook",
+  "deployed": true,
+  "provider_ident": "325044184558412",
+  "config": {
+    "access_token": "EAAZAi0GnycPEBAHkZB6ijyzTId4OIQYfnsoKldtf91OnIJzXqeyZCLbrIOeVqxHk0hics1pPuM1asInD08wEkYb3c8d6i20U56Ho6vrXqF17tR36ZCgZBwN5a7tZB5s2pTowd2NRJYz8m9LJlJ454qGl1tFwv9TWGfvsgLSP5cWgZDZD"
+  }
+}

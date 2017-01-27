@@ -1,0 +1,10 @@
+{
+  "name": "籤詩三兩三 LINE",
+  "type_enum": "Line",
+  "deployed": true,
+  "provider_ident": "fortune.composeai",
+  "config": {
+    "access_token": "lOE7OPUnkin7rt6XQxnQOSr/DhrkQ337vblZj0828EOaHul4xQ0jsEqPtGLkVbDJzYB+tjwlvfnR9PvC4foLBfcc9lkyhixzGSXI3Sm2Ugu+e22j3OBilFWW+lu1hZm9Ow9lfL6RRe9ibR1YoOqs6gdB04t89/1O/w1cDnyilFU",
+    "channel_secret": "6f7acb06436c71d53bd7d3d11ca9557c"
+  }
+}
