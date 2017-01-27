@@ -110,6 +110,110 @@ POETRIES = [
 ]
 
 
+POETRY_IMAGES_LINK = [
+    "http://i.imgur.com/XLR6f1m.png",
+    "http://i.imgur.com/SVjNTCw.png",
+    "http://i.imgur.com/zX5YWeq.png",
+    "http://i.imgur.com/JJbxQlf.png",
+    "http://i.imgur.com/XMXUwgV.png",
+    "http://i.imgur.com/VZMksz8.png",
+    "http://i.imgur.com/NFq2ZMu.png",
+    "http://i.imgur.com/YStmfMN.png",
+    "http://i.imgur.com/cTbemTH.png",
+    "http://i.imgur.com/ebf6I7o.png",
+    "http://i.imgur.com/9lbg5ch.png",
+    "http://i.imgur.com/2VgAciq.png",
+    "http://i.imgur.com/3HBFdKn.png",
+    "http://i.imgur.com/d8m2vhk.png",
+    "http://i.imgur.com/3mFlRat.png",
+    "http://i.imgur.com/lm8ChGK.png",
+    "http://i.imgur.com/U4NW6xm.png",
+    "http://i.imgur.com/WUml1Z0.png",
+    "http://i.imgur.com/ynoHqMC.png",
+    "http://i.imgur.com/M7EScJu.png",
+    "http://i.imgur.com/zU2aRnE.png",
+    "http://i.imgur.com/y1jqieg.png",
+    "http://i.imgur.com/AWBEfcS.png",
+    "http://i.imgur.com/2V3bOwd.png",
+    "http://i.imgur.com/rAn3WFQ.png",
+    "http://i.imgur.com/BZNEMuk.png",
+    "http://i.imgur.com/v4VuaJc.png",
+    "http://i.imgur.com/c5kmzeW.png",
+    "http://i.imgur.com/X7fuTLe.png",
+    "http://i.imgur.com/SxHuDnE.png",
+    "http://i.imgur.com/DDOfpf7.png",
+    "http://i.imgur.com/oSOo5an.png",
+    "http://i.imgur.com/TPq0d2G.png",
+    "http://i.imgur.com/0yhFWBH.png",
+    "http://i.imgur.com/2AUDSN0.png",
+    "http://i.imgur.com/h2ykbon.png",
+    "http://i.imgur.com/tOSTTYM.png",
+    "http://i.imgur.com/GQzLEli.png",
+    "http://i.imgur.com/zqxzsQg.png",
+    "http://i.imgur.com/XLIjQ5G.png",
+    "http://i.imgur.com/Y2SIDYv.png",
+    "http://i.imgur.com/fdpBYgu.png",
+    "http://i.imgur.com/XoKSebh.png",
+    "http://i.imgur.com/o4xNzta.png",
+    "http://i.imgur.com/C3kmy1z.png",
+    "http://i.imgur.com/W0mU4FE.png",
+    "http://i.imgur.com/3n5za6Y.png",
+    "http://i.imgur.com/hlBgiSW.png",
+    "http://i.imgur.com/4TbxaH0.png",
+    "http://i.imgur.com/Zv6EFRd.png",
+    "http://i.imgur.com/C6Dpvk1.png",
+    "http://i.imgur.com/ZUWAwQI.png",
+    "http://i.imgur.com/QNOXN62.png",
+    "http://i.imgur.com/yazxfMb.png",
+    "http://i.imgur.com/xB2xnYg.png",
+    "http://i.imgur.com/Wh18yjG.png",
+    "http://i.imgur.com/weMd1dw.png",
+    "http://i.imgur.com/G04FmhH.png",
+    "http://i.imgur.com/ZAIuZoG.png",
+    "http://i.imgur.com/Zv6tM5k.png",
+    "http://i.imgur.com/cwCm0lz.png",
+    "http://i.imgur.com/iYprIwZ.png",
+    "http://i.imgur.com/BzB5XI9.png",
+    "http://i.imgur.com/IAcagu9.png",
+    "http://i.imgur.com/Pqi6JoM.png",
+    "http://i.imgur.com/B8ZdIN2.png",
+    "http://i.imgur.com/cNgX39i.png",
+    "http://i.imgur.com/wWDSTcG.png",
+    "http://i.imgur.com/d3LyEcA.png",
+    "http://i.imgur.com/EL5aMBN.png",
+    "http://i.imgur.com/3uK1elh.png",
+    "http://i.imgur.com/op6k1Xt.png",
+    "http://i.imgur.com/oFm6e44.png",
+    "http://i.imgur.com/Tr9TxM0.png",
+    "http://i.imgur.com/cLKW1Xp.png",
+    "http://i.imgur.com/UwAK9Kd.png",
+    "http://i.imgur.com/Mgp2m6L.png",
+    "http://i.imgur.com/wwBHtfq.png",
+    "http://i.imgur.com/UiJL6Np.png",
+    "http://i.imgur.com/A8lPBAV.png",
+    "http://i.imgur.com/Sorams7.png",
+    "http://i.imgur.com/UPArc6C.png",
+    "http://i.imgur.com/V7dl5jG.png",
+    "http://i.imgur.com/Scb3DtC.png",
+    "http://i.imgur.com/KAMk7C0.png",
+    "http://i.imgur.com/4uWeEkr.png",
+    "http://i.imgur.com/L9cq8nl.png",
+    "http://i.imgur.com/SBBxljb.png",
+    "http://i.imgur.com/XptpHKw.png",
+    "http://i.imgur.com/V0zVlFq.png",
+    "http://i.imgur.com/kiurArY.png",
+    "http://i.imgur.com/waWFEbr.png",
+    "http://i.imgur.com/lTYkqyC.png",
+    "http://i.imgur.com/FTxl93R.png",
+    "http://i.imgur.com/dGrCab0.png",
+    "http://i.imgur.com/3hXQskw.png",
+    "http://i.imgur.com/clL9wGx.png",
+    "http://i.imgur.com/BgRKVUX.png",
+    "http://i.imgur.com/HUOzgTe.png",
+    "http://i.imgur.com/xJar8Sn.png"
+]
+
+
 def number_to_chinese(num):
     number_char_map = ['', '一', '二', '三', '四', '五', '六', '七', '八',
                        '九', '十']
@@ -119,7 +223,7 @@ def number_to_chinese(num):
     if num > 10 and num < 20:
         return '十%s' % number_char_map[num % 10]
 
-    if num >= 20 and num < 99:
+    if num >= 20 and num <= 99:
         return '%s十%s' % (number_char_map[num / 10],
                            number_char_map[num % 10])
     if num == 100:
@@ -170,16 +274,31 @@ def gen_bot_entry(p, link):
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
-            "messages": [
-              {
-                "attachment": {
+            "messages": {
+              "Facebook": [
+                {
+                  "attachment": {
                     "type": "image",
                     "payload": {
                         "url": "%(link)s"
                     }
+                  }
                 }
-              }
-            ],
+              ],
+              "Line": [
+                {
+                  "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "%(link)s"
+                    }
+                  }
+                },
+                {
+                  "text": "輸入「解說」或「再一次」"
+                }
+              ]
+            },
             "quick_replies": [
               {
                 "content_type": "text",
@@ -224,11 +343,21 @@ def gen_bot_entry(p, link):
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
-            "messages": [
-              {
-                "text": "%(explain)s"
-              }
-            ],
+            "messages": {
+              "Facebook": [
+                {
+                  "text": "%(explain)s"
+                }
+              ],
+              "Line": [
+                {
+                  "text": "%(explain)s"
+                },
+                {
+                  "text": "輸入「再一次」可以再抽一次"
+                }
+              ]
+            },
             "quick_replies": [
               {
                 "content_type": "text",
@@ -253,7 +382,8 @@ def main():
         pass
 
     for item in POETRIES:
-        link = gen_image(item)
+        # link = gen_image(item)
+        link = POETRY_IMAGES_LINK[item[0] - 1]
         gen_bot_entry(item, link)
 
 
