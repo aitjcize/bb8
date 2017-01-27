@@ -9,7 +9,7 @@
     "interaction_timeout": 120,
     "admin_interaction_timeout": 10,
     "session_timeout": 0,
-    "ga_id": "FIXME",
+    "ga_id": "UA-79887532-6",
     "settings": {
       "get_start_button": {"message": {"text": "Hi"}},
       "persistent_menu": [
@@ -147,6 +147,14 @@
               {
                 "content_type": "text",
                 "title": "玉皇大帝"
+              },
+              {
+                "content_type": "text",
+                "title": "月老"
+              },
+              {
+                "content_type": "text",
+                "title": "觀世音菩薩"
               },
               {
                 "content_type": "text",
@@ -290,6 +298,7 @@
           }
         }
       },
+
       "Poetry1": {
         "name": "Poetry1",
         "expect_input": false,
@@ -299,7 +308,12 @@
           "config": {
             "messages": [
               {
-                "text": "【大吉】\n七寶浮圖塔\n高峰頂上安\n眾人皆仰望\n莫作等閒看"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/XLR6f1m.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -371,7 +385,12 @@
           "config": {
             "messages": [
               {
-                "text": "【小吉】\n月被浮雲翳\n立事自昏迷\n幸乞隂公祐\n何慮不開眉"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/SVjNTCw.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -443,7 +462,12 @@
           "config": {
             "messages": [
               {
-                "text": "【兇】\n愁惱損忠良\n青宵一炷香\n雖然防小過\n閑慮覺時長"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/zX5YWeq.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -515,7 +539,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n累有興雲志\n君恩祿未封\n若逢侯手印\n好事始總總"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/JJbxQlf.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -587,7 +616,12 @@
           "config": {
             "messages": [
               {
-                "text": "【兇】\n家道未能昌\n危々保禍殃\n暗雲侵月桂\n佳人一炷香"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/XMXUwgV.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -659,7 +693,12 @@
           "config": {
             "messages": [
               {
-                "text": "【末吉】\n宅墓鬼凶多\n人事有爻訛\n傷財防損失\n祈福始中和"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/VZMksz8.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -731,7 +770,12 @@
           "config": {
             "messages": [
               {
-                "text": "【兇】\n登舟待便風\n月色暗朦朧\n欲輾香輪去\n高山千万重"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/NFq2ZMu.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -803,7 +847,12 @@
           "config": {
             "messages": [
               {
-                "text": "【大吉】\n勿頭中見尾\n文華須得理\n禾刀自偶然\n当遇非常喜"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/YStmfMN.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -875,7 +924,12 @@
           "config": {
             "messages": [
               {
-                "text": "【大吉】\n有名須得遇\n三望一朝遷\n貴人来指処"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/cTbemTH.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -947,7 +1001,12 @@
           "config": {
             "messages": [
               {
-                "text": "【大吉】\n舊用多成破\n新更始見財\n改求雲外望\n枯木遭春開"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/ebf6I7o.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -1019,7 +1078,12 @@
           "config": {
             "messages": [
               {
-                "text": "【大吉】\n有禄興家業\n文華達帝都\n雲中乗好箭\n兼得貴人扶"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/9lbg5ch.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -1091,7 +1155,12 @@
           "config": {
             "messages": [
               {
-                "text": "【大吉】\n楊柳遇春時\n残花発旧枝\n重々霜雪裡\n黄金色更輝"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/2VgAciq.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -1163,7 +1232,12 @@
           "config": {
             "messages": [
               {
-                "text": "【大吉】\n手把大陽輝\n東君發舊枝\n稼苗方欲秀\n猶更上雲梯"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/3HBFdKn.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -1235,7 +1309,12 @@
           "config": {
             "messages": [
               {
-                "text": "【末吉】\n玉石未分時\n憂心轉更悲\n前途通大道\n花發應殘枝"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/d8m2vhk.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -1307,7 +1386,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n年乖數亦孤\n久病未能蘇\n岸危舟未發\n龍臥失明珠"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/3mFlRat.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -1379,7 +1463,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n破改重成望\n前途喜亦寧\n貴人相助處\n祿馬照前程"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/lm8ChGK.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -1451,7 +1540,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n怪異防憂惱\n人宅見分離\n惜華還值雨\n杯酒惹閑非"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/U4NW6xm.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -1523,7 +1617,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n離暗出明時\n麻衣變綠衣\n舊憂終是退\n遇祿應交輝"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/WUml1Z0.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -1595,7 +1694,12 @@
           "config": {
             "messages": [
               {
-                "text": "【末小】\n家道生荊棘\n兒孫防虎威\n香前祈福厚\n方得免分離"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/ynoHqMC.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -1667,7 +1771,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n月出漸分明\n家財每每興\n何言先有滯\n更變立功名"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/M7EScJu.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -1739,7 +1848,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n洗出經年否\n光華得再清\n所求終吉利\n重日照前程"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/zU2aRnE.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -1811,7 +1925,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n漸漸濃雲散\n看看月再明\n逢春華菓秀\n雨過竹重青"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/y1jqieg.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -1883,7 +2002,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n紅雲隨步起\n一箭中青霄\n鹿行千里遠\n爭知去路遙"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/AWBEfcS.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -1955,7 +2079,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n三女莫相逢\n盟言說未通\n門裡心肝掛\n縞素子重重"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/2V3bOwd.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -2027,7 +2156,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n枯木逢春生\n前途必利亨\n亦得佳人箭\n乘車祿自行"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/rAn3WFQ.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -2099,7 +2233,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n將軍有異聲\n進兵萬里程\n爭知臨敵處\n道勝却虛名"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/BZNEMuk.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -2171,7 +2310,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n望祿應重山\n花紅喜悅顏\n舉頭看皎月\n漸出黑雲間"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/v4VuaJc.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -2243,7 +2387,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n意速無船渡\n波深必誤身\n切須回舊路\n方可免災迍"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/c5kmzeW.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -2305,7 +2454,6 @@
         }
       },
 
-
       "Poetry29": {
         "name": "Poetry29",
         "expect_input": false,
@@ -2315,7 +2463,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n憂轗漸消融\n求名得再通\n寶財臨祿位\n當遇主人公"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/X7fuTLe.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -2378,6 +2531,7 @@
       },
 
 
+
       "Poetry30": {
         "name": "Poetry30",
         "expect_input": false,
@@ -2387,7 +2541,12 @@
           "config": {
             "messages": [
               {
-                "text": "【半吉】\n仙鶴立高枝\n防他暗箭虧\n井畔剛刀利\n戶內更防危"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/SxHuDnE.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -2459,7 +2618,12 @@
           "config": {
             "messages": [
               {
-                "text": "【末吉】\n鯤鯨未變時\n且守碧潭溪\n風雲興巨浪\n一息過天涯"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/DDOfpf7.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -2531,7 +2695,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n似玉藏深石\n休將故眼看\n一朝良匠別\n方見寶光寒"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/oSOo5an.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -2603,7 +2772,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n枯木逢春艷\n芳菲再發林\n雲間方見月\n前遇貴人欽"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/TPq0d2G.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -2675,7 +2849,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n臘木春將至\n芳菲喜再新\n鯤鯨興巨浪\n舉鉤祿為真"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/0yhFWBH.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -2747,7 +2926,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n射鹿須乘箭\n故僧引路歸\n遇道同仙籍\n光華映晚暉"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/2AUDSN0.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -2819,7 +3003,12 @@
           "config": {
             "messages": [
               {
-                "text": "【末吉】\n先損後有益\n如月之剝蝕\n玉兔待重生\n光華當滿室"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/h2ykbon.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -2891,7 +3080,12 @@
           "config": {
             "messages": [
               {
-                "text": "【半吉】\n陰靉未能通\n求名亦未逢\n幸然須有變\n一箭中雙鴻"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/tOSTTYM.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -2963,7 +3157,12 @@
           "config": {
             "messages": [
               {
-                "text": "【半吉】\n月照天書靜\n雲生霧彩霞\n久想離庭客\n無事惹咨嗟"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/GQzLEli.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -3035,7 +3234,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n望用方心腹\n家鄉被火災\n憂危三五度\n由損斷頭財"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/zqxzsQg.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -3107,7 +3311,12 @@
           "config": {
             "messages": [
               {
-                "text": "【小吉】\n中正方成道\n姦邪恐惹愆\n壺中盛妙藥\n非久去煩煎"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/XLIjQ5G.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -3179,7 +3388,12 @@
           "config": {
             "messages": [
               {
-                "text": "【末吉】\n有物不周旋\n須防損半邊\n家鄉煙火裡\n祈福始安然"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/Y2SIDYv.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -3251,7 +3465,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n桂華春將到\n雲天好進程\n貴人相遇處\n暗月再分明"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/fdpBYgu.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -3323,7 +3542,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n月桂將相滿\n追鹿映山溪\n貴人乘遠箭\n好事始相宜"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/XoKSebh.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -3395,7 +3619,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n盤中黑白子\n一著要先機\n天龍降甘澤\n喜出舊根基"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/o4xNzta.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -3467,7 +3696,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n有意興高顯\n祿馬引前程\n得遇雲中箭\n芝蘭滿路生"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/C3kmy1z.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -3539,7 +3773,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n雷發震天昏\n佳人獨掩門\n交加文書上\n無事也遭迍"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/W0mU4FE.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -3611,7 +3850,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n更望身前立\n何期在晚成\n若遇重山去\n財祿自相迎"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/3n5za6Y.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -3683,7 +3927,12 @@
           "config": {
             "messages": [
               {
-                "text": "【小吉】\n見祿隔前溪\n勞心休更迷\n一朝逢好渡\n鸞鳳入雲飛"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/hlBgiSW.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -3755,7 +4004,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n正好中秋月\n蟾蜍皎潔間\n暗雲知何處\n故故兩相攀"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/4TbxaH0.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -3827,7 +4081,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n有達宜更變\n重山利政逢\n前途相偶合\n財祿保亨通"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/Zv6EFRd.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -3899,7 +4158,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n修進甚功辛\n勞生未得時\n騰身遊碧漢\n方得遇高枝"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/C6Dpvk1.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -3971,7 +4235,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n有僭須惹訟\n兼有事交加\n門裡防人危\n災臨莫嘆嗟"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/ZUWAwQI.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -4043,7 +4312,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n久困漸能安\n雲書降印權\n殘花終結實\n時亨祿自遷"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/QNOXN62.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -4115,7 +4389,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n身同意不同\n月蝕暗長空\n輪雖常在手\n魚水未相逢"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/yazxfMb.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -4187,7 +4466,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n雲散月重明\n天書得誌誠\n雖然多阻滯\n花發再重榮"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/xB2xnYg.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -4259,7 +4543,12 @@
           "config": {
             "messages": [
               {
-                "text": "【末吉】\n生涯喜又憂\n未老先白頭\n勞心千百度\n芳遇貴人留"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/Wh18yjG.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -4331,7 +4620,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n欲渡長江闊\n波深未自儔\n前津逢浪靜\n重整鉤鰲鉤"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/weMd1dw.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -4403,7 +4697,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n有徑江海隔\n車行峻嶺危\n亦防多進退\n猶恐小人虧"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/G04FmhH.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -4475,7 +4774,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n去住心無定\n行藏亦未寧\n一輪清皎潔\n却被黑雲乘"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/ZAIuZoG.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -4547,7 +4851,12 @@
           "config": {
             "messages": [
               {
-                "text": "【小吉】\n高危安可涉\n平坦是延年\n守道當逢泰\n風雲不偶然"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/Zv6tM5k.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -4619,7 +4928,12 @@
           "config": {
             "messages": [
               {
-                "text": "【半吉】\n舊愆何日解\n戶內保嬋娟\n要逢十一口\n遇鼠過牛邊"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/cwCm0lz.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -4691,7 +5005,12 @@
           "config": {
             "messages": [
               {
-                "text": "【大吉】\n災轗時時退\n名顯四方揚\n改故重乘祿\n昴高福自昌"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/iYprIwZ.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -4763,7 +5082,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n何故生荊棘\n佳人意漸疏\n久困重輪下\n黃金未出渠"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/BzB5XI9.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -4835,7 +5159,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n安居且慮危\n情深主別離\n風飄波浪急\n鴛鴦各自飛"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/IAcagu9.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -4907,7 +5236,12 @@
           "config": {
             "messages": [
               {
-                "text": "【末吉】\n苦病兼防辱\n乘危亦未穌\n若見一陽後\n方可作良圖"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/Pqi6JoM.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -4979,7 +5313,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n水滯少波濤\n飛鴻落羽毛\n重憂心緒亂\n閑事惹風騷"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/B8ZdIN2.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -5051,7 +5390,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n枯木未生枝\n獨步上雲岐\n豈知身未穩\n獨自惹閑非"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/cNgX39i.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -5123,7 +5467,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n異夢生英傑\n前來事可疑\n芳菲春日暖\n依舊發殘枝"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/wWDSTcG.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -5195,7 +5544,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n明月暗雲浮\n花紅一半枯\n惹事傷心處\n行舟莫遠圖"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/d3LyEcA.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -5267,7 +5621,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n雷發庭前草\n炎火向天飛\n一心來趕祿\n爭奈掩朱扉"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/EL5aMBN.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -5339,7 +5698,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n道業未成時\n何期兩不宜\n事煩心緒亂\n飜做徘徊思"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/3uK1elh.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -5411,7 +5775,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n戶內防重厄\n花菓見分枝\n嚴霜纔過後\n方可始相宜"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/op6k1Xt.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -5483,7 +5852,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n久暗漸分明\n登江綠水澄\n芝書從遠降\n終得異人成"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/oFm6e44.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -5555,7 +5929,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n蛇虎正交羅\n牛生二尾多\n交歲方成慶\n上下不能和"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/Tr9TxM0.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -5627,7 +6006,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n孤舟欲過岸\n浪急渡人空\n女人立流水\n望月意情濃"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/cLKW1Xp.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -5699,7 +6083,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n富貴天之祐\n何須苦用心\n前程應顯跡\n久用得高臨"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/UwAK9Kd.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -5771,7 +6160,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n累滯未能穌\n求名莫遠圖\n登舟波浪急\n咫尺隔天衢"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/Mgp2m6L.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -5843,7 +6237,12 @@
           "config": {
             "messages": [
               {
-                "text": "【大吉】\n但存公道正\n何愁理去忠\n松柏蒼蒼翠\n前山祿馬重"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/wwBHtfq.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -5915,7 +6314,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n殘月未還光\n樽前非語傷\n戶中有人厄\n祈福保青陽"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/UiJL6Np.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -5987,7 +6391,12 @@
           "config": {
             "messages": [
               {
-                "text": "【大吉】\n深山多養道\n忠正帝王宣\n鳳遂鸞飛去\n昇高過九天"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/A8lPBAV.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -6059,7 +6468,12 @@
           "config": {
             "messages": [
               {
-                "text": "【小吉】\n道合須成合\n先憂事更多\n所求財寶盛\n更變得中和"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/Sorams7.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -6131,7 +6545,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n火發應連天\n新愁惹舊愆\n欲求千里外\n要渡更無船"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/UPArc6C.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -6203,7 +6622,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n舉步出雲端\n高枝未可攀\n昇頭看皎月\n猶在黑雲間"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/V7dl5jG.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -6275,7 +6699,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n否極方無泰\n花開值晚秋\n人情不調備\n財寶鬼來偷"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/Scb3DtC.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -6347,7 +6776,12 @@
           "config": {
             "messages": [
               {
-                "text": "【大吉】\n望用何愁晚\n求名漸得寧\n雲梯終有望\n歸路入蓬瀛"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/KAMk7C0.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -6419,7 +6853,12 @@
           "config": {
             "messages": [
               {
-                "text": "【大吉】\n花發應陽臺\n車行進寶財\n執文朝帝殿\n走馬聽聲雷"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/4uWeEkr.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -6491,7 +6930,12 @@
           "config": {
             "messages": [
               {
-                "text": "【大吉】\n鑿石方逢玉\n淘沙始見金\n青霄終有路\n只恐不堅心"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/L9cq8nl.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -6563,7 +7007,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n作事不和同\n臨危更主凶\n佳人生苦根\n閑慮兩三重"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/SBBxljb.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -6635,7 +7084,12 @@
           "config": {
             "messages": [
               {
-                "text": "【大吉】\n一片無瑕玉\n從今好琢磨\n得遇高人識\n方逢喜氣多"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/XptpHKw.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -6707,7 +7161,12 @@
           "config": {
             "messages": [
               {
-                "text": "【大吉】\n一信向天飛\n秦川舟自歸\n前途成好事\n應得貴人推"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/V0zVlFq.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -6779,7 +7238,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n改變前途去\n月桂又逢圓\n雲中乘祿至\n凡事可宜先"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/kiurArY.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -6851,7 +7315,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n自幼常為旅\n逢春駿馬驕\n前程宜進步\n得箭降青霄"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/waWFEbr.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -6923,7 +7392,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n有魚臨旱池\n跳躍入波濤\n隔中須有望\n先且慮塵勞"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/lTYkqyC.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -6995,7 +7469,12 @@
           "config": {
             "messages": [
               {
-                "text": "【半吉】\n事忌樽語\n人防小輩交\n幸乞陰公祐\n方免事敵爻"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/FTxl93R.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -7067,7 +7546,12 @@
           "config": {
             "messages": [
               {
-                "text": "【吉】\n志氣勤修業\n祿位未造逢\n若聞金雞語\n乘船得便風"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/dGrCab0.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -7139,7 +7623,12 @@
           "config": {
             "messages": [
               {
-                "text": "【大吉】\n雞逐鳳同飛\n高林整羽儀\n棹舟須濟岸\n寶貨滿船歸"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/3hXQskw.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -7211,7 +7700,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n霧罩重樓屋\n佳人水上行\n白雲歸去路\n不見月波澄"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/clL9wGx.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -7283,7 +7777,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n欲理新絲亂\n閑愁足是非\n只困羅網裡\n相見幾人悲"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/BgRKVUX.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -7355,7 +7854,12 @@
           "config": {
             "messages": [
               {
-                "text": "【大吉】\n紅日當門照\n暗月再重圓\n遇珍須得寶\n頗有稱心田"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/tWQnDFR.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -7427,7 +7931,12 @@
           "config": {
             "messages": [
               {
-                "text": "【凶】\n祿走白雲間\n攜琴走遠山\n不遇神仙面\n空惹意闌珊"
+                "attachment": {
+                    "type": "image",
+                    "payload": {
+                        "url": "http://i.imgur.com/xJar8Sn.png"
+                    }
+                }
               }
             ],
             "quick_replies": [
@@ -7488,6 +7997,7 @@
           }
         }
       }
+
     }
   }
 }
