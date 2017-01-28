@@ -155,6 +155,10 @@
               },
               {
                 "content_type": "text",
+                "title": "月下老人"
+              },
+              {
+                "content_type": "text",
                 "title": "關聖帝君"
               },
               {
@@ -163,7 +167,7 @@
               },
               {
                 "content_type": "text",
-                "title": "月下老人"
+                "title": "財神爺"
               },
               {
                 "content_type": "text",
@@ -252,8 +256,28 @@
               {
                 "rule": {
                   "type": "regexp",
+                  "params": [".*財神.*"],
+                  "memory_set": {"key": "god_image_url", "value": "http://i.imgur.com/eNNwLtr.jpg"},
+                  "collect_as": {"key": "god_name"}
+                },
+                "end_node_id": "ShowGodImage",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
                   "params": [".*三山國王.*"],
                   "memory_set": {"key": "god_image_url", "value": "http://i.imgur.com/z91N1Iq.jpg"},
+                  "collect_as": {"key": "god_name"}
+                },
+                "end_node_id": "ShowGodImage",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [".*王母娘娘.*", ".*西王.*", ".*瑤池.*"],
+                  "memory_set": {"key": "god_image_url", "value": "http://i.imgur.com/DmTJNGM.jpg"},
                   "collect_as": {"key": "god_name"}
                 },
                 "end_node_id": "ShowGodImage",
