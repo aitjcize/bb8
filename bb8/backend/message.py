@@ -452,8 +452,14 @@ class Message(base_message.Message):
                 payload['node_id'] = g.node.next_node_id
                 payload = json.dumps(payload)
 
+            webview_height_ratio = data.get('webview_height_ratio')
+            if webview_height_ratio:
+                webview_height_ratio = (
+                    Message.WebviewHeightRatioEnum(webview_height_ratio))
+
             return cls(Message.ButtonType(data['type']),
                        data.get('title'), data.get('url'), payload,
+                       webview_height_ratio,
                        data.get('acceptable_inputs'), variables)
 
         def apply_limits(self, platform_type):

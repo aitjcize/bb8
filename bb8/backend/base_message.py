@@ -91,6 +91,11 @@ class Message(object):
         POSTBACK = 'postback'
         ELEMENT_SHARE = 'element_share'
 
+    class WebviewHeightRatioEnum(enum.Enum):
+        COMPACT = 'compact'
+        TALL = 'tall'
+        FULL = 'full'
+
     class ListTopElementStyle(enum.Enum):
         LARGE = 'large'
         COMPACT = 'compact'
@@ -101,15 +106,22 @@ class Message(object):
 
     class Button(object):
         def __init__(self, b_type, title=None, url=None, payload=None,
-                     acceptable_inputs=None, variables=None):
+                     webview_height_ratio=None, acceptable_inputs=None,
+                     variables=None):
             if b_type not in Message.ButtonType:
                 raise RuntimeError('Invalid Button type')
+
+            if (webview_height_ratio and
+                    webview_height_ratio not in
+                    Message.WebviewHeightRatioEnum):
+                raise RuntimeError('Invalid Webview height ratio')
 
             variables = variables or {}
             self.type = b_type
             self.title = Render(title, variables)
             self.url = Render(url, variables)
             self.payload = None
+            self.webview_height_ratio = webview_height_ratio
             self.acceptable_inputs = acceptable_inputs or []
 
             if payload:
@@ -145,8 +157,14 @@ class Message(object):
             if payload and isinstance(payload, dict):
                 payload = json.dumps(payload)
 
+            webview_height_ratio = data.get('webview_height_ratio')
+            if webview_height_ratio:
+                webview_height_ratio = (
+                    Message.WebviewHeightRatioEnum(webview_height_ratio))
+
             return cls(Message.ButtonType(data['type']),
                        data.get('title'), data.get('url'), payload,
+                       webview_height_ratio,
                        data.get('acceptable_inputs'), variables)
 
         @classmethod
@@ -162,6 +180,9 @@ class Message(object):
                         'acceptable_inputs': {
                             'type': 'array',
                             'items': {'type': 'string'}
+                        },
+                        'webview_height_ratio': {
+                            'enum': ['compact', 'tall', 'full']
                         }
                     }
                 }, {
@@ -197,6 +218,9 @@ class Message(object):
                 }
                 if self.type == Message.ButtonType.WEB_URL:
                     data['url'] = self.url
+                    if self.webview_height_ratio:
+                        data['webview_height_ratio'] = (
+                            self.webview_height_ratio.value)
                 else:
                     data['payload'] = self.payload
             return data
