@@ -73,6 +73,7 @@
     The jinja document: http://jinja.pocoo.org/docs/dev/templates/
 """
 
+import importlib
 import json
 import logging
 
@@ -86,6 +87,8 @@ from jinja2 import Environment, DictLoader
 
 _LOG = logging.getLogger(__name__)
 _LOG.setLevel(logging.INFO)
+
+_MODULE_WHITELIST = ['re', 'urllib']
 
 
 def properties():
@@ -159,13 +162,22 @@ def Transform(transform, js, unused_debug):
         if trans['type'] == 'jinja':
             template_json = '\n'.join(trans['template'])
 
+            imports = {}
+
+            if 'imports' in trans:
+                for p in trans['imports']:
+                    if p not in _MODULE_WHITELIST:
+                        _LOG.warn('module `%s\' not in whitelist', p)
+                        continue
+                    imports[p] = importlib.import_module(p)
+
             env = Environment(loader=DictLoader({'XXX.html': template_json}))
             tmpl = env.get_template('XXX.html')
             js_str = tmpl.render(  # pylint: disable=E1101
                 transform_input=js,
                 memory=Memory.All(),
-                settings=Settings.All()
-                )
+                settings=Settings.All(),
+                **imports)
 
             # TODO: loose restriction on the tailing , in JSON
             js = json.loads(js_str)
