@@ -16,7 +16,7 @@
         {
           "type": "web_url",
           "title": "粉絲頁",
-          "url": "https://www.facebook.com/325044184558412/"
+          "url": "https://www.facebook.com/chance323"
         },
         {
           "type": "web_url",
@@ -37,6 +37,12 @@
             "messages": [
               {
                 "text": "嗨 {{user.first_name}}，新年來抽抽籤！"
+              },
+              {
+                "text": "臉書連結: https://m.me/chance323"
+              },
+              {
+                "text": "Line連結: https://line.me/R/ti/p/%40uvw9648d"
               }
             ]
           }
@@ -157,7 +163,7 @@
               },
               {
                 "content_type": "text",
-                "title": "月老"
+                "title": "月下老人"
               },
               {
                 "content_type": "text",
@@ -186,6 +192,76 @@
               {
                 "rule": {
                   "type": "regexp",
+                  "params": [".*媽祖.*", ".*天上聖母.*", ".*天后.*", ".*林默娘.*"],
+                  "memory_set": {"key": "god_image_url", "value": "http://i.imgur.com/EbR8tHq.jpg"},
+                  "collect_as": {"key": "god_name"}
+                },
+                "end_node_id": "ShowGodImage",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [".*關聖帝君.*", ".*關公.*", ".*關老爺.*"],
+                  "memory_set": {"key": "god_image_url", "value": "http://i.imgur.com/PcrTEQ2.jpg"},
+                  "collect_as": {"key": "god_name"}
+                },
+                "end_node_id": "ShowGodImage",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [".*玉皇.*"],
+                  "memory_set": {"key": "god_image_url", "value": "http://i.imgur.com/rzMCzz5.jpg"},
+                  "collect_as": {"key": "god_name"}
+                },
+                "end_node_id": "ShowGodImage",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [".*月下老人.*", ".*月老.*"],
+                  "memory_set": {"key": "god_image_url", "value": "http://i.imgur.com/7cGb5Kk.jpg"},
+                  "collect_as": {"key": "god_name"}
+                },
+                "end_node_id": "ShowGodImage",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [".*觀世音.*", ".*觀音.*"],
+                  "memory_set": {"key": "god_image_url", "value": "http://i.imgur.com/paFZGiM.jpg"},
+                  "collect_as": {"key": "god_name"}
+                },
+                "end_node_id": "ShowGodImage",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [".*城隍.*"],
+                  "memory_set": {"key": "god_image_url", "value": "http://i.imgur.com/osajwfs.jpg"},
+                  "collect_as": {"key": "god_name"}
+                },
+                "end_node_id": "ShowGodImage",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [".*三山國王.*"],
+                  "memory_set": {"key": "god_image_url", "value": "http://i.imgur.com/z91N1Iq.jpg"},
+                  "collect_as": {"key": "god_name"}
+                },
+                "end_node_id": "ShowGodImage",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
                   "params": [".*"],
                   "memory_set": {"key": "god_name"},
                   "collect_as": {"key": "god_name"}
@@ -202,11 +278,12 @@
           }
         }
       },
+
       "GetGodImage": {
         "name": "GetGodImage",
         "description": "GetGodImage",
         "expect_input": false,
-        "next_node_id": "Draw",
+        "next_node_id": "ShowGodImage",
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
@@ -225,31 +302,62 @@
                 "type": "jinja",
                 "template": [
                   "{",
-                  "  \"messages\": [",
+                  "  \"memory\": {",
                   "    {% if 'items' in transform_input %}",
+                  "      \"god_image_url\": \"{{transform_input['items'][0].link}}\"",
+                  "    {% else %}",
+                  "    {",
+                  "      \"god_image_url\": \"http://www.tcsac.gov.tw/2016webmazu/images/living-roomj.jpg\"",
+                  "    }",
+                  "    {% endif %}",
+                  "  }",
+                  "}"
+                ]
+              }
+            ],
+            "debug": 0,
+            "on_error": {
+              "end_node_id": "Draw",
+              "ack_message": "我好像壞掉了，快通知管理員。(GetGodImage)\n不過你還是可以求籤。",
+              "memory_set": {"god_image_url": "http://www.tcsac.gov.tw/2016webmazu/images/living-roomj.jpg"}
+            }
+          }
+        }
+      },
+
+      "ShowGodImage": {
+        "name": "ShowGodImage",
+        "description": "ShowGodImage",
+        "expect_input": false,
+        "next_node_id": "Draw",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"messages\": [",
                   "    {",
                   "       \"attachment\": {",
                   "           \"type\": \"image\",",
                   "           \"payload\": {",
-                  "               \"url\": \"{{transform_input['items'][0].link}}\"",
+                  "               \"url\": \"{{memory.god_image_url}}\"",
                   "           }",
                   "       }",
                   "    }",
-                  "    {% else %}",
-                  "    {",
-                  "       \"text\": \"找不到這位神明。不過你還是可以求籤。\"",
-                  "    }",
-                  "    {% endif %}",
                   "  ]",
                   "}"
                 ]
               }
             ],
             "debug": 0,
-            "on_error": "我好像壞掉了，快通知管理員。(GetGodImage)"
+            "on_error": "我好像壞掉了，快通知管理員。(ShowGodImage)\n不過你還是可以求籤。"
           }
         }
       },
+
       "Draw": {
         "name": "Draw",
         "expect_input": false,
