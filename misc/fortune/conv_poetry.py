@@ -283,6 +283,23 @@ def gen_bot_entry(p, link):
                         "url": "%(link)s"
                     }
                   }
+                },
+                {
+                  "attachment": {
+                    "type": "template",
+                    "payload": {
+                      "template_type": "button",
+                      "text": "要分享你剛求到的籤詩嗎？",
+                      "buttons": [
+                        {
+                          "type":"web_url",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=%(link)s&quote=我在籤詩三兩三抽到了這首籤詩！\\nhttp://m.me/chance323/&redirect_uri=https%%3A//www.messenger.com/closeWindow/%%3Fimage_url%%3Dhttp%%3A//i.imgur.com/y2apUiJ.png%%26display_text%%3D%%3A%%29",
+                          "title":"分享",
+                          "webview_height_ratio": "tall"
+                        }
+                      ]
+                    }
+                  }
                 }
               ],
               "Line": [
