@@ -300,11 +300,12 @@
             "transform": [
               {
                 "type": "jinja",
+                "imports": ["re", "urllib"],
                 "template": [
                   "{",
                   "  \"memory\": {",
                   "    {% if 'items' in transform_input %}",
-                  "      \"god_image_url\": \"{{transform_input['items'][0].link}}\"",
+                  "      \"god_image_url\": \"https://images.weserv.nl/?url={{urllib.quote(re.sub('^https?://', '', transform_input['items'][0]['link']))}}\"",
                   "    {% else %}",
                   "    {",
                   "      \"god_image_url\": \"http://www.tcsac.gov.tw/2016webmazu/images/living-roomj.jpg\"",
