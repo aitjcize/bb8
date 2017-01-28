@@ -193,7 +193,7 @@
                 "rule": {
                   "type": "regexp",
                   "params": [".*媽祖.*", ".*天上聖母.*", ".*天后.*", ".*林默娘.*"],
-                  "memory_set": {"key": "god_image_url", "value": "http://blog.taiwannews.jp/wp-content/uploads/2014/02/dc36ec2b5fabd034b4da09910e392e68.jpg"},
+                  "memory_set": {"key": "god_image_url", "value": "http://i.imgur.com/EbR8tHq.jpg"},
                   "collect_as": {"key": "god_name"}
                 },
                 "end_node_id": "ShowGodImage",
@@ -203,7 +203,7 @@
                 "rule": {
                   "type": "regexp",
                   "params": [".*關聖帝君.*", ".*關公.*", ".*關老爺.*"],
-                  "memory_set": {"key": "god_image_url", "value": "http://5.share.photo.xuite.net/key666/155b5fe/14551104/770095038_m.jpg"},
+                  "memory_set": {"key": "god_image_url", "value": "http://i.imgur.com/PcrTEQ2.jpg"},
                   "collect_as": {"key": "god_name"}
                 },
                 "end_node_id": "ShowGodImage",
@@ -213,7 +213,7 @@
                 "rule": {
                   "type": "regexp",
                   "params": [".*玉皇.*"],
-                  "memory_set": {"key": "god_image_url", "value": "http://paas.cmoremap.com.tw/userfiles/c2014f005/20140716143857.jpg"},
+                  "memory_set": {"key": "god_image_url", "value": "http://i.imgur.com/rzMCzz5.jpg"},
                   "collect_as": {"key": "god_name"}
                 },
                 "end_node_id": "ShowGodImage",
@@ -223,7 +223,7 @@
                 "rule": {
                   "type": "regexp",
                   "params": [".*月下老人.*", ".*月老.*"],
-                  "memory_set": {"key": "god_image_url", "value": "http://www.5658.com.tw/db4/blogs/thg/%E6%9C%88%E8%80%81%E6%98%9F%E5%90%9B1_DSC08066-449.jpg"},
+                  "memory_set": {"key": "god_image_url", "value": "http://i.imgur.com/7cGb5Kk.jpg"},
                   "collect_as": {"key": "god_name"}
                 },
                 "end_node_id": "ShowGodImage",
@@ -233,7 +233,7 @@
                 "rule": {
                   "type": "regexp",
                   "params": [".*觀世音.*", ".*觀音.*"],
-                  "memory_set": {"key": "god_image_url", "value": "http://www.cttbchinese.org/fayubinfen/wp-content/uploads/2012/11/gy42.jpg"},
+                  "memory_set": {"key": "god_image_url", "value": "http://i.imgur.com/paFZGiM.jpg"},
                   "collect_as": {"key": "god_name"}
                 },
                 "end_node_id": "ShowGodImage",
@@ -243,7 +243,7 @@
                 "rule": {
                   "type": "regexp",
                   "params": [".*城隍.*"],
-                  "memory_set": {"key": "god_image_url", "value": "http://www.tpecitygod.org/image/about-god-01-pic03.jpg"},
+                  "memory_set": {"key": "god_image_url", "value": "http://i.imgur.com/osajwfs.jpg"},
                   "collect_as": {"key": "god_name"}
                 },
                 "end_node_id": "ShowGodImage",
@@ -253,7 +253,7 @@
                 "rule": {
                   "type": "regexp",
                   "params": [".*三山國王.*"],
-                  "memory_set": {"key": "god_image_url", "value": "http://www.lnanews.com/imgnews/2014-12-23/qhi9qbzfxtivilf2d3t4xm99g.jpg"},
+                  "memory_set": {"key": "god_image_url", "value": "http://i.imgur.com/z91N1Iq.jpg"},
                   "collect_as": {"key": "god_name"}
                 },
                 "end_node_id": "ShowGodImage",
