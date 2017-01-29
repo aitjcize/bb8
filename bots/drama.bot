@@ -295,7 +295,11 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["nosubscribe"]
+                  "params": ["nosubscribe"],
+                  "settings_set": {
+                    "key": "subscribe",
+                    "value": false
+                  }
                 },
                 "ack_message": "如果之後需要，可以在目錄中的「通知設定」重新打開噢"
               }
