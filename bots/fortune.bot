@@ -314,11 +314,11 @@
             "url": "https://www.googleapis.com/customsearch/v1?",
             "method": "get",
             "params": [
-              ["key", "AIzaSyAov_klFJ3TmQpi6hJaoJHnotQ3wWIdxo4"],
+              ["key", "AIzaSyAJjjE4BnIS-JAlfC1V77QGvb5kCauUVnc"],
               ["imgSize", "medium"],
               ["searchType", "image"],
               ["num", "1"],
-              ["cx", "014750757720680689189:idony3hpj8q"],
+              ["cx", "011252072516985184311:x7skd3khh1s"],
               ["q", "{{text}}"]
             ],
             "transform": [
@@ -331,9 +331,7 @@
                   "    {% if 'items' in transform_input %}",
                   "      \"god_image_url\": \"https://images.weserv.nl/?url={{urllib.quote(re.sub('^https?://', '', transform_input['items'][0]['link']))}}\"",
                   "    {% else %}",
-                  "    {",
                   "      \"god_image_url\": \"http://www.tcsac.gov.tw/2016webmazu/images/living-roomj.jpg\"",
-                  "    }",
                   "    {% endif %}",
                   "  }",
                   "}"
