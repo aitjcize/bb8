@@ -34,17 +34,35 @@
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
-            "messages": [
-              {
-                "text": "嗨 {{user.first_name}}，新年來抽抽籤！"
-              },
-              {
-                "text": "臉書連結: https://m.me/chance323"
-              },
-              {
-                "text": "Line連結: https://line.me/R/ti/p/%40uvw9648d"
-              }
-            ]
+            "messages": {
+              "Facebook": [
+                {
+                  "text": "嗨 {{user.first_name}}，新年來抽抽籤！"
+                },
+                {
+                  "text": "臉書連結: https://m.me/chance323"
+                },
+                {
+                  "text": "Line連結: https://line.me/R/ti/p/%40uvw9648d"
+                },
+                {
+                  "attachment": {
+                    "type": "image",
+                    "payload": {
+                     "url": "http://i.imgur.com/a1S74om.png"
+                    }
+                  }
+                }
+              ],
+              "Line": [
+                {
+                  "text": "嗨 {{user.first_name}}，新年來抽抽籤！"
+                },
+                {
+                  "text": "臉書連結: https://m.me/chance323"
+                }
+              ]
+            }
           }
         }
       },
@@ -155,7 +173,7 @@
               },
               {
                 "content_type": "text",
-                "title": "月下老人"
+                "title": "月老"
               },
               {
                 "content_type": "text",
@@ -197,7 +215,10 @@
                 "rule": {
                   "type": "regexp",
                   "params": [".*媽祖.*", ".*天上聖母.*", ".*天后.*", ".*林默娘.*"],
-                  "memory_set": {"key": "god_image_url", "value": "http://i.imgur.com/EbR8tHq.jpg"},
+                  "memory_set": [
+                    {"key": "god_image_url", "value": "http://i.imgur.com/EbR8tHq.jpg"},
+                    {"key": "god_name"}
+                  ],
                   "collect_as": {"key": "god_name"}
                 },
                 "end_node_id": "ShowGodImage",
@@ -207,7 +228,10 @@
                 "rule": {
                   "type": "regexp",
                   "params": [".*關聖帝君.*", ".*關公.*", ".*關老爺.*"],
-                  "memory_set": {"key": "god_image_url", "value": "http://i.imgur.com/PcrTEQ2.jpg"},
+                  "memory_set": [
+                    {"key": "god_image_url", "value": "http://i.imgur.com/PcrTEQ2.jpg"},
+                    {"key": "god_name"}
+                  ],
                   "collect_as": {"key": "god_name"}
                 },
                 "end_node_id": "ShowGodImage",
@@ -217,7 +241,10 @@
                 "rule": {
                   "type": "regexp",
                   "params": [".*玉皇.*"],
-                  "memory_set": {"key": "god_image_url", "value": "http://i.imgur.com/rzMCzz5.jpg"},
+                  "memory_set": [
+                    {"key": "god_image_url", "value": "http://i.imgur.com/rzMCzz5.jpg"},
+                    {"key": "god_name"}
+                  ],
                   "collect_as": {"key": "god_name"}
                 },
                 "end_node_id": "ShowGodImage",
@@ -227,7 +254,10 @@
                 "rule": {
                   "type": "regexp",
                   "params": [".*月下老人.*", ".*月老.*"],
-                  "memory_set": {"key": "god_image_url", "value": "http://i.imgur.com/7cGb5Kk.jpg"},
+                  "memory_set": [
+                    {"key": "god_image_url", "value": "http://i.imgur.com/7cGb5Kk.jpg"},
+                    {"key": "god_name"}
+                  ],
                   "collect_as": {"key": "god_name"}
                 },
                 "end_node_id": "ShowGodImage",
@@ -237,7 +267,10 @@
                 "rule": {
                   "type": "regexp",
                   "params": [".*觀世音.*", ".*觀音.*"],
-                  "memory_set": {"key": "god_image_url", "value": "http://i.imgur.com/paFZGiM.jpg"},
+                  "memory_set": [
+                    {"key": "god_image_url", "value": "http://i.imgur.com/paFZGiM.jpg"},
+                    {"key": "god_name"}
+                  ],
                   "collect_as": {"key": "god_name"}
                 },
                 "end_node_id": "ShowGodImage",
@@ -247,7 +280,10 @@
                 "rule": {
                   "type": "regexp",
                   "params": [".*城隍.*"],
-                  "memory_set": {"key": "god_image_url", "value": "http://i.imgur.com/osajwfs.jpg"},
+                  "memory_set": [
+                    {"key": "god_image_url", "value": "http://i.imgur.com/osajwfs.jpg"},
+                    {"key": "god_name"}
+                  ],
                   "collect_as": {"key": "god_name"}
                 },
                 "end_node_id": "ShowGodImage",
@@ -257,7 +293,10 @@
                 "rule": {
                   "type": "regexp",
                   "params": [".*財神.*"],
-                  "memory_set": {"key": "god_image_url", "value": "http://i.imgur.com/eNNwLtr.jpg"},
+                  "memory_set": [
+                    {"key": "god_image_url", "value": "http://i.imgur.com/eNNwLtr.jpg"},
+                    {"key": "god_name"}
+                  ],
                   "collect_as": {"key": "god_name"}
                 },
                 "end_node_id": "ShowGodImage",
@@ -267,7 +306,10 @@
                 "rule": {
                   "type": "regexp",
                   "params": [".*三山國王.*"],
-                  "memory_set": {"key": "god_image_url", "value": "http://i.imgur.com/z91N1Iq.jpg"},
+                  "memory_set": [
+                    {"key": "god_image_url", "value": "http://i.imgur.com/z91N1Iq.jpg"},
+                    {"key": "god_name"}
+                  ],
                   "collect_as": {"key": "god_name"}
                 },
                 "end_node_id": "ShowGodImage",
@@ -277,7 +319,10 @@
                 "rule": {
                   "type": "regexp",
                   "params": [".*王母娘娘.*", ".*西王.*", ".*瑤池.*"],
-                  "memory_set": {"key": "god_image_url", "value": "http://i.imgur.com/DmTJNGM.jpg"},
+                  "memory_set": [
+                    {"key": "god_image_url", "value": "http://i.imgur.com/DmTJNGM.jpg"},
+                    {"key": "god_name"}
+                  ],
                   "collect_as": {"key": "god_name"}
                 },
                 "end_node_id": "ShowGodImage",
@@ -409,7 +454,9 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": [".*"]
+                  "params": [".*"],
+                  "memory_set": {"key": "ask_god"},
+                  "collect_as": {"key": "ask_god"}
                 },
                 "end_node_id": "Poetry{{randint(1, 100)}}",
                 "ack_message": ""
@@ -465,7 +512,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/XLR6f1m.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/XLR6f1m.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【大吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -584,7 +631,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/SVjNTCw.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/SVjNTCw.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【小吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -703,7 +750,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/zX5YWeq.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/zX5YWeq.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【兇】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -822,7 +869,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/JJbxQlf.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/JJbxQlf.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -941,7 +988,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/XMXUwgV.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/XMXUwgV.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【兇】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -1060,7 +1107,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/VZMksz8.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/VZMksz8.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【末吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -1179,7 +1226,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/NFq2ZMu.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/NFq2ZMu.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【兇】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -1298,7 +1345,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/YStmfMN.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/YStmfMN.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【大吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -1417,7 +1464,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/cTbemTH.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/cTbemTH.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【大吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -1536,7 +1583,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/ebf6I7o.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/ebf6I7o.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【大吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -1655,7 +1702,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/9lbg5ch.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/9lbg5ch.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【大吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -1774,7 +1821,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/2VgAciq.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/2VgAciq.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【大吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -1893,7 +1940,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/3HBFdKn.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/3HBFdKn.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【大吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -2012,7 +2059,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/d8m2vhk.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/d8m2vhk.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【末吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -2131,7 +2178,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/3mFlRat.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/3mFlRat.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -2250,7 +2297,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/lm8ChGK.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/lm8ChGK.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -2369,7 +2416,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/U4NW6xm.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/U4NW6xm.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -2488,7 +2535,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/WUml1Z0.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/WUml1Z0.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -2607,7 +2654,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/ynoHqMC.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/ynoHqMC.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【末小】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -2726,7 +2773,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/M7EScJu.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/M7EScJu.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -2845,7 +2892,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/zU2aRnE.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/zU2aRnE.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -2964,7 +3011,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/y1jqieg.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/y1jqieg.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -3083,7 +3130,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/AWBEfcS.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/AWBEfcS.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -3202,7 +3249,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/2V3bOwd.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/2V3bOwd.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -3321,7 +3368,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/rAn3WFQ.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/rAn3WFQ.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -3440,7 +3487,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/BZNEMuk.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/BZNEMuk.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -3559,7 +3606,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/v4VuaJc.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/v4VuaJc.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -3678,7 +3725,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/c5kmzeW.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/c5kmzeW.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -3797,7 +3844,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/X7fuTLe.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/X7fuTLe.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -3916,7 +3963,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/SxHuDnE.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/SxHuDnE.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【半吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -4035,7 +4082,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/DDOfpf7.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/DDOfpf7.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【末吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -4154,7 +4201,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/oSOo5an.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/oSOo5an.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -4273,7 +4320,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/TPq0d2G.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/TPq0d2G.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -4392,7 +4439,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/0yhFWBH.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/0yhFWBH.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -4511,7 +4558,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/2AUDSN0.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/2AUDSN0.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -4630,7 +4677,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/h2ykbon.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/h2ykbon.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【末吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -4749,7 +4796,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/tOSTTYM.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/tOSTTYM.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【半吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -4868,7 +4915,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/GQzLEli.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/GQzLEli.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【半吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -4987,7 +5034,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/zqxzsQg.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/zqxzsQg.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -5106,7 +5153,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/XLIjQ5G.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/XLIjQ5G.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【小吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -5225,7 +5272,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/Y2SIDYv.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/Y2SIDYv.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【末吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -5344,7 +5391,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/fdpBYgu.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/fdpBYgu.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -5463,7 +5510,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/XoKSebh.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/XoKSebh.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -5582,7 +5629,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/o4xNzta.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/o4xNzta.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -5701,7 +5748,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/C3kmy1z.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/C3kmy1z.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -5820,7 +5867,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/W0mU4FE.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/W0mU4FE.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -5939,7 +5986,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/3n5za6Y.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/3n5za6Y.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -6058,7 +6105,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/hlBgiSW.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/hlBgiSW.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【小吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -6177,7 +6224,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/4TbxaH0.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/4TbxaH0.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -6296,7 +6343,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/Zv6EFRd.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/Zv6EFRd.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -6415,7 +6462,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/C6Dpvk1.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/C6Dpvk1.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -6534,7 +6581,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/ZUWAwQI.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/ZUWAwQI.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -6653,7 +6700,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/QNOXN62.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/QNOXN62.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -6772,7 +6819,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/yazxfMb.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/yazxfMb.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -6891,7 +6938,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/xB2xnYg.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/xB2xnYg.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -7010,7 +7057,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/Wh18yjG.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/Wh18yjG.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【末吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -7129,7 +7176,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/weMd1dw.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/weMd1dw.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -7248,7 +7295,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/G04FmhH.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/G04FmhH.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -7367,7 +7414,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/ZAIuZoG.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/ZAIuZoG.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -7486,7 +7533,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/Zv6tM5k.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/Zv6tM5k.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【小吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -7605,7 +7652,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/cwCm0lz.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/cwCm0lz.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【半吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -7724,7 +7771,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/iYprIwZ.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/iYprIwZ.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【大吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -7843,7 +7890,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/BzB5XI9.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/BzB5XI9.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -7962,7 +8009,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/IAcagu9.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/IAcagu9.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -8081,7 +8128,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/Pqi6JoM.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/Pqi6JoM.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【末吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -8200,7 +8247,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/B8ZdIN2.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/B8ZdIN2.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -8319,7 +8366,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/cNgX39i.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/cNgX39i.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -8438,7 +8485,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/wWDSTcG.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/wWDSTcG.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -8557,7 +8604,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/d3LyEcA.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/d3LyEcA.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -8676,7 +8723,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/EL5aMBN.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/EL5aMBN.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -8795,7 +8842,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/3uK1elh.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/3uK1elh.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -8914,7 +8961,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/op6k1Xt.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/op6k1Xt.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -9033,7 +9080,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/oFm6e44.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/oFm6e44.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -9152,7 +9199,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/Tr9TxM0.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/Tr9TxM0.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -9271,7 +9318,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/cLKW1Xp.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/cLKW1Xp.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -9390,7 +9437,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/UwAK9Kd.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/UwAK9Kd.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -9509,7 +9556,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/Mgp2m6L.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/Mgp2m6L.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -9628,7 +9675,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/wwBHtfq.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/wwBHtfq.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【大吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -9747,7 +9794,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/UiJL6Np.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/UiJL6Np.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -9866,7 +9913,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/A8lPBAV.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/A8lPBAV.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【大吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -9985,7 +10032,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/Sorams7.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/Sorams7.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【小吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -10104,7 +10151,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/UPArc6C.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/UPArc6C.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -10223,7 +10270,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/V7dl5jG.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/V7dl5jG.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -10342,7 +10389,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/Scb3DtC.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/Scb3DtC.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -10461,7 +10508,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/KAMk7C0.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/KAMk7C0.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【大吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -10580,7 +10627,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/4uWeEkr.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/4uWeEkr.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【大吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -10699,7 +10746,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/L9cq8nl.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/L9cq8nl.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【大吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -10818,7 +10865,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/SBBxljb.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/SBBxljb.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -10937,7 +10984,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/XptpHKw.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/XptpHKw.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【大吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -11056,7 +11103,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/V0zVlFq.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/V0zVlFq.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【大吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -11175,7 +11222,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/kiurArY.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/kiurArY.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -11294,7 +11341,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/waWFEbr.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/waWFEbr.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -11413,7 +11460,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/lTYkqyC.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/lTYkqyC.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -11532,7 +11579,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/FTxl93R.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/FTxl93R.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【半吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -11651,7 +11698,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/dGrCab0.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/dGrCab0.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -11770,7 +11817,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/3hXQskw.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/3hXQskw.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【大吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -11889,7 +11936,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/clL9wGx.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/clL9wGx.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -12008,7 +12055,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/BgRKVUX.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/BgRKVUX.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -12127,7 +12174,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/HUOzgTe.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/HUOzgTe.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【大吉】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -12246,7 +12293,7 @@
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/xJar8Sn.png&quote=我在籤詩三兩三抽到了這首籤詩！\nhttp://m.me/chance323/&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=http://i.imgur.com/xJar8Sn.png&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\n答曰：【凶】。\nhttp://m.me/chance323&redirect_uri=https%3A//www.messenger.com/closeWindow/%3Fimage_url%3Dhttp%3A//i.imgur.com/y2apUiJ.png%26display_text%3D%3A%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -12337,6 +12384,7 @@
           }
         }
       }
+
     }
   }
 }
