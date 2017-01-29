@@ -326,7 +326,7 @@ class User(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     memory = Column(MutableDict.as_mutable(PickleType), nullable=False,
                     default={})
     settings = Column(MutableDict.as_mutable(PickleType), nullable=False,
-                      default={'subscribe': False})
+                      default={'subscribe': True})
 
     # CRM-related fields
     assignee = Column(ForeignKey('account_user.id'), nullable=True)
