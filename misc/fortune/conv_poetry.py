@@ -4,7 +4,7 @@ from __future__ import print_function
 
 import os
 
-import cairocffi as cairo
+# import cairocffi as cairo
 from imgurpython import ImgurClient
 
 
@@ -293,7 +293,7 @@ def gen_bot_entry(p, link):
                       "buttons": [
                         {
                           "type":"web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=%(link)s&quote=我在籤詩三兩三抽到了這首籤詩！\\nhttp://m.me/chance323/&redirect_uri=https%%3A//www.messenger.com/closeWindow/%%3Fimage_url%%3Dhttp%%3A//i.imgur.com/y2apUiJ.png%%26display_text%%3D%%3A%%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=%(link)s&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\\n答曰：【%(goodness)s】。\\nhttp://m.me/chance323&redirect_uri=https%%3A//www.messenger.com/closeWindow/%%3Fimage_url%%3Dhttp%%3A//i.imgur.com/y2apUiJ.png%%26display_text%%3D%%3A%%29",
                           "title":"分享",
                           "webview_height_ratio": "tall"
                         }
@@ -386,6 +386,7 @@ def gen_bot_entry(p, link):
       },
 """ % {
         'index': p[0],
+        'goodness': p[1],
         'link': link,
         'explain': p[3]
     })
