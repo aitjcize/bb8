@@ -401,11 +401,7 @@
               }
             ],
             "debug": 0,
-            "on_error": {
-              "end_node_id": "Draw",
-              "ack_message": "我好像壞掉了，快通知管理員。(GetGodImage)\n不過你還是可以求籤。",
-              "memory_set": {"god_image_url": "http://www.tcsac.gov.tw/2016webmazu/images/living-roomj.jpg"}
-            }
+            "on_error": "找不到你要的神\n不過你還是可以求籤。"
           }
         }
       },
