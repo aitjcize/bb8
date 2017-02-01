@@ -177,6 +177,10 @@
               },
               {
                 "content_type": "text",
+                "title": "文昌帝君"
+              },
+              {
+                "content_type": "text",
                 "title": "關聖帝君"
               },
               {
@@ -230,6 +234,19 @@
                   "params": [".*關聖帝君.*", ".*關公.*", ".*關老爺.*"],
                   "memory_set": [
                     {"key": "god_image_url", "value": "http://i.imgur.com/PcrTEQ2.jpg"},
+                    {"key": "god_name"}
+                  ],
+                  "collect_as": {"key": "god_name"}
+                },
+                "end_node_id": "ShowGodImage",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [".*文昌.*"],
+                  "memory_set": [
+                    {"key": "god_image_url", "value": "http://i.imgur.com/Uy7JNU5.jpg"},
                     {"key": "god_name"}
                   ],
                   "collect_as": {"key": "god_name"}
