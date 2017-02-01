@@ -24,9 +24,9 @@ class Config(object):
     BB8_ROOT = '/tmp/bb8.%s' % os.getenv('BB8_SCOPE', 'nobody')
     LOCK_DIR = BB8_ROOT + '/lock'
 
-    # Number of threads that serve the requests. This should be the same
-    # as processes * threads in uwsgi.ini
-    N_THREADS = 32
+    # Number of threads that serve the requests. This should be larger than
+    # processes * threads in uwsgi.ini
+    N_THREADS = 64
 
     # Secrets
     # FIXME: Replace these secrets in production
