@@ -349,7 +349,10 @@
                 "rule": {
                   "type": "regexp",
                   "params": [".*"],
-                  "memory_set": {"key": "god_name"},
+                  "memory_set": [
+                    {"key": "god_name"},
+                    {"key": "god_image_url", "value": "http://www.tcsac.gov.tw/2016webmazu/images/living-roomj.jpg"}
+                  ],
                   "collect_as": {"key": "god_name"}
                 },
                 "end_node_id": "GetGodImage",
@@ -359,7 +362,10 @@
             "on_error": {
               "end_node_id": "GetGodImage",
               "ack_message": "",
-              "memory_set": {"key": "god_name"}
+              "memory_set": [
+                {"key": "god_name"},
+                {"key": "god_image_url", "value": "http://www.tcsac.gov.tw/2016webmazu/images/living-roomj.jpg"}
+              ]
             }
           }
         }
