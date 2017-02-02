@@ -7,6 +7,7 @@
 """
 
 import logging
+import re
 import requests
 
 from flask import g
@@ -61,8 +62,11 @@ def get_user_profile(platform, user_ident):
                                             response.text))
 
     api_ret = response.json()
+    displayName = to_unicode(re.sub(r'\\x([0-9A-Fa-f]{2})',
+                                    lambda x: x.group(1).decode('hex'),
+                                    api_ret['displayName']))
     ret = {
-        'first_name': to_unicode(api_ret['displayName']),
+        'first_name': displayName,
         'last_name': u'',
         'locale': 'zh_TW',
         'timezone': 8,
