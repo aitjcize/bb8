@@ -77,12 +77,12 @@ import importlib
 import json
 import logging
 
+import jinja2
 import requests
 
 from bb8.backend.module_api import (Message, Render, SupportedPlatform, Memory,
                                     Settings, ModuleTypeEnum,
                                     PureContentModule)
-from jinja2 import Environment, DictLoader
 
 
 _LOG = logging.getLogger(__name__)
@@ -171,8 +171,8 @@ def Transform(transform, js, unused_debug):
                         continue
                     imports[p] = importlib.import_module(p)
 
-            env = Environment(loader=DictLoader({'XXX.html': template_json}))
-            tmpl = env.get_template('XXX.html')
+            env = jinja2.Environment()
+            tmpl = env.from_string(template_json)
             js_str = tmpl.render(  # pylint: disable=E1101
                 transform_input=js,
                 memory=Memory.All(),
