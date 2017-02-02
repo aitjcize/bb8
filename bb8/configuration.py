@@ -143,6 +143,9 @@ class DeployConfig(DevelopmentConfig):
     HOSTNAME = os.getenv('BB8_HOSTNAME', 'bot.compose.ai')
     RESOURCE_HOSTNAME = os.getenv('BB8_RESOURCE_HOSTNAME', 're.compose.ai')
 
+    # Options
+    STORE_CONVERSATION = False
+
     # Third-Party apps hostname map
     APP_HOSTNAME_MAP = {
         'system':   'bb8.app.system',
