@@ -316,18 +316,18 @@ class MessageUnittest(unittest.TestCase, BaseTestMixin):
         with Message.FromDict."""
 
         msg_dict = {
-            "text": "test",
-            "quick_replies": [
+            'text': 'test',
+            'quick_replies': [
                 {
-                    "content_type": "text",
-                    "title": "A",
+                    'content_type': 'text',
+                    'title': 'A',
                 },
                 {
-                    "content_type": "text",
-                    "title": "B"
+                    'content_type': 'text',
+                    'title': 'B'
                 },
                 {
-                    "content_type": "location",
+                    'content_type': 'location',
                 }
             ]
         }
