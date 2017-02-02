@@ -245,7 +245,7 @@ class MessageUnittest(unittest.TestCase, BaseTestMixin):
         # Test error
         wrong_tmpl = 'Hi {{some.key}}'
         m = Message(wrong_tmpl)
-        self.assertEquals(m.as_dict()['text'], wrong_tmpl)
+        self.assertEquals(m.as_dict()['text'], 'Hi ')
 
     def test_query_expression_rendering(self):
         """Test that query expresssion can be query and rendered correctly."""
@@ -294,9 +294,9 @@ class MessageUnittest(unittest.TestCase, BaseTestMixin):
         with self.assertRaises(Exception):
             Message("{{data('data')|some_filter}}")
 
-        wrong_tmpl = "{{data('some_key').first}}"
+        wrong_tmpl = "Yo {{data('some_key').first}}"
         m = Message(wrong_tmpl)
-        self.assertEquals(m.as_dict()['text'], wrong_tmpl)
+        self.assertEquals(m.as_dict()['text'], 'Yo ')
 
     def test_settings_memory_rendering(self):
         """Test memory and setting variable access."""
