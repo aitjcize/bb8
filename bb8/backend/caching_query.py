@@ -85,6 +85,9 @@ class CachingQuery(Query):
         dogpile_region, cache_key = self._get_cache_plus_key()
         dogpile_region.delete(cache_key)
 
+    def invalidate_key(self, region, cache_key):
+        self.cache_regions[region].delete(cache_key)
+
     def get_value(self, merge=True, createfunc=None,
                   expiration_time=None, ignore_expiration=False):
         """Return the value from the cache for this query.

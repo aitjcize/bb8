@@ -71,8 +71,7 @@ class Engine(object):
                 user.goto(Bot.ROOT_STABLE_ID)
 
             if user_input and user_input.jump():
-                node = Node.get_by(stable_id=user_input.jump_node_id,
-                                   bot_id=bot.id, single=True)
+                node = Node.get_cached(bot.id, user_input.jump_node_id)
                 # Check if the node belongs to current bot
                 if node is None:
                     logger.critical('Invalid jump node_id %s' %
@@ -110,8 +109,7 @@ class Engine(object):
         if depth > Engine.STEP_MAX_DEPTH:
             return
 
-        node = Node.get_by(stable_id=user.session.node_id, bot_id=bot.id,
-                           eager=['module'], single=True)
+        node = Node.get_cached(bot.id, user.session.node_id)
         g.node = node
 
         if node is None:

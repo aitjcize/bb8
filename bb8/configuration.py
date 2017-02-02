@@ -116,6 +116,17 @@ class Config(object):
         accept_content = ['pickle']
         task_serializer = 'pickle'
 
+    # Dogpile Cache
+    DOGPILE_CACHE_CONFIG = {
+        'default': {
+            'host': 'localhost',
+            'port': os.getenv('REDIS_PORT'),
+            'db': 1,
+            'redis_expiration_time': 60 * 60 * 2,  # 2 hours
+            'distributed_lock': True
+        }
+    }
+
 
 class DevelopmentConfig(Config):
     DEBUG = True
@@ -166,3 +177,14 @@ class DeployConfig(DevelopmentConfig):
     # Celery
     class CeleryConfig(DevelopmentConfig.CeleryConfig):
         broker_url = 'redis://bb8.service.redis:6379/0'
+
+    # Dogpile Cache
+    DOGPILE_CACHE_CONFIG = {
+        'default': {
+            'host': 'bb8.service.redis',
+            'port': 6379,
+            'db': 1,
+            'redis_expiration_time': 60 * 60 * 2,  # 2 hours
+            'distributed_lock': True
+        }
+    }

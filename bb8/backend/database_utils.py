@@ -36,6 +36,10 @@ class DatabaseManager(object):
     db = None
     pool_size = 64
 
+    # Hack to allow us to store a function as class variable without making
+    # the function itself a instance method.
+    function_store = {'query_cls': None}
+
     @classmethod
     def set_database_uri(cls, database_uri):
         cls.database_uri = database_uri
@@ -43,6 +47,10 @@ class DatabaseManager(object):
     @classmethod
     def set_pool_size(cls, pool_size):
         cls.pool_size = pool_size
+
+    @classmethod
+    def set_query_cls(cls, query_cls):
+        cls.function_store['query_cls'] = query_cls
 
     @classmethod
     def connect(cls, engine=None):
@@ -62,7 +70,10 @@ class DatabaseManager(object):
             cls.create_engine()
 
         if not cls.db:
-            cls.db = scoped_session(sessionmaker(bind=cls.engine))
+            kwargs = {}
+            if cls.function_store['query_cls']:
+                kwargs['query_cls'] = cls.function_store['query_cls']
+            cls.db = scoped_session(sessionmaker(bind=cls.engine, **kwargs))
 
     @classmethod
     def disconnect(cls, commit=True):
@@ -191,7 +202,8 @@ class ModelMixin(object):
 
     @classmethod
     def get_by(cls, query=None, eager=None, order_by=None, offset=0, limit=0,
-               single=False, lock=False, return_query=False, **kwargs):
+               single=False, lock=False, return_query=False, cache=None,
+               **kwargs):
         """Get item by kwargs."""
         if query:
             query_object = cls.query(*query)
@@ -216,6 +228,9 @@ class ModelMixin(object):
         if lock:
             query_object = query_object.with_lockmode('update')
 
+        if cache:
+            query_object = query_object.options(cache)
+
         if return_query:
             return query_object
 
@@ -235,6 +250,15 @@ class ModelMixin(object):
     def delete_all(cls):
         """Delete all records from a table."""
         return cls.query().delete()
+
+    @classmethod
+    def invalidate_by(cls, *args, **kwargs):
+        kwargs['return_query'] = True
+        cls.get_by(*args, **kwargs).invalidate()
+
+    @classmethod
+    def invalidate_key(cls, region, key):
+        cls.query().invalidate_key(region, key)
 
     @classmethod
     def exists(cls, **kwargs):

@@ -99,6 +99,9 @@ def parse_platform(platform_json, to_platform_id=None, source='platform_json'):
         DatabaseManager.rollback()
         raise DuplicateEntryError()
 
+    # Invalidate Platform cache.
+    platform.invalidate_cached()
+
     return platform
 
 

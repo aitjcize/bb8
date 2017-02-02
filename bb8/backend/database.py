@@ -6,6 +6,7 @@
     Copyright 2016 bb8 Authors
 """
 
+import hashlib
 import importlib
 import time
 import uuid
@@ -14,6 +15,8 @@ from datetime import datetime, timedelta
 
 import enum
 import jwt
+
+from dogpile.cache.region import make_region
 
 from passlib.hash import bcrypt  # pylint: disable=E0611
 from flask import Flask  # pylint: disable=C0411,C0413
@@ -33,12 +36,39 @@ from bb8.backend.database_utils import (DeclarativeBase, DatabaseManager,
                                         DatabaseSession, ModelMixin,
                                         JSONSerializableMixin)
 from bb8.backend.metadata import SessionRecord
+from bb8.backend.caching_query import FromCache, query_callable
 from bb8.constant import HTTPStatus, CustomError
+
+
+# Cache configuration
+def md5_key_mangler(key):
+    """Receive cache keys as long concatenated strings;
+    distill them into an md5 hash."""
+    # KEY- prefixed keys means it's a custom key, don't hash it
+    if key.startswith('KEY-'):
+        return key
+    return hashlib.md5(key.encode('ascii')).hexdigest()
+
+
+regions = {}
+for region_name in config.DOGPILE_CACHE_CONFIG:
+    regions[region_name] = make_region(key_mangler=md5_key_mangler).configure(
+        'dogpile.cache.redis',
+        arguments=config.DOGPILE_CACHE_CONFIG[region_name]
+    )
 
 
 # Configure database
 DatabaseManager.set_database_uri(config.DATABASE)
 DatabaseManager.set_pool_size(config.N_THREADS * 2)
+DatabaseManager.set_query_cls(query_callable(regions))
+
+
+@classmethod
+def _flushall(cls, region):  # pylint: disable=W0613
+    regions[region].backend.client.flushall()
+
+DatabaseManager.flushall = _flushall
 
 
 class AppContext(object):
@@ -270,7 +300,7 @@ class Bot(DeclarativeBase, ModelMixin, JSONSerializableMixin):
         return User.query().filter(User.platform_id.in_(platform_ids)).all()
 
     def node(self, stable_id):
-        return Node.get_by(bot_id=self.id, stable_id=stable_id, single=True)
+        return Node.get_cached(self.id, stable_id)
 
     def delete(self):
         Node.delete_by(bot_id=self.id)
@@ -373,6 +403,22 @@ class Node(DeclarativeBase, ModelMixin):
         return '<%s(\'%s\', \'%s\')>' % (type(self).__name__, self.id,
                                          self.stable_id)
 
+    @classmethod
+    def get_cache_key(cls, bot_id, stable_id):
+        return 'KEY-node[module]-%s-%s' % (bot_id, stable_id)
+
+    @classmethod
+    def get_cached(cls, bot_id, stable_id):
+        return Node.get_by(
+            bot_id=bot_id, stable_id=stable_id, eager=['module'],
+            cache=FromCache('default', cls.get_cache_key(bot_id, stable_id)),
+            single=True)
+
+    def invalidate_cached(self):
+        return Node.invalidate_by(
+            cache=FromCache(
+                'default', self.get_cache_key(self.bot_id, self.stable_id)))
+
 
 class Platform(DeclarativeBase, ModelMixin, JSONSerializableMixin):
     __tablename__ = 'platform'
@@ -431,6 +477,23 @@ class Platform(DeclarativeBase, ModelMixin, JSONSerializableMixin):
                 'config': {'type': 'object'}
             }
         }
+
+    @classmethod
+    def get_cache_key(cls, provider_ident):
+        return 'KEY-platform[bot]-%s' % provider_ident
+
+    @classmethod
+    def get_cached(cls, provider_ident):
+        return Platform.get_by(
+            provider_ident=provider_ident,
+            eager=['bot'],
+            cache=FromCache('default', cls.get_cache_key(provider_ident)),
+            single=True)
+
+    def invalidate_cached(self):
+        Platform.invalidate_by(
+            cache=FromCache(
+                'default', self.get_cache_key(self.provider_ident)))
 
 
 class SupportedPlatform(enum.Enum):

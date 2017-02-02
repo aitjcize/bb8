@@ -12,7 +12,7 @@ from flask import g, request
 
 from bb8 import celery, config, statsd
 from bb8.backend.database import (DatabaseManager, User, Platform,
-                                  PlatformTypeEnum, Conversation, SenderEnum)
+                                  Conversation, SenderEnum)
 from bb8.backend.engine import Engine
 from bb8.backend.message import UserInput
 from bb8.backend.messaging import get_user_profile
@@ -54,13 +54,17 @@ def facebook_webhook_task():
 
         for entry in request.json.get('entry', []):
             page_id = entry['id']
-            platform = Platform.get_by(type_enum=PlatformTypeEnum.Facebook,
-                                       provider_ident=page_id, single=True)
+            platform = Platform.get_cached(page_id)
+
             if platform is None:
-                raise RuntimeError('no associate bot found for Facebook '
+                raise RuntimeError('No associated platform found for Facebook '
                                    'Platform with page_id = %s' % page_id)
 
             bot = platform.bot
+            if bot is None:
+                raise RuntimeError('No associated bot found for Facebook '
+                                   'Platform with page_id = %s' % page_id)
+
             g.ga_id = bot.ga_id
 
             # TODO(aitjcize): bot should always have a account in the future
@@ -110,8 +114,8 @@ def facebook_webhook_task():
 def line_webhook_task(provider_ident):
     with statsd.timed('line_webhook_task', tags=[config.ENV_TAG]):
         engine = Engine()
-        platform = Platform.get_by(type_enum=PlatformTypeEnum.Line,
-                                   provider_ident=provider_ident, single=True)
+        platform = Platform.get_cached(provider_ident)
+
         if platform is None:
             raise RuntimeError('no associate bot found for Line '
                                'Platform with ident = %s' % provider_ident)

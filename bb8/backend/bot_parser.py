@@ -134,6 +134,9 @@ def parse_bot(bot_json, to_bot_id=None, source='bot_json'):
         DatabaseManager.flush()
         id_map[stable_id] = n.id
 
+        # Invalidate previous node cache.
+        n.invalidate_cached()
+
     # Validate that module linkages are present in this bot file.
     for stable_id, node in nodes.iteritems():
         n = Node.get_by(id=id_map[stable_id], single=True)

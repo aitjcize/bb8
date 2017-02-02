@@ -30,6 +30,7 @@ class EngineUnittest(unittest.TestCase):
 
     def tearDown(self):
         DatabaseManager.disconnect()
+        DatabaseManager.flushall('default')
         self.send_message_mock.stop()  # pylint: disable=E1101
 
     def setup_prerequisite(self, bot_file):

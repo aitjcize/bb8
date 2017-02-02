@@ -14,7 +14,7 @@ from flask import request
 
 from bb8 import app, config, logger
 from bb8.api.error import AppError
-from bb8.backend.database import Platform, PlatformTypeEnum
+from bb8.backend.database import Platform
 from bb8.constant import HTTPStatus, CustomError
 from bb8.backend.webhooks_tasks import facebook_webhook_task, line_webhook_task
 
@@ -55,8 +55,7 @@ def facebook_receive():
 @app.route(config.LINE_WEBHOOK_PATH, methods=['POST'])
 def line_receive(provider_ident):
     """LINE Bot API receive."""
-    platform = Platform.get_by(type_enum=PlatformTypeEnum.Line,
-                               provider_ident=provider_ident, single=True)
+    platform = Platform.get_cached(provider_ident)
     if platform is None:
         raise AppError(HTTPStatus.STATUS_NOT_FOUND,
                        CustomError.ERR_NOT_FOUND,
