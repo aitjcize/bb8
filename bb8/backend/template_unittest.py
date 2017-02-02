@@ -39,7 +39,7 @@ class TemplateUnittest(unittest.TestCase):
         self.assertEquals(Render('{{a.b.c}}', variables), '3')
 
         variables = {}
-        self.assertEquals(Render('{{a.b.c}}', variables), '{{a.b.c}}')
+        self.assertEquals(Render('{{a.b.c}}', variables), '')
 
         variables = {'k': {'j': 'aaa'}}
         self.assertEquals(Render('{{a.b.c,k.j|upper}}', variables), 'AAA')
