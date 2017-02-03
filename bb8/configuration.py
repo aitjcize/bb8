@@ -119,8 +119,8 @@ class Config(object):
     # Dogpile Cache
     DOGPILE_CACHE_CONFIG = {
         'default': {
-            'host': 'localhost',
-            'port': os.getenv('REDIS_PORT'),
+            'host': os.getenv('REDIS_HOST', 'localhost'),
+            'port': os.getenv('REDIS_PORT', 6379),
             'db': 1,
             'redis_expiration_time': 60 * 60 * 2,  # 2 hours
             'distributed_lock': True
@@ -181,7 +181,7 @@ class DeployConfig(DevelopmentConfig):
     # Dogpile Cache
     DOGPILE_CACHE_CONFIG = {
         'default': {
-            'host': 'bb8.service.redis',
+            'host': os.getenv('REDIS_HOST', 'bb8.service.redis'),
             'port': 6379,
             'db': 1,
             'redis_expiration_time': 60 * 60 * 2,  # 2 hours
