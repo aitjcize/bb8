@@ -289,12 +289,18 @@ def gen_bot_entry(p, link):
                     "type": "template",
                     "payload": {
                       "template_type": "button",
-                      "text": "要分享你剛求到的籤詩嗎？",
+                      "text": "喜歡這個結果嗎？你可以：",
                       "buttons": [
                         {
-                          "type":"web_url",
+                          "type": "web_url",
                           "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=%(link)s&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\\n答曰：【%(goodness)s】。\\nhttp://m.me/chance323?ref=s&redirect_uri=https%%3A//www.messenger.com/closeWindow/%%3Fimage_url%%3Dhttp%%3A//i.imgur.com/y2apUiJ.png%%26display_text%%3D%%3A%%29",
-                          "title":"分享",
+                          "title": "分享",
+                          "webview_height_ratio": "tall"
+                        },
+                        {
+                          "type": "web_url",
+                          "url": "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=P7DNSMKJT7YQU",
+                          "title": "捐香油錢",
                           "webview_height_ratio": "tall"
                         }
                       ]
