@@ -425,10 +425,11 @@
   <script>
     $(document).ready(function () {
       var $w = $(window);
+      var trigger = $('.fortune-wrapper').offset().top + 50;
 
       $w.on('scroll', function () {
         var scroll = $w.scrollTop();
-        $('.fixed-footer').toggleClass('open', scroll > 100)
+        $('.fixed-footer').toggleClass('open', scroll > trigger)
       })
     })
   </script>
