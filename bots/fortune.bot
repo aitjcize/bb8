@@ -396,7 +396,7 @@
                 "template": [
                   "{",
                   "  \"memory\": {",
-                  "    {% if 'results' in transform_input %}",
+                  "    {% if transform_input['results']|length %}",
                   "      \"god_image_url\": \"https://images.weserv.nl/?url={{urllib.quote(re.sub('^https?://', '', transform_input['results'][0]['image']).encode('utf8'))}}\"",
                   "    {% else %}",
                   "      \"god_image_url\": \"http://www.tcsac.gov.tw/2016webmazu/images/living-roomj.jpg\"",
