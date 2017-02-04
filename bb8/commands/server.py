@@ -24,7 +24,8 @@ class TestServer(Server):
         )
 
         super(TestServer, self).__init__(
-            host='0.0.0.0', port=config.HTTP_PORT, ssl_context=context)
+            host='0.0.0.0', port=config.HTTP_PORT, ssl_context=context,
+            threaded=True)
 
     def get_options(self):
         options = super(TestServer, self).get_options()
