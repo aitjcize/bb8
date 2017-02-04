@@ -384,7 +384,7 @@
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
-            "url": "https://dev.compose.ai:7001/api/third_party/fortune/image_search?",
+            "url": "https://{{env.host}}:{{env.port}}/api/third_party/fortune/image_search?",
             "method": "get",
             "params": [
               ["q", "{{text}}"]
