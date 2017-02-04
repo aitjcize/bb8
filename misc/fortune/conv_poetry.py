@@ -7,6 +7,16 @@ import os
 # import cairocffi as cairo
 from imgurpython import ImgurClient
 
+OG_IMAGES = {
+    '末吉': 'http://i.imgur.com/SCh8YSY.jpg',
+    '凶': 'http://i.imgur.com/Lwwjftn.jpg',
+    '末小': 'http://i.imgur.com/VikmNOl.jpg',
+    '大吉': 'http://i.imgur.com/gmBM9NK.jpg',
+    '小吉': 'http://i.imgur.com/Si2EpTc.jpg',
+    '半吉': 'http://i.imgur.com/4Kk40yn.jpg',
+    '吉': 'http://i.imgur.com/n9Gsaeq.jpg',
+}
+
 
 POETRIES = [
     (1, '大吉', '七寶浮圖塔\\n高峰頂上安\\n眾人皆仰望\\n莫作等閒看', '就像出現了用美麗寶石做成的佛塔般地，似乎會有非常好的事情。因為能改用放眼萬事的立場，可以得到周圍的人們的信賴吧。合乎正道的你的行為，能被很多人的認同及鼓勵。不用隨便的態度看事情，用正確的心思會招來更多的好的結果。願望：會充分地實現吧。疾病：會治癒吧。盼望的人：會出現吧。遺失物：變得遲遲地才 ： 找到吧。蓋新居、搬家、嫁娶、旅行、交往等：全部很好吧。萬事行為謹慎。粗心大意行事的話，就會發生意想之外的災害吧。'),
@@ -265,7 +275,7 @@ def gen_image(item):
     return str(ret['link'])
 
 
-def gen_bot_entry(p, link):
+def gen_bot_entry(p, link, share_link):
   print("""
       "Poetry%(index)d": {
         "name": "Poetry%(index)d",
@@ -293,7 +303,7 @@ def gen_bot_entry(p, link):
                       "buttons": [
                         {
                           "type": "web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=%(link)s&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\\n答曰：【%(goodness)s】。\\nhttp://m.me/chance323?ref=s&redirect_uri=https%%3A//www.messenger.com/closeWindow/%%3Fimage_url%%3Dhttp%%3A//i.imgur.com/y2apUiJ.png%%26display_text%%3D%%3A%%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=%(share_link)s&redirect_uri=https%%3A//www.messenger.com/closeWindow/%%3Fimage_url%%3Dhttp%%3A//i.imgur.com/y2apUiJ.png%%26display_text%%3D%%3A%%29",
                           "title": "分享",
                           "webview_height_ratio": "tall"
                         },
@@ -394,7 +404,8 @@ def gen_bot_entry(p, link):
         'index': p[0],
         'goodness': p[1],
         'link': link,
-        'explain': p[3]
+        'explain': p[3],
+        'share_link': share_link,
     })
 
 
@@ -408,7 +419,15 @@ def main():
     for item in POETRIES:
         # link = gen_image(item)
         link = POETRY_IMAGES_LINK[item[0] - 1]
-        gen_bot_entry(item, link)
+        og_image = OG_IMAGES[item[1]]
+        imgur_hash = link.split('/')[-1][:-4]
+        quote = '我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\\n答曰：【%s】。' % item[1]
+        share_link = ('https%3A%2F%2F{{env.host}}%3A{{env.port}}%2Ffortune_share%2F' + imgur_hash +
+                      '%3Fgod_name={{memory.god_name}}%26ask_god={{memory.ask_god}}'
+                      '%26god_image_url={{memory.god_image_url}}%26og_image=' + og_image +
+                      '%26quote=' + quote +
+                      '%26last_name={{user.last_name}}%26first_name={{user.first_name}}')
+        gen_bot_entry(item, link, share_link)
 
 
 if __name__ == '__main__':
