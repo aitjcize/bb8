@@ -1,5 +1,6 @@
 <html>
   <head>
+
     <meta property="og:type" content="article" />
     <meta property="og:title" content="我在籤詩三兩三求到這支籤！你呢？" />
     <meta property="og:description" content="{{ og_description }}" />
@@ -7,20 +8,403 @@
     <meta property="og:image:height" content="630" />
     <meta property="og:image:width" content="1200" />
     <meta property="fb:app_id" content="1797497130479857" />
+
+    <style>
+      body, html {
+        margin: 0;
+        background-color: #F4F5F6;
+        font-family: sans-serif;
+        letter-spacing: .025em;
+        color: #444;
+        font-size: 16px;
+        background-image: url('//www.toptal.com/designers/subtlepatterns/patterns/seigaiha.png');
+        background-size: 30em;
+        overflow-x: hidden;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      h1, h2, h3, h4, h5 {
+        font-weight: normal;
+      }
+
+      a {
+        text-decoration: none;
+      }
+
+      a:visited,
+      a:link,
+      a:hover {
+        color: inherit;
+      }
+
+      .main-wrapper {
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-bottom: 20em;
+      }
+
+      .header {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1.5em;
+        position: relative;
+        z-index: 1;
+        line-height: 1.5em;
+      }
+
+      .header .cloud {
+        z-index: -1;
+        transform: rotate(180deg);
+        height: 6em;
+        opacity: .7;
+      }
+
+      .header > div {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .header > div:last-child span {
+        background-color: white;
+        box-shadow: .25em .25em .5em rgba(0, 0, 0, .05);
+        border-radius: 3em;
+        padding: .5em 1.5em;
+        position: relative;
+      }
+
+      .header > div:last-child span:after {
+        content: '';
+        position: absolute;
+        right: 100%;
+        margin-right: -1em;
+        bottom: 0;
+        padding: .75em;
+        border-right: white 1em solid;
+        border-radius: 0 0 10em 0;
+      }
+
+      .header b {
+        display: inline;
+      }
+
+      .god-wrapper {
+        display: flex;
+        padding: .25em;
+        margin-top: -1em;
+        margin-right: -3em;
+      }
+
+      .god-wrapper span {
+        padding: .5em 1.5em;
+        padding-right: 3em;
+        border-radius: 10em;
+        margin-bottom: 1.5em;
+        background-color: white;
+        display: inline-block;
+        align-self: flex-end;
+        box-shadow: -.25em .25em .5em rgba(0, 0, 0, .05);
+      }
+
+      .god-thumb {
+        padding: 3.5em;
+        margin-left: -2em;
+        background-position: center;
+        background-size: contain;
+        border-radius: 10em;
+        border: #F4F5F6 .5em solid;
+      }
+
+      .fortune-wrapper {
+        width: 100%;
+        padding: 1.5em;
+      }
+
+      .fortune-wrapper img {
+        width: 100%;
+        box-shadow: .25em .25em .5em 0 rgba(0, 0, 0, .1);
+      }
+
+      .credit-text {
+        font-size: .875em;
+        color: #666;
+        text-align: center;
+      }
+
+      .credit-text a {
+        text-decoration: underline;
+        padding: 1em;
+        font-weight: bold;
+      }
+
+      .fixed-footer {
+        position: fixed;
+        width: 100%;
+        bottom: -1px;
+        left: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transform: translateY(1.5em);
+        opacity: 0;
+        transition: .24s ease-out;
+      }
+
+      .fixed-footer.open {
+        transform: translateY(0);
+        opacity: 1;
+      }
+
+      .button-group {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        margin: 1em auto;
+        margin-bottom: 1.5em;
+        padding: 0 1em;
+        align-items: center;
+      }
+
+      .button-group h1 {
+        font-size: 1.5em;
+        text-align: center;
+        padding: 0 1em;
+      }
+
+      a.button {
+        flex: 1;
+        height: 3em;
+        margin: .5em 1.5em;
+        color: white;
+        border-radius: .5em;
+        letter-spacing: .05em;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 30em;
+      }
+
+      a.button span,
+      a.button b {
+        flex: 1;
+        text-align: center;
+        margin-right: 3em;
+      }
+
+      .button svg {
+        height: 1.5em;
+        padding: 0 1em;
+        flex: none;
+      }
+
+      .button.facebook { background-color: #0084FF }
+
+      .button.line { background-color: #00B900 }
+
+      .cloud {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-color: white;
+        top: 0;
+        left: 0;
+        z-index: -1;
+        opacity: .96;
+      }
+
+      .cloud div {
+        border-radius: 100%;
+        display: inline-block;
+        padding: 15vw 20vw;
+        background-color: white;
+        position: absolute;
+        top: 0;
+        left: 55vw;
+        margin-top: -8vw;
+      }
+
+      .cloud > div + div {
+        left: auto;
+        right: 55vw;
+      }
+
+      .cloud div:before,
+      .cloud div:after {
+        content: '';
+        background-color: white;
+        display: inline-block;
+        position: absolute;
+        padding: 10vw 12vw;
+        border-radius: 100%;
+        margin: 4vw -10vw;
+        top: 0;
+        left: 0;
+      }
+
+      .cloud div:after {
+        left: auto;
+        right: 0;
+        margin 0;
+        margin-right: -12vw;
+        margin-top: 2vw;
+        padding: 8vw 10vw;
+      }
+
+      @media only screen and (min-width: 481px) {
+        .main-wrapper,
+        .fortune-wrapper,
+        a.button {
+          width: 80%;
+        }
+      }
+
+      @media only screen and (min-width: 768px) {
+        .main-wrapper,
+        .fortune-wrapper,
+        .button-group {
+          width: 70%;
+        }
+      }
+
+      @media only screen and (min-width: 1030px) {
+        .main-wrapper {
+          width: 50%;
+        }
+
+        .fortune-wrapper {
+          width: 60%;
+        }
+
+        .button-group {
+          width: 30em;
+        }
+      }
+
+      @media only screen and (min-width: 1240px) {
+        .main-wrapper {
+          width: 50vw;
+        }
+      }
+
+      @media only screen and (orientation : portrait) {
+        body, html {
+          font-size: 4vw;
+        }
+
+        .main-wrapper,
+        .fortune-wrapper,
+        .button-group,
+        a.button {
+          width: 100%;
+        }
+      }
+
+    </style>
+    <script
+      src="https://code.jquery.com/jquery-3.1.1.slim.min.js"
+      integrity="sha256-/SIrNqv8h6QGKDuNoLGA4iret+kyesCkHGzVUUV0shc="
+      crossorigin="anonymous"></script>
   </head>
   <body>
-    <h5> 誠心問卦 </h5>
-    <p> {{ ask_god }} </p>
-    <p> {{ god_name }} </p>
+    <div class="main-wrapper">
+      <div class="header">
+        <div class="cloud">
+          <div></div>
+          <div></div>
+        </div>
+        <div>
+          <span>
+            <b>{{ last_name }} {{ first_name }}</b>
+            </br>
+            在籤詩三兩三問
+          </span>
+          <div class="god-wrapper">
+            <span> {{ god_name }} </span>
+            <div class="god-thumb" style="background-image: url('{{ god_image_url }}')">
+            </div>
+          </div>
+        </div>
+        <div>
+          <span> {{ ask_god }} </span>
+        </div>
+      </div>
 
-    <img src="{{ god_image_url }}" >
-    <img src="{{ fortune_url }}" >
-		<div class="fb-messengermessageus"
-		  messenger_app_id="1797497130479857"
-		  page_id="325044184558412"
-		  color="blue"
-		  size="xlarge" >
-		</div>
+      <div class="fortune-wrapper">
+        <img src="{{ fortune_url }}" >
+      </div>
+
+      <div class="credit-text">
+        本程式由
+        <a href="//compose.ai">Compose.ai</a>
+        製作與維護
+      </div>
+
+      <div class="fixed-footer">
+        <div class="button-group">
+          <h1>掌握本日運勢，開始求籤！！</h1>
+          <a href="//m.me/chance323?ref=share"
+            class="button facebook"
+            >
+            <?xml version="1.0" ?>
+              <svg height="56.7px"
+                style="enable-background:new 0 0 24 24;"
+                version="1.1"
+                viewBox="0 0 24 24"
+                xml:space="preserve"
+                xmlns="http://www.w3.org/2000/svg"
+                xmlns:xlink="http://www.w3.org/1999/xlink">
+                <path
+                  fill="#ffffff"
+                  d="M12,2C6.5,2 2,6.14 2,11.25C2,14.13 3.42,16.7 5.65,18.4L5.71,22L9.16,20.12L9.13,20.11C10.04
+                  ,20.36 11,20.5 12,20.5C17.5,20.5 22,16.36 22,11.25C22,6.14 17.5,2 12,2M13.03,14.41L10.54,
+                  11.78L5.5,14.41L10.88,8.78L13.46,11.25L18.31,8.78L13.03,14.41Z"
+                />
+              </svg>
+              <b> Message Us </b>
+            </a>
+          <a href="//line.me/R/ti/p/%40uvw9648d"
+            class="button line"
+            >
+            <?xml version="1.0" ?>
+              <svg height="56.7px"
+                style="enable-background:new 0 0 24 24;"
+                version="1.1"
+                viewBox="0 0 24 24"
+                xml:space="preserve"
+                xmlns="http://www.w3.org/2000/svg"
+                xmlns:xlink="http://www.w3.org/1999/xlink">
+                  <path
+                    fill="#ffffff"
+                    d="M12,2C5.8,2,0.7,6.1,0.7,11.2c0,4.5,4,8.3,9.5,9.1c0.4,0.1,0.9,0.2,1,0.6c0.1,0.3,0.1,0.7,0,
+                    1c0,0-0.1,0.8-0.2,1c0,0.3-0.2,1.1,1,0.6c1.2-0.5,6.5-3.7,8.9-6.6c1.6-1.7,2.4-3.6,2.4-5.6C23.3,
+                    6.1,18.2,2,12,2z M7.9,14.2C7.9,14.2,7.8,14.3,7.9,14.2l-3.4,0.1c0,0-0.1,0-0.1-0.1V8.9c0,0,
+                    0-0.1,0.1-0.1h0.9c0,0,0.1,0,0.1,0.1v4c0,0,0,0.1,0.1,0.1h2.2c0,0,0.1,0,0.1,0.1V14.2zM10.1,
+                    14.2C10.1,14.2,10,14.3,10.1,14.2l-1.2,0.1c0,0-0.1,0-0.1-0.1V8.9c0,0,0-0.1,0.1-0.1H10c0,0,0.1,
+                    0,0.1,0.1V14.2z M15.3,14.2C15.3,14.2,15.3,14.3,15.3,14.2l-1.1,0.1c0,0-0.1,0-0.1,0l-2.2-3
+                    c0-0.1-0.2,0-0.2,0v2.9c0,0,0,0.1-0.1,0.1h-0.9c0,0-0.1,0-0.1-0.1V8.9c0,0,0-0.1,0.1-0.1h1c0,0,
+                    0.1,0,0.1,0l2.2,2.9c0,0.1,0.2,0,0.2-0.1V8.9c0,0,0-0.1,0.1-0.1h0.9c0,0,0.1,0,0.1,0.1V14.2z
+                    M19.9,12C19.9,12,19.8,12.1,19.9,12l-2.3,0.1c0,0-0.1,0-0.1,0.1v0.7c0,0,0,0.1,0.1,0.1h2.2c0,0,
+                    0.1,0,0.1,0.1v1.2c0,0,0,0.1-0.1,0.1h-3.5c0,0-0.1,0-0.1-0.1V8.9c0,0,0-0.1,0.1-0.1h3.5c0,0,0.1,
+                    0,0.1,0.1v0.9c0,0,0,0.1-0.1,0.1h-2.2c0,0-0.1,0-0.1,0.1v0.7c0,0,0,0.1,0.1,0.1h2.2c0,0,0.1,0,
+                    0.1,0.1V12z"
+                  />
+              </svg>
+              <b> Line Me </b>
+            </a>
+        </div>
+        <div class="cloud">
+          <div></div>
+          <div></div>
+        </div>
+      </div>
+    </div>
   </body>
   <script>
     window.fbAsyncInit = function() {
@@ -37,5 +421,15 @@
        js.src = "//connect.facebook.net/en_US/sdk.js";
        fjs.parentNode.insertBefore(js, fjs);
     }(document, 'script', 'facebook-jssdk'));
+  </script>
+  <script>
+    $(document).ready(function () {
+      var $w = $(window);
+
+      $w.on('scroll', function () {
+        var scroll = $w.scrollTop();
+        $('.fixed-footer').toggleClass('open', scroll > 100)
+      })
+    })
   </script>
 </html>
