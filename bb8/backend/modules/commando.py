@@ -137,7 +137,7 @@ def FetchData(url, params=[], method='post'):  # pylint: disable=W0102
     resp.raise_for_status()
     assert 'application/json' in resp.headers['Content-Type']
 
-    return json.loads(resp.text)
+    return resp.json()
 
 
 def Transform(transform, js, unused_debug):
