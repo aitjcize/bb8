@@ -265,7 +265,7 @@ def gen_image(item):
     return str(ret['link'])
 
 
-def gen_bot_entry(p, link):
+def gen_bot_entry(p, link, share_link):
   print("""
       "Poetry%(index)d": {
         "name": "Poetry%(index)d",
@@ -293,7 +293,7 @@ def gen_bot_entry(p, link):
                       "buttons": [
                         {
                           "type": "web_url",
-                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=%(link)s&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\\n答曰：【%(goodness)s】。\\nhttp://m.me/chance323?ref=s&redirect_uri=https%%3A//www.messenger.com/closeWindow/%%3Fimage_url%%3Dhttp%%3A//i.imgur.com/y2apUiJ.png%%26display_text%%3D%%3A%%29",
+                          "url": "https://www.facebook.com/dialog/share?app_id=1797497130479857&display=popup&href=%(share_link)s&quote=我在「籤詩三兩三」問{{memory.god_name}}：{{memory.ask_god}}。\\n答曰：【%(goodness)s】。\\nhttp://m.me/chance323?ref=s&redirect_uri=https%%3A//www.messenger.com/closeWindow/%%3Fimage_url%%3Dhttp%%3A//i.imgur.com/y2apUiJ.png%%26display_text%%3D%%3A%%29",
                           "title": "分享",
                           "webview_height_ratio": "tall"
                         },
@@ -394,7 +394,8 @@ def gen_bot_entry(p, link):
         'index': p[0],
         'goodness': p[1],
         'link': link,
-        'explain': p[3]
+        'explain': p[3],
+        'share_link': share_link,
     })
 
 
@@ -408,7 +409,10 @@ def main():
     for item in POETRIES:
         # link = gen_image(item)
         link = POETRY_IMAGES_LINK[item[0] - 1]
-        gen_bot_entry(item, link)
+        imgur_hash = link.split('/')[-1][:-4]
+        share_link = ('https%3A%2F%2F{{env.host}}%3A{{env.port}}%2Ffortune_share%2F' + imgur_hash +
+                      '%3Fgod_name={{memory.god_name}}%26ask_god={{memory.ask_god}}%26god_image_url={{memory.god_image_url}}')
+        gen_bot_entry(item, link, share_link)
 
 
 if __name__ == '__main__':

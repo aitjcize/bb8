@@ -1,0 +1,41 @@
+<html>
+  <head>
+    <meta property="og:url" content="compose.ai" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="我在籤詩三兩三求到這支籤！你呢？" />
+    <meta property="og:image" content="{{ fortune_url }}" />
+    <meta property="og:image:width" content="680" />
+    <meta property="og:image:height" content="1200" />
+    <meta property="og:app_id" content="1797497130479857" />
+  </head>
+  <body>
+    <h5> 誠心問卦 </h5>
+    <p> {{ ask_god }} </p>
+    <p> {{ god_name }} </p>
+
+    <img src="{{ god_image_url }}" >
+    <img src="{{ fortune_url }}" >
+		<div class="fb-messengermessageus"
+		  messenger_app_id="1797497130479857"
+		  page_id="325044184558412"
+		  color="blue"
+		  size="xlarge" >
+		</div>
+  </body>
+  <script>
+    window.fbAsyncInit = function() {
+      FB.init({
+        appId: "1797497130479857",
+        xfbml: true,
+        version: "v2.6"
+      });
+    };
+    (function(d, s, id){
+       var js, fjs = d.getElementsByTagName(s)[0];
+       if (d.getElementById(id)) { return; }
+       js = d.createElement(s); js.id = id;
+       js.src = "//connect.facebook.net/en_US/sdk.js";
+       fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+  </script>
+</html>

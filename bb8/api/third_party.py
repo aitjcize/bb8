@@ -12,7 +12,7 @@ import urllib
 import requests
 
 from backports.functools_lru_cache import lru_cache
-from flask import request, make_response, jsonify
+from flask import request, make_response, jsonify, render_template
 
 from bb8 import app
 from bb8.backend.modules.youbike import GOOGLE_STATIC_MAP_API_KEY
@@ -58,3 +58,21 @@ def duckduckgo_image_search(q):
 def fortune_image_search():
     q = request.args['q']
     return jsonify(duckduckgo_image_search(q))
+
+
+@app.route('/fortune_share/<imgur_hash>', methods=['GET'])
+def fortune_share_facebook(imgur_hash):
+    """Share the result of fortune bot"""
+    god_name = request.args.get('god_name', None)
+    ask_god = request.args.get('ask_god', None)
+    god_image_url = request.args.get('god_image_url', None)
+
+    if not god_name or not ask_god or not imgur_hash or not god_image_url:
+        return render_template('error.html')
+
+    fortune_url = 'http://i.imgur.com/%s.png' % imgur_hash
+    return render_template('fortune_share.html',
+                           fortune_url=fortune_url,
+                           god_image_url=god_image_url,
+                           god_name=god_name,
+                           ask_god=ask_god)
