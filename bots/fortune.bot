@@ -384,14 +384,9 @@
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
-            "url": "https://www.googleapis.com/customsearch/v1?",
+            "url": "https://dev.compose.ai:7001/api/third_party/fortune/image_search?",
             "method": "get",
             "params": [
-              ["key", "AIzaSyAJjjE4BnIS-JAlfC1V77QGvb5kCauUVnc"],
-              ["imgSize", "medium"],
-              ["searchType", "image"],
-              ["num", "1"],
-              ["cx", "011252072516985184311:x7skd3khh1s"],
               ["q", "{{text}}"]
             ],
             "transform": [
@@ -401,8 +396,8 @@
                 "template": [
                   "{",
                   "  \"memory\": {",
-                  "    {% if 'items' in transform_input %}",
-                  "      \"god_image_url\": \"https://images.weserv.nl/?url={{urllib.quote(re.sub('^https?://', '', transform_input['items'][0]['link']))}}\"",
+                  "    {% if 'results' in transform_input %}",
+                  "      \"god_image_url\": \"https://images.weserv.nl/?url={{urllib.quote(re.sub('^https?://', '', transform_input['results'][0]['image']))}}\"",
                   "    {% else %}",
                   "      \"god_image_url\": \"http://www.tcsac.gov.tw/2016webmazu/images/living-roomj.jpg\"",
                   "    {% endif %}",
