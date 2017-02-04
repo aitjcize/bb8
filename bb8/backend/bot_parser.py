@@ -107,6 +107,7 @@ def parse_bot(bot_json, to_bot_id=None, source='bot_json'):
         DatabaseManager.flush()
 
     nodes = bot_desc['nodes']
+    node_objs = []
     id_map = {}  # Mapping of stable_id to id
 
     # Build node
@@ -134,8 +135,7 @@ def parse_bot(bot_json, to_bot_id=None, source='bot_json'):
         DatabaseManager.flush()
         id_map[stable_id] = n.id
 
-        # Invalidate previous node cache.
-        n.invalidate_cached()
+        node_objs.append(n)
 
     # Validate that module linkages are present in this bot file.
     for stable_id, node in nodes.iteritems():
@@ -171,7 +171,12 @@ def parse_bot(bot_json, to_bot_id=None, source='bot_json'):
     if root_router.next_node_id != 'Root':
         raise RuntimeError('next_node_id for RootRouter must be Root')
 
-    DatabaseManager.flush()
+    DatabaseManager.commit()
+
+    # Invalidate previous node cache.
+    for node in node_objs:
+        node.invalidate_cached()
+
     return bot
 
 

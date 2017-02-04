@@ -94,7 +94,7 @@ def parse_platform(platform_json, to_platform_id=None, source='platform_json'):
         platform = Platform(**platform_json).add()
 
     try:
-        DatabaseManager.flush()
+        DatabaseManager.commit()
     except IntegrityError:
         DatabaseManager.rollback()
         raise DuplicateEntryError()
