@@ -51,10 +51,10 @@ def duckduckgo_image_search(q):
         'https://duckduckgo.com/i.js?l=zh-tw&o=json&q=%s&vqd=%s' % (q, vqd))
     res.raise_for_status()
 
-    return jsonify(res.json())
+    return res.json()
 
 
 @app.route('/api/third_party/fortune/image_search')
 def fortune_image_search():
     q = request.args['q']
-    return duckduckgo_image_search(q)
+    return jsonify(duckduckgo_image_search(q))
