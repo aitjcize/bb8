@@ -19,7 +19,7 @@ import jsonschema
 from flask import g
 from sqlalchemy import desc, func
 
-from bb8 import logger
+from bb8 import config, logger
 from bb8.backend import base_message, template, messaging
 from bb8.backend.speech import speech_to_text
 from bb8.backend.database import CollectedDatum, PlatformTypeEnum
@@ -350,6 +350,12 @@ def Render(tmpl, variables):
     if hasattr(g, 'user'):
         variables['settings'] = g.user.settings
         variables['memory'] = g.user.memory
+
+    # Inject some environment specific variables
+    variables['env'] = {
+        'host': config.HOSTNAME,
+        'port': config.HTTP_PORT
+    }
 
     # Inject some useful modules
     variables['randint'] = random.randint
