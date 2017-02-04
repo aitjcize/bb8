@@ -35,8 +35,7 @@ case $USER in
     export HTTP_PORT=5000
     export BB8_HOSTNAME=bot.compose.ai
     export BB8_RESOURCE_HOSTNAME=r.compose.ai
-    # export REDIS_HOST=$(docker network inspect bb8_network | \
-    #   awk '/bb8.service.redis/,/},/ ' '{ if ($1 == "\"IPv4Address\":") { print substr($2, 2, index($2, "/") - 2) } }')
+    # export REDIS_HOST=$(docker network inspect bb8_network | awk '/bb8.service.redis/,/},/ { if ($1 == "\"IPv4Address\":") { print substr($2, 2, index($2, "/") - 2) } }')
     # export DATABASE='mysql+pymysql://bb8deploy:bb8deploymysql@/bb8?unix_socket=/cloudsql/dotted-lexicon-133523:asia-east1:bb8&charset=utf8mb4'
     ;;
   aitjcize)
