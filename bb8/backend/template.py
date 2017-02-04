@@ -32,7 +32,7 @@
 
     2. Multiple Key (one-of key-path support):
        A user may render the template with:
-       {{key1.key2,key3,key4}}
+       {{key1.key2;key3;key4}}
 
        If 'key1' does not exist, 'key3' will be used. If 'key3' does not
        exist, 'key4' will be used. So on and so forth.
@@ -49,21 +49,20 @@
 
     key : ID
 
-    function_arg : string_literal
-                 | number
-
-    function_args : function_args ',' function_arg
-                  | function_arg
+    function_args : function_args ',' exprs
+                  | exprs
 
     base_value : base_value '.' key
                | base_value '#' NUMBER
+               | number
+               | string_literal
                | key '(' function_args ')
                | key
 
-    value : pure_value
-          | NOT pure_value
+    value : base_value
+          | NOT base_value
 
-    values : values ',' value
+    values : values ';' value
            | value
 
     values_expr : values_expr op values
@@ -99,6 +98,7 @@ class Token(enum.Enum):
     WHITESPACE = 'WHITESPACE'
     STRING_LITERAL = 'STRING_LITERAL'
     COMMA = 'COMMA'
+    SEMICOLON = 'SEMICOLON'
     DOT = 'DOT'
     SHARP = 'SHARP'
     EQUALS = 'EQUALS'
@@ -136,6 +136,7 @@ token_rules = [
     (Token.STRING_LITERAL, re.compile(r"'[^']*'"), lambda x: x[1:-1]),
     (Token.DOT, re.compile(r'\.'), None),
     (Token.COMMA, re.compile(r','), None),
+    (Token.SEMICOLON, re.compile(r';'), None),
     (Token.SHARP, re.compile(r'#'), None),
     (Token.EQUALS, re.compile(r'=='), None),
     (Token.LE, re.compile(r'<='), None),
@@ -337,12 +338,14 @@ def parse_function_args(context, tokens):
     context.args = []
     while tokens:
         token = tokens[0]
-        if token.type == Token.NUMBER:
-            args.append(token.value)
-        elif token.type == Token.STRING_LITERAL:
-            args.append(token.value)
+        if token.type in VALUE_STARTING_TOKENS:
+            context.push()
+            tokens = parse_exprs(context, tokens)
+            args.append(context.value)
+            context.pop()
+            continue
         elif token.type == Token.COMMA:
-            pass
+            tokens = tokens[1:]
         elif token.type == Token.RPAREN:
             if context.evaluate:
                 context.args = args
@@ -350,7 +353,6 @@ def parse_function_args(context, tokens):
         else:
             raise ParserError('Invalid token `(%s, %s)\' when parsing '
                               'function argument' % tokens[0])
-        tokens = tokens[1:]
 
 
 def parse_index(context, tokens):
@@ -442,7 +444,7 @@ def parse_values(context, tokens):
         token = tokens[0]
         if token.type in VALUE_STARTING_TOKENS:
             if not new_value:
-                raise ParserError('SyntaxError: expecting COMMA, got %s' %
+                raise ParserError('SyntaxError: expecting SEMICOLON, got %s' %
                                   str(token))
             tokens = parse_value(context, tokens)
             if context.value and context.evaluate:
@@ -451,7 +453,7 @@ def parse_values(context, tokens):
             if result is None:
                 context.evaluate = True
             new_value = False
-        elif token.type == Token.COMMA:
+        elif token.type == Token.SEMICOLON:
             tokens = tokens[1:]
             new_value = True
         else:
@@ -529,12 +531,15 @@ def parse_exprs(context, tokens):
         elif token.type == Token.IF:
             tokens = parse_if_else(context, tokens[1:])
         else:
-            raise ParserError('SyntaxError: expecting exprs, got %s' %
-                              str(token))
+            return tokens
+    return []
 
 
 def parse_root(context, tokens):
-    parse_exprs(context, tokens)
+    tokens = parse_exprs(context, tokens)
+    if len(tokens):
+        raise ParserError('SyntaxError: expecting end of expression, got %s' %
+                          str(tokens[0]))
 
 
 def parse(template, variables):

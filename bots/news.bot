@@ -353,7 +353,7 @@
           "id": "ai.compose.content.core.content",
           "config": {
             "mode": "search",
-            "query_term": "{{matches#1,text}}"
+            "query_term": "{{matches#1;text}}"
           }
         }
       },

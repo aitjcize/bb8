@@ -42,16 +42,16 @@ class TemplateUnittest(unittest.TestCase):
         self.assertEquals(Render('{{a.b.c}}', variables), '')
 
         variables = {'k': {'j': 'aaa'}}
-        self.assertEquals(Render('{{a.b.c,k.j|upper}}', variables), 'AAA')
+        self.assertEquals(Render('{{a.b.c;k.j|upper}}', variables), 'AAA')
 
         variables = {'k': {'j': 'aaa'}}
-        self.assertEquals(Render('{{k.j,a.b|upper}}', variables), 'AAA')
+        self.assertEquals(Render('{{k.j;a.b|upper}}', variables), 'AAA')
 
         variables = {'a': 1, 'k': {'j': 'aaa'}}
-        self.assertEquals(Render('{{a.b,k.j|upper}}', variables), 'AAA')
+        self.assertEquals(Render('{{a.b;k.j|upper}}', variables), 'AAA')
 
         variables = {'a': 1, 'k': {'j': 'aaa'}}
-        self.assertEquals(Render('{{h,j,k.j|upper}}', variables), 'AAA')
+        self.assertEquals(Render('{{h;j;k.j|upper}}', variables), 'AAA')
 
         variables = {'a': 1, 'k': {'j': [{'h': 2}, 3]}}
         self.assertEquals(Render("{{k.j#0.h}}", variables), '2')
@@ -65,6 +65,15 @@ class TemplateUnittest(unittest.TestCase):
 
         variables = {'a': {'b': lambda: 5}}
         self.assertEquals(Render("{{a.b() + 5}}", variables), '10')
+
+        def upper(x):
+            return x.upper()
+
+        variables = {'a': 'abc', 'upper': upper}
+        self.assertEquals(Render("{{upper(a + '.' + 'xyz')}}", variables),
+                          'ABC.XYZ')
+
+        self.assertEquals(Render("{{upper(a|truncat(1))}}", variables), 'A')
 
     def test_variable_result_indexing(self):
         variables = {'a': [1, 2, 3, 4, 5]}

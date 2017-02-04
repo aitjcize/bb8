@@ -415,7 +415,7 @@
           "id": "ai.compose.content.third_party.drama",
           "config": {
             "mode": "search",
-            "query_term": "{{matches#1,text}}"
+            "query_term": "{{matches#1;text}}"
           }
         }
       },
@@ -530,7 +530,7 @@
           "id": "ai.compose.content.third_party.drama",
           "config": {
             "mode": "search_season",
-            "season": "{{matches#2,matches#1}}"
+            "season": "{{matches#2;matches#1}}"
           }
         }
       },
@@ -543,7 +543,7 @@
           "id": "ai.compose.content.third_party.drama",
           "config": {
             "mode": "search_episode",
-            "episode": "{{matches#3,text}}"
+            "episode": "{{matches#3;text}}"
           }
         }
       },

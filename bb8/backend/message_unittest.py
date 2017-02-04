@@ -69,8 +69,8 @@ class MessageUnittest(unittest.TestCase, BaseTestMixin):
         self.assertEquals(Resolve('{{a}}', variables), 'A')
 
         variables = {'b': 'B'}
-        self.assertEquals(Resolve('{{a,b}}', variables), 'B')
-        self.assertEquals(Resolve('{{a,b}}', {}), '{{a,b}}')
+        self.assertEquals(Resolve('{{a;b}}', variables), 'B')
+        self.assertEquals(Resolve('{{a;b}}', {}), '')
 
     def test_Button(self):
         with self.assertRaises(RuntimeError):
