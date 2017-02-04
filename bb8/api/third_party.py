@@ -71,7 +71,11 @@ def fortune_share_facebook(imgur_hash):
         return render_template('error.html')
 
     fortune_url = 'http://i.imgur.com/%s.png' % imgur_hash
+    og_image = request.args.get('og_image', fortune_url)
+    og_description = request.args.get('quote', '')
     return render_template('fortune_share.html',
+                           og_image=og_image,
+                           og_description=og_description,
                            fortune_url=fortune_url,
                            god_image_url=god_image_url,
                            god_name=god_name,
