@@ -11,10 +11,10 @@ import urllib
 
 import requests
 
+from backports.functools_lru_cache import lru_cache
 from flask import request, make_response, jsonify
 
 from bb8 import app
-
 from bb8.backend.modules.youbike import GOOGLE_STATIC_MAP_API_KEY
 
 
@@ -36,10 +36,8 @@ def redirect_render_map():
     return response
 
 
-@app.route('/api/third_party/fortune/image_search')
-def fortune_image_search():
-    q = request.args['q']
-
+@lru_cache(maxsize=1024)
+def duckduckgo_image_search(q):
     res = requests.get('https://duckduckgo.com/?q=%s&iax=1&ia=images' % q)
     res.raise_for_status()
 
@@ -54,3 +52,9 @@ def fortune_image_search():
     res.raise_for_status()
 
     return jsonify(res.json())
+
+
+@app.route('/api/third_party/fortune/image_search')
+def fortune_image_search():
+    q = request.args['q']
+    return duckduckgo_image_search(q)
