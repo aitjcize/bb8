@@ -66,6 +66,8 @@ def fortune_share_facebook(imgur_hash):
     god_name = request.args.get('god_name', None)
     ask_god = request.args.get('ask_god', None)
     god_image_url = request.args.get('god_image_url', None)
+    first_name = request.args.get('first_name', '')
+    last_name = request.args.get('last_name', '')
 
     if not god_name or not ask_god or not imgur_hash or not god_image_url:
         return render_template('error.html')
@@ -76,6 +78,8 @@ def fortune_share_facebook(imgur_hash):
     return render_template('fortune_share.html',
                            og_image=og_image,
                            og_description=og_description,
+                           first_name=first_name,
+                           last_name=last_name,
                            fortune_url=fortune_url,
                            god_image_url=god_image_url,
                            god_name=god_name,

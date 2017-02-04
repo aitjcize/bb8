@@ -425,7 +425,8 @@ def main():
         share_link = ('https%3A%2F%2F{{env.host}}%3A{{env.port}}%2Ffortune_share%2F' + imgur_hash +
                       '%3Fgod_name={{memory.god_name}}%26ask_god={{memory.ask_god}}'
                       '%26god_image_url={{memory.god_image_url}}%26og_image=' + og_image +
-                      '%26quote=' + quote)
+                      '%26quote=' + quote +
+                      '%26last_name={{user.last_name}}%26first_name={{user.first_name}}')
         gen_bot_entry(item, link, share_link)
 
 
