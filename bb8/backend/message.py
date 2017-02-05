@@ -260,7 +260,26 @@ def Resolve(obj, variables):
     if not m:
         return obj
 
-    return Render(obj, variables)
+    names = m.group(1)
+
+    if ';' in names:
+        options = names.split(';')
+    else:
+        options = [names]
+
+    for option in options:
+        if '#' in option:
+            try:
+                parts = option.split('#')
+                if parts[0] in variables:
+                    return variables[parts[0]][int(parts[1])]
+            except Exception as e:
+                logger.exception(e)
+                continue
+        else:
+            if option in variables:
+                return variables[option]
+    return obj
 
 
 class DataQuery(object):
