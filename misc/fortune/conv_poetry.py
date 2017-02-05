@@ -310,7 +310,7 @@ def gen_bot_entry(p, link, share_link):
                         {
                           "type": "web_url",
                           "url": "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=P7DNSMKJT7YQU",
-                          "title": "捐香油錢",
+                          "title": "隨喜捐",
                           "webview_height_ratio": "tall"
                         }
                       ]
