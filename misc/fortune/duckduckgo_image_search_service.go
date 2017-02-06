@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"time"
 
 	"github.com/gorilla/handlers"
 	"github.com/hashicorp/golang-lru"
@@ -40,7 +41,10 @@ func NewImageSearchService() *ImageSearchService {
 	}
 
 	httpTransport := &http.Transport{}
-	httpClient := &http.Client{Transport: httpTransport}
+	httpClient := &http.Client{
+		Transport: httpTransport,
+		Timeout:   time.Second * 10,
+	}
 
 	// set our socks5 as the dialer
 	httpTransport.Dial = dialer.Dial
@@ -129,7 +133,7 @@ func (s *ImageSearchService) Run() {
 	http.HandleFunc("/image_search", imageSearchHandler)
 
 	log.Fatal(http.ListenAndServe("0.0.0.0:7005",
-			handlers.LoggingHandler(os.Stdout, http.DefaultServeMux)))
+		handlers.LoggingHandler(os.Stdout, http.DefaultServeMux)))
 }
 
 func main() {
