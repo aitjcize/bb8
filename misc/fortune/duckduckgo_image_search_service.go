@@ -13,6 +13,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"regexp"
 	"time"
@@ -58,6 +59,8 @@ func NewImageSearchService() *ImageSearchService {
 }
 
 func (s *ImageSearchService) duckduckgoImageSearch(query string) ([]byte, error) {
+	query = url.QueryEscape(query)
+
 	url := fmt.Sprintf("https://duckduckgo.com/?q=%s&iax=1&ia=images", query)
 	resp, err := s.httpClient.Get(url)
 	if err != nil {
