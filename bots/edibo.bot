@@ -148,7 +148,7 @@
                 ]
               }
             ],
-            "debug": 1,
+            "debug": true,
             "on_error": "我好像壞掉了，快通知管理員。"
           }
         }
@@ -718,7 +718,7 @@
                 ]
               }
             ],
-            "debug": 1,
+            "debug": true,
             "on_error": "我好像壞掉了，快通知管理員。"
           }
         }
@@ -822,7 +822,7 @@
                 ]
               }
             ],
-            "debug": 0,
+            "debug": false,
             "on_error": "我好像壞掉了，快通知管理員。(GetLocalRestaurants)"
           }
         }
@@ -871,7 +871,7 @@
                 ]
               }
             ],
-            "debug": 0,
+            "debug": false,
             "on_error": "我好像壞掉了，快通知管理員。(GetLocalRestaurantsDetails0)"
           }
         }
@@ -909,7 +909,7 @@
                 ]
               }
             ],
-            "debug": 0,
+            "debug": false,
             "on_error": "我好像壞掉了，快通知管理員。(GetLocalRestaurantsDetails1)"
           }
         }
@@ -947,7 +947,7 @@
                 ]
               }
             ],
-            "debug": 0,
+            "debug": false,
             "on_error": "我好像壞掉了，快通知管理員。(GetLocalRestaurantsDetails2)"
           }
         }
@@ -985,7 +985,7 @@
                 ]
               }
             ],
-            "debug": 0,
+            "debug": false,
             "on_error": "我好像壞掉了，快通知管理員。(GetLocalRestaurantsDetails3)"
           }
         }
@@ -1023,7 +1023,7 @@
                 ]
               }
             ],
-            "debug": 0,
+            "debug": false,
             "on_error": "我好像壞掉了，快通知管理員。(GetLocalRestaurantsDetails4)"
           }
         }
@@ -1113,7 +1113,7 @@
                 ]
               }
             ],
-            "debug": 0,
+            "debug": false,
             "on_error": "我好像壞掉了，快通知管理員。(GetLocalRestaurantsShow)"
           }
         }
