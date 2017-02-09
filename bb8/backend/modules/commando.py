@@ -106,7 +106,37 @@ def schema():
     return {
         'type': 'object',
         'properties': {
-        }
+            'url': {'type': 'string'},
+            'params': {
+                'type': 'array',
+                'items': {'$ref': '#/definitions/param'},
+            },
+            'debug': {'type': 'boolean'},
+            'on_error': {'type': 'string'},
+            'transform': {
+                'type': 'array',
+                'items': {'$ref': '#/definitions/transform_item'},
+            },
+        },
+        'definitions': {
+            'transform_item': {
+                'type': 'object',
+                'required': ['type', 'template'],
+                'properties': {
+                    'type': {'type': 'string'},
+                    'template': {
+                        'type': 'array',
+                        'items': {'type': 'string'},
+                    },
+                },
+            },
+            'param': {
+                'type': 'array',
+                'items': {'type': 'string'},
+                'minItems': 2,
+                'maxItems': 2,
+            },
+        },
     }
 
 
