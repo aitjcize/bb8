@@ -446,7 +446,13 @@ class BB8(object):
         for module, res_list in resource_def['module-resource'].iteritems():
             logger.info('Installing resource for %s ...', module)
             for resource in res_list:
-                run('gsutil cp %s %s' % (resource['source'], resource['dest']))
+                run('gsutil cp "%s" "%s"' % (resource['source'],
+                                             resource['dest']))
+
+                if resource['source'].endswith('.zip'):
+                    run('cd "%s"; unzip "%s"' %
+                        (os.path.dirname(resource['dest']),
+                         os.path.basename(resource['source'])))
 
     def setup_network(self):
         run('docker network create %s' % BB8_NETWORK, True)

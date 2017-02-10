@@ -6,6 +6,18 @@
         "source": "gs://bb8-app-resource/ai.compose.content.third_party.twrealprice/twrealprice.db",
         "dest": "/var/lib/bb8/apps/twrealprice/resource/twrealprice.db"
       }
+    ],
+    "fortune.bot": [
+      {
+        "description": "fortune bot omamori font",
+        "source": "gs://bb8-app-resource/fortune.bot/IDDragonXing.ttf",
+        "dest": "/usr/share/fonts/truetype/IDDragonXing.ttf"
+      },
+      {
+        "description": "fortune bot omamori backgrounds",
+        "source": "gs://bb8-app-resource/fortune.bot/backgrounds.zip",
+        "dest": "/var/lib/bb8/apps/fortune/resource/backgrounds.zip"
+      }
     ]
   }
 }
