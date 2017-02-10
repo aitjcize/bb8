@@ -579,7 +579,8 @@ class Message(object):
         attachment = data.get('attachment')
         if attachment:
             if attachment['type'] == 'image':
-                m.image_url = attachment['payload'].get('url')
+                m.image_url = Render(attachment['payload'].get('url'),
+                                     variables)
             elif attachment['type'] == 'template':
                 ttype = attachment['payload']['template_type']
                 if ttype == 'button':
