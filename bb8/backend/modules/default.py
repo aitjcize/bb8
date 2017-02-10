@@ -44,6 +44,7 @@ def schema():
                             'type': 'object',
                             'required': ['type'],
                             'oneOf': [{
+                                'additionalProperties': False,
                                 'properties': {
                                     'type': {'enum': ['regexp']},
                                     'params': {
@@ -61,6 +62,7 @@ def schema():
                                     }
                                 }
                             }, {
+                                'additionalProperties': False,
                                 'properties': {
                                     'type': {'enum': ['location']},
                                     'params': {'type': 'null'},
@@ -75,14 +77,25 @@ def schema():
                                     }
                                 },
                             }, {
+                                'additionalProperties': False,
                                 'properties': {
                                     'type': {'enum': ['event']},
                                     'params': {
                                         'type': 'array',
                                         'items': {'type': 'string'}
+                                    },
+                                    'collect_as': {
+                                        '$ref': '#/definitions/collect_as'
+                                    },
+                                    'settings_set': {
+                                        '$ref': '#/definitions/dict_set'
+                                    },
+                                    'memory_set': {
+                                        '$ref': '#/definitions/dict_set'
                                     }
                                 }
                             }, {
+                                'additionalProperties': False,
                                 'properties': {
                                     'type': {'enum': ['sticker']},
                                     'params': {
