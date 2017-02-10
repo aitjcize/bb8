@@ -340,6 +340,10 @@ def gen_bot_entry(p, link, share_link):
               {
                 "content_type": "text",
                 "title": "再抽一次"
+              },
+              {
+                "content_type": "text",
+                "title": "抽御守"
               }
             ]
           }
