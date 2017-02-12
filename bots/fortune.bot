@@ -529,6 +529,9 @@
                     "url": "https://{{env.host}}:{{env.port}}/fortune/omamori?bg={{memory.omamori_bg}}&text={{memory.omamori_text}}"
                   }
                 }
+              },
+              {
+                "text": "把御守圖片存在手機裡，就可以有靈效噢！"
               }
             ],
             "quick_replies": [
@@ -601,7 +604,7 @@
           "config": {
             "messages": [
               {
-                "text": "請輸入你想換的文字(最多四個字)："
+                "text": "請輸入你想換的文字(最多六個字)："
               }
             ]
           }
