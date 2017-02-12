@@ -7,6 +7,7 @@ RUN apt-get update && apt-get upgrade -y && \
                 curl \
                 ffmpeg \
                 git \
+                libcairo2 \
                 libffi-dev \
                 libjpeg-dev \
                 libmysqlclient-dev \
@@ -20,6 +21,7 @@ RUN apt-get update && apt-get upgrade -y && \
                 python-pip \
                 python-pkg-resources \
                 supervisor \
+                unzip \
                 vim \
         && rm -rf /var/lib/apt/lists/*
 
