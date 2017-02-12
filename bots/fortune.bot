@@ -81,7 +81,7 @@
           "config": {
             "messages": [
               {
-                "text": "先想好想問的事情，輸入「抽籤」，幫你卜個卦；也可以輸入「抽御守」抽個御守！"
+                "text": "先想好想問的事情，輸入「抽籤」，幫你卜個卦；也可以輸入「求御守」求個御守驅除厄運。"
               }
             ],
             "quick_replies": [
@@ -91,7 +91,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -125,7 +125,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["抽御守"],
+                  "params": ["求御守"],
                   "memory_set": [
                     {"key": "omamori_bg", "value": "{{randint(1, 52)}}"},
                     {"key": "omamori_text", "value": ""}
@@ -534,7 +534,7 @@
             "quick_replies": [
               {
                 "content_type": "text",
-                "title": "隨機"
+                "title": "求下一個"
               },
               {
                 "content_type": "text",
@@ -559,7 +559,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["隨機"],
+                  "params": ["求下一個"],
                   "memory_set": [
                     {"key": "omamori_bg", "value": "{{randint(1, 52)}}"},
                       {"key": "omamori_text", "value": ""}
@@ -699,7 +699,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -828,7 +828,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -957,7 +957,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -1086,7 +1086,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -1215,7 +1215,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -1344,7 +1344,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -1473,7 +1473,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -1602,7 +1602,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -1731,7 +1731,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -1860,7 +1860,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -1989,7 +1989,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -2118,7 +2118,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -2247,7 +2247,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -2376,7 +2376,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -2505,7 +2505,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -2634,7 +2634,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -2763,7 +2763,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -2892,7 +2892,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -3021,7 +3021,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -3150,7 +3150,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -3279,7 +3279,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -3408,7 +3408,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -3537,7 +3537,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -3666,7 +3666,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -3795,7 +3795,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -3924,7 +3924,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -4053,7 +4053,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -4182,7 +4182,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -4311,7 +4311,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -4440,7 +4440,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -4569,7 +4569,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -4698,7 +4698,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -4827,7 +4827,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -4956,7 +4956,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -5085,7 +5085,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -5214,7 +5214,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -5343,7 +5343,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -5472,7 +5472,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -5601,7 +5601,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -5730,7 +5730,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -5859,7 +5859,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -5988,7 +5988,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -6117,7 +6117,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -6246,7 +6246,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -6375,7 +6375,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -6504,7 +6504,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -6633,7 +6633,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -6762,7 +6762,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -6891,7 +6891,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -7020,7 +7020,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -7149,7 +7149,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -7278,7 +7278,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -7407,7 +7407,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -7536,7 +7536,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -7665,7 +7665,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -7794,7 +7794,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -7923,7 +7923,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -8052,7 +8052,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -8181,7 +8181,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -8310,7 +8310,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -8439,7 +8439,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -8568,7 +8568,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -8697,7 +8697,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -8826,7 +8826,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -8955,7 +8955,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -9084,7 +9084,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -9213,7 +9213,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -9342,7 +9342,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -9471,7 +9471,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -9600,7 +9600,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -9729,7 +9729,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -9858,7 +9858,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -9987,7 +9987,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -10116,7 +10116,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -10245,7 +10245,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -10374,7 +10374,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -10503,7 +10503,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -10632,7 +10632,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -10761,7 +10761,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -10890,7 +10890,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -11019,7 +11019,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -11148,7 +11148,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -11277,7 +11277,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -11406,7 +11406,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -11535,7 +11535,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -11664,7 +11664,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -11793,7 +11793,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -11922,7 +11922,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -12051,7 +12051,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -12180,7 +12180,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -12309,7 +12309,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -12438,7 +12438,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -12567,7 +12567,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -12696,7 +12696,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -12825,7 +12825,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -12954,7 +12954,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -13083,7 +13083,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -13212,7 +13212,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -13341,7 +13341,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
@@ -13470,7 +13470,7 @@
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }

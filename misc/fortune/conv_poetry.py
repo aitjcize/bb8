@@ -343,7 +343,7 @@ def gen_bot_entry(p, link, share_link):
               },
               {
                 "content_type": "text",
-                "title": "抽御守"
+                "title": "求御守"
               }
             ]
           }
