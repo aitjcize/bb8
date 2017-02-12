@@ -90,4 +90,4 @@ case $USER in
 esac
 
 export DATABASE="mysql+pymysql://bb8:bb8test@$DOCKER_HOST_IP:$MYSQL_PORT/bb8?charset=utf8mb4"
-export REDIS_URI="redis://$REDIS_HOST:$REDIS_PORT/0"
+export REDIS_URI="redis://$REDIS_HOST:$REDIS_PORT"

@@ -106,7 +106,7 @@ class Config(object):
 
     # Celery
     class CeleryConfig(object):
-        broker_url = os.getenv('REDIS_URI', 'redis://localhost:6379/0')
+        broker_url = (os.getenv('REDIS_URI', 'redis://localhost:6379') + '/0')
         imports = (
             'bb8.backend.broadcast',
             'bb8.backend.messaging_tasks',
@@ -119,9 +119,7 @@ class Config(object):
     # Dogpile Cache
     DOGPILE_CACHE_CONFIG = {
         'default': {
-            'host': os.getenv('REDIS_HOST', 'localhost'),
-            'port': os.getenv('REDIS_PORT', 6379),
-            'db': 1,
+            'url': os.getenv('REDIS_URI', 'redis://localhost:6379') + '/1',
             'redis_expiration_time': 60 * 60 * 2,  # 2 hours
             'distributed_lock': True
         }
@@ -176,14 +174,14 @@ class DeployConfig(DevelopmentConfig):
 
     # Celery
     class CeleryConfig(DevelopmentConfig.CeleryConfig):
-        broker_url = 'redis://bb8.service.redis:6379/0'
+        broker_url = os.getenv('REDIS_URI',
+                               'redis://bb8.service.redis:6379') + '/0'
 
     # Dogpile Cache
     DOGPILE_CACHE_CONFIG = {
         'default': {
-            'host': os.getenv('REDIS_HOST', 'bb8.service.redis'),
-            'port': 6379,
-            'db': 1,
+            'url': (os.getenv('REDIS_URI', 'redis://bb8.service.redis:6379') +
+                    '/1'),
             'redis_expiration_time': 60 * 60 * 2,  # 2 hours
             'distributed_lock': True
         }
