@@ -1,0 +1,1563 @@
+{
+  "bot": {
+    "name": "育兒天下",
+    "description": "育兒天下 fans page bot",
+    "interaction_timeout": 120,
+    "admin_interaction_timeout": 10,
+    "session_timeout": 0,
+    "settings": {
+      "get_start_button": {
+        "message": {
+          "text": "Hi"
+        }
+      },
+      "persistent_menu": [
+        {
+          "type": "postback",
+          "title": "兒童讀物",
+          "payload": {
+            "message": {
+              "text": "BooksForChildren"
+            }
+          }
+        },
+        {
+          "type": "postback",
+          "title": "家長讀物",
+          "payload": {
+            "message": {
+              "text": "BooksForParents"
+            }
+          }
+        },
+        {
+          "type": "postback",
+          "title": "老師讀物",
+          "payload": {
+            "message": {
+              "text": "BooksForTeachers"
+            }
+          }
+        },
+        {
+          "type": "postback",
+          "title": "聯絡小編",
+          "payload": {
+            "message": {
+              "text": "Feedback"
+            }
+          }
+        },
+        {
+          "type": "web_url",
+          "title": "Powered by Compose.ai",
+          "url": "http://compose.ai"
+        }
+      ]
+    },
+    "nodes": {
+      "Start": {
+        "name": "Start",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "Hi, {{user.first_name}}， 歡迎您來到育兒好物！請問您，有什麼問題想問呢？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "content_type": "text",
+                "title": "請推薦商品給我",
+                "payload": {
+                  "message": {
+                    "text": "PickABook"
+                  }
+                },
+                "acceptable_inputs": [
+                  "買書",
+                  "(?i)Buy",
+                  "選書",
+                  "找書"
+                ]
+              },
+              {
+                "content_type": "text",
+                "title": "聯絡小編",
+                "payload": {
+                  "message": {
+                    "text": "Feedback"
+                  }
+                },
+                "acceptable_inputs": [
+                  "小編",
+                  "留言",
+                  "客訴",
+                  "客服"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "Root": {
+        "name": "Root",
+        "description": "Main bot operation node",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "Hi, {{user.first_name}}! 請問您，有什麼問題想問呢？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "content_type": "text",
+                "title": "請推薦商品給我",
+                "payload": {
+                  "message": {
+                    "text": "PickABook"
+                  }
+                },
+                "acceptable_inputs": [
+                  "買書",
+                  "(?i)Buy",
+                  "選書",
+                  "找書"
+                ]
+              },
+              {
+                "content_type": "text",
+                "title": "聯絡小編",
+                "payload": {
+                  "message": {
+                    "text": "Feedback"
+                  }
+                },
+                "acceptable_inputs": [
+                  "小編",
+                  "留言",
+                  "客訴",
+                  "客服"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "RootRouter": {
+        "name": "RootRouter",
+        "description": "Root router",
+        "expect_input": true,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(?i)PickABook",
+                    "選書",
+                    "推薦",
+                    "買書"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "PickABook"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(?i)Child",
+                    "兒童讀物",
+                    "兒童",
+                    "小孩",
+                    "(?i)BooksForChildren"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "BooksForChildren"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(?i)Parents",
+                    "(?i)BooksForParents",
+                    "家長讀物",
+                    "家長",
+                    "父母",
+                    "爸媽"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "BooksForParents"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(?i)Teacher",
+                    "(?i)BooksForTeachers",
+                    "老師讀物",
+                    "老師",
+                    "教師"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "BooksForTeachers"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "^建議$",
+                    "^(?i)feedback$",
+                    "意見",
+                    "留言",
+                    "聯絡小編",
+                    "客訴",
+                    "客服"
+                  ]
+                },
+                "end_node_id": "Feedback",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["^建議 ?(.*)$", "^feedback (.*)$"],
+                  "collect_as": {
+                    "key": "feedback",
+                    "value": "{{matches#1}}"
+                  }
+                },
+                "ack_message": "謝謝你的建議，我們會根據你的建議改善的！"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(?i)PickABook"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "PickABook"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(?i)(hi|hey|hello|yo|ya)\\b",
+                    "(?i)how are (yo)?u",
+                    "嗨",
+                    "你好"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Root"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(0|1|2|3)\\b",
+                    "(?i)ZeroToThree"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "ZeroToThree"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(4|5|6)\\b",
+                    "(?i)FourToSix"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "FourToSix"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(7|8|9|10)\\b",
+                    "(?i)SevenToTen"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "SevenToTen"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(11|12|13|14|15)\\b",
+                    "(?i)ElevenToFifteen"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "ElevenToFifteen"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(?i)bye",
+                    "(?i)see (you|u)"
+                  ]
+                },
+                "ack_message": [
+                  "See you too!",
+                  "Bye :)"
+                ]
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(?i)thanks?",
+                    "謝謝",
+                    "感謝",
+                    "讚"
+                  ]
+                },
+                "end_node_id": "Thanks",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "sticker",
+                  "params": [
+                    "369239263222822",
+                    "369239343222814",
+                    "369239383222810"
+                  ]
+                },
+                "end_node_id": "Thanks",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "sticker",
+                  "params": [
+                    ".*"
+                  ]
+                },
+                "ack_message": [
+                  ":D",
+                  ":)",
+                  "><"
+                ]
+              }
+            ],
+            "on_error": {
+              "ack_message": [
+                "我不太懂您的意思，請問您想找哪一類的書籍呢？"
+              ],
+              "end_node_id": "RootRouter"
+            }
+          }
+        }
+      },
+      "PickABook": {
+        "name": "PickABook",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "請問這次想了解的商品，是要推薦給誰看的呢?"
+              }
+            ],
+            "quick_replies": [
+              {
+                "content_type": "text",
+                "title": "父母",
+                "payload": {
+                  "message": {
+                    "text": "BooksForParents"
+                  }
+                },
+                "acceptable_inputs": [
+                  "爸媽",
+                  "(?i)parents"
+                ]
+              },
+              {
+                "content_type": "text",
+                "title": "老師",
+                "payload": {
+                  "message": {
+                    "text": "BooksForTeachers"
+                  }
+                },
+                "acceptable_inputs": [
+                  "教師",
+                  "(?i)Teacher"
+                ]
+              },
+              {
+                "content_type": "text",
+                "title": "小孩",
+                "payload": {
+                  "message": {
+                    "text": "BooksForChildren"
+                  }
+                },
+                "acceptable_inputs": [
+                  "兒童",
+                  "(?i)child",
+                  "(?i)children",
+                  "兒子",
+                  "女兒"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "BooksForChildren": {
+        "name": "BooksForChildren",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "請問是要給幾歲的孩子看呢?"
+              }
+            ],
+            "quick_replies": [
+              {
+                "content_type": "text",
+                "title": "0-3",
+                "payload": {
+                  "message": {
+                    "text": "ZeroToThree"
+                  }
+                },
+                "acceptable_inputs": [
+                  "0",
+                  "1",
+                  "2",
+                  "3",
+                  "0歲",
+                  "1歲",
+                  "2歲",
+                  "3歲",
+                  "零",
+                  "一",
+                  "二",
+                  "三",
+                  "零歲",
+                  "一歲",
+                  "二歲",
+                  "三歲",
+                  "剛出生"
+                ]
+              },
+              {
+                "content_type": "text",
+                "title": "4-6",
+                "payload": {
+                  "message": {
+                    "text": "FourToSix"
+                  }
+                },
+                "acceptable_inputs": [
+                  "4",
+                  "5",
+                  "6",
+                  "4歲",
+                  "5歲",
+                  "6歲",
+                  "四",
+                  "五",
+                  "六",
+                  "四歲",
+                  "五歲",
+                  "六歲"
+                ]
+              },
+              {
+                "content_type": "text",
+                "title": "7-10",
+                "payload": {
+                  "message": {
+                    "text": "SevenToTen"
+                  }
+                },
+                "acceptable_inputs": [
+                  "7",
+                  "8",
+                  "9",
+                  "7歲",
+                  "8歲",
+                  "9歲",
+                  "七",
+                  "八",
+                  "九",
+                  "七歲",
+                  "八歲",
+                  "九歲"
+                ]
+              },
+              {
+                "content_type": "text",
+                "title": "11-15",
+                "payload": {
+                  "message": {
+                    "text": "ElevenToFifteen"
+                  }
+                },
+                "acceptable_inputs": [
+                  "11",
+                  "12",
+                  "13",
+                  "14",
+                  "15",
+                  "11歲",
+                  "12歲",
+                  "13歲",
+                  "14歲",
+                  "15歲",
+                  "十一",
+                  "十二",
+                  "十三",
+                  "十四",
+                  "十五",
+                  "十一歲",
+                  "十二歲",
+                  "十三歲",
+                  "十四歲",
+                  "十五歲"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "ZeroToThree": {
+        "name": "ZeroToThree",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "https://shopping.parenting.com.tw/api/product/getOnlineProducts?",
+            "params": [
+              ["age", "0-3歲"]
+            ],
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"quick_replies\": [",
+                  "     {",
+                  "       \"content_type\": \"text\",",
+                  "       \"title\": \"我想再挑選其他類型的書籍\",",
+                  "       \"payload\": {",
+                  "         \"message\": {",
+                  "           \"text\": \"PickABook\"",
+                  "         }",
+                  "       },",
+                  "       \"acceptable_inputs\": [",
+                  "         \"其他\"",
+                  "       ]",
+                  "     }",
+                  "   ],",
+                  "  \"messages\": [",
+                  "    {",
+                  "      \"text\": \"以下是關於0-3歲較熱門的書籍\"",
+                  "    },",
+                  "    {",
+                  "      \"attachment\": {",
+                  "        \"type\": \"template\",",
+                  "        \"payload\": {",
+                  "           \"template_type\": \"generic\",",
+                  "           \"elements\": [",
+                  "             {% for book in transform_input.data[:5] %}",
+                  "               {",
+                  "                 \"title\": \"{{book['name']}}\",",
+                  "                 \"subtitle\": \" \",",
+                  "                 \"image_url\": \"{{book['img_url']}}\",",
+                  "                 \"buttons\": [",
+                  "                   {",
+                  "                     \"url\": \"{{book['url']}}\",",
+                  "                     \"type\": \"web_url\",",
+                  "                     \"title\": \"我要購買\"",
+                  "                   },",
+                  "                   {",
+                  "                     \"type\": \"element_share\",",
+                  "                     \"title\": \"我要轉貼\"",
+                  "                   }",
+                  "                 ]",
+                  "               }",
+                  "             {{ ',' if not loop.last }}",
+                  "             {% endfor %}",
+                  "           ]",
+                  "         }",
+                  "       }",
+                  "    }",
+                  "  ]",
+                  "}"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "FourToSix": {
+        "name": "FourToSix",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "https://shopping.parenting.com.tw/api/product/getOnlineProducts?",
+            "params": [
+              ["age", "4-6歲"]
+            ],
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"quick_replies\": [",
+                  "     {",
+                  "       \"content_type\": \"text\",",
+                  "       \"title\": \"我想再挑選其他類型的書籍\",",
+                  "       \"payload\": {",
+                  "         \"message\": {",
+                  "           \"text\": \"PickABook\"",
+                  "         }",
+                  "       },",
+                  "       \"acceptable_inputs\": [",
+                  "         \"其他\"",
+                  "       ]",
+                  "     }",
+                  "   ],",
+                  "  \"messages\": [",
+                  "    {",
+                  "      \"text\": \"以下是關於4-6歲較熱門的書籍\"",
+                  "    },",
+                  "    {",
+                  "      \"attachment\": {",
+                  "        \"type\": \"template\",",
+                  "        \"payload\": {",
+                  "           \"template_type\": \"generic\",",
+                  "           \"elements\": [",
+                  "             {% for book in transform_input.data[:5] %}",
+                  "               {",
+                  "                 \"title\": \"{{book['name']}}\",",
+                  "                 \"subtitle\": \" \",",
+                  "                 \"image_url\": \"{{book['img_url']}}\",",
+                  "                 \"buttons\": [",
+                  "                   {",
+                  "                     \"url\": \"{{book['url']}}\",",
+                  "                     \"type\": \"web_url\",",
+                  "                     \"title\": \"我要購買\"",
+                  "                   },",
+                  "                   {",
+                  "                     \"type\": \"element_share\",",
+                  "                     \"title\": \"我要轉貼\"",
+                  "                   }",
+                  "                 ]",
+                  "               }",
+                  "             {{ ',' if not loop.last }}",
+                  "             {% endfor %}",
+                  "           ]",
+                  "         }",
+                  "       }",
+                  "    }",
+                  "  ]",
+                  "}"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "SevenToTen": {
+        "name": "SevenToTen",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "https://shopping.parenting.com.tw/api/product/getOnlineProducts?",
+            "params": [
+              ["age", "7-10歲"]
+            ],
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"quick_replies\": [",
+                  "     {",
+                  "       \"content_type\": \"text\",",
+                  "       \"title\": \"我想再挑選其他類型的書籍\",",
+                  "       \"payload\": {",
+                  "         \"message\": {",
+                  "           \"text\": \"PickABook\"",
+                  "         }",
+                  "       },",
+                  "       \"acceptable_inputs\": [",
+                  "         \"其他\"",
+                  "       ]",
+                  "     }",
+                  "   ],",
+                  "  \"messages\": [",
+                  "    {",
+                  "      \"text\": \"以下是關於7-10歲較熱門的書籍\"",
+                  "    },",
+                  "    {",
+                  "      \"attachment\": {",
+                  "        \"type\": \"template\",",
+                  "        \"payload\": {",
+                  "           \"template_type\": \"generic\",",
+                  "           \"elements\": [",
+                  "             {% for book in transform_input.data[:5] %}",
+                  "               {",
+                  "                 \"title\": \"{{book['name']}}\",",
+                  "                 \"subtitle\": \" \",",
+                  "                 \"image_url\": \"{{book['img_url']}}\",",
+                  "                 \"buttons\": [",
+                  "                   {",
+                  "                     \"url\": \"{{book['url']}}\",",
+                  "                     \"type\": \"web_url\",",
+                  "                     \"title\": \"我要購買\"",
+                  "                   },",
+                  "                   {",
+                  "                     \"type\": \"element_share\",",
+                  "                     \"title\": \"我要轉貼\"",
+                  "                   }",
+                  "                 ]",
+                  "               }",
+                  "             {{ ',' if not loop.last }}",
+                  "             {% endfor %}",
+                  "           ]",
+                  "         }",
+                  "       }",
+                  "    }",
+                  "  ]",
+                  "}"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "ElevenToFifteen": {
+        "name": "ElevenToFifteen",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "https://shopping.parenting.com.tw/api/product/getOnlineProducts?",
+            "params": [
+              ["age", "11-15歲"]
+            ],
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"quick_replies\": [",
+                  "     {",
+                  "       \"content_type\": \"text\",",
+                  "       \"title\": \"我想再挑選其他類型的書籍\",",
+                  "       \"payload\": {",
+                  "         \"message\": {",
+                  "           \"text\": \"PickABook\"",
+                  "         }",
+                  "       },",
+                  "       \"acceptable_inputs\": [",
+                  "         \"其他\"",
+                  "       ]",
+                  "     }",
+                  "   ],",
+                  "  \"messages\": [",
+                  "    {",
+                  "      \"text\": \"以下是關於11-15歲較熱門的書籍\"",
+                  "    },",
+                  "    {",
+                  "      \"attachment\": {",
+                  "        \"type\": \"template\",",
+                  "        \"payload\": {",
+                  "           \"template_type\": \"generic\",",
+                  "           \"elements\": [",
+                  "             {% for book in transform_input.data[:5] %}",
+                  "               {",
+                  "                 \"title\": \"{{book['name']}}\",",
+                  "                 \"subtitle\": \" \",",
+                  "                 \"image_url\": \"{{book['img_url']}}\",",
+                  "                 \"buttons\": [",
+                  "                   {",
+                  "                     \"url\": \"{{book['url']}}\",",
+                  "                     \"type\": \"web_url\",",
+                  "                     \"title\": \"我要購買\"",
+                  "                   },",
+                  "                   {",
+                  "                     \"type\": \"element_share\",",
+                  "                     \"title\": \"我要轉貼\"",
+                  "                   }",
+                  "                 ]",
+                  "               }",
+                  "             {{ ',' if not loop.last }}",
+                  "             {% endfor %}",
+                  "           ]",
+                  "         }",
+                  "       }",
+                  "    }",
+                  "  ]",
+                  "}"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "BooksForParentsRouter": {
+        "name": "BooksForParentsRouter",
+        "expect_input": true,
+        "next_node_id": "BooksForParents",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(?i)ParentsOne"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "ParentsOne"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(?i)ParentsTwo"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "ParentsTwo"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(?i)ParentsThree"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "ParentsThree"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(?i)ParentsFour"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "ParentsFour"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(?i)ParentsFive"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "ParentsFive"
+              }
+            ],
+            "on_error": {
+              "ack_message": [
+                "我不太懂您的意思，請問您想找哪一類的書籍呢？",
+                ":)",
+                " "
+              ],
+              "end_node_id": "BooksForParents"
+            }
+          }
+        }
+      },
+      "BooksForParents": {
+        "name": "BooksForParents",
+        "expect_input": false,
+        "next_node_id": "BooksForParentsRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "想看什麼類型的書籍呢？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "content_type": "text",
+                "title": "學習教育",
+                "payload": {
+                  "message": {
+                    "text": "ParentsOne"
+                  }
+                },
+                "acceptable_inputs": [
+                  "教育",
+                  "怎麼教"
+                ]
+              },
+              {
+                "content_type": "text",
+                "title": "家庭與生活",
+                "payload": {
+                  "message": {
+                    "text": "ParentsTwo"
+                  }
+                },
+                "acceptable_inputs": [
+                  "家庭",
+                  "生活"
+                ]
+              },
+              {
+                "content_type": "text",
+                "title": "情緒教育",
+                "payload": {
+                  "message": {
+                    "text": "ParentsThree"
+                  }
+                },
+                "acceptable_inputs": [
+                  "情緒"
+                ]
+              },
+              {
+                "content_type": "text",
+                "title": "新手父母",
+                "payload": {
+                  "message": {
+                    "text": "ParentsFour"
+                  }
+                },
+                "acceptable_inputs": [
+                  "第一胎",
+                  "新手"
+                ]
+              },
+              {
+                "content_type": "text",
+                "title": "親子教養",
+                "payload": {
+                  "message": {
+                    "text": "ParentsFive"
+                  }
+                },
+                "acceptable_inputs": [
+                  "親子",
+                  "教養"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "ParentsOne": {
+        "name": "ParentsOne",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "https://shopping.parenting.com.tw/api/product/getOnlineProducts?",
+            "params": [
+              ["category", "學習教育"]
+            ],
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"quick_replies\": [",
+                  "     {",
+                  "       \"content_type\": \"text\",",
+                  "       \"title\": \"我想再挑選其他類型的書籍\",",
+                  "       \"payload\": {",
+                  "         \"message\": {",
+                  "           \"text\": \"PickABook\"",
+                  "         }",
+                  "       },",
+                  "       \"acceptable_inputs\": [",
+                  "         \"其他\"",
+                  "       ]",
+                  "     }",
+                  "   ],",
+                  "  \"messages\": [",
+                  "    {",
+                  "      \"text\": \"以下是關於學習教育較熱門的書籍\"",
+                  "    },",
+                  "    {",
+                  "      \"attachment\": {",
+                  "        \"type\": \"template\",",
+                  "        \"payload\": {",
+                  "           \"template_type\": \"generic\",",
+                  "           \"elements\": [",
+                  "             {% for book in transform_input.data[:5] %}",
+                  "               {",
+                  "                 \"title\": \"{{book['name']}}\",",
+                  "                 \"subtitle\": \" \",",
+                  "                 \"image_url\": \"{{book['img_url']}}\",",
+                  "                 \"buttons\": [",
+                  "                   {",
+                  "                     \"url\": \"{{book['url']}}\",",
+                  "                     \"type\": \"web_url\",",
+                  "                     \"title\": \"我要購買\"",
+                  "                   },",
+                  "                   {",
+                  "                     \"type\": \"element_share\",",
+                  "                     \"title\": \"我要轉貼\"",
+                  "                   }",
+                  "                 ]",
+                  "               }",
+                  "             {{ ',' if not loop.last }}",
+                  "             {% endfor %}",
+                  "           ]",
+                  "         }",
+                  "       }",
+                  "    }",
+                  "  ]",
+                  "}"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "ParentsTwo": {
+        "name": "ParentsTwo",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "https://shopping.parenting.com.tw/api/product/getOnlineProducts?",
+            "params": [
+              ["category", "家庭與生活"]
+            ],
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"quick_replies\": [",
+                  "     {",
+                  "       \"content_type\": \"text\",",
+                  "       \"title\": \"我想再挑選其他類型的書籍\",",
+                  "       \"payload\": {",
+                  "         \"message\": {",
+                  "           \"text\": \"PickABook\"",
+                  "         }",
+                  "       },",
+                  "       \"acceptable_inputs\": [",
+                  "         \"其他\"",
+                  "       ]",
+                  "     }",
+                  "   ],",
+                  "  \"messages\": [",
+                  "    {",
+                  "      \"text\": \"以下是關於家庭與生活較熱門的書籍\"",
+                  "    },",
+                  "    {",
+                  "      \"attachment\": {",
+                  "        \"type\": \"template\",",
+                  "        \"payload\": {",
+                  "           \"template_type\": \"generic\",",
+                  "           \"elements\": [",
+                  "             {% for book in transform_input.data[:5] %}",
+                  "               {",
+                  "                 \"title\": \"{{book['name']}}\",",
+                  "                 \"subtitle\": \" \",",
+                  "                 \"image_url\": \"{{book['img_url']}}\",",
+                  "                 \"buttons\": [",
+                  "                   {",
+                  "                     \"url\": \"{{book['url']}}\",",
+                  "                     \"type\": \"web_url\",",
+                  "                     \"title\": \"我要購買\"",
+                  "                   },",
+                  "                   {",
+                  "                     \"type\": \"element_share\",",
+                  "                     \"title\": \"我要轉貼\"",
+                  "                   }",
+                  "                 ]",
+                  "               }",
+                  "             {{ ',' if not loop.last }}",
+                  "             {% endfor %}",
+                  "           ]",
+                  "         }",
+                  "       }",
+                  "    }",
+                  "  ]",
+                  "}"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "ParentsThree": {
+        "name": "ParentsThree",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "https://shopping.parenting.com.tw/api/product/getOnlineProducts?",
+            "params": [
+              ["category", "情緒教育"]
+            ],
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"quick_replies\": [",
+                  "     {",
+                  "       \"content_type\": \"text\",",
+                  "       \"title\": \"我想再挑選其他類型的書籍\",",
+                  "       \"payload\": {",
+                  "         \"message\": {",
+                  "           \"text\": \"PickABook\"",
+                  "         }",
+                  "       },",
+                  "       \"acceptable_inputs\": [",
+                  "         \"其他\"",
+                  "       ]",
+                  "     }",
+                  "   ],",
+                  "  \"messages\": [",
+                  "    {",
+                  "      \"text\": \"以下是關於情緒教育較熱門的書籍\"",
+                  "    },",
+                  "    {",
+                  "      \"attachment\": {",
+                  "        \"type\": \"template\",",
+                  "        \"payload\": {",
+                  "           \"template_type\": \"generic\",",
+                  "           \"elements\": [",
+                  "             {% for book in transform_input.data[:5] %}",
+                  "               {",
+                  "                 \"title\": \"{{book['name']}}\",",
+                  "                 \"subtitle\": \" \",",
+                  "                 \"image_url\": \"{{book['img_url']}}\",",
+                  "                 \"buttons\": [",
+                  "                   {",
+                  "                     \"url\": \"{{book['url']}}\",",
+                  "                     \"type\": \"web_url\",",
+                  "                     \"title\": \"我要購買\"",
+                  "                   },",
+                  "                   {",
+                  "                     \"type\": \"element_share\",",
+                  "                     \"title\": \"我要轉貼\"",
+                  "                   }",
+                  "                 ]",
+                  "               }",
+                  "             {{ ',' if not loop.last }}",
+                  "             {% endfor %}",
+                  "           ]",
+                  "         }",
+                  "       }",
+                  "    }",
+                  "  ]",
+                  "}"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "ParentsFour": {
+        "name": "ParentsFour",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "https://shopping.parenting.com.tw/api/product/getOnlineProducts?",
+            "params": [
+              ["category", "新手父母"]
+            ],
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"quick_replies\": [",
+                  "     {",
+                  "       \"content_type\": \"text\",",
+                  "       \"title\": \"我想再挑選其他類型的書籍\",",
+                  "       \"payload\": {",
+                  "         \"message\": {",
+                  "           \"text\": \"PickABook\"",
+                  "         }",
+                  "       },",
+                  "       \"acceptable_inputs\": [",
+                  "         \"其他\"",
+                  "       ]",
+                  "     }",
+                  "   ],",
+                  "  \"messages\": [",
+                  "    {",
+                  "      \"text\": \"以下是關於新手父母較熱門的書籍\"",
+                  "    },",
+                  "    {",
+                  "      \"attachment\": {",
+                  "        \"type\": \"template\",",
+                  "        \"payload\": {",
+                  "           \"template_type\": \"generic\",",
+                  "           \"elements\": [",
+                  "             {% for book in transform_input.data[:5] %}",
+                  "               {",
+                  "                 \"title\": \"{{book['name']}}\",",
+                  "                 \"subtitle\": \" \",",
+                  "                 \"image_url\": \"{{book['img_url']}}\",",
+                  "                 \"buttons\": [",
+                  "                   {",
+                  "                     \"url\": \"{{book['url']}}\",",
+                  "                     \"type\": \"web_url\",",
+                  "                     \"title\": \"我要購買\"",
+                  "                   },",
+                  "                   {",
+                  "                     \"type\": \"element_share\",",
+                  "                     \"title\": \"我要轉貼\"",
+                  "                   }",
+                  "                 ]",
+                  "               }",
+                  "             {{ ',' if not loop.last }}",
+                  "             {% endfor %}",
+                  "           ]",
+                  "         }",
+                  "       }",
+                  "    }",
+                  "  ]",
+                  "}"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "ParentsFive": {
+        "name": "ParentsFive",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "https://shopping.parenting.com.tw/api/product/getOnlineProducts?",
+            "params": [
+              ["category", "親子教養"]
+            ],
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"quick_replies\": [",
+                  "     {",
+                  "       \"content_type\": \"text\",",
+                  "       \"title\": \"我想再挑選其他類型的書籍\",",
+                  "       \"payload\": {",
+                  "         \"message\": {",
+                  "           \"text\": \"PickABook\"",
+                  "         }",
+                  "       },",
+                  "       \"acceptable_inputs\": [",
+                  "         \"其他\"",
+                  "       ]",
+                  "     }",
+                  "   ],",
+                  "  \"messages\": [",
+                  "    {",
+                  "      \"text\": \"以下是關於親子教養較熱門的書籍\"",
+                  "    },",
+                  "    {",
+                  "      \"attachment\": {",
+                  "        \"type\": \"template\",",
+                  "        \"payload\": {",
+                  "           \"template_type\": \"generic\",",
+                  "           \"elements\": [",
+                  "             {% for book in transform_input.data[:5] %}",
+                  "               {",
+                  "                 \"title\": \"{{book['name']}}\",",
+                  "                 \"subtitle\": \" \",",
+                  "                 \"image_url\": \"{{book['img_url']}}\",",
+                  "                 \"buttons\": [",
+                  "                   {",
+                  "                     \"url\": \"{{book['url']}}\",",
+                  "                     \"type\": \"web_url\",",
+                  "                     \"title\": \"我要購買\"",
+                  "                   },",
+                  "                   {",
+                  "                     \"type\": \"element_share\",",
+                  "                     \"title\": \"我要轉貼\"",
+                  "                   }",
+                  "                 ]",
+                  "               }",
+                  "             {{ ',' if not loop.last }}",
+                  "             {% endfor %}",
+                  "           ]",
+                  "         }",
+                  "       }",
+                  "    }",
+                  "  ]",
+                  "}"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "BooksForParentsRouter": {
+        "name": "BooksForParentsRouter",
+        "expect_input": true,
+        "next_node_id": "BooksForParents",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(?i)ParentsOne"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "ParentsOne"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(?i)ParentsTwo"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "ParentsTwo"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(?i)ParentsThree"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "ParentsThree"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(?i)ParentsFour"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "ParentsFour"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(?i)ParentsFive"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "ParentsFive"
+              }
+            ],
+            "on_error": {
+              "ack_message": [
+                "我不太懂您的意思，請問您想找哪一類的書籍呢？",
+                ":)",
+                " "
+              ],
+              "end_node_id": "BooksForParents"
+            }
+          }
+        }
+      },
+      "BooksForTeachers": {
+        "name": "BooksForTeachers",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "https://shopping.parenting.com.tw/api/product/getOnlineProducts?",
+            "params": [
+              ["category", "學習教育"]
+            ],
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"quick_replies\": [",
+                  "     {",
+                  "       \"content_type\": \"text\",",
+                  "       \"title\": \"我想再挑選其他類型的書籍\",",
+                  "       \"payload\": {",
+                  "         \"message\": {",
+                  "           \"text\": \"PickABook\"",
+                  "         }",
+                  "       },",
+                  "       \"acceptable_inputs\": [",
+                  "         \"其他\"",
+                  "       ]",
+                  "     }",
+                  "   ],",
+                  "  \"messages\": [",
+                  "    {",
+                  "      \"text\": \"以下是適合老師閱讀的書籍\"",
+                  "    },",
+                  "    {",
+                  "      \"attachment\": {",
+                  "        \"type\": \"template\",",
+                  "        \"payload\": {",
+                  "           \"template_type\": \"generic\",",
+                  "           \"elements\": [",
+                  "             {% for book in transform_input.data[:5] %}",
+                  "               {",
+                  "                 \"title\": \"{{book['name']}}\",",
+                  "                 \"subtitle\": \" \",",
+                  "                 \"image_url\": \"{{book['img_url']}}\",",
+                  "                 \"buttons\": [",
+                  "                   {",
+                  "                     \"url\": \"{{book['url']}}\",",
+                  "                     \"type\": \"web_url\",",
+                  "                     \"title\": \"我要購買\"",
+                  "                   },",
+                  "                   {",
+                  "                     \"type\": \"element_share\",",
+                  "                     \"title\": \"我要轉貼\"",
+                  "                   }",
+                  "                 ]",
+                  "               }",
+                  "             {{ ',' if not loop.last }}",
+                  "             {% endfor %}",
+                  "           ]",
+                  "         }",
+                  "       }",
+                  "    }",
+                  "  ]",
+                  "}"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "MessageReport": {
+        "name": "Generate message report",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.function.core.report",
+          "config": {
+            "admins": [
+              "1319044618112869"
+            ],
+            "template": "{{user.first_name}} {{user.last_name}} 留言給您囉！: {{message}}",
+            "keys": ["user", "message"],
+            "report_key": "message"
+          }
+        }
+      },
+      "Feedback": {
+        "name": "Feedback",
+        "description": "Feedback without content, guide user to input feedback",
+        "expect_input": false,
+        "next_node_id": "FeedbackRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "請留下您想說的話"
+              }
+            ]
+          }
+        }
+      },
+      "FeedbackRouter": {
+        "name": "FeedbackRouter",
+        "description": "Feedback router",
+        "expect_input": true,
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    ".*"
+                  ],
+                  "memory_set": {
+                    "key": "message"
+                  }
+                },
+                "end_node_id": "MessageReport",
+                "ack_message": "謝謝您的留言，小編會盡快回覆您!"
+              }
+            ],
+            "on_error": {
+              "end_node_id": "Root"
+            }
+          }
+        }
+      },
+      "Thanks": {
+        "name": "Thanks",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "謝謝您! 也歡迎到我們的粉絲頁按個讚唷 :) https://goo.gl/XpCigb"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}
