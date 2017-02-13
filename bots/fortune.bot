@@ -125,7 +125,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["求御守"],
+                  "params": ["御守"],
                   "memory_set": [
                     {"key": "omamori_bg", "value": "{{randint(1, 52)}}"},
                     {"key": "omamori_text", "value": ""}
@@ -521,19 +521,34 @@
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
-            "messages": [
-              {
-                "attachment": {
-                  "type": "image",
-                  "payload": {
-                    "url": "https://{{env.host}}:{{env.port}}/fortune/omamori?bg={{memory.omamori_bg}}&text={{memory.omamori_text}}"
+            "messages": {
+              "Facebook": [
+                {
+                  "attachment": {
+                    "type": "image",
+                    "payload": {
+                      "url": "https://{{env.host}}:{{env.port}}/fortune/omamori?bg={{memory.omamori_bg}}&text={{memory.omamori_text}}"
+                    }
                   }
+                },
+                {
+                  "text": "把御守圖片存在手機裡，就可以有靈效噢！"
                 }
-              },
-              {
-                "text": "把御守圖片存在手機裡，就可以有靈效噢！"
-              }
-            ],
+              ],
+              "Line": [
+                {
+                  "attachment": {
+                    "type": "image",
+                    "payload": {
+                      "url": "https://{{env.host}}:{{env.port}}/fortune/omamori?bg={{memory.omamori_bg}}&text={{memory.omamori_text}}"
+                    }
+                  }
+                },
+                {
+                  "text": "把御守圖片存在手機裡，就可以有靈效噢！\n可以輸入「求下一個」、「自訂文字」或「抽籤」"
+                }
+              ]
+            },
             "quick_replies": [
               {
                 "content_type": "text",
