@@ -70,10 +70,10 @@ def schema():
                                         '$ref': '#/definitions/collect_as'
                                     },
                                     'settings_set': {
-                                        '$ref': '#/definitions/dict_set'
+                                        '$ref': '#/definitions/set'
                                     },
                                     'memory_set': {
-                                        '$ref': '#/definitions/dict_set'
+                                        '$ref': '#/definitions/set'
                                     }
                                 },
                             }, {
@@ -88,10 +88,10 @@ def schema():
                                         '$ref': '#/definitions/collect_as'
                                     },
                                     'settings_set': {
-                                        '$ref': '#/definitions/dict_set'
+                                        '$ref': '#/definitions/set'
                                     },
                                     'memory_set': {
-                                        '$ref': '#/definitions/dict_set'
+                                        '$ref': '#/definitions/set'
                                     }
                                 }
                             }, {

@@ -25,13 +25,22 @@
           "type": "string",
           "maxLength": 64
         },
-        "session_timeout": {"type": "integer"},
+        "session_timeout": {
+          "type": "integer",
+          "default": 0
+        },
         "description": {
           "type": "string",
           "maxLength": 512
         },
-        "interaction_timeout": {"type": "integer"},
-        "admin_interaction_timeout": {"type": "integer"},
+        "interaction_timeout": {
+          "type": "integer",
+          "default": 120
+        },
+        "admin_interaction_timeout": {
+          "type": "integer",
+          "default": 10
+        },
         "ga_id": {
           "type": "string",
           "maxLength": 32
@@ -82,7 +91,8 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string"
+              "type": "string",
+              "default": "ai.compose.content.core.message"
             },
             "config": {
               "type": "object"

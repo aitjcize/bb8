@@ -22,6 +22,11 @@ from bb8 import logger
 from bb8.backend.database import DatabaseSession, Module
 
 
+def list_all_modules():
+    module_dir = os.path.dirname(__file__)
+    return list_modules(module_dir, include_test=False)
+
+
 def list_modules(module_dir, include_test=True):
     modules = []
     for root, unused_dirs, files in os.walk(module_dir):
