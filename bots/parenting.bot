@@ -1,4 +1,7 @@
 {
+  "platforms": {
+    "Facebook": "1896499930584495"
+  },
   "bot": {
     "name": "育兒天下",
     "description": "育兒天下 fans page bot",
