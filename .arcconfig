@@ -1,5 +1,0 @@
-{
-  "arc.land.onto.default": "dev",
-  "base": "git:merge-base(origin/dev)",
-  "phabricator.uri": "https://compose.phacility.com/"
-}
