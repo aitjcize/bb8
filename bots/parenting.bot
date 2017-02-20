@@ -569,6 +569,7 @@
             "transform": [
               {
                 "type": "jinja",
+                "imports": ["base64"],
                 "template": [
                   "{",
                   "  \"quick_replies\": [",
@@ -599,7 +600,7 @@
                   "               {",
                   "                 \"title\": \"{{book['name']}}\",",
                   "                 \"subtitle\": \" \",",
-                  "                 \"image_url\": \"{{book['img_url']}}\",",
+                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe1&url={{base64.b64encode(book['img_url'])}}\",",
                   "                 \"buttons\": [",
                   "                   {",
                   "                     \"url\": \"{{book['url']}}\",",
@@ -640,6 +641,7 @@
             "transform": [
               {
                 "type": "jinja",
+                "imports": ["base64"],
                 "template": [
                   "{",
                   "  \"quick_replies\": [",
@@ -670,7 +672,7 @@
                   "               {",
                   "                 \"title\": \"{{book['name']}}\",",
                   "                 \"subtitle\": \" \",",
-                  "                 \"image_url\": \"{{book['img_url']}}\",",
+                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe1&url={{base64.b64encode(book['img_url'])}}\",",
                   "                 \"buttons\": [",
                   "                   {",
                   "                     \"url\": \"{{book['url']}}\",",
@@ -711,6 +713,7 @@
             "transform": [
               {
                 "type": "jinja",
+                "imports": ["base64"],
                 "template": [
                   "{",
                   "  \"quick_replies\": [",
@@ -741,7 +744,7 @@
                   "               {",
                   "                 \"title\": \"{{book['name']}}\",",
                   "                 \"subtitle\": \" \",",
-                  "                 \"image_url\": \"{{book['img_url']}}\",",
+                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe1&url={{base64.b64encode(book['img_url'])}}\",",
                   "                 \"buttons\": [",
                   "                   {",
                   "                     \"url\": \"{{book['url']}}\",",
@@ -782,6 +785,7 @@
             "transform": [
               {
                 "type": "jinja",
+                "imports": ["base64"],
                 "template": [
                   "{",
                   "  \"quick_replies\": [",
@@ -812,7 +816,7 @@
                   "               {",
                   "                 \"title\": \"{{book['name']}}\",",
                   "                 \"subtitle\": \" \",",
-                  "                 \"image_url\": \"{{book['img_url']}}\",",
+                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe1&url={{base64.b64encode(book['img_url'])}}\",",
                   "                 \"buttons\": [",
                   "                   {",
                   "                     \"url\": \"{{book['url']}}\",",
@@ -1004,6 +1008,7 @@
             "transform": [
               {
                 "type": "jinja",
+                "imports": ["base64"],
                 "template": [
                   "{",
                   "  \"quick_replies\": [",
@@ -1034,7 +1039,7 @@
                   "               {",
                   "                 \"title\": \"{{book['name']}}\",",
                   "                 \"subtitle\": \" \",",
-                  "                 \"image_url\": \"{{book['img_url']}}\",",
+                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe1&url={{base64.b64encode(book['img_url'])}}\",",
                   "                 \"buttons\": [",
                   "                   {",
                   "                     \"url\": \"{{book['url']}}\",",
@@ -1075,6 +1080,7 @@
             "transform": [
               {
                 "type": "jinja",
+                "imports": ["base64"],
                 "template": [
                   "{",
                   "  \"quick_replies\": [",
@@ -1105,7 +1111,7 @@
                   "               {",
                   "                 \"title\": \"{{book['name']}}\",",
                   "                 \"subtitle\": \" \",",
-                  "                 \"image_url\": \"{{book['img_url']}}\",",
+                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe1&url={{base64.b64encode(book['img_url'])}}\",",
                   "                 \"buttons\": [",
                   "                   {",
                   "                     \"url\": \"{{book['url']}}\",",
@@ -1146,6 +1152,7 @@
             "transform": [
               {
                 "type": "jinja",
+                "imports": ["base64"],
                 "template": [
                   "{",
                   "  \"quick_replies\": [",
@@ -1176,7 +1183,7 @@
                   "               {",
                   "                 \"title\": \"{{book['name']}}\",",
                   "                 \"subtitle\": \" \",",
-                  "                 \"image_url\": \"{{book['img_url']}}\",",
+                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe1&url={{base64.b64encode(book['img_url'])}}\",",
                   "                 \"buttons\": [",
                   "                   {",
                   "                     \"url\": \"{{book['url']}}\",",
@@ -1217,6 +1224,7 @@
             "transform": [
               {
                 "type": "jinja",
+                "imports": ["base64"],
                 "template": [
                   "{",
                   "  \"quick_replies\": [",
@@ -1247,7 +1255,7 @@
                   "               {",
                   "                 \"title\": \"{{book['name']}}\",",
                   "                 \"subtitle\": \" \",",
-                  "                 \"image_url\": \"{{book['img_url']}}\",",
+                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe1&url={{base64.b64encode(book['img_url'])}}\",",
                   "                 \"buttons\": [",
                   "                   {",
                   "                     \"url\": \"{{book['url']}}\",",
@@ -1288,6 +1296,7 @@
             "transform": [
               {
                 "type": "jinja",
+                "imports": ["base64"],
                 "template": [
                   "{",
                   "  \"quick_replies\": [",
@@ -1318,7 +1327,7 @@
                   "               {",
                   "                 \"title\": \"{{book['name']}}\",",
                   "                 \"subtitle\": \" \",",
-                  "                 \"image_url\": \"{{book['img_url']}}\",",
+                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe1&url={{base64.b64encode(book['img_url'])}}\",",
                   "                 \"buttons\": [",
                   "                   {",
                   "                     \"url\": \"{{book['url']}}\",",
@@ -1429,6 +1438,7 @@
             "transform": [
               {
                 "type": "jinja",
+                "imports": ["base64"],
                 "template": [
                   "{",
                   "  \"quick_replies\": [",
@@ -1459,7 +1469,7 @@
                   "               {",
                   "                 \"title\": \"{{book['name']}}\",",
                   "                 \"subtitle\": \" \",",
-                  "                 \"image_url\": \"{{book['img_url']}}\",",
+                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe1&url={{base64.b64encode(book['img_url'])}}\",",
                   "                 \"buttons\": [",
                   "                   {",
                   "                     \"url\": \"{{book['url']}}\",",

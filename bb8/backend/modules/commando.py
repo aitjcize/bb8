@@ -81,14 +81,14 @@ import jinja2
 import requests
 
 from bb8.backend.module_api import (Message, Render, SupportedPlatform, Memory,
-                                    Settings, ModuleTypeEnum,
+                                    Settings, ModuleTypeEnum, Config,
                                     PureContentModule)
 
 
 _LOG = logging.getLogger(__name__)
 _LOG.setLevel(logging.INFO)
 
-_MODULE_WHITELIST = ['re', 'urllib']
+_MODULE_WHITELIST = ['re', 'urllib', 'base64']
 
 
 def properties():
@@ -207,6 +207,7 @@ def Transform(transform, js, unused_debug):
                 transform_input=js,
                 memory=Memory.All(),
                 settings=Settings.All(),
+                env={'HTTP_ROOT': Config('HTTP_ROOT')},
                 **imports)
 
             # TODO: loose restriction on the tailing , in JSON
