@@ -16,9 +16,11 @@ import urlparse
 from cStringIO import StringIO
 
 import requests
+
+from backports.functools_lru_cache import lru_cache
 from flask import g, redirect, request, make_response
-from PIL import Image
 from gcloud import storage
+from PIL import Image
 
 from bb8 import app, config
 from bb8.api.error import AppError
@@ -27,7 +29,8 @@ from bb8.constant import HTTPStatus, CustomError
 from bb8.tracking import track, TrackingInfo
 
 
-ALLOWED_HOSTS = ['dramaq.biz', 'www.dramaq.biz', 'showq.biz', 'www.showq.biz']
+ALLOWED_HOSTS = ['dramaq.biz', 'www.dramaq.biz', 'showq.biz', 'www.showq.biz',
+                 'cdn.parenting.com.tw']
 
 
 @app.route('/api/util/cache_image', methods=['GET'])
@@ -76,9 +79,9 @@ def cache_image():
 
 
 @app.route('/api/util/image_convert', methods=['GET'])
+@lru_cache(maxsize=4096)
 def image_convert_url():
     """Image convert service."""
-    # TODO(aitjcize): cache converted image to S3
     try:
         url = base64.b64decode(request.args['url'])
         size = [int(x) for x in request.args['size'].split('x')]
@@ -86,6 +89,8 @@ def image_convert_url():
         raise AppError(HTTPStatus.STATUS_BAD_REQUEST,
                        CustomError.ERR_WRONG_PARAM,
                        'invalid request argument')
+
+    mode = request.args.get('mode')
 
     try:
         h = urllib2.urlopen(url, timeout=5)
@@ -104,17 +109,22 @@ def image_convert_url():
         img = img.convert('RGB')
 
     # Resize not required
-    if img.width < size[0] and img.height < size[1]:
-        img.save(buf, 'JPEG', quality=95)
+    if float(img.width) / img.height > float(size[0]) / float(size[1]):
+        ratio = float(size[0]) / img.width
     else:
-        if img.width >= img.height:
-            ratio = float(size[0]) / img.width
-        else:
-            ratio = float(size[1]) / img.height
+        ratio = float(size[1]) / img.height
 
-        img = img.resize((int(img.width * ratio), int(img.height * ratio)),
-                         Image.LANCZOS)
-        img.save(buf, 'JPEG', quality=95)
+    img = img.resize((int(img.width * ratio), int(img.height * ratio)),
+                     Image.LANCZOS)
+
+    if mode == 'pad':
+        pad_color = request.args.get('pad_color', 'white')
+        new_img = Image.new('RGB', tuple(size), pad_color)
+        new_img.paste(img, ((size[0] - img.width) / 2,
+                            (size[1] - img.height) / 2))
+        img = new_img
+
+    img.save(buf, 'JPEG', quality=95)
 
     response = make_response(buf.getvalue())
     response.headers['content-type'] = 'image/jpeg'
