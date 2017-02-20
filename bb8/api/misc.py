@@ -17,7 +17,6 @@ from cStringIO import StringIO
 
 import requests
 
-from backports.functools_lru_cache import lru_cache
 from flask import g, redirect, request, make_response
 from gcloud import storage
 from PIL import Image
@@ -79,7 +78,6 @@ def cache_image():
 
 
 @app.route('/api/util/image_convert', methods=['GET'])
-@lru_cache(maxsize=4096)
 def image_convert_url():
     """Image convert service."""
     try:
