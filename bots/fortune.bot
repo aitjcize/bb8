@@ -398,7 +398,7 @@
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
-            "url": "https://{{env.host}}:{{env.port}}/api/third_party/fortune/image_search?",
+            "url": "{{env.http_root}}/api/third_party/fortune/image_search?",
             "method": "get",
             "params": [
               ["q", "{{text}}"]
@@ -527,7 +527,7 @@
                   "attachment": {
                     "type": "image",
                     "payload": {
-                      "url": "https://{{env.host}}:{{env.port}}/fortune/omamori?bg={{memory.omamori_bg}}&text={{memory.omamori_text}}"
+                      "url": "{{env.http_root}}/fortune/omamori?bg={{memory.omamori_bg}}&text={{memory.omamori_text}}"
                     }
                   }
                 },
@@ -540,7 +540,7 @@
                   "attachment": {
                     "type": "image",
                     "payload": {
-                      "url": "https://{{env.host}}:{{env.port}}/fortune/omamori?bg={{memory.omamori_bg}}&text={{memory.omamori_text}}"
+                      "url": "{{env.http_root}}/fortune/omamori?bg={{memory.omamori_bg}}&text={{memory.omamori_text}}"
                     }
                   }
                 },

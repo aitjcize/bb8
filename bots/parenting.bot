@@ -619,7 +619,7 @@
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
-            "url": "https://{{env.host}}:{{env.port}}/api/third_party/parenting/api_proxy?",
+            "url": "{{env.http_root}}/api/third_party/parenting/api_proxy?",
             "params": [
               ["age", "0-3歲"]
             ],
@@ -692,7 +692,7 @@
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
-            "url": "https://{{env.host}}:{{env.port}}/api/third_party/parenting/api_proxy?",
+            "url": "{{env.http_root}}/api/third_party/parenting/api_proxy?",
             "params": [
               ["age", "4-6歲"]
             ],
@@ -765,7 +765,7 @@
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
-            "url": "https://{{env.host}}:{{env.port}}/api/third_party/parenting/api_proxy?",
+            "url": "{{env.http_root}}/api/third_party/parenting/api_proxy?",
             "params": [
               ["age", "7-10歲"]
             ],
@@ -838,7 +838,7 @@
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
-            "url": "https://{{env.host}}:{{env.port}}/api/third_party/parenting/api_proxy?",
+            "url": "{{env.http_root}}/api/third_party/parenting/api_proxy?",
             "params": [
               ["age", "11-15歲"]
             ],
@@ -1058,7 +1058,7 @@
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
-            "url": "https://{{env.host}}:{{env.port}}/api/third_party/parenting/api_proxy?",
+            "url": "{{env.http_root}}/api/third_party/parenting/api_proxy?",
             "params": [
               ["category", "學習教育"]
             ],
@@ -1131,7 +1131,7 @@
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
-            "url": "https://{{env.host}}:{{env.port}}/api/third_party/parenting/api_proxy?",
+            "url": "{{env.http_root}}/api/third_party/parenting/api_proxy?",
             "params": [
               ["category", "家庭與生活"]
             ],
@@ -1204,7 +1204,7 @@
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
-            "url": "https://{{env.host}}:{{env.port}}/api/third_party/parenting/api_proxy?",
+            "url": "{{env.http_root}}/api/third_party/parenting/api_proxy?",
             "params": [
               ["category", "情緒教育"]
             ],
@@ -1277,7 +1277,7 @@
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
-            "url": "https://{{env.host}}:{{env.port}}/api/third_party/parenting/api_proxy?",
+            "url": "{{env.http_root}}/api/third_party/parenting/api_proxy?",
             "params": [
               ["category", "新手父母"]
             ],
@@ -1350,7 +1350,7 @@
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
-            "url": "https://{{env.host}}:{{env.port}}/api/third_party/parenting/api_proxy?",
+            "url": "{{env.http_root}}/api/third_party/parenting/api_proxy?",
             "params": [
               ["category", "親子教養"]
             ],
@@ -1489,7 +1489,7 @@
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
-            "url": "https://{{env.host}}:{{env.port}}/api/third_party/parenting/api_proxy?",
+            "url": "{{env.http_root}}/api/third_party/parenting/api_proxy?",
             "params": [
               ["category", "學習教育"]
             ],
