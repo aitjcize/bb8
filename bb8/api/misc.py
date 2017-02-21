@@ -17,6 +17,7 @@ from cStringIO import StringIO
 
 import requests
 
+from backports.functools_lru_cache import lru_cache
 from flask import g, redirect, request, make_response
 from gcloud import storage
 from PIL import Image
@@ -77,18 +78,17 @@ def cache_image():
     return redirect(blob.public_url)
 
 
-@app.route('/api/util/image_convert', methods=['GET'])
-def image_convert_url():
-    """Image convert service."""
+@lru_cache(maxsize=256)
+def _image_convert_url(args):
     try:
-        url = base64.b64decode(request.args['url'])
-        size = [int(x) for x in request.args['size'].split('x')]
+        url = base64.b64decode(args['url'])
+        size = [int(x) for x in args['size'].split('x')]
     except Exception:
         raise AppError(HTTPStatus.STATUS_BAD_REQUEST,
                        CustomError.ERR_WRONG_PARAM,
                        'invalid request argument')
 
-    mode = request.args.get('mode')
+    mode = args.get('mode')
 
     try:
         h = urllib2.urlopen(url, timeout=5)
@@ -116,7 +116,7 @@ def image_convert_url():
                      Image.LANCZOS)
 
     if mode == 'pad':
-        pad_color = request.args.get('pad_color', 'white')
+        pad_color = args.get('pad_color', 'white')
         new_img = Image.new('RGB', tuple(size), pad_color)
         new_img.paste(img, ((size[0] - img.width) / 2,
                             (size[1] - img.height) / 2))
@@ -128,6 +128,12 @@ def image_convert_url():
     response.headers['content-type'] = 'image/jpeg'
 
     return response
+
+
+@app.route('/api/util/image_convert', methods=['GET'])
+def image_convert_url():
+    """Image convert service."""
+    return _image_convert_url(request.args)
 
 
 @app.route('/api/r/<int:bot_id>/<platform_user_ident>')
