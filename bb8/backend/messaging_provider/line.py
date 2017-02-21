@@ -19,6 +19,8 @@ LINE_PROFILE_API_URL = 'https://api.line.me/v2/bot/profile/%s'
 LINE_MESSAGE_REPLY_API_URL = 'https://api.line.me/v2/bot/message/reply'
 LINE_MESSAGE_PUSH_API_URL = 'https://api.line.me/v2/bot/message/push'
 LINE_GET_CONTENT_API_URL = 'https://api.line.me/v2/bot/message/%s/content'
+LINE_GROUP_LEAVE_API_URL = 'https://api.line.me/v2/bot/group/%s/leave'
+LINE_ROOM_LEAVE_API_URL = 'https://api.line.me/v2/bot/room/%s/leave'
 
 
 LOG = logging.getLogger(__file__)
@@ -151,3 +153,21 @@ def download_audio_as_data(user, audio_payload):
                                             response.text))
 
     return response.raw.read()
+
+
+def leave_group(platform, group_id):
+    headers = {
+        'Authorization': 'Bearer %s' % platform.config['access_token']
+    }
+    response = requests.post(LINE_GROUP_LEAVE_API_URL % group_id,
+                             headers=headers)
+    response.raise_for_status()
+
+
+def leave_room(platform, room_id):
+    headers = {
+        'Authorization': 'Bearer %s' % platform.config['access_token']
+    }
+    response = requests.post(LINE_ROOM_LEAVE_API_URL % room_id,
+                             headers=headers)
+    response.raise_for_status()

@@ -10,12 +10,13 @@ import datetime
 
 from flask import g, request
 
-from bb8 import celery, config, statsd
+from bb8 import logger, celery, config, statsd
 from bb8.backend.database import (DatabaseManager, User, Platform,
                                   Conversation, SenderEnum)
 from bb8.backend.engine import Engine
 from bb8.backend.message import UserInput
 from bb8.backend.messaging import get_user_profile
+from bb8.backend.messaging_provider import line
 from bb8.backend.requestcontexttask import RequestContextTask
 
 from bb8.tracking import track, TrackingInfo, send_ga_track_info
@@ -122,8 +123,14 @@ def line_webhook_task(provider_ident):
 
         for entry in request.json.get('events', []):
             if entry['source']['type'] != 'user':
-                raise RuntimeError('line_receive: only user source is support '
-                                   'for now')
+                if entry['source']['type'] == 'group':
+                    line.leave_group(platform, entry['source']['groupId'])
+                elif entry['source']['type'] == 'room':
+                    line.leave_room(platform, entry['source']['roomId'])
+
+                logger.warn('line_receive: only user source is supported '
+                            'for now')
+                continue
 
             sender = entry['source']['userId']
             bot = platform.bot
