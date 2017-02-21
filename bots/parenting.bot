@@ -366,10 +366,8 @@
               }
             ],
             "on_error": {
-              "ack_message": [
-                "我不太懂您的意思，請問您想找哪一類的書籍呢？"
-              ],
-              "end_node_id": "RootRouter"
+              "ack_message": "我不太懂您的意思",
+              "end_node_id": "Root"
             }
           }
         }
@@ -377,7 +375,7 @@
       "PickABook": {
         "name": "PickABook",
         "expect_input": false,
-        "next_node_id": "RootRouter",
+        "next_node_id": "PickABookRouter",
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
@@ -430,6 +428,65 @@
                 ]
               }
             ]
+          }
+        }
+      },
+      "PickABookRouter": {
+        "name": "PickABookRouter",
+        "expect_input": true,
+        "next_node_id": "PickABook",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(?i)Child",
+                    "兒童讀物",
+                    "兒童",
+                    "小孩",
+                    "(?i)BooksForChildren"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "BooksForChildren"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(?i)Parents",
+                    "(?i)BooksForParents",
+                    "家長讀物",
+                    "家長",
+                    "父母",
+                    "爸媽"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "BooksForParents"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "(?i)Teacher",
+                    "(?i)BooksForTeachers",
+                    "老師讀物",
+                    "老師",
+                    "教師"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "BooksForTeachers"
+              }
+            ],
+            "on_error": {
+              "ack_message": "我不太懂您的意思",
+              "end_node_id": "PickABook"
+            }
           }
         }
       },
@@ -562,10 +619,11 @@
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
-            "url": "https://shopping.parenting.com.tw/api/product/getOnlineProducts?",
+            "url": "{{env.http_root}}/api/third_party/parenting/api_proxy?",
             "params": [
               ["age", "0-3歲"]
             ],
+            "method":"get",
             "transform": [
               {
                 "type": "jinja",
@@ -596,11 +654,11 @@
                   "        \"payload\": {",
                   "           \"template_type\": \"generic\",",
                   "           \"elements\": [",
-                  "             {% for book in transform_input.data[:5] %}",
+                  "             {% for book in transform_input.data[:10] %}",
                   "               {",
                   "                 \"title\": \"{{book['name']}}\",",
                   "                 \"subtitle\": \" \",",
-                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe1&url={{base64.b64encode(book['img_url'])}}\",",
+                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe2&url={{base64.b64encode(book['img_url'])}}\",",
                   "                 \"buttons\": [",
                   "                   {",
                   "                     \"url\": \"{{book['url']}}\",",
@@ -634,10 +692,11 @@
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
-            "url": "https://shopping.parenting.com.tw/api/product/getOnlineProducts?",
+            "url": "{{env.http_root}}/api/third_party/parenting/api_proxy?",
             "params": [
               ["age", "4-6歲"]
             ],
+            "method":"get",
             "transform": [
               {
                 "type": "jinja",
@@ -668,11 +727,11 @@
                   "        \"payload\": {",
                   "           \"template_type\": \"generic\",",
                   "           \"elements\": [",
-                  "             {% for book in transform_input.data[:5] %}",
+                  "             {% for book in transform_input.data[:10] %}",
                   "               {",
                   "                 \"title\": \"{{book['name']}}\",",
                   "                 \"subtitle\": \" \",",
-                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe1&url={{base64.b64encode(book['img_url'])}}\",",
+                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe2&url={{base64.b64encode(book['img_url'])}}\",",
                   "                 \"buttons\": [",
                   "                   {",
                   "                     \"url\": \"{{book['url']}}\",",
@@ -706,10 +765,11 @@
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
-            "url": "https://shopping.parenting.com.tw/api/product/getOnlineProducts?",
+            "url": "{{env.http_root}}/api/third_party/parenting/api_proxy?",
             "params": [
               ["age", "7-10歲"]
             ],
+            "method":"get",
             "transform": [
               {
                 "type": "jinja",
@@ -740,11 +800,11 @@
                   "        \"payload\": {",
                   "           \"template_type\": \"generic\",",
                   "           \"elements\": [",
-                  "             {% for book in transform_input.data[:5] %}",
+                  "             {% for book in transform_input.data[:10] %}",
                   "               {",
                   "                 \"title\": \"{{book['name']}}\",",
                   "                 \"subtitle\": \" \",",
-                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe1&url={{base64.b64encode(book['img_url'])}}\",",
+                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe2&url={{base64.b64encode(book['img_url'])}}\",",
                   "                 \"buttons\": [",
                   "                   {",
                   "                     \"url\": \"{{book['url']}}\",",
@@ -778,10 +838,11 @@
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
-            "url": "https://shopping.parenting.com.tw/api/product/getOnlineProducts?",
+            "url": "{{env.http_root}}/api/third_party/parenting/api_proxy?",
             "params": [
               ["age", "11-15歲"]
             ],
+            "method":"get",
             "transform": [
               {
                 "type": "jinja",
@@ -812,11 +873,11 @@
                   "        \"payload\": {",
                   "           \"template_type\": \"generic\",",
                   "           \"elements\": [",
-                  "             {% for book in transform_input.data[:5] %}",
+                  "             {% for book in transform_input.data[:10] %}",
                   "               {",
                   "                 \"title\": \"{{book['name']}}\",",
                   "                 \"subtitle\": \" \",",
-                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe1&url={{base64.b64encode(book['img_url'])}}\",",
+                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe2&url={{base64.b64encode(book['img_url'])}}\",",
                   "                 \"buttons\": [",
                   "                   {",
                   "                     \"url\": \"{{book['url']}}\",",
@@ -903,11 +964,7 @@
               }
             ],
             "on_error": {
-              "ack_message": [
-                "我不太懂您的意思，請問您想找哪一類的書籍呢？",
-                ":)",
-                " "
-              ],
+              "ack_message": "我不太懂您的意思",
               "end_node_id": "BooksForParents"
             }
           }
@@ -1001,10 +1058,11 @@
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
-            "url": "https://shopping.parenting.com.tw/api/product/getOnlineProducts?",
+            "url": "{{env.http_root}}/api/third_party/parenting/api_proxy?",
             "params": [
               ["category", "學習教育"]
             ],
+            "method":"get",
             "transform": [
               {
                 "type": "jinja",
@@ -1035,11 +1093,11 @@
                   "        \"payload\": {",
                   "           \"template_type\": \"generic\",",
                   "           \"elements\": [",
-                  "             {% for book in transform_input.data[:5] %}",
+                  "             {% for book in transform_input.data[:10] %}",
                   "               {",
                   "                 \"title\": \"{{book['name']}}\",",
                   "                 \"subtitle\": \" \",",
-                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe1&url={{base64.b64encode(book['img_url'])}}\",",
+                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe2&url={{base64.b64encode(book['img_url'])}}\",",
                   "                 \"buttons\": [",
                   "                   {",
                   "                     \"url\": \"{{book['url']}}\",",
@@ -1073,10 +1131,11 @@
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
-            "url": "https://shopping.parenting.com.tw/api/product/getOnlineProducts?",
+            "url": "{{env.http_root}}/api/third_party/parenting/api_proxy?",
             "params": [
               ["category", "家庭與生活"]
             ],
+            "method":"get",
             "transform": [
               {
                 "type": "jinja",
@@ -1107,11 +1166,11 @@
                   "        \"payload\": {",
                   "           \"template_type\": \"generic\",",
                   "           \"elements\": [",
-                  "             {% for book in transform_input.data[:5] %}",
+                  "             {% for book in transform_input.data[:10] %}",
                   "               {",
                   "                 \"title\": \"{{book['name']}}\",",
                   "                 \"subtitle\": \" \",",
-                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe1&url={{base64.b64encode(book['img_url'])}}\",",
+                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe2&url={{base64.b64encode(book['img_url'])}}\",",
                   "                 \"buttons\": [",
                   "                   {",
                   "                     \"url\": \"{{book['url']}}\",",
@@ -1145,10 +1204,11 @@
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
-            "url": "https://shopping.parenting.com.tw/api/product/getOnlineProducts?",
+            "url": "{{env.http_root}}/api/third_party/parenting/api_proxy?",
             "params": [
               ["category", "情緒教育"]
             ],
+            "method":"get",
             "transform": [
               {
                 "type": "jinja",
@@ -1179,11 +1239,11 @@
                   "        \"payload\": {",
                   "           \"template_type\": \"generic\",",
                   "           \"elements\": [",
-                  "             {% for book in transform_input.data[:5] %}",
+                  "             {% for book in transform_input.data[:10] %}",
                   "               {",
                   "                 \"title\": \"{{book['name']}}\",",
                   "                 \"subtitle\": \" \",",
-                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe1&url={{base64.b64encode(book['img_url'])}}\",",
+                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe2&url={{base64.b64encode(book['img_url'])}}\",",
                   "                 \"buttons\": [",
                   "                   {",
                   "                     \"url\": \"{{book['url']}}\",",
@@ -1217,10 +1277,11 @@
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
-            "url": "https://shopping.parenting.com.tw/api/product/getOnlineProducts?",
+            "url": "{{env.http_root}}/api/third_party/parenting/api_proxy?",
             "params": [
               ["category", "新手父母"]
             ],
+            "method":"get",
             "transform": [
               {
                 "type": "jinja",
@@ -1251,11 +1312,11 @@
                   "        \"payload\": {",
                   "           \"template_type\": \"generic\",",
                   "           \"elements\": [",
-                  "             {% for book in transform_input.data[:5] %}",
+                  "             {% for book in transform_input.data[:10] %}",
                   "               {",
                   "                 \"title\": \"{{book['name']}}\",",
                   "                 \"subtitle\": \" \",",
-                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe1&url={{base64.b64encode(book['img_url'])}}\",",
+                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe2&url={{base64.b64encode(book['img_url'])}}\",",
                   "                 \"buttons\": [",
                   "                   {",
                   "                     \"url\": \"{{book['url']}}\",",
@@ -1289,10 +1350,11 @@
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
-            "url": "https://shopping.parenting.com.tw/api/product/getOnlineProducts?",
+            "url": "{{env.http_root}}/api/third_party/parenting/api_proxy?",
             "params": [
               ["category", "親子教養"]
             ],
+            "method":"get",
             "transform": [
               {
                 "type": "jinja",
@@ -1323,11 +1385,11 @@
                   "        \"payload\": {",
                   "           \"template_type\": \"generic\",",
                   "           \"elements\": [",
-                  "             {% for book in transform_input.data[:5] %}",
+                  "             {% for book in transform_input.data[:10] %}",
                   "               {",
                   "                 \"title\": \"{{book['name']}}\",",
                   "                 \"subtitle\": \" \",",
-                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe1&url={{base64.b64encode(book['img_url'])}}\",",
+                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe2&url={{base64.b64encode(book['img_url'])}}\",",
                   "                 \"buttons\": [",
                   "                   {",
                   "                     \"url\": \"{{book['url']}}\",",
@@ -1414,11 +1476,7 @@
               }
             ],
             "on_error": {
-              "ack_message": [
-                "我不太懂您的意思，請問您想找哪一類的書籍呢？",
-                ":)",
-                " "
-              ],
+              "ack_message": "我不太懂您的意思",
               "end_node_id": "BooksForParents"
             }
           }
@@ -1431,10 +1489,11 @@
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
-            "url": "https://shopping.parenting.com.tw/api/product/getOnlineProducts?",
+            "url": "{{env.http_root}}/api/third_party/parenting/api_proxy?",
             "params": [
               ["category", "學習教育"]
             ],
+            "method":"get",
             "transform": [
               {
                 "type": "jinja",
@@ -1465,11 +1524,11 @@
                   "        \"payload\": {",
                   "           \"template_type\": \"generic\",",
                   "           \"elements\": [",
-                  "             {% for book in transform_input.data[:5] %}",
+                  "             {% for book in transform_input.data[:10] %}",
                   "               {",
                   "                 \"title\": \"{{book['name']}}\",",
                   "                 \"subtitle\": \" \",",
-                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe1&url={{base64.b64encode(book['img_url'])}}\",",
+                  "                 \"image_url\": \"{{env.HTTP_ROOT}}/api/util/image_convert?size=500x260&mode=pad&pad_color=%23f5dfe2&url={{base64.b64encode(book['img_url'])}}\",",
                   "                 \"buttons\": [",
                   "                   {",
                   "                     \"url\": \"{{book['url']}}\",",

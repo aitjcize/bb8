@@ -78,6 +78,9 @@ _OMAMORI_RANDOM_TEXTS = [
     u'魔法師'
 ]
 
+_PARENTING_API_URL = ('https://shopping.parenting.com.tw/api/product/'
+                      'getOnlineProducts')
+
 
 @app.route('/api/third_party/youbike/render_map')
 def redirect_render_map():
@@ -237,3 +240,21 @@ def fortune_omamori():
     response.headers['content-type'] = 'image/png'
 
     return response
+
+
+@lru_cache(maxsize=512)
+def _parenting_api_proxy(args):
+    """Parenting Bot API proxy
+
+    Parenting Bot require us to sort the result according to publish_date.
+    The result is cached to speedup and take the burden out of their server...
+    """
+    res = requests.get(_PARENTING_API_URL, params=args)
+    res.raise_for_status()
+    d = res.json()['data']
+    return {'data': sorted(d, key=lambda x: x['publish_date'], reverse=True)}
+
+
+@app.route('/api/third_party/parenting/api_proxy', methods=['GET'])
+def parenting_api_proxy():
+    return jsonify(_parenting_api_proxy(request.args))

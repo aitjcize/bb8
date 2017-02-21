@@ -354,7 +354,8 @@ def Render(tmpl, variables):
     # Inject some environment specific variables
     variables['env'] = {
         'host': config.HOSTNAME,
-        'port': config.HTTP_PORT
+        'port': config.HTTP_PORT,
+        'http_root': 'https://%s:%d' % (config.HOSTNAME, config.HTTP_PORT)
     }
 
     # Inject some useful modules
