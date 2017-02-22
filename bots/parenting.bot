@@ -168,9 +168,8 @@
                   "type": "regexp",
                   "params": [
                     "(?i)PickABook",
-                    "選書",
-                    "推薦",
-                    "買書"
+                    "(選|買|找)書",
+                    "推薦"
                   ]
                 },
                 "ack_message": "",
