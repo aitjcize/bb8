@@ -237,17 +237,6 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["^建議 ?(.*)$", "^feedback (.*)$"],
-                  "collect_as": {
-                    "key": "feedback",
-                    "value": "{{matches#1}}"
-                  }
-                },
-                "ack_message": "謝謝你的建議，我們會根據你的建議改善的！"
-              },
-              {
-                "rule": {
-                  "type": "regexp",
                   "params": [
                     "(?i)PickABook"
                   ]
@@ -1562,9 +1551,9 @@
           "id": "ai.compose.function.core.report",
           "config": {
             "admins": [
-              "1319044618112869"
+              "1387584521275243"
             ],
-            "template": "{{user.first_name}} {{user.last_name}} 留言給您囉！: {{message}}",
+            "template": "來自 {{user.first_name}} {{user.last_name}} 的留言: {{message}}",
             "keys": ["user", "message"],
             "report_key": "message"
           }
