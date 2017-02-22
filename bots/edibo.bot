@@ -36,7 +36,7 @@
           "config": {
             "messages": [
               {
-                "text": "嗨 {{user.first_name}}，歡迎使用 Edibo 服務。這個機器人是由 compose.ai 公司提供技術支援與維運支援。"
+                "text": "嗨 {{user.first_name}}，Edibo 可以幫你找出想吃的東西，他會學習你的嗜好。由 compose.ai 公司提供技術支援與維運支援。"
               }
             ]
           }
@@ -130,7 +130,9 @@
             "url": "{{memory.ajax_root}}/want_ajax?action=NextFoodsToChoose",
             "params": [
               ["hl", "zh_TW"],
-              ["input", "[]"]
+              ["input", "[]"],
+              ["timezone", "{{user.timezone}}"],
+              ["platform_user_ident", "{{user.platform_user_ident}}"]
             ],
             "transform": [
               {
@@ -200,7 +202,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(no)", "不好", "不想吃", "不是"],
+                  "params": ["(?i)(no)", "不好", "不想吃?", "不是"],
                   "memory_set": {"key": "Answer0", "value": "-{{memory.Questionaire0}}"}
                 },
                 "ack_message": "",
@@ -209,7 +211,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(yes|ok)", "好", "想吃", "是"],
+                  "params": ["(?i)(yes|ok)", "好", "想吃?", "是"],
                   "memory_set": {"key": "Answer0", "value": "+{{memory.Questionaire0}}"}
                 },
                 "ack_message": "",
@@ -218,7 +220,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(hi|hello)", "你好", "哈囉"]
+                  "params": ["(?i)(hi|hello)", "你好", "主選單", "哈囉"]
                 },
                 "end_node_id": "Root",
                 "ack_message": ""
@@ -278,7 +280,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(no)", "不好", "不想吃", "不是"],
+                  "params": ["(?i)(no)", "不好", "不想吃?", "不是"],
                   "memory_set": {"key": "Answer1", "value": "-{{memory.Questionaire1}}"}
                 },
                 "ack_message": "",
@@ -287,7 +289,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(yes|ok)", "好", "想吃", "是"],
+                  "params": ["(?i)(yes|ok)", "好", "想吃?", "是"],
                   "memory_set": {"key": "Answer1", "value": "+{{memory.Questionaire1}}"}
                 },
                 "ack_message": "",
@@ -296,7 +298,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(hi|hello)", "你好", "哈囉"]
+                  "params": ["(?i)(hi|hello)", "你好", "主選單", "哈囉"]
                 },
                 "end_node_id": "Root",
                 "ack_message": ""
@@ -356,7 +358,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(no)", "不好", "不想吃", "不是"],
+                  "params": ["(?i)(no)", "不好", "不想吃?", "不是"],
                   "memory_set": {"key": "Answer2", "value": "-{{memory.Questionaire2}}"}
                 },
                 "ack_message": "",
@@ -365,7 +367,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(yes|ok)", "好", "想吃", "是"],
+                  "params": ["(?i)(yes|ok)", "好", "想吃?", "是"],
                   "memory_set": {"key": "Answer2", "value": "+{{memory.Questionaire2}}"}
                 },
                 "ack_message": "",
@@ -374,7 +376,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(hi|hello)", "你好", "哈囉"]
+                  "params": ["(?i)(hi|hello)", "你好", "主選單", "哈囉"]
                 },
                 "end_node_id": "Root",
                 "ack_message": ""
@@ -434,7 +436,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(no)", "不好", "不想吃", "不是"],
+                  "params": ["(?i)(no)", "不好", "不想吃?", "不是"],
                   "memory_set": {"key": "Answer3", "value": "-{{memory.Questionaire3}}"}
                 },
                 "ack_message": "",
@@ -443,7 +445,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(yes|ok)", "好", "想吃", "是"],
+                  "params": ["(?i)(yes|ok)", "好", "想吃?", "是"],
                   "memory_set": {"key": "Answer3", "value": "+{{memory.Questionaire3}}"}
                 },
                 "ack_message": "",
@@ -452,7 +454,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(hi|hello)", "你好", "哈囉"]
+                  "params": ["(?i)(hi|hello)", "你好", "主選單", "哈囉"]
                 },
                 "end_node_id": "Root",
                 "ack_message": ""
@@ -512,27 +514,27 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(no)", "不好", "不想吃", "不是"],
+                  "params": ["(?i)(no)", "不好", "不想吃?", "不是"],
                   "collect_as": {"key": "NoIdeaQuestionaires", "value": "[\"{{memory.Answer0}}\", \"{{memory.Answer1}}\", \"{{memory.Answer2}}\", \"{{memory.Answer3}}\", \"-{{memory.Questionaire4}}\"]"},
                   "memory_set": {"key": "Answer4", "value": "-{{memory.Questionaire4}}"}
                 },
                 "ack_message": "",
-                "end_node_id": "Location"
+                "end_node_id": "UpdateDietHabit"
               },
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(yes|ok)", "好", "想吃", "是"],
+                  "params": ["(?i)(yes|ok)", "好", "想吃?", "是"],
                   "collect_as": {"key": "NoIdeaQuestionaires", "value": "[\"{{memory.Answer0}}\", \"{{memory.Answer1}}\", \"{{memory.Answer2}}\", \"{{memory.Answer3}}\", \"+{{memory.Questionaire4}}\"]"},
                   "memory_set": {"key": "Answer4", "value": "+{{memory.Questionaire4}}"}
                 },
                 "ack_message": "",
-                "end_node_id": "Location"
+                "end_node_id": "UpdateDietHabit"
               },
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(hi|hello)", "你好", "哈囉"]
+                  "params": ["(?i)(hi|hello)", "你好", "主選單", "哈囉"]
                 },
                 "end_node_id": "Root",
                 "ack_message": ""
@@ -542,6 +544,35 @@
               "end_node_id": "Questionaire4",
               "ack_message": "我不了解你的指令，可以再輸入一次，或輸入「使用說明」喔。"
             }
+          }
+        }
+      },
+
+      "UpdateDietHabit": {
+        "name": "UpdateDietHabit",
+        "description": "UpdateDietHabit",
+        "expect_input": false,
+        "next_node_id": "Location",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "{{memory.ajax_root}}/want_ajax?action=RecordSelectedFoods",
+            "params": [
+              ["user_lang", "zh_TW"],
+              ["selected", "[\"{{memory.Answer0}}\", \"{{memory.Answer1}}\", \"{{memory.Answer2}}\", \"{{memory.Answer3}}\", \"{{memory.Answer4}}\"]"],
+              ["platform_user_ident", "{{user.platform_user_ident}}"]
+            ],
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "}"
+                ]
+              }
+            ],
+            "debug": true,
+            "on_error": "我好像壞掉了，快通知管理員。 (UpdateDietHabit)"
           }
         }
       },
@@ -594,7 +625,15 @@
                   "collect_as": {"key": "location"},
                   "memory_set": {"key": "location"}
                 },
-                "end_node_id": "ComposeAiGetRecommendedFoods",
+                "end_node_id": "GetPreference",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)(hi|hello)", "你好", "主選單", "哈囉"]
+                },
+                "end_node_id": "Root",
                 "ack_message": ""
               },
               {
@@ -634,6 +673,25 @@
             "query_term": "{{text}}",
             "language": "zh_TW",
             "region": "TW"
+          }
+        }
+      },
+
+      "GetPreference": {
+        "name": "GetPreference",
+        "description": "GetPreference",
+        "expect_input": false,
+        "next_node_id": "ComposeAiGetRecommendedFoods",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "{{memory.ajax_root}}/want_ajax?action=GetPreference",
+            "params": [
+              ["platform_user_ident", "{{user.platform_user_ident}}"],
+              ["timezone", "{{user.timezone}}"]
+            ],
+            "debug": true,
+            "on_error": "我好像壞掉了，快通知管理員。(GetPreference)"
           }
         }
       },
@@ -744,7 +802,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["^(?i)(hi|hello)$", "你好", "哈囉", "reset", "重來"]
+                  "params": ["^(?i)(hi|hello)$", "你好", "主選單", "哈囉", "reset", "重來"]
                 },
                 "end_node_id": "Root",
                 "ack_message": ""
@@ -752,7 +810,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": [".*"],
+                  "params": ["我要吃(.*)", "(.*)"],
                   "collect_as": {"key": "NoIdeaClick"}
                 },
                 "end_node_id": "GetLocalRestaurants",
@@ -779,9 +837,9 @@
             "params": [
               ["key", "AIzaSyCapypvaHnAcYZCrldgEIrYQ6Ev18tX5FE"],
               ["location", "{{memory.location.coordinates.lat}},{{memory.location.coordinates.long}}"],
-              ["radius", "10000"],
+              ["radius", "{{memory.search_radius}}"],
               ["language", "zh_TW"],
-              ["keyword", "{{text}}"],
+              ["keyword", "{{matches#1}}"],
               ["type", "restaurant"]
             ],
             "transform": [
