@@ -1,0 +1,1377 @@
+{
+  "bot": {
+    "name": "shoulder",
+    "session_timeout": 0,
+    "description": "string",
+    "interaction_timeout": 120,
+    "admin_interaction_timeout": 10,
+    "settings": {
+      "get_start_button": {
+        "message": {
+          "text": "Hi"
+        }
+      },
+      "persistent_menu": [
+        {
+          "type": "postback",
+          "title": "自我診斷",
+          "payload": {
+            "message": {
+              "text": "Diagnose"
+            }
+          }
+        }
+      ]
+    },
+    "nodes": {
+      "Start": {
+        "name": "Start",
+        "description": "Start node",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "Hi, {{user.first_name}}，歡迎您來到五十肩診斷機器人！請問您，有什麼想問的呢？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "自我診斷"
+              }
+            ]
+          }
+        }
+      },
+      "Root": {
+        "name": "Root",
+        "description": "Main bot operation node",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "Hi, {{user.first_name}}! 請問您，有什麼問題想問呢？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷", "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "自我診斷"
+              }
+            ]
+          }
+        }
+      },
+      "RootRouter": {
+        "name": "RootRouter",
+        "description": "Root router",
+        "expect_input": true,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "自我診斷",
+                    "Diagnose"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node1"
+              }
+            ],
+            "on_error": {
+              "ack_message": [
+                "我不太懂您的意思，請問您想問什麼呢？"
+              ],
+              "end_node_id": "RootRouter"
+            }
+          }
+        }
+      },
+      "Node1Router": {
+        "name": "Node1Router",
+        "description": "Node1Router",
+        "expect_input": true,
+        "next_node_id": "Node1",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "goto_node2"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node2"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "goto_node3"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node3"
+              }
+            ],
+            "on_error": {
+              "ack_message": [
+                "我不太懂您的意思，請問您想問什麼呢？"
+              ],
+              "end_node_id": "Node1"
+            }
+          }
+        }
+      },
+      "Node1": {
+        "name": "Node1",
+        "description": "Ask the user if he has shoulder issue",
+        "expect_input": false,
+        "next_node_id": "Node1Router",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "請問您的肩膀會痛嗎？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  ".*痛.*"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "goto_node3"
+                  }
+                },
+                "content_type": "text",
+                "title": "會痛"
+              },
+              {
+                "acceptable_inputs": [
+                  ".*不會痛.*"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "goto_node2"
+                  }
+                },
+                "content_type": "text",
+                "title": "不會痛"
+              }
+            ]
+          }
+        }
+      },
+      "Node2": {
+        "name": "Node2",
+        "description": "Node2",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "恭喜你有個健康的肩膀！"
+              },
+              {
+                "text": "要再做一次診斷嗎？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷", "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "自我診斷"
+              }
+            ]
+          }
+        }
+      },
+      "Node3Router": {
+        "name": "Node3Router",
+        "description": "Router for node 3",
+        "expect_input": true,
+        "next_node_id": "Node3",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "goto_node7"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node7"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "goto_node15"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node15"
+              }
+            ],
+            "on_error": {
+              "ack_message": [
+                "我不太懂您的意思，請問您想問什麼呢？"
+              ],
+              "end_node_id": "Node3"
+            }
+          }
+        }
+      },
+      "Node3": {
+        "name": "Node3",
+        "description": "Ask user if he is older than 40",
+        "expect_input": false,
+        "next_node_id": "Node3Router",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "請問您年過 40 了嗎？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "是", "是的"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "goto_node7"
+                  }
+                },
+                "content_type": "text",
+                "title": "是的"
+              },
+              {
+                "acceptable_inputs": [
+                  "不是"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "goto_node15"
+                  }
+                },
+                "content_type": "text",
+                "title": "不是"
+              }
+            ]
+          }
+        }
+      },
+      "Node7Router": {
+        "name": "Node7Router",
+        "description": "Node7Router",
+        "expect_input": true,
+        "next_node_id": "Node7",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "goto_node8"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node8"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "goto_node24"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node24"
+              }
+            ],
+            "on_error": {
+              "ack_message": [
+                "我不太懂您的意思，請問您想問什麼呢？"
+              ],
+              "end_node_id": "Node7"
+            }
+          }
+        }
+      },
+      "Node7": {
+        "name": "Node7",
+        "description": "Node7",
+        "expect_input": false,
+        "next_node_id": "Node7Router",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "睡眠是否會疼痛？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "是", "是的"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "goto_node8"
+                  }
+                },
+                "content_type": "text",
+                "title": "是的"
+              },
+              {
+                "acceptable_inputs": [
+                  "不是"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "goto_node24"
+                  }
+                },
+                "content_type": "text",
+                "title": "不是"
+              }
+            ]
+          }
+        }
+      },
+      "Node8Router": {
+        "name": "Node8Router",
+        "description": "Node8Router",
+        "expect_input": true,
+        "next_node_id": "Node8",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "goto_node19"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node19"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "goto_node10"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node10"
+              }
+            ],
+            "on_error": {
+              "ack_message": [
+                "我不太懂您的意思，請問您想問什麼呢？"
+              ],
+              "end_node_id": "Node8"
+            }
+          }
+        }
+      },
+      "Node8": {
+        "name": "Node8",
+        "description": "Node8",
+        "expect_input": false,
+        "next_node_id": "Node8Router",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "請問這三個動作您能做到幾個呢？"
+              },
+              {
+                "attachment": {
+                  "type": "image",
+                  "payload": {
+                      "url": "http://i.imgur.com/LJNbZzj.jpg"
+                  }
+                }
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node19"
+                  }
+                },
+                "content_type": "text",
+                "title": "三個"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node19"
+                  }
+                },
+                "content_type": "text",
+                "title": "兩個"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node10"
+                  }
+                },
+                "content_type": "text",
+                "title": "一個"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node10"
+                  }
+                },
+                "content_type": "text",
+                "title": "都不能"
+              }
+            ]
+          }
+        }
+      },
+      "Node9": {
+        "name": "Node9",
+        "description": "Node9",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "可能是嚴重關節問題，頑固型五十肩"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "自我診斷"
+              }
+            ]
+          }
+        }
+      },
+      "Node10Router": {
+        "name": "Node10Router",
+        "description": "Node10Router",
+        "expect_input": true,
+        "next_node_id": "Node8",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "goto_node12"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node12"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "goto_node11"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node11"
+              }
+            ],
+            "on_error": {
+              "ack_message": [
+                "我不太懂您的意思，請問您想問什麼呢？"
+              ],
+              "end_node_id": "Node10"
+            }
+          }
+        }
+      },
+      "Node10": {
+        "name": "Node10",
+        "description": "Node10",
+        "expect_input": false,
+        "next_node_id": "Node10Router",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "請問疼痛持續超過三個月了嗎？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node12"
+                  }
+                },
+                "content_type": "text",
+                "title": "是"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node11"
+                  }
+                },
+                "content_type": "text",
+                "title": "不是"
+              }
+            ]
+          }
+        }
+      },
+      "Node11": {
+        "name": "Node11",
+        "description": "Node11",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "可能是輕微五十肩"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "自我診斷"
+              }
+            ]
+          }
+        }
+      },
+      "Node12Router": {
+        "name": "Node12Router",
+        "description": "Node12Router",
+        "expect_input": true,
+        "next_node_id": "Node12",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "goto_node9"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node9"
+              }
+            ],
+            "on_error": {
+              "ack_message": [
+                "我不太懂您的意思，請問您想問什麼呢？"
+              ],
+              "end_node_id": "Node12"
+            }
+          }
+        }
+      },
+      "Node12": {
+        "name": "Node12",
+        "description": "Node12",
+        "expect_input": false,
+        "next_node_id": "Node12Router",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "治療超過一個月了嗎？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node9"
+                  }
+                },
+                "content_type": "text",
+                "title": "有但效果差"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node27"
+                  }
+                },
+                "content_type": "text",
+                "title": "治療未滿一個月"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node26"
+                  }
+                },
+                "content_type": "text",
+                "title": "未曾治療"
+              }
+            ]
+          }
+        }
+      },
+      "Node15Router": {
+        "name": "Node15Router",
+        "description": "Node15Router",
+        "expect_input": true,
+        "next_node_id": "Node15",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "goto_node16"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node16"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "goto_node20"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node20"
+              }
+            ],
+            "on_error": {
+              "ack_message": [
+                "我不太懂您的意思，請問您想問什麼呢？"
+              ],
+              "end_node_id": "Node15"
+            }
+          }
+        }
+      },
+      "Node15": {
+        "name": "Node15",
+        "description": "Node15",
+        "expect_input": false,
+        "next_node_id": "Node15Router",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "睡眠是否會疼痛？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "是", "是的"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "goto_node16"
+                  }
+                },
+                "content_type": "text",
+                "title": "是的"
+              },
+              {
+                "acceptable_inputs": [
+                  "不是"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "goto_node20"
+                  }
+                },
+                "content_type": "text",
+                "title": "不是"
+              }
+            ]
+          }
+        }
+      },
+      "Node16Router": {
+        "name": "Node16Router",
+        "description": "Node16Router",
+        "expect_input": true,
+        "next_node_id": "Node16",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "goto_node18"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node18"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "goto_node19"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node19"
+              }
+            ],
+            "on_error": {
+              "ack_message": [
+                "我不太懂您的意思，請問您想問什麼呢？"
+              ],
+              "end_node_id": "Node16"
+            }
+          }
+        }
+      },
+      "Node16": {
+        "name": "Node16",
+        "description": "Node16",
+        "expect_input": false,
+        "next_node_id": "Node16Router",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "請問這三個動作您能做到幾個呢？"
+              },
+              {
+                "attachment": {
+                  "type": "image",
+                  "payload": {
+                      "url": "http://i.imgur.com/LJNbZzj.jpg"
+                  }
+                }
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node19"
+                  }
+                },
+                "content_type": "text",
+                "title": "三個"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node19"
+                  }
+                },
+                "content_type": "text",
+                "title": "兩個"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node18"
+                  }
+                },
+                "content_type": "text",
+                "title": "一個"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node18"
+                  }
+                },
+                "content_type": "text",
+                "title": "都不能"
+              }
+            ]
+          }
+        }
+      },
+      "Node18Router": {
+        "name": "Node18Router",
+        "description": "Node18Router",
+        "expect_input": true,
+        "next_node_id": "Node18",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "goto_node10"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node10"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "goto_node19"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node19"
+              }
+            ],
+            "on_error": {
+              "ack_message": [
+                "我不太懂您的意思，請問您想問什麼呢？"
+              ],
+              "end_node_id": "Node18"
+            }
+          }
+        }
+      },
+      "Node18": {
+        "name": "Node18",
+        "description": "Node18",
+        "expect_input": false,
+        "next_node_id": "Node18Router",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "請問是否有外傷、骨折或車禍？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node10"
+                  }
+                },
+                "content_type": "text",
+                "title": "是，曾有外傷"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node19"
+                  }
+                },
+                "content_type": "text",
+                "title": "否，不曾外傷"
+              }
+            ]
+          }
+        }
+      },
+      "Node19": {
+        "name": "Node19",
+        "description": "Node19",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "可能是輕微五十肩夾擠症候群"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "自我診斷"
+              }
+            ]
+          }
+        }
+      },
+      "Node20Router": {
+        "name": "Node20Router",
+        "description": "Node20Router",
+        "expect_input": true,
+        "next_node_id": "Node20",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "goto_node21"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node21"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "goto_node22"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node22"
+              }
+            ],
+            "on_error": {
+              "ack_message": [
+                "我不太懂您的意思，請問您想問什麼呢？"
+              ],
+              "end_node_id": "Node20"
+            }
+          }
+        }
+      },
+      "Node20": {
+        "name": "Node20",
+        "description": "Node20",
+        "expect_input": false,
+        "next_node_id": "Node20Router",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "請問這三個動作您能做到幾個呢？"
+              },
+              {
+                "attachment": {
+                  "type": "image",
+                  "payload": {
+                      "url": "http://i.imgur.com/LJNbZzj.jpg"
+                  }
+                }
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node22"
+                  }
+                },
+                "content_type": "text",
+                "title": "三個"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node22"
+                  }
+                },
+                "content_type": "text",
+                "title": "兩個"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node21"
+                  }
+                },
+                "content_type": "text",
+                "title": "一個"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node21"
+                  }
+                },
+                "content_type": "text",
+                "title": "都不能"
+              }
+            ]
+          }
+        }
+      },
+      "Node21": {
+        "name": "Node21",
+        "description": "Node21",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "可能是夾擠症候群"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              }
+            ]
+          }
+        }
+      },
+      "Node22": {
+        "name": "Node22",
+        "description": "Node22",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "可能是肌筋膜徵候群"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              }
+            ]
+          }
+        }
+      },
+      "Node24Router": {
+        "name": "Node24Router",
+        "description": "Node24Router",
+        "expect_input": true,
+        "next_node_id": "Node24",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "goto_node25"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node25"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "goto_node19"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node19"
+              }
+            ],
+            "on_error": {
+              "ack_message": [
+                "我不太懂您的意思，請問您想問什麼呢？"
+              ],
+              "end_node_id": "Node24"
+            }
+          }
+        }
+      },
+      "Node24": {
+        "name": "Node24",
+        "description": "Node24",
+        "expect_input": false,
+        "next_node_id": "Node24Router",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "請問這三個動作您能做到幾個呢？"
+              },
+              {
+                "attachment": {
+                  "type": "image",
+                  "payload": {
+                      "url": "http://i.imgur.com/LJNbZzj.jpg"
+                  }
+                }
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node25"
+                  }
+                },
+                "content_type": "text",
+                "title": "三個"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node25"
+                  }
+                },
+                "content_type": "text",
+                "title": "兩個"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node19"
+                  }
+                },
+                "content_type": "text",
+                "title": "一個"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node19"
+                  }
+                },
+                "content_type": "text",
+                "title": "都不能"
+              }
+            ]
+          }
+        }
+      },
+      "Node25": {
+        "name": "Node25",
+        "description": "Node25",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "可能是頸椎神經根壓迫，肌筋膜徵候群"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              }
+            ]
+          }
+        }
+      },
+      "Node26": {
+        "name": "Node26",
+        "description": "Node26",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "請就近到婦產科完成一個月的治療"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              }
+            ]
+          }
+        }
+      },
+      "Node27": {
+        "name": "Node27",
+        "description": "Node27",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "請先完成一個月的治療"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              }
+            ]
+          }
+        }
+      }
+
+    }
+  }
+}
