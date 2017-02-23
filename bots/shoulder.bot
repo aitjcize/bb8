@@ -104,13 +104,22 @@
                 },
                 "ack_message": "",
                 "end_node_id": "Node1"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "肩關節囊擴張術",
+                    "Operation"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node14"
               }
             ],
             "on_error": {
-              "ack_message": [
-                "我不太懂您的意思，請問您想問什麼呢？"
-              ],
-              "end_node_id": "RootRouter"
+              "ack_message": "我不太懂您的意思",
+              "end_node_id": "Root"
             }
           }
         }
@@ -146,9 +155,7 @@
               }
             ],
             "on_error": {
-              "ack_message": [
-                "我不太懂您的意思，請問您想問什麼呢？"
-              ],
+              "ack_message": "我不太懂您的意思",
               "end_node_id": "Node1"
             }
           }
@@ -170,7 +177,7 @@
             "quick_replies": [
               {
                 "acceptable_inputs": [
-                  ".*痛.*"
+                  "會痛?"
                 ],
                 "payload": {
                   "message": {
@@ -178,11 +185,11 @@
                   }
                 },
                 "content_type": "text",
-                "title": "會痛"
+                "title": "會！會痛!"
               },
               {
                 "acceptable_inputs": [
-                  ".*不會痛.*"
+                  "不會"
                 ],
                 "payload": {
                   "message": {
@@ -190,7 +197,7 @@
                   }
                 },
                 "content_type": "text",
-                "title": "不會痛"
+                "title": "不會啊，好的很！"
               }
             ]
           }
@@ -260,9 +267,7 @@
               }
             ],
             "on_error": {
-              "ack_message": [
-                "我不太懂您的意思，請問您想問什麼呢？"
-              ],
+              "ack_message": "我不太懂您的意思",
               "end_node_id": "Node3"
             }
           }
@@ -341,9 +346,7 @@
               }
             ],
             "on_error": {
-              "ack_message": [
-                "我不太懂您的意思，請問您想問什麼呢？"
-              ],
+              "ack_message": "我不太懂您的意思",
               "end_node_id": "Node7"
             }
           }
@@ -365,7 +368,7 @@
             "quick_replies": [
               {
                 "acceptable_inputs": [
-                  "是", "是的"
+                  "(?<!不)會", "(?<!不)對"
                 ],
                 "payload": {
                   "message": {
@@ -373,11 +376,11 @@
                   }
                 },
                 "content_type": "text",
-                "title": "是的"
+                "title": "對！睡眠常常會被中斷！"
               },
               {
                 "acceptable_inputs": [
-                  "不是"
+                  "不會"
                 ],
                 "payload": {
                   "message": {
@@ -385,7 +388,7 @@
                   }
                 },
                 "content_type": "text",
-                "title": "不是"
+                "title": "不會，睡覺時不太會痛。"
               }
             ]
           }
@@ -422,9 +425,7 @@
               }
             ],
             "on_error": {
-              "ack_message": [
-                "我不太懂您的意思，請問您想問什麼呢？"
-              ],
+              "ack_message": "我不太懂您的意思",
               "end_node_id": "Node8"
             }
           }
@@ -506,7 +507,10 @@
           "config": {
             "messages": [
               {
-                "text": "可能是嚴重關節問題，頑固型五十肩"
+                "text": "有九成機率是頑固型五十肩！"
+              },
+              {
+                "text": "常見治療方式有三種：\n\n一、關節鬆動術\n\n用外力拉開黏住的關節囊，需進開刀房，需麻醉，術後需修休養數日，健保有給付。\n\n二、內視鏡\n\n開刀術式的一種，直接以內視鏡進到關節囊把沾黏的部份清理，有傷口、需要住院及術後休養，健保有給付。\n\n三、肩關節囊擴張術\n\n用擴張液將沾黏的關節囊和緩撐開，過程舒服，效果極佳，不需住院、當日仍可上班，惟需自費。"
               }
             ],
             "quick_replies": [
@@ -522,6 +526,16 @@
                 },
                 "content_type": "text",
                 "title": "自我診斷"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "Operation"
+                  }
+                },
+                "content_type": "text",
+                "title": "肩關節囊擴張術"
               }
             ]
           }
@@ -558,9 +572,7 @@
               }
             ],
             "on_error": {
-              "ack_message": [
-                "我不太懂您的意思，請問您想問什麼呢？"
-              ],
+              "ack_message": "我不太懂您的意思" ,
               "end_node_id": "Node10"
             }
           }
@@ -653,12 +665,30 @@
                 },
                 "ack_message": "",
                 "end_node_id": "Node9"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "goto_node27"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node27"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "goto_node26"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node26"
               }
             ],
             "on_error": {
-              "ack_message": [
-                "我不太懂您的意思，請問您想問什麼呢？"
-              ],
+              "ack_message": "我不太懂您的意思",
               "end_node_id": "Node12"
             }
           }
@@ -743,9 +773,7 @@
               }
             ],
             "on_error": {
-              "ack_message": [
-                "我不太懂您的意思，請問您想問什麼呢？"
-              ],
+              "ack_message": "我不太懂您的意思",
               "end_node_id": "Node15"
             }
           }
@@ -824,9 +852,7 @@
               }
             ],
             "on_error": {
-              "ack_message": [
-                "我不太懂您的意思，請問您想問什麼呢？"
-              ],
+              "ack_message": "我不太懂您的意思",
               "end_node_id": "Node16"
             }
           }
@@ -848,7 +874,7 @@
                 "attachment": {
                   "type": "image",
                   "payload": {
-                      "url": "http://i.imgur.com/LJNbZzj.jpg"
+                    "url": "http://i.imgur.com/LJNbZzj.jpg"
                   }
                 }
               }
@@ -929,9 +955,7 @@
               }
             ],
             "on_error": {
-              "ack_message": [
-                "我不太懂您的意思，請問您想問什麼呢？"
-              ],
+              "ack_message": "我不太懂您的意思",
               "end_node_id": "Node18"
             }
           }
@@ -985,7 +1009,10 @@
           "config": {
             "messages": [
               {
-                "text": "可能是輕微五十肩夾擠症候群"
+                "text": "可能是「輕微五十肩」或「夾擠徵候群」"
+              },
+              {
+                "text": "「五十肩」是因為肩關節沾黏造成，原因不明，只知好發在四十至六十歲之間，約每一百個人會有二到五個人有此疾，您的症狀較為輕微。\n 夾擠徵候群」好發在年輕且高度手部活動的人，像是投手，簡單說就是組織被骨頭夾到了，所以會痛。\n 五十肩和夾擠徵候群常常被混淆，兩者都有舉手會痛的狀況，主要差別在夾擠徵候群是「肌肉、肌腱或滑囊」的問題，而五十肩是「關節囊」沾黏，所以一個休息會好，一個休息不動會痛。"
               }
             ],
             "quick_replies": [
@@ -1037,9 +1064,7 @@
               }
             ],
             "on_error": {
-              "ack_message": [
-                "我不太懂您的意思，請問您想問什麼呢？"
-              ],
+              "ack_message": "我不太懂您的意思",
               "end_node_id": "Node20"
             }
           }
@@ -1115,13 +1140,16 @@
         "name": "Node21",
         "description": "Node21",
         "expect_input": false,
-        "next_node_id": "RootRouter",
+        "next_node_id": "Node23",
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
               {
-                "text": "可能是夾擠症候群"
+                "text": "可能是「夾擠徵候群」"
+              },
+              {
+                "text": "夾擠徵候群好發在年輕且高度手部活動的人，像是投手，簡單說就是組織被骨頭夾到了，所以會痛。\n此症和五十肩常常被混淆，兩者都有舉手會痛的狀況，主要差別在夾擠徵候群是「肌肉、肌腱或滑囊」的問題，而五十肩是「關節囊」沾黏，所以一個休息會好，一個休息不動會痛。"
               }
             ],
             "quick_replies": [
@@ -1146,13 +1174,16 @@
         "name": "Node22",
         "description": "Node22",
         "expect_input": false,
-        "next_node_id": "RootRouter",
+        "next_node_id": "Node23",
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
               {
-                "text": "可能是肌筋膜徵候群"
+                "text": "可能是「頸椎神經根壓迫」或「肌筋膜徵候群」"
+              },
+              {
+                "text": "您的症狀可能是「頸椎神經根壓迫」或「肌筋膜徵候群」，需接受近一步的理學檢查才能判斷。\n「頸部神經根病變」指的是頸神經根受傷造成的肩頸僵硬，常見灶因為頸椎的關節退化或椎間盤突出，而壓迫神經根所造成。嚴重時會合併感覺及運動功能的異常，頸部的轉動及後仰則會使疼痛加劇。\n「肌筋膜徵候群」是一種身體長期緊繃，出現區域性疼痛的狀況。好發在平常運動少又常維持同一姿勢的人身上，像是：新手媽媽、辦公室職員等，年齡約在30至50歲之間。一般以「預防」為主，避免緊張的生活型態，以及固定不動的姿勢，保持運動習慣。\n兩者症狀相似，但嚴重度不同，請盡快就醫確診。"
               }
             ],
             "quick_replies": [
@@ -1204,9 +1235,7 @@
               }
             ],
             "on_error": {
-              "ack_message": [
-                "我不太懂您的意思，請問您想問什麼呢？"
-              ],
+              "ack_message": "我不太懂您的意思",
               "end_node_id": "Node24"
             }
           }
@@ -1288,7 +1317,10 @@
           "config": {
             "messages": [
               {
-                "text": "可能是頸椎神經根壓迫，肌筋膜徵候群"
+                "text": "可能是「頸椎神經根壓迫」或「肌筋膜徵候群」"
+              },
+              {
+                "text": "您的症狀可能是「頸椎神經根壓迫」或「肌筋膜徵候群」，需接受近一步的理學檢查才能判斷。\n「頸部神經根病變」指的是頸神經根受傷造成的肩頸僵硬，常見灶因為頸椎的關節退化或椎間盤突出，而壓迫神經根所造成。嚴重時會合併感覺及運動功能的異常，頸部的轉動及後仰則會使疼痛加劇。\n「肌筋膜徵候群」是一種身體長期緊繃，出現區域性疼痛的狀況。好發在平常運動少又常維持同一姿勢的人身上，像是：新手媽媽、辦公室職員等，年齡約在30至50歲之間。一般以「預防」為主，避免緊張的生活型態，以及固定不動的姿勢，保持運動習慣。\n兩者症狀相似，但嚴重度不同，請盡快就醫確診。"
               }
             ],
             "quick_replies": [
@@ -1319,7 +1351,94 @@
           "config": {
             "messages": [
               {
-                "text": "請就近到婦產科完成一個月的治療"
+                "text": "請至復健科確診，並完成一個月的肩部復健"
+              },
+              {
+                "text": "肩部因為關節活動較大，可能會有多種問題合併發生，建議先就近至復健科了解情況，才能對症下藥。\n\n一般而言，輕微的五十肩可透過物理治療及規律的自我運動獲得改善，以醫學的角度，先採取溫和的治療為第一步，若是復健及治療超過一個月仍未改善，或是疼痛度已嚴重影響日常生活，再考慮下一步「肩關節囊擴張術」改善。"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "Operation"
+                  }
+                },
+                "content_type": "text",
+                "title": "肩關節囊擴張術"
+              }
+            ]
+          }
+        }
+      },
+      "Node27": {
+        "name": "Node27",
+        "description": "Node27",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "請先完成一個月的肩部復健"
+              },
+              {
+                "text": "身體修復需要時間，請至少完成一個月的治療。\n\n一般而言，輕微的五十肩可透過物理治療及規律的自我運動獲得改善，以醫學的角度，先採取溫和的治療為第一步，若是復健及治療超過一個月仍未改善，或是疼痛度已嚴重影響日常生活，再考慮下一步「肩關節囊擴張術」改善。"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "Operation"
+                  }
+                },
+                "content_type": "text",
+                "title": "肩關節囊擴張術"
+              }
+            ]
+          }
+        }
+      },
+      "Node23": {
+        "name": "Node23",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "請至復健科確立診斷，早期治療\n\n肩部因構造多角度、活動度大，常與周邊頸部、背部混在一起，也可能多重原因並發，雖然症狀相似，但仍需有經驗的醫師理學檢查後才能確診，請盡快就近至復健科找出真正病因，對症下藥，回復健康。"
               }
             ],
             "quick_replies": [
@@ -1340,9 +1459,9 @@
           }
         }
       },
-      "Node27": {
-        "name": "Node27",
-        "description": "Node27",
+      "Node14": {
+        "name": "Node14",
+        "description": "Node14",
         "expect_input": false,
         "next_node_id": "RootRouter",
         "module": {
@@ -1350,7 +1469,20 @@
           "config": {
             "messages": [
               {
-                "text": "請先完成一個月的治療"
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "查詢有關「肩關節囊擴張術」的資訊",
+                    "buttons": [
+                      {
+                        "type": "web_url",
+                        "url": "https://www.google.com/search?q=肩關節囊擴張術",
+                        "title": "查詢"
+                      }
+                    ]
+                  }
+                }
               }
             ],
             "quick_replies": [
@@ -1365,13 +1497,12 @@
                   }
                 },
                 "content_type": "text",
-                "title": "重新診斷"
+                "title": "自我診斷"
               }
             ]
           }
         }
       }
-
     }
   }
 }
