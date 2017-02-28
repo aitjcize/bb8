@@ -14,6 +14,11 @@
       "get_start_button": {"message": {"text": "Hi"}},
       "persistent_menu": [
         {
+          "type": "postback",
+          "title": "主選單",
+          "payload": "主選單"
+        },
+        {
           "type": "web_url",
           "title": "粉絲頁",
           "url": "https://www.facebook.com/ediboZhTw"
@@ -53,13 +58,17 @@
           "config": {
             "messages": [
               {
-                "text": "不知道吃什麼嗎? 輸入「隨便」，讓我依照你現在的口味來推薦。"
+                "text": "不知道吃什麼嗎? 輸入「隨便」，讓我依照你現在的口味來推薦。輸入「我的最愛」，隨機選出一家最愛餐廳。"
               }
             ],
             "quick_replies": [
               {
                 "content_type": "text",
                 "title": "隨便"
+              },
+              {
+                "content_type": "text",
+                "title": "我的最愛"
               }
             ]
           }
@@ -96,19 +105,38 @@
                   "type": "regexp",
                   "params": ["隨便"],
                   "collect_as": {"key": "FEATURE", "value": "NoIdea"},
-                  "memory_set": {"key": "ajax_root", "value": "http://eating-ideas.appspot.com"}
+                  "memory_set": [
+                    {"key": "FEATURE", "value": "NoIdea"},
+                    {"key": "ajax_root", "value": "http://eating-ideas.appspot.com"}
+                  ]
                 },
                 "end_node_id": "TestTaste",
-                "ack_message": "接下來，我會問你五個食物，回答想吃或是不想吃。之後我會針對你的回答，推薦你食物。你使用越久，機器人就會越了解你喔！"
+                "ack_message": "接下來，我會問你五個食物，回答想吃或是不想吃。之後我會針對你的回答，推薦你食物。你使用越多次，機器人就會越了解你喔！"
               },
               {
                 "rule": {
                   "type": "regexp",
                   "params": ["dev"],
-                  "memory_set": {"key": "ajax_root", "value": "http://sad5566.com:7777"}
+                  "memory_set": [
+                    {"key": "FEATURE", "value": "NoIdeaDev"},
+                    {"key": "ajax_root", "value": "http://sad5566.com:7777"}
+                  ]
                 },
                 "end_node_id": "TestTaste",
                 "ack_message": "DEV 接下來，我會問你五個食物，回答想吃或是不想吃。之後我會針對你的回答，推薦你食物。"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["我的最愛"],
+                  "collect_as": {"key": "FEATURE", "value": "FavoriteRandom"},
+                  "memory_set": [
+                    {"key": "FEATURE", "value": "FavoriteRandom"},
+                    {"key": "ajax_root", "value": "http://sad5566.com:7777"}
+                  ]
+                },
+                "end_node_id": "FavoriteRandom",
+                "ack_message": "從我的最愛裡面隨便選一間出來 ..."
               }
             ],
             "on_error": {
@@ -220,7 +248,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(hi|hello)", "你好", "主選單", "哈囉"]
+                  "params": ["(?i)(hi|hello)", "你好", "主選單", "(?i)menu", "哈囉"]
                 },
                 "end_node_id": "Root",
                 "ack_message": ""
@@ -298,7 +326,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(hi|hello)", "你好", "主選單", "哈囉"]
+                  "params": ["(?i)(hi|hello)", "你好", "主選單", "(?i)menu", "哈囉"]
                 },
                 "end_node_id": "Root",
                 "ack_message": ""
@@ -376,7 +404,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(hi|hello)", "你好", "主選單", "哈囉"]
+                  "params": ["(?i)(hi|hello)", "你好", "主選單", "(?i)menu", "哈囉"]
                 },
                 "end_node_id": "Root",
                 "ack_message": ""
@@ -454,7 +482,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(hi|hello)", "你好", "主選單", "哈囉"]
+                  "params": ["(?i)(hi|hello)", "你好", "主選單", "(?i)menu", "哈囉"]
                 },
                 "end_node_id": "Root",
                 "ack_message": ""
@@ -534,7 +562,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(hi|hello)", "你好", "主選單", "哈囉"]
+                  "params": ["(?i)(hi|hello)", "你好", "主選單", "(?i)menu", "哈囉"]
                 },
                 "end_node_id": "Root",
                 "ack_message": ""
@@ -631,7 +659,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(hi|hello)", "你好", "主選單", "哈囉"]
+                  "params": ["(?i)(hi|hello)", "你好", "主選單", "(?i)menu", "哈囉"]
                 },
                 "end_node_id": "Root",
                 "ack_message": ""
@@ -802,7 +830,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["^(?i)(hi|hello)$", "你好", "主選單", "哈囉", "reset", "重來"]
+                  "params": ["^(?i)(hi|hello)$", "你好", "主選單", "(?i)menu", "哈囉", "reset", "重來"]
                 },
                 "end_node_id": "Root",
                 "ack_message": ""
@@ -810,7 +838,17 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["我要吃(.*)", "(.*)"],
+                  "params": ["加入我的最愛 (.*)"],
+                  "collect_as": {"key": "bookmark_place_id", "value": "{{matches#1}}"},
+                  "memory_set": {"key": "bookmark_place_id", "value": "{{matches#1}}"}
+                },
+                "end_node_id": "BookmarkRestaurant",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["我?[要想]吃(.*)", "(.*)"],
                   "collect_as": {"key": "NoIdeaClick"}
                 },
                 "end_node_id": "GetLocalRestaurants",
@@ -854,10 +892,8 @@
                   "    \"place_id_3\": \"\",",
                   "    \"place_id_4\": \"\",",
                   "",
-                  "  {% set num = 0 %}",
-                  "  {% for result in transform_input.results if num < 5 %}",
-                  "    \"place_id_{{num}}\": \"{{result.place_id}}\",",
-                  "  {% set num = num + 1 %}",
+                  "  {% for result in transform_input.results %}",
+                  "    \"place_id_{{loop.index - 1}}\": \"{{result.place_id}}\",",
                   "  {% endfor %}",
                   "",
                   "    \"place_image_url_0\": \"\",",
@@ -920,6 +956,7 @@
                   "    {% for photo in transform_input.result.photos|reverse %}",
                   "    \"place_image_url_0\": \"https://maps.googleapis.com/maps/api/place/photo?key=AIzaSyCapypvaHnAcYZCrldgEIrYQ6Ev18tX5FE&maxwidth=1200&maxheight=800&photoreference={{photo.photo_reference}}\",",
                   "    {% endfor %}",
+                  "    \"place_id_0\": \"{{transform_input.result.place_id}}\",",
                   "    \"place_url_0\": \"{{transform_input.result.url}}\",",
                   "    \"place_rating_0\": \"{{transform_input.result.rating}}\",",
                   "    \"place_name_0\": \"{{transform_input.result.name}}\",",
@@ -958,6 +995,7 @@
                   "    {% for photo in transform_input.result.photos|reverse %}",
                   "    \"place_image_url_1\": \"https://maps.googleapis.com/maps/api/place/photo?key=AIzaSyCapypvaHnAcYZCrldgEIrYQ6Ev18tX5FE&maxwidth=1200&maxheight=800&photoreference={{photo.photo_reference}}\",",
                   "    {% endfor %}",
+                  "    \"place_id_1\": \"{{transform_input.result.place_id}}\",",
                   "    \"place_url_1\": \"{{transform_input.result.url}}\",",
                   "    \"place_rating_1\": \"{{transform_input.result.rating}}\",",
                   "    \"place_name_1\": \"{{transform_input.result.name}}\",",
@@ -996,6 +1034,7 @@
                   "    {% for photo in transform_input.result.photos|reverse %}",
                   "    \"place_image_url_2\": \"https://maps.googleapis.com/maps/api/place/photo?key=AIzaSyCapypvaHnAcYZCrldgEIrYQ6Ev18tX5FE&maxwidth=1200&maxheight=800&photoreference={{photo.photo_reference}}\",",
                   "    {% endfor %}",
+                  "    \"place_id_2\": \"{{transform_input.result.place_id}}\",",
                   "    \"place_url_2\": \"{{transform_input.result.url}}\",",
                   "    \"place_rating_2\": \"{{transform_input.result.rating}}\",",
                   "    \"place_name_2\": \"{{transform_input.result.name}}\",",
@@ -1034,6 +1073,7 @@
                   "    {% for photo in transform_input.result.photos|reverse %}",
                   "    \"place_image_url_3\": \"https://maps.googleapis.com/maps/api/place/photo?key=AIzaSyCapypvaHnAcYZCrldgEIrYQ6Ev18tX5FE&maxwidth=1200&maxheight=800&photoreference={{photo.photo_reference}}\",",
                   "    {% endfor %}",
+                  "    \"place_id_3\": \"{{transform_input.result.place_id}}\",",
                   "    \"place_url_3\": \"{{transform_input.result.url}}\",",
                   "    \"place_rating_3\": \"{{transform_input.result.rating}}\",",
                   "    \"place_name_3\": \"{{transform_input.result.name}}\",",
@@ -1072,6 +1112,7 @@
                   "    {% for photo in transform_input.result.photos|reverse %}",
                   "    \"place_image_url_4\": \"https://maps.googleapis.com/maps/api/place/photo?key=AIzaSyCapypvaHnAcYZCrldgEIrYQ6Ev18tX5FE&maxwidth=1200&maxheight=800&photoreference={{photo.photo_reference}}\",",
                   "    {% endfor %}",
+                  "    \"place_id_4\": \"{{transform_input.result.place_id}}\",",
                   "    \"place_url_4\": \"{{transform_input.result.url}}\",",
                   "    \"place_rating_4\": \"{{transform_input.result.rating}}\",",
                   "    \"place_name_4\": \"{{transform_input.result.name}}\",",
@@ -1110,7 +1151,8 @@
                   "                   {% if memory.place_name_0|length %}",
                   "                   {",
                   "                     \"buttons\": [",
-                  "                       {\"type\": \"web_url\", \"title\": \"在地圖上查看\", \"url\": \"{{memory.place_url_0}}\"}",
+                  "                       {\"type\": \"web_url\", \"title\": \"在地圖上查看\", \"url\": \"{{memory.place_url_0}}\"},",
+                  "                       {\"type\": \"postback\", \"title\": \"加入我的最愛\", \"payload\": \"加入我的最愛 {{memory.place_id_0}}\"}",
                   "                     ],",
                   "                     \"image_url\": \"{{memory.place_image_url_0}}\",",
                   "                     \"title\": \"{{memory.place_name_0}}\",",
@@ -1119,7 +1161,8 @@
                   "                   {% if memory.place_name_1|length %}",
                   "                   ,{",
                   "                     \"buttons\": [",
-                  "                       {\"type\": \"web_url\", \"title\": \"在地圖上查看\", \"url\": \"{{memory.place_url_1}}\"}",
+                  "                       {\"type\": \"web_url\", \"title\": \"在地圖上查看\", \"url\": \"{{memory.place_url_1}}\"},",
+                  "                       {\"type\": \"postback\", \"title\": \"加入我的最愛\", \"payload\": \"加入我的最愛 {{memory.place_id_1}}\"}",
                   "                     ],",
                   "                     \"image_url\": \"{{memory.place_image_url_1}}\",",
                   "                     \"title\": \"{{memory.place_name_1}}\",",
@@ -1128,7 +1171,8 @@
                   "                   {% if memory.place_name_2|length %}",
                   "                   ,{",
                   "                     \"buttons\": [",
-                  "                       {\"type\": \"web_url\", \"title\": \"在地圖上查看\", \"url\": \"{{memory.place_url_2}}\"}",
+                  "                       {\"type\": \"web_url\", \"title\": \"在地圖上查看\", \"url\": \"{{memory.place_url_2}}\"},",
+                  "                       {\"type\": \"postback\", \"title\": \"加入我的最愛\", \"payload\": \"加入我的最愛 {{memory.place_id_2}}\"}",
                   "                     ],",
                   "                     \"image_url\": \"{{memory.place_image_url_2}}\",",
                   "                     \"title\": \"{{memory.place_name_2}}\",",
@@ -1137,7 +1181,8 @@
                   "                   {% if memory.place_name_3|length %}",
                   "                   ,{",
                   "                     \"buttons\": [",
-                  "                       {\"type\": \"web_url\", \"title\": \"在地圖上查看\", \"url\": \"{{memory.place_url_3}}\"}",
+                  "                       {\"type\": \"web_url\", \"title\": \"在地圖上查看\", \"url\": \"{{memory.place_url_3}}\"},",
+                  "                       {\"type\": \"postback\", \"title\": \"加入我的最愛\", \"payload\": \"加入我的最愛 {{memory.place_id_3}}\"}",
                   "                     ],",
                   "                     \"image_url\": \"{{memory.place_image_url_3}}\",",
                   "                     \"title\": \"{{memory.place_name_3}}\",",
@@ -1146,7 +1191,8 @@
                   "                   {% if memory.place_name_4|length %}",
                   "                   ,{",
                   "                     \"buttons\": [",
-                  "                       {\"type\": \"web_url\", \"title\": \"在地圖上查看\", \"url\": \"{{memory.place_url_4}}\"}",
+                  "                       {\"type\": \"web_url\", \"title\": \"在地圖上查看\", \"url\": \"{{memory.place_url_4}}\"},",
+                  "                       {\"type\": \"postback\", \"title\": \"加入我的最愛\", \"payload\": \"加入我的最愛 {{memory.place_id_4}}\"}",
                   "                     ],",
                   "                     \"image_url\": \"{{memory.place_image_url_4}}\",",
                   "                     \"title\": \"{{memory.place_name_4}}\",",
@@ -1181,21 +1227,119 @@
         "name": "GetLocalRestaurantsOver",
         "description": "GetLocalRestaurantsOver",
         "expect_input": false,
+        "next_node_id": "{{'Root' if memory.FEATURE == 'FavoriteRandom' else 'GetLocalRestaurantsLoop'}}",
+        "module": {
+          "id": "ai.compose.content.core.noop",
+          "config": {}
+        }
+      },
+
+      "GetLocalRestaurantsLoop": {
+        "name": "GetLocalRestaurantsLoop",
+        "description": "GetLocalRestaurantsLoop",
+        "expect_input": false,
         "next_node_id": "ComposeAiGetRecommendedFoodsRouter",
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
               {
-                "text": "往上捲，再選一次，或是直接輸入其他菜名。打 hi 可以重新來過。"
+                "text": "往上捲，再選一次，或是直接輸入其他菜名。打「主選單」可以重新來過。"
               }
             ],
             "quick_replies": [
               {
                 "content_type": "text",
-                "title": "重來"
+                "title": "主選單"
               }
             ]
+          }
+        }
+      },
+
+      "BookmarkRestaurant": {
+        "name": "BookmarkRestaurant",
+        "description": "BookmarkRestaurant",
+        "expect_input": false,
+        "next_node_id": "ComposeAiGetRecommendedFoodsRouter",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "{{memory.ajax_root}}/want_ajax?action=BookmarkRestaurant",
+            "params": [
+              ["user_lang", "zh_TW"],
+              ["platform_user_ident", "{{user.platform_user_ident}}"],
+              ["place_id", "{{memory.bookmark_place_id}}"]
+            ],
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"messages\": [{",
+                  "    \"text\": \"儲存：{{transform_input.result}}。往上捲，再選一次，或是直接輸入其他菜名。打「主選單」可以重新來過。\"",
+                  "  }]",
+                  "}"
+                ]
+              }
+            ],
+            "debug": false,
+            "$on_error": "我好像壞掉了，快通知管理員。(BookmarkRestaurant)"
+          }
+        }
+      },
+
+      "FavoriteRandom": {
+        "name": "FavoriteRandom",
+        "description": "FavoriteRandom",
+        "expect_input": false,
+        "next_node_id": "GetLocalRestaurantsDetails",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "{{memory.ajax_root}}/want_ajax?action=FavoriteRandom",
+            "params": [
+              ["user_lang", "zh_TW"],
+              ["platform_user_ident", "{{user.platform_user_ident}}"]
+            ],
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"memory\": {",
+                  "    \"place_id_0\": \"\",",
+                  "    \"place_id_1\": \"\",",
+                  "    \"place_id_2\": \"\",",
+                  "    \"place_id_3\": \"\",",
+                  "    \"place_id_4\": \"\",",
+                  "",
+                  "  {% for result in transform_input.results %}",
+                  "    \"place_id_{{loop.index - 1}}\": \"{{result.place_id}}\",",
+                  "  {% endfor %}",
+                  "",
+                  "    \"place_image_url_0\": \"\",",
+                  "    \"place_name_0\": \"\",",
+                  "    \"place_vicinity_0\": \"\",",
+                  "    \"place_image_url_1\": \"\",",
+                  "    \"place_name_1\": \"\",",
+                  "    \"place_vicinity_1\": \"\",",
+                  "    \"place_image_url_2\": \"\",",
+                  "    \"place_name_2\": \"\",",
+                  "    \"place_vicinity_2\": \"\",",
+                  "    \"place_image_url_3\": \"\",",
+                  "    \"place_name_3\": \"\",",
+                  "    \"place_vicinity_3\": \"\",",
+                  "    \"place_image_url_4\": \"\",",
+                  "    \"place_name_4\": \"\",",
+                  "    \"place_vicinity_4\": \"\"",
+                  "  }",
+                  "}"
+                ]
+              }
+            ],
+            "debug": false,
+            "on_error": "我好像壞掉了，快通知管理員。(FavoriteRandom)"
           }
         }
       }
