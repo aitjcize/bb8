@@ -95,13 +95,6 @@ class BotManager extends React.Component {
             style={styles.colsHeader}
           >
             My Chatbots
-            <IconButton
-              onClick={this.dialogActions.openBotCreate}
-              tooltip="Add new chatbot"
-              tooltipPosition="bottom-center"
-            >
-              <IconAdd />
-            </IconButton>
           </Subheader>
           <Paper>
             {

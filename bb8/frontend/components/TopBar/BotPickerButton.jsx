@@ -125,14 +125,6 @@ class BotPickerButton extends React.Component {
               })
             }}
           />
-          <ListItem
-            primaryText="Create new"
-            style={styles.menuItem}
-            onClick={() => {
-              this.setState({ open: false })
-              this.dialogActions.openBotCreate()
-            }}
-          />
         </List>
       </Popover>
     </FlatButton>)

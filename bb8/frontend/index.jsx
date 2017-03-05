@@ -18,11 +18,7 @@ import modules from './modules'
 import './styles/style.scss'
 
 const {
-  Analytics,
   App,
-  Broadcast,
-  Flow,
-  Help,
   Login,
   BotManager,
   Signup,
@@ -53,11 +49,7 @@ render(
     <Router history={hashHistory}>
       <Route onEnter={authRequired} path="/" component={App} >
         <IndexRoute component={BotManager} />
-        <Route path="flow" component={Flow} />
-        <Route path="broadcast" component={Broadcast} />
         <Route path="botmanager" component={BotManager} />
-        <Route path="analytics" component={Analytics} />
-        <Route path="help" component={Help} />
       </Route>
       <Route onEnter={notAuthRequired} path="login" component={Login} />
       <Route onEnter={notAuthRequired} path="signup" component={Signup} />
