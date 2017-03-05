@@ -39,6 +39,7 @@ RUN mkdir -p /var/log/supervisor /var/log/bb8 /var/lib/bb8
 
 # BB8 specific dependencies
 ENV BB8_ROOT /opt/bb8
+ENV BB8_FRONTEND /opt/bb8_frontend
 
 # Install Configuration files
 COPY conf/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
@@ -69,3 +70,7 @@ ENV GOOGLE_APPLICATION_CREDENTIALS=/opt/bb8/compose-ai.json
 
 # Install misc-resource
 RUN /opt/bb8/bin/bb8ctl install-misc-resource
+
+# Copy frontend assets
+RUN mkdir -p ${BB8_FRONTEND}
+COPY bb8/frontend/dist/* ${BB8_FRONTEND}/
