@@ -70,7 +70,7 @@ def facebook_webhook_task():
 
             # TODO(aitjcize): bot should always have a account in the future
             # even for our own bots (compose.ai).
-            if bot.account and not bot.account.valid():
+            if bot.account and not bot.account.active():
                 # Account is not valid, don't process events for it.
                 continue
 
