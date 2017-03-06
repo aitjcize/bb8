@@ -13,12 +13,12 @@ from scrapy.linkextractors import LinkExtractor
 spider_configs = {
     'dramaq': {
         'name': 'dramaq',
-        'allowed_domains': ['www.dramaq.biz', 'www.showq.biz'],
+        'allowed_domains': ['www.drama01.com', 'www.showq.biz'],
         'start_urls': (
-            'http://www.dramaq.biz/',
-            'http://www.dramaq.biz/tw/',
-            'http://www.dramaq.biz/cn/',
-            'http://www.dramaq.biz/jp/',
+            'http://www.drama01.com/',
+            'http://www.drama01.com/tw/',
+            'http://www.drama01.com/cn/',
+            'http://www.drama01.com/jp/',
         ),
         'custom_settings': {
             'DEPTH_LIMIT': 1

@@ -20,15 +20,15 @@ FAKE_USER_AGENT = ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) '
 
 
 def extract_popular_dramas():
-    """Extracts popular dramas from dramaq.biz, the order on their
+    """Extracts popular dramas from drama01.com, the order on their
         front page impliest the popularity order
     """
     # Drama Q
     country_list = {
-        'kr': 'http://www.dramaq.biz/',
-        'tw': 'http://www.dramaq.biz/tw/',
-        'cn': 'http://www.dramaq.biz/cn/',
-        'jp': 'http://www.dramaq.biz/jp/',
+        'kr': 'http://www.drama01.com/',
+        'tw': 'http://www.drama01.com/tw/',
+        'cn': 'http://www.drama01.com/cn/',
+        'jp': 'http://www.drama01.com/jp/',
     }
 
     def popular_dramaq(country):
