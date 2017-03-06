@@ -407,7 +407,7 @@ class BB8(object):
                 os.path.join(BB8_SRC_ROOT, subdir))
 
     def build_frontend_assets(self):
-        run('cd %s; rm -f dist/*; webpack' %
+        run('cd %s && rm -f dist/* && webpack' %
             os.path.join(BB8_SRC_ROOT, 'bb8', 'frontend'))
 
     def build_client_package(self):
@@ -419,6 +419,7 @@ class BB8(object):
             self.copy_credentials()
         self.copy_extra_source()
         self.build_client_package()
+        self.build_frontend_assets()
         self.compile_and_install_proto()
         self.compile_static_frontend_resource()
         self.compile_python_source()
@@ -526,8 +527,6 @@ class BB8(object):
                     else:
                         logger.warn('BB8: skip deployment.')
                         sys.exit(1)
-
-        self.build_frontend_assets()
 
         run('docker build -t %s %s' % (self.BB8_IMAGE_NAME, BB8_SRC_ROOT))
 
