@@ -1,7 +1,7 @@
 /* eslint-disable */
 window.fbAsyncInit = () => {
   FB.init({
-    appId: process.env.NODE_ENV === 'BB8_DEPLOY' ? '1797497130479857' : '1663575030609051',
+    appId: process.env.BB8_DEPLOY ? '1797497130479857' : '1663575030609051',
     cookie: true,
     xfbml: true,
     version: 'v2.8',
