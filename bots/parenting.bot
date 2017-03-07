@@ -1551,7 +1551,9 @@
           "id": "ai.compose.function.core.report",
           "config": {
             "admins": [
-              "1387584521275243"
+              "1591374857620268",
+              "1318992774844738",
+              "1266659896757458"
             ],
             "template": "來自 {{user.first_name}} {{user.last_name}} 的留言: {{message}}",
             "keys": ["user", "message"],
