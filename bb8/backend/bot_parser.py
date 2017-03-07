@@ -99,7 +99,10 @@ def parse_bot(bot_json, to_bot_id=None, source='bot_json'):
 
         # Bind
         platform.bot_id = bot.id
+        DatabaseManager.flush()
 
+    # Apply provider settings for all platforms that is binded to this bot.
+    for platform in Platform.get_by(bot_id=bot.id):
         provider = get_messaging_provider(platform.type_enum)
         if not platform.deployed or (config.DEPLOY and platform.deployed):
             provider.apply_settings(platform.config, bot.settings)
