@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+"""
+    OAuth Helpers
+    ~~~~~~~~~~~~~
+
+    Copyright 2016 bb8 Authors
+"""
+
 import requests
 
 from bb8 import config

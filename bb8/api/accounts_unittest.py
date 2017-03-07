@@ -10,6 +10,8 @@
 import json
 import unittest
 
+import mock
+
 from bb8 import app
 # Register request handlers, pylint: disable=W0611
 from bb8.api import accounts
@@ -94,6 +96,46 @@ class AccountUserAPIUnittest(unittest.TestCase):
                                timezone='Asia/Taipei'
                            )), content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
+
+        user = AccountUser.get_by(email='test-3@gmail.com', single=True)
+        self.assertEquals(self.account.id, user.account_id)
+
+    @mock.patch('bb8.backend.oauth.verify_facebook')
+    def test_social_auth(self, mock_verify_facebook):
+        # Test social_auth
+        mock_verify_facebook.return_value = '00000000'
+        rv = self.app.post('/api/social_auth',
+                           data=json.dumps(dict(
+                               email='test-1@gmail.com',
+                               provider='Facebook',
+                               provider_token='token',
+                           )), content_type='application/json')
+        self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
+
+        # Test social_auth with org invite, wrong invite code email
+        mock_verify_facebook.return_value = '11111111'
+        invite_code = self.account.invite_code('test-2@gmail.com')
+        rv = self.app.post('/api/social_auth?invite=%s' % invite_code,
+                           data=json.dumps(dict(
+                               email='test-20@gmail.com',
+                               provider='Facebook',
+                               provider_token='token',
+                           )), content_type='application/json')
+        self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
+
+        # Test social_auth with org invite
+        mock_verify_facebook.return_value = '22222222'
+        invite_code = self.account.invite_code('test-2@gmail.com')
+        rv = self.app.post('/api/social_auth?invite=%s' % invite_code,
+                           data=json.dumps(dict(
+                               email='test-2@gmail.com',
+                               provider='Facebook',
+                               provider_token='token',
+                           )), content_type='application/json')
+        self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
+
+        user = AccountUser.get_by(email='test-2@gmail.com', single=True)
+        self.assertEquals(self.account.id, user.account_id)
 
     def test_account_login(self):
         # Test for wrong password

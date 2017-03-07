@@ -15,9 +15,9 @@ from bb8 import app
 from bb8.constant import HTTPStatus, CustomError, Key
 from bb8.api.error import AppError
 from bb8.api.middlewares import login_required
+from bb8.backend import oauth
 from bb8.backend.account import register
 from bb8.backend.database import AccountUser, DatabaseManager
-from bb8.backend.oauth import verify_facebook
 
 
 REGISTER_SCHEMA = {
@@ -95,7 +95,7 @@ def social_auth():
                        'schema validation fail')
 
     try:
-        facebook_id = verify_facebook(data['provider_token'])
+        facebook_id = oauth.verify_facebook(data['provider_token'])
     except Exception:
         raise AppError(
             HTTPStatus.STATUS_CLIENT_ERROR,
@@ -104,7 +104,8 @@ def social_auth():
 
     try:
         account_user = AccountUser.register_oauth(
-            data['email'], data['provider'], facebook_id)
+            data['email'], data['provider'], facebook_id,
+            request.args.get('invite'))
     except Exception:
         raise AppError(
             HTTPStatus.STATUS_CLIENT_ERROR,

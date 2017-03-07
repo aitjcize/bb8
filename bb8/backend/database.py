@@ -121,7 +121,7 @@ class AccountUser(DeclarativeBase, ModelMixin, JSONSerializableMixin):
         ).set_passwd(data['passwd']).add()
 
     @classmethod
-    def register_oauth(cls, email, provider, provider_ident):
+    def register_oauth(cls, email, provider, provider_ident, invite=None):
         oauth_info = OAuthInfo.get_by(
             provider=provider,
             provider_ident=provider_ident, single=True)
@@ -136,7 +136,13 @@ class AccountUser(DeclarativeBase, ModelMixin, JSONSerializableMixin):
         if account_user:
             return account_user
 
-        account = Account(name=provider_ident).add()
+        if invite:
+            account, payload = Account.from_invite_code(invite)
+            if payload['email'] != email:
+                raise RuntimeError('invitation link not intended for this '
+                                   'email')
+        else:
+            account = Account(name=email).add()
 
         user = AccountUser(
             account=account, email=email, passwd='',
