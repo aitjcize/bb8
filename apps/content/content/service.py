@@ -22,7 +22,7 @@ from concurrent import futures
 from gcloud import datastore
 from sqlalchemy import desc
 
-import service_pb2  # pylint: disable=E0401
+import content_pb2  # pylint: disable=E0401
 from content import config
 from content.database import DatabaseSession, Entry, Keyword
 
@@ -31,7 +31,7 @@ _SECS_IN_A_DAY = 86400
 
 
 def to_proto_entry(obj):
-    return service_pb2.Entry(
+    return content_pb2.Entry(
         title=obj.title,
         description='',
         link=obj.link,
@@ -40,7 +40,7 @@ def to_proto_entry(obj):
 
 
 def to_proto_keyword(obj):
-    return service_pb2.Keyword(name=obj.name)
+    return content_pb2.Keyword(name=obj.name)
 
 
 def normalize_source(query):
@@ -142,44 +142,44 @@ class ContentInfo(object):
             return []
 
 
-class ContentInfoServicer(service_pb2.ContentInfoServicer):
+class ContentInfoServicer(content_pb2.ContentInfoServicer):
     def __init__(self):
         super(ContentInfoServicer, self).__init__()
 
     def PersonalRecommend(self, request, unused_context):
-        return service_pb2.EntriesList(
+        return content_pb2.EntriesList(
             entries=ContentInfo.Recommend(
                 request.user_id, request.count))
 
     def Trending(self, request, unused_context):
-        return service_pb2.EntriesList(
+        return content_pb2.EntriesList(
             entries=ContentInfo.Trending(
                 request.user_id, request.source_name, request.count))
 
     def Search(self, request, unused_context):
-        return service_pb2.EntriesList(
+        return content_pb2.EntriesList(
             entries=ContentInfo.Search(
                 request.user_id, request.query, request.count))
 
     def GetContent(self, request, unused_context):
         content, char_offset, total_length = ContentInfo.GetContent(
             request.entry_link, request.char_offset, request.limit)
-        return service_pb2.EntryContent(
+        return content_pb2.EntryContent(
             content=content, char_offset=char_offset,
             total_length=total_length)
 
     def GetPicture(self, request, unused_context):
         src, alt, pic_index = ContentInfo.GetPicture(
             request.entry_link, request.pic_index)
-        return service_pb2.PictureContent(
+        return content_pb2.PictureContent(
             src=src, alt=alt, pic_index=pic_index)
 
     def GetKeywords(self, request, unused_context):
-        return service_pb2.KeywordsContent(
+        return content_pb2.KeywordsContent(
             keywords=ContentInfo.GetKeywords(request.limit))
 
     def GetRelatedKeywords(self, request, unused_context):
-        return service_pb2.KeywordsContent(
+        return content_pb2.KeywordsContent(
             keywords=ContentInfo.GetRelatedKeywords(request.name,
                                                     request.limit))
 
@@ -187,7 +187,7 @@ class ContentInfoServicer(service_pb2.ContentInfoServicer):
 def start_grpc_server(port):
     server = grpc.server(futures.ThreadPoolExecutor(
         max_workers=config.N_THREADS))
-    service_pb2.add_ContentInfoServicer_to_server(
+    content_pb2.add_ContentInfoServicer_to_server(
         ContentInfoServicer(), server)
     server.add_insecure_port('[::]:%d' % port)
     server.start()

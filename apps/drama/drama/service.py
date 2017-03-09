@@ -16,7 +16,7 @@ import grpc
 from concurrent import futures
 from sqlalchemy import desc
 
-import service_pb2  # pylint: disable=E0401
+import drama_pb2  # pylint: disable=E0401
 
 from drama import config
 from drama.database import (DatabaseManager, DatabaseSession, Drama,
@@ -27,7 +27,7 @@ _SECS_IN_A_DAY = 86400
 
 
 def to_proto_drama(drama, user):
-    return service_pb2.Drama(
+    return drama_pb2.Drama(
         id=drama.id,
         link=drama.link,
         name=drama.name,
@@ -39,7 +39,7 @@ def to_proto_drama(drama, user):
 
 
 def to_proto_episode(episode):
-    return service_pb2.Episode(
+    return drama_pb2.Episode(
         link=episode.link,
         drama_id=episode.drama.id,
         drama_name=episode.drama.name,
@@ -123,30 +123,30 @@ class DramaInfo(object):
             return to_proto_episode(episode)
 
 
-class DramaInfoServicer(service_pb2.DramaInfoServicer):
+class DramaInfoServicer(drama_pb2.DramaInfoServicer):
     def __init__(self):
         super(DramaInfoServicer, self).__init__()
 
     def Search(self, request, unused_context):
-        return service_pb2.Dramas(
+        return drama_pb2.Dramas(
             dramas=DramaInfo.Search(
                 request.user_id, request.term, request.count))
 
     def Trending(self, request, unused_context):
-        return service_pb2.Dramas(
+        return drama_pb2.Dramas(
             dramas=DramaInfo.Trending(
                 request.user_id, request.country, request.count))
 
     def Subscribe(self, request, unused_context):
         DramaInfo.Subscribe(request.user_id, request.drama_id)
-        return service_pb2.Empty()
+        return drama_pb2.Empty()
 
     def Unsubscribe(self, request, unused_context):
         DramaInfo.Unsubscribe(request.user_id, request.drama_id)
-        return service_pb2.Empty()
+        return drama_pb2.Empty()
 
     def GetHistory(self, request, unused_context):
-        return service_pb2.Episodes(
+        return drama_pb2.Episodes(
             episodes=DramaInfo.GetHistory(
                 request.drama_id, request.from_episode, request.count,
                 request.backward))
@@ -160,7 +160,7 @@ def start_grpc_server(port):
     """Start gRPC server."""
     server = grpc.server(futures.ThreadPoolExecutor(
         max_workers=config.N_THREADS))
-    service_pb2.add_DramaInfoServicer_to_server(
+    drama_pb2.add_DramaInfoServicer_to_server(
         DramaInfoServicer(), server)
     server.add_insecure_port('[::]:%d' % port)
     server.start()

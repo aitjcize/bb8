@@ -59,7 +59,7 @@ def GetgRPCService(name):
 
     try:
         module = importlib.import_module(
-            'bb8.pb_modules.%s_service_pb2' % name.lower())
+            'bb8.pb_modules.%s_pb2' % name.lower())
     except Exception:
         raise RuntimeError('no gRPC module available for `%s\'' % name)
 

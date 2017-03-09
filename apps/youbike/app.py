@@ -31,7 +31,7 @@ import grpc
 
 from concurrent import futures
 
-import service_pb2  # pylint: disable=E0401
+import youbike_pb2  # pylint: disable=E0401
 
 
 _GRPC_MAX_WORKERS = 8
@@ -276,13 +276,13 @@ class YoubikeDataCollector(object):
                    max(self._running_sum[sno][direction.value], 1))
 
 
-class YoubikeInfoServicer(service_pb2.YoubikeInfoServicer):
+class YoubikeInfoServicer(youbike_pb2.YoubikeInfoServicer):
     def __init__(self, _collector):
         self._collector = _collector
         super(YoubikeInfoServicer, self).__init__()
 
     def FindKnn(self, request, unused_context):
-        return service_pb2.FindKnnReply(object=cPickle.dumps(
+        return youbike_pb2.FindKnnReply(object=cPickle.dumps(
             self._collector.find_knn(
                 request.k,
                 (request.lat, request.long),
@@ -292,7 +292,7 @@ class YoubikeInfoServicer(service_pb2.YoubikeInfoServicer):
         direction = (YoubikeDataCollector.Direction.In
                      if request.direction == 0 else
                      YoubikeDataCollector.Direction.Out)
-        return service_pb2.GetAverageWaitingTimeReply(
+        return youbike_pb2.GetAverageWaitingTimeReply(
             minutes=self._collector.average_waiting_time(
                 request.sno, direction))
 
@@ -337,7 +337,7 @@ if __name__ == '__main__':
 
     server = grpc.server(futures.ThreadPoolExecutor(
         max_workers=_GRPC_MAX_WORKERS))
-    service_pb2.add_YoubikeInfoServicer_to_server(
+    youbike_pb2.add_YoubikeInfoServicer_to_server(
         YoubikeInfoServicer(collector), server)
     server.add_insecure_port('[::]:%d' % args.port)
     server.start()

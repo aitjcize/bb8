@@ -156,38 +156,21 @@ class App(object):
     def get_memory_limit(self):
         return '%dm' % self._info['resource']['memory']
 
-    def hack_remove_unecessary_imports(self, filename):
-        """The gRPC module compiled by the protoc compiler contains unnecessary
-        imports. Which cause ImportError if we rename the module. Remove those
-        imports to work around the problem.
-        """
-        with open(filename, 'r') as f:
-            data = f.read()
-
-        data = re.sub(r'import service_pb2', '', data)
-        data = re.sub(r'service_pb2\.', '', data)
-
-        with open(filename, 'w') as f:
-            f.write(data)
-
     def compile_and_install_service_proto(self):
         """Compile and install service gRPC module."""
         # Compile protobuf python module
         run('docker run -it --rm -v %s:/defs aitjcize/protoc-python' %
             (self._app_dir))
         # Copy to app dir
-        run('cp %(path)s/pb-python/service_pb2.py %(path)s' %
-            {'path': self._app_dir})
-
-        # Hack: remove unecessary imports
-        self.hack_remove_unecessary_imports(
-            '%s/service_pb2.py' % self._app_dir)
+        run('cp %(path)s/pb-python/%(name)s_pb2.py %(path)s' %
+            {'path': self._app_dir, 'name': self._app_name})
 
         # Copy to bb8.pb_modules
-        run('cp %(path)s/service_pb2.py %(dest)s/%(name)s_service_pb2.py' %
+        run('cp %(path)s/%(name)s_pb2.py %(dest)s' %
             {'path': self._app_dir,
              'dest': os.path.join(BB8_SRC_ROOT, 'bb8', 'pb_modules'),
              'name': self._app_name})
+
         # Remove pb-python dir
         run('sudo rm -rf %s/pb-python' % self._app_dir)
 
