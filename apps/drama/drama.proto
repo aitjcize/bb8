@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package bb8.apps;
+package bb8.apps.drama;
 
 service DramaInfo {
   rpc Subscribe (SubscribeRequest) returns (Empty) {}

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package bb8.apps;
+package bb8.apps.content;
 
 service ContentInfo {
   rpc PersonalRecommend (RecommendRequest) returns (EntriesList) {}
