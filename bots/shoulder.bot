@@ -620,13 +620,16 @@
         "name": "Node11",
         "description": "Node11",
         "expect_input": false,
-        "next_node_id": "RootRouter",
+        "next_node_id": "Node29",
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
               {
                 "text": "可能是輕微五十肩"
+              },
+              {
+                "text": "五十肩是因為肩關節沾黏造成，原因不明，只知好發在四十至六十歲之間，約每一百個人會有二到五個人有此疾。"
               }
             ],
             "quick_replies": [
@@ -1140,7 +1143,7 @@
         "name": "Node21",
         "description": "Node21",
         "expect_input": false,
-        "next_node_id": "Node23",
+        "next_node_id": "Node28",
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
@@ -1180,10 +1183,10 @@
           "config": {
             "messages": [
               {
-                "text": "可能是「頸椎神經根壓迫」或「肌筋膜徵候群」"
+                "text": "可能是「肌筋膜徵候群」"
               },
               {
-                "text": "您的症狀可能是「頸椎神經根壓迫」或「肌筋膜徵候群」，需接受近一步的理學檢查才能判斷。\n「頸部神經根病變」指的是頸神經根受傷造成的肩頸僵硬，常見灶因為頸椎的關節退化或椎間盤突出，而壓迫神經根所造成。嚴重時會合併感覺及運動功能的異常，頸部的轉動及後仰則會使疼痛加劇。\n「肌筋膜徵候群」是一種身體長期緊繃，出現區域性疼痛的狀況。好發在平常運動少又常維持同一姿勢的人身上，像是：新手媽媽、辦公室職員等，年齡約在30至50歲之間。一般以「預防」為主，避免緊張的生活型態，以及固定不動的姿勢，保持運動習慣。\n兩者症狀相似，但嚴重度不同，請盡快就醫確診。"
+                "text": "「肌筋膜徵候群」是一種身體長期緊繃，出現區域性疼痛的狀況。\n好發在平常運動少又常維持同一姿勢的人身上，像是：新手媽媽、辦公室職員等，年齡約在30至50歲之間。\n\n一般以「預防」為主，避免緊張的生活型態，以及固定不動的姿勢，保持運動習慣。"
               }
             ],
             "quick_replies": [
@@ -1429,8 +1432,122 @@
           }
         }
       },
+      "Node23Router": {
+        "name": "Node23Router",
+        "description": "Node23Router",
+        "expect_input": true,
+        "next_node_id": "Node23",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "goto_node28"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node28"
+              }
+            ],
+            "on_error": {
+              "ack_message": "我不太懂您的意思",
+              "end_node_id": "Node23"
+            }
+          }
+        }
+      },
+      "Node29Router": {
+        "name": "Node29Router",
+        "description": "Node29Router",
+        "expect_input": true,
+        "next_node_id": "Node29",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "goto_node26"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "Node26"
+              }
+            ],
+            "on_error": {
+              "ack_message": "我不太懂您的意思",
+              "end_node_id": "Node29"
+            }
+          }
+        }
+      },
+      "Node29": {
+        "name": "Node29",
+        "description": "Node29",
+        "expect_input": false,
+        "next_node_id": "Node29Router",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "我該怎麼辦？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "我該怎麼辦？"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "goto_node26"
+                  }
+                },
+                "content_type": "text",
+                "title": "我該怎麼辦？"
+              }
+            ]
+          }
+        }
+      },
       "Node23": {
         "name": "Node23",
+        "description": "Node23",
+        "expect_input": false,
+        "next_node_id": "Node23Router",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "我該怎麼辦？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "我該怎麼辦？"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "goto_node28"
+                  }
+                },
+                "content_type": "text",
+                "title": "我該怎麼辦？"
+              }
+            ]
+          }
+        }
+      },
+      "Node28": {
+        "name": "Node28",
         "expect_input": false,
         "next_node_id": "RootRouter",
         "module": {
@@ -1438,7 +1555,7 @@
           "config": {
             "messages": [
               {
-                "text": "請至復健科確立診斷，早期治療\n\n肩部因構造多角度、活動度大，常與周邊頸部、背部混在一起，也可能多重原因並發，雖然症狀相似，但仍需有經驗的醫師理學檢查後才能確診，請盡快就近至復健科找出真正病因，對症下藥，回復健康。"
+                "text": "請至復健科確立診斷，早期治療。\n\n肩部因構造多角度、活動度大，常與周邊頸部、背部混在一起，也可能多重原因並發，雖然症狀相似，但仍需有經驗的醫師理學檢查後才能確診，請盡快就近至復健科找出真正病因，對症下藥，回復健康。"
               }
             ],
             "quick_replies": [
@@ -1473,12 +1590,12 @@
                   "type": "template",
                   "payload": {
                     "template_type": "button",
-                    "text": "查詢有關「肩關節囊擴張術」的資訊",
+                    "text": "「肩關節囊擴張術」真人諮詢預約",
                     "buttons": [
                       {
                         "type": "web_url",
-                        "url": "https://www.google.com/search?q=肩關節囊擴張術",
-                        "title": "查詢"
+                        "url": "https://docs.google.com/forms/d/1c5bmLlLbz6FNpH_inJu4-VnDyeZ0EAeulh2nJKnE2SY/edit",
+                        "title": "諮詢預約"
                       }
                     ]
                   }
@@ -1497,7 +1614,7 @@
                   }
                 },
                 "content_type": "text",
-                "title": "自我診斷"
+                "title": "重新診斷"
               }
             ]
           }
