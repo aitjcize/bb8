@@ -54,7 +54,7 @@
           "config": {
             "messages": [
               {
-                "text": "不知道吃什麼嗎? 輸入「隨便」，讓我依照你現在的口味來推薦。輸入「我的最愛」，隨機選出一家最愛餐廳。"
+                "text": "不知道吃什麼嗎? 輸入「隨便」，讓我依照你現在的口味來推薦。輸入「我的最愛」，隨機選出一家最愛餐廳。「聚餐」可以和朋友一起決定。"
               }
             ],
             "quick_replies": [
@@ -65,6 +65,10 @@
               {
                 "content_type": "text",
                 "title": "我的最愛"
+              },
+              {
+                "content_type": "text",
+                "title": "聚餐"
               }
             ]
           }
@@ -83,7 +87,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(使用)?說明", "tutorial", "^\\?", "(?i)help", "幫助", "怎麼用?", "^？", "不會用", "求救"]
+                  "params": ["(使用)?說明", "tutorial", "^\\?", "(?i)hi", "(?i)help", "幫助", "怎麼用?", "^？", "不會用", "求救"]
                 },
                 "end_node_id": "Root",
                 "ack_message": ""
@@ -103,7 +107,7 @@
                   "collect_as": {"key": "FEATURE", "value": "NoIdea"},
                   "memory_set": [
                     {"key": "FEATURE", "value": "NoIdea"},
-                    {"key": "ajax_root", "value": "http://eating-ideas.appspot.com"}
+                    {"key": "ajax_root", "value": "{{memory.ajax_root|unref('') if memory.ajax_root else 'http://eating-ideas.appspot.com'}}"}
                   ]
                 },
                 "end_node_id": "TestTaste",
@@ -112,14 +116,24 @@
               {
                 "rule": {
                   "type": "regexp",
+                  "params": ["prod"],
+                  "memory_set": [
+                    {"key": "ajax_root", "value": "http://eating-ideas.appspot.com"}
+                  ]
+                },
+                "end_node_id": "Root",
+                "ack_message": "Swtich to PROD server."
+              },
+              {
+                "rule": {
+                  "type": "regexp",
                   "params": ["dev"],
                   "memory_set": [
-                    {"key": "FEATURE", "value": "NoIdeaDev"},
                     {"key": "ajax_root", "value": "http://sad5566.com:7777"}
                   ]
                 },
-                "end_node_id": "TestTaste",
-                "ack_message": "DEV 接下來，我會問你五個食物，回答想吃或是不想吃。之後我會針對你的回答，推薦你食物。"
+                "end_node_id": "Root",
+                "ack_message": "Swtich to DEV server. Type 'prod' to go back."
               },
               {
                 "rule": {
@@ -128,11 +142,24 @@
                   "collect_as": {"key": "FEATURE", "value": "FavoriteRandom"},
                   "memory_set": [
                     {"key": "FEATURE", "value": "FavoriteRandom"},
-                    {"key": "ajax_root", "value": "http://sad5566.com:7777"}
+                    {"key": "ajax_root", "value": "{{memory.ajax_root|unref('') if memory.ajax_root else 'http://eating-ideas.appspot.com'}}"}
                   ]
                 },
                 "end_node_id": "FavoriteRandom",
                 "ack_message": "從我的最愛裡面隨便選一間出來 ..."
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["聚餐"],
+                  "collect_as": {"key": "FEATURE", "value": "Party"},
+                  "memory_set": [
+                    {"key": "FEATURE", "value": "Party"},
+                    {"key": "ajax_root", "value": "{{memory.ajax_root|unref('') if memory.ajax_root else 'http://eating-ideas.appspot.com'}}"}
+                  ]
+                },
+                "end_node_id": "Party",
+                "ack_message": ""
               }
             ],
             "on_error": {
@@ -576,7 +603,7 @@
         "name": "UpdateDietHabit",
         "description": "UpdateDietHabit",
         "expect_input": false,
-        "next_node_id": "Location",
+        "next_node_id": "{{'PartySelectUpdate' if memory.FEATURE == 'PartySelect' else 'Location'}}",
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
@@ -663,7 +690,8 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": [".*"]
+                  "params": [".*"],
+                  "memory_set": {"key": "caller", "value": "LocationRouter"}
                 },
                 "end_node_id": "Geocoding",
                 "ack_message": ""
@@ -688,7 +716,7 @@
         "name": "Geocoding",
         "description": "Prompt user for correct address",
         "expect_input": false,
-        "next_node_id": "LocationRouter",
+        "next_node_id": "{{memory.caller}}",
         "module": {
           "id": "ai.compose.content.core.geocoding",
           "config": {
@@ -724,7 +752,7 @@
         "name": "ComposeAiGetRecommendedFoods",
         "description": "ComposeAiGetRecommendedFoods",
         "expect_input": false,
-        "next_node_id": "ComposeAiGetRecommendedFoodsRouter",
+        "next_node_id": "ComposeAiShowRecommendedFoods",
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
@@ -739,6 +767,32 @@
                 "type": "jinja",
                 "template": [
                   "{",
+                  "  \"memory_copy\": {",
+                  "    \"recommended_foods\": \"transform_input\"",
+                  "  }",
+                  "}"
+                ]
+              }
+            ],
+            "debug": true,
+            "on_error": "我好像壞掉了，快通知管理員。"
+          }
+        }
+      },
+
+      "ComposeAiShowRecommendedFoods": {
+        "name": "ComposeAiShowRecommendedFoods",
+        "description": "ComposeAiShowRecommendedFoods",
+        "expect_input": false,
+        "next_node_id": "ComposeAiGetRecommendedFoodsRouter",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
                   "  \"messages\": [{",
                   "    \"attachment\": {",
                   "      \"type\": \"template\",",
@@ -746,20 +800,20 @@
                   "        \"template_type\": \"button\",",
                   "        \"text\": \"你可能想吃底下的食物：\",",
                   "        \"buttons\": [{",
-                  "          {% if transform_input|length > 0 %}",
+                  "          {% if memory.recommended_foods|length > 0 %}",
                   "          \"type\": \"postback\",",
-                  "          \"title\": \"{{transform_input[0].food}}\",",
-                  "          \"payload\": \"{{transform_input[0].food}}\"",
-                  "          {% if transform_input|length > 1 %}",
+                  "          \"title\": \"{{memory.recommended_foods[0].food}}\",",
+                  "          \"payload\": \"{{memory.recommended_foods[0].food}}\"",
+                  "          {% if memory.recommended_foods|length > 1 %}",
                   "        }, {",
                   "          \"type\": \"postback\",",
-                  "          \"title\": \"{{transform_input[1].food}}\",",
-                  "          \"payload\": \"{{transform_input[1].food}}\"",
-                  "          {% if transform_input|length > 2 %}",
+                  "          \"title\": \"{{memory.recommended_foods[1].food}}\",",
+                  "          \"payload\": \"{{memory.recommended_foods[1].food}}\"",
+                  "          {% if memory.recommended_foods|length > 2 %}",
                   "        }, {",
                   "          \"type\": \"postback\",",
-                  "          \"title\": \"{{transform_input[2].food}}\",",
-                  "          \"payload\": \"{{transform_input[2].food}}\"",
+                  "          \"title\": \"{{memory.recommended_foods[2].food}}\",",
+                  "          \"payload\": \"{{memory.recommended_foods[2].food}}\"",
                   "          {% endif %}",
                   "          {% endif %}",
                   "          {% else %}",
@@ -777,15 +831,15 @@
                   "        \"template_type\": \"button\",",
                   "        \"text\": \"或是\",",
                   "        \"buttons\": [{",
-                  "          {% if transform_input|length > 3 %}",
+                  "          {% if memory.recommended_foods|length > 3 %}",
                   "          \"type\": \"postback\",",
-                  "          \"title\": \"{{transform_input[3].food}}\",",
-                  "          \"payload\": \"{{transform_input[3].food}}\"",
-                  "          {% if transform_input|length > 4 %}",
+                  "          \"title\": \"{{memory.recommended_foods[3].food}}\",",
+                  "          \"payload\": \"{{memory.recommended_foods[3].food}}\"",
+                  "          {% if memory.recommended_foods|length > 4 %}",
                   "        }, {",
                   "          \"type\": \"postback\",",
-                  "          \"title\": \"{{transform_input[4].food}}\",",
-                  "          \"payload\": \"{{transform_input[4].food}}\"",
+                  "          \"title\": \"{{memory.recommended_foods[4].food}}\",",
+                  "          \"payload\": \"{{memory.recommended_foods[4].food}}\"",
                   "          {% endif %}",
                   "        }, {",
                   "          {% endif %}",
@@ -844,10 +898,32 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["我?[要想]吃(.*)", "(.*)"],
-                  "collect_as": {"key": "NoIdeaClick"}
+                  "params": ["票選吃這家 ([^ ]+) (.*)"],
+                  "collect_as": {"key": "vote_place_id", "value": "{{matches#1}}"},
+                  "memory_set": [
+                    {"key": "vote_place_id", "value": "{{matches#1}}"},
+                    {"key": "vote_place_name", "value": "{{matches#2}}"}
+                  ]
                 },
-                "end_node_id": "GetLocalRestaurants",
+                "end_node_id": "VoteRestaurant",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["選完了"]
+                },
+                "end_node_id": "GetPartyVotes",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["我?[要想]+吃(.+)", "(.+)"],
+                  "collect_as": {"key": "NoIdeaClick"},
+                  "memory_set": {"key": "search_keyword", "value": "{{matches#1}}"}
+                },
+                "end_node_id": "GetLocalRestaurantsReset",
                 "ack_message": ""
               }
             ],
@@ -859,23 +935,14 @@
         }
       },
 
-      "GetLocalRestaurants": {
-        "name": "GetLocalRestaurants",
-        "description": "GetLocalRestaurants",
+      "GetLocalRestaurantsReset": {
+        "name": "GetLocalRestaurantsReset",
+        "description": "GetLocalRestaurantsReset",
         "expect_input": false,
-        "next_node_id": "GetLocalRestaurantsDetails",
+        "next_node_id": "GetLocalRestaurants",
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
-            "url": "https://maps.googleapis.com/maps/api/place/nearbysearch/json?",
-            "params": [
-              ["key", "AIzaSyCapypvaHnAcYZCrldgEIrYQ6Ev18tX5FE"],
-              ["location", "{{memory.location.coordinates.lat}},{{memory.location.coordinates.long}}"],
-              ["radius", "{{memory.search_radius}}"],
-              ["language", "zh_TW"],
-              ["keyword", "{{matches#1}}"],
-              ["type", "restaurant"]
-            ],
             "transform": [
               {
                 "type": "jinja",
@@ -887,10 +954,6 @@
                   "    \"place_id_2\": \"\",",
                   "    \"place_id_3\": \"\",",
                   "    \"place_id_4\": \"\",",
-                  "",
-                  "  {% for result in transform_input.results %}",
-                  "    \"place_id_{{loop.index - 1}}\": \"{{result.place_id}}\",",
-                  "  {% endfor %}",
                   "",
                   "    \"place_image_url_0\": \"\",",
                   "    \"place_name_0\": \"\",",
@@ -907,6 +970,47 @@
                   "    \"place_image_url_4\": \"\",",
                   "    \"place_name_4\": \"\",",
                   "    \"place_vicinity_4\": \"\"",
+                  "",
+                  "  }",
+                  "}"
+                ]
+              }
+            ],
+            "debug": false,
+            "on_error": "我好像壞掉了，快通知管理員。(GetLocalRestaurantsReset)"
+          }
+        }
+      },
+
+      "GetLocalRestaurants": {
+        "name": "GetLocalRestaurants",
+        "description": "GetLocalRestaurants",
+        "expect_input": false,
+        "next_node_id": "GetLocalRestaurantsDetailsBranch0",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "https://maps.googleapis.com/maps/api/place/nearbysearch/json?",
+            "params": [
+              ["key", "AIzaSyCapypvaHnAcYZCrldgEIrYQ6Ev18tX5FE"],
+              ["location", "{{memory.location.coordinates.lat}},{{memory.location.coordinates.long}}"],
+              ["radius", "{{memory.search_radius}}"],
+              ["language", "zh_TW"],
+              ["keyword", "{{memory.search_keyword}}"],
+              ["type", "restaurant"]
+            ],
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"memory\": {",
+                  "",
+                  "  {% for result in transform_input.results %}",
+                  "    \"place_id_{{loop.index - 1}}\": \"{{result.place_id}}\",",
+                  "  {% endfor %}",
+                  "",
+                  "    \"place_id_dummy\": \"\"",
                   "  }",
                   "}"
                 ]
@@ -918,11 +1022,11 @@
         }
       },
 
-      "GetLocalRestaurantsDetails": {
-        "name": "GetLocalRestaurantsDetails",
-        "description": "GetLocalRestaurantsDetails",
+      "GetLocalRestaurantsDetailsBranch0": {
+        "name": "GetLocalRestaurantsDetailsBranch0",
+        "description": "GetLocalRestaurantsDetailsBranch0",
         "expect_input": false,
-        "next_node_id": "{{'GetLocalRestaurantsDetails0' if memory.place_id_0 else 'GetLocalRestaurantsShow'}}",
+        "next_node_id": "{{'GetLocalRestaurantsDetails0' if memory.place_id_0 else 'GetLocalRestaurantsDetailsBranch1'}}",
         "module": {
           "id": "ai.compose.content.core.noop",
           "config": {}
@@ -933,7 +1037,7 @@
         "name": "GetLocalRestaurantsDetails0",
         "description": "GetLocalRestaurantsDetails0",
         "expect_input": false,
-        "next_node_id": "{{'GetLocalRestaurantsDetails1' if memory.place_id_1 else 'GetLocalRestaurantsShow'}}",
+        "next_node_id": "GetLocalRestaurantsDetailsBranch1",
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
@@ -955,8 +1059,8 @@
                   "    \"place_id_0\": \"{{transform_input.result.place_id}}\",",
                   "    \"place_url_0\": \"{{transform_input.result.url}}\",",
                   "    \"place_rating_0\": \"{{transform_input.result.rating}}\",",
-                  "    \"place_name_0\": \"{{transform_input.result.name}}\",",
-                  "    \"place_vicinity_0\": \"{{transform_input.result.vicinity}}\"",
+                  "    \"place_name_0\": \"{{transform_input.result.name|safe_json}}\",",
+                  "    \"place_vicinity_0\": \"{{transform_input.result.vicinity|safe_json}}\"",
                   "  }",
                   "}"
                 ]
@@ -968,11 +1072,22 @@
         }
       },
 
+      "GetLocalRestaurantsDetailsBranch1": {
+        "name": "GetLocalRestaurantsDetailsBranch1",
+        "description": "GetLocalRestaurantsDetailsBranch1",
+        "expect_input": false,
+        "next_node_id": "{{'GetLocalRestaurantsDetails1' if memory.place_id_1 else 'GetLocalRestaurantsDetailsBranch2'}}",
+        "module": {
+          "id": "ai.compose.content.core.noop",
+          "config": {}
+        }
+      },
+
       "GetLocalRestaurantsDetails1": {
         "name": "GetLocalRestaurantsDetails1",
         "description": "GetLocalRestaurantsDetails1",
         "expect_input": false,
-        "next_node_id": "{{'GetLocalRestaurantsDetails2' if memory.place_id_2 else 'GetLocalRestaurantsShow'}}",
+        "next_node_id": "GetLocalRestaurantsDetailsBranch2",
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
@@ -994,8 +1109,8 @@
                   "    \"place_id_1\": \"{{transform_input.result.place_id}}\",",
                   "    \"place_url_1\": \"{{transform_input.result.url}}\",",
                   "    \"place_rating_1\": \"{{transform_input.result.rating}}\",",
-                  "    \"place_name_1\": \"{{transform_input.result.name}}\",",
-                  "    \"place_vicinity_1\": \"{{transform_input.result.vicinity}}\"",
+                  "    \"place_name_1\": \"{{transform_input.result.name|safe_json}}\",",
+                  "    \"place_vicinity_1\": \"{{transform_input.result.vicinity|safe_json}}\"",
                   "  }",
                   "}"
                 ]
@@ -1007,11 +1122,22 @@
         }
       },
 
+      "GetLocalRestaurantsDetailsBranch2": {
+        "name": "GetLocalRestaurantsDetailsBranch2",
+        "description": "GetLocalRestaurantsDetailsBranch2",
+        "expect_input": false,
+        "next_node_id": "{{'GetLocalRestaurantsDetails2' if memory.place_id_2 else 'GetLocalRestaurantsDetailsBranch3'}}",
+        "module": {
+          "id": "ai.compose.content.core.noop",
+          "config": {}
+        }
+      },
+
       "GetLocalRestaurantsDetails2": {
         "name": "GetLocalRestaurantsDetails2",
         "description": "GetLocalRestaurantsDetails2",
         "expect_input": false,
-        "next_node_id": "{{'GetLocalRestaurantsDetails3' if memory.place_id_3 else 'GetLocalRestaurantsShow'}}",
+        "next_node_id": "GetLocalRestaurantsDetailsBranch3",
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
@@ -1033,8 +1159,8 @@
                   "    \"place_id_2\": \"{{transform_input.result.place_id}}\",",
                   "    \"place_url_2\": \"{{transform_input.result.url}}\",",
                   "    \"place_rating_2\": \"{{transform_input.result.rating}}\",",
-                  "    \"place_name_2\": \"{{transform_input.result.name}}\",",
-                  "    \"place_vicinity_2\": \"{{transform_input.result.vicinity}}\"",
+                  "    \"place_name_2\": \"{{transform_input.result.name|safe_json}}\",",
+                  "    \"place_vicinity_2\": \"{{transform_input.result.vicinity|safe_json}}\"",
                   "  }",
                   "}"
                 ]
@@ -1046,11 +1172,22 @@
         }
       },
 
+      "GetLocalRestaurantsDetailsBranch3": {
+        "name": "GetLocalRestaurantsDetailsBranch3",
+        "description": "GetLocalRestaurantsDetailsBranch3",
+        "expect_input": false,
+        "next_node_id": "{{'GetLocalRestaurantsDetails3' if memory.place_id_3 else 'GetLocalRestaurantsDetailsBranch4'}}",
+        "module": {
+          "id": "ai.compose.content.core.noop",
+          "config": {}
+        }
+      },
+
       "GetLocalRestaurantsDetails3": {
         "name": "GetLocalRestaurantsDetails3",
         "description": "GetLocalRestaurantsDetails3",
         "expect_input": false,
-        "next_node_id": "{{'GetLocalRestaurantsDetails4' if memory.place_id_4 else 'GetLocalRestaurantsShow'}}",
+        "next_node_id": "GetLocalRestaurantsDetailsBranch4",
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
@@ -1072,8 +1209,8 @@
                   "    \"place_id_3\": \"{{transform_input.result.place_id}}\",",
                   "    \"place_url_3\": \"{{transform_input.result.url}}\",",
                   "    \"place_rating_3\": \"{{transform_input.result.rating}}\",",
-                  "    \"place_name_3\": \"{{transform_input.result.name}}\",",
-                  "    \"place_vicinity_3\": \"{{transform_input.result.vicinity}}\"",
+                  "    \"place_name_3\": \"{{transform_input.result.name|safe_json}}\",",
+                  "    \"place_vicinity_3\": \"{{transform_input.result.vicinity|safe_json}}\"",
                   "  }",
                   "}"
                 ]
@@ -1082,6 +1219,17 @@
             "debug": false,
             "on_error": "我好像壞掉了，快通知管理員。(GetLocalRestaurantsDetails3)"
           }
+        }
+      },
+
+      "GetLocalRestaurantsDetailsBranch4": {
+        "name": "GetLocalRestaurantsDetailsBranch4",
+        "description": "GetLocalRestaurantsDetailsBranch4",
+        "expect_input": false,
+        "next_node_id": "{{'GetLocalRestaurantsDetails4' if memory.place_id_4 else 'GetLocalRestaurantsShow'}}",
+        "module": {
+          "id": "ai.compose.content.core.noop",
+          "config": {}
         }
       },
 
@@ -1111,8 +1259,8 @@
                   "    \"place_id_4\": \"{{transform_input.result.place_id}}\",",
                   "    \"place_url_4\": \"{{transform_input.result.url}}\",",
                   "    \"place_rating_4\": \"{{transform_input.result.rating}}\",",
-                  "    \"place_name_4\": \"{{transform_input.result.name}}\",",
-                  "    \"place_vicinity_4\": \"{{transform_input.result.vicinity}}\"",
+                  "    \"place_name_4\": \"{{transform_input.result.name|safe_json}}\",",
+                  "    \"place_vicinity_4\": \"{{transform_input.result.vicinity|safe_json}}\"",
                   "  }",
                   "}"
                 ]
@@ -1147,52 +1295,77 @@
                   "                   {% if memory.place_name_0|length %}",
                   "                   {",
                   "                     \"buttons\": [",
-                  "                       {\"type\": \"web_url\", \"title\": \"在地圖上查看\", \"url\": \"{{memory.place_url_0}}\"},",
-                  "                       {\"type\": \"postback\", \"title\": \"加入我的最愛\", \"payload\": \"加入我的最愛 {{memory.place_id_0}}\"}",
+                  "                       {% if memory.FEATURE == 'PartyVoteRestaurants' %}",
+                  "                       {\"type\": \"postback\", \"title\": \"票選吃這家\", \"payload\": \"票選吃這家 {{memory.place_id_0}} {{memory.place_name_0|safe_json}}\"},",
+                  "                       {% endif %}",
+                  "                       {% if memory.FEATURE != 'FavoriteRandom' %}",
+                  "                       {\"type\": \"postback\", \"title\": \"加入我的最愛\", \"payload\": \"加入我的最愛 {{memory.place_id_0}}\"},",
+                  "                       {% endif %}",
+                  "                       {\"type\": \"web_url\", \"title\": \"在地圖上查看\", \"url\": \"{{memory.place_url_0}}\"}",
                   "                     ],",
                   "                     \"image_url\": \"{{memory.place_image_url_0}}\",",
-                  "                     \"title\": \"{{memory.place_name_0}}\",",
-                  "                     \"subtitle\": \"{{memory.place_vicinity_0}}\\n評價：{{memory.place_rating_0 if memory.place_rating_0 else '--'}}/5.0\"",
+                  "                     \"title\": \"{{memory.place_name_0|safe_json}}\",",
+                  "                     \"subtitle\": \"{{memory.place_vicinity_0|safe_json}}\\n評價：{{memory.place_rating_0 if memory.place_rating_0 else '--'}}/5.0\"",
                   "                   }",
                   "                   {% if memory.place_name_1|length %}",
                   "                   ,{",
                   "                     \"buttons\": [",
-                  "                       {\"type\": \"web_url\", \"title\": \"在地圖上查看\", \"url\": \"{{memory.place_url_1}}\"},",
-                  "                       {\"type\": \"postback\", \"title\": \"加入我的最愛\", \"payload\": \"加入我的最愛 {{memory.place_id_1}}\"}",
+                  "                       {% if memory.FEATURE == 'PartyVoteRestaurants' %}",
+                  "                       {\"type\": \"postback\", \"title\": \"票選吃這家\", \"payload\": \"票選吃這家 {{memory.place_id_1}} {{memory.place_name_1|safe_json}}\"},",
+                  "                       {% endif %}",
+                  "                       {% if memory.FEATURE != 'FavoriteRandom' %}",
+                  "                       {\"type\": \"postback\", \"title\": \"加入我的最愛\", \"payload\": \"加入我的最愛 {{memory.place_id_1}}\"},",
+                  "                       {% endif %}",
+                  "                       {\"type\": \"web_url\", \"title\": \"在地圖上查看\", \"url\": \"{{memory.place_url_1}}\"}",
                   "                     ],",
                   "                     \"image_url\": \"{{memory.place_image_url_1}}\",",
-                  "                     \"title\": \"{{memory.place_name_1}}\",",
-                  "                     \"subtitle\": \"{{memory.place_vicinity_1}}\\n評價：{{memory.place_rating_1 if memory.place_rating_1 else '--'}}/5.0\"",
+                  "                     \"title\": \"{{memory.place_name_1|safe_json}}\",",
+                  "                     \"subtitle\": \"{{memory.place_vicinity_1|safe_json}}\\n評價：{{memory.place_rating_1 if memory.place_rating_1 else '--'}}/5.0\"",
                   "                   }",
                   "                   {% if memory.place_name_2|length %}",
                   "                   ,{",
                   "                     \"buttons\": [",
-                  "                       {\"type\": \"web_url\", \"title\": \"在地圖上查看\", \"url\": \"{{memory.place_url_2}}\"},",
-                  "                       {\"type\": \"postback\", \"title\": \"加入我的最愛\", \"payload\": \"加入我的最愛 {{memory.place_id_2}}\"}",
+                  "                       {% if memory.FEATURE == 'PartyVoteRestaurants' %}",
+                  "                       {\"type\": \"postback\", \"title\": \"票選吃這家\", \"payload\": \"票選吃這家 {{memory.place_id_2}} {{memory.place_name_2|safe_json}}\"},",
+                  "                       {% endif %}",
+                  "                       {% if memory.FEATURE != 'FavoriteRandom' %}",
+                  "                       {\"type\": \"postback\", \"title\": \"加入我的最愛\", \"payload\": \"加入我的最愛 {{memory.place_id_2}}\"},",
+                  "                       {% endif %}",
+                  "                       {\"type\": \"web_url\", \"title\": \"在地圖上查看\", \"url\": \"{{memory.place_url_2}}\"}",
                   "                     ],",
                   "                     \"image_url\": \"{{memory.place_image_url_2}}\",",
-                  "                     \"title\": \"{{memory.place_name_2}}\",",
-                  "                     \"subtitle\": \"{{memory.place_vicinity_2}}\\n評價：{{memory.place_rating_2 if memory.place_rating_2 else '--'}}/5.0\"",
+                  "                     \"title\": \"{{memory.place_name_2|safe_json}}\",",
+                  "                     \"subtitle\": \"{{memory.place_vicinity_2|safe_json}}\\n評價：{{memory.place_rating_2 if memory.place_rating_2 else '--'}}/5.0\"",
                   "                   }",
                   "                   {% if memory.place_name_3|length %}",
                   "                   ,{",
                   "                     \"buttons\": [",
-                  "                       {\"type\": \"web_url\", \"title\": \"在地圖上查看\", \"url\": \"{{memory.place_url_3}}\"},",
-                  "                       {\"type\": \"postback\", \"title\": \"加入我的最愛\", \"payload\": \"加入我的最愛 {{memory.place_id_3}}\"}",
+                  "                       {% if memory.FEATURE == 'PartyVoteRestaurants' %}",
+                  "                       {\"type\": \"postback\", \"title\": \"票選吃這家\", \"payload\": \"票選吃這家 {{memory.place_id_3}} {{memory.place_name_3|safe_json}}\"},",
+                  "                       {% endif %}",
+                  "                       {% if memory.FEATURE != 'FavoriteRandom' %}",
+                  "                       {\"type\": \"postback\", \"title\": \"加入我的最愛\", \"payload\": \"加入我的最愛 {{memory.place_id_3}}\"},",
+                  "                       {% endif %}",
+                  "                       {\"type\": \"web_url\", \"title\": \"在地圖上查看\", \"url\": \"{{memory.place_url_3}}\"}",
                   "                     ],",
                   "                     \"image_url\": \"{{memory.place_image_url_3}}\",",
-                  "                     \"title\": \"{{memory.place_name_3}}\",",
-                  "                     \"subtitle\": \"{{memory.place_vicinity_3}}\\n評價：{{memory.place_rating_3 if memory.place_rating_3 else '--'}}/5.0\"",
+                  "                     \"title\": \"{{memory.place_name_3|safe_json}}\",",
+                  "                     \"subtitle\": \"{{memory.place_vicinity_3|safe_json}}\\n評價：{{memory.place_rating_3 if memory.place_rating_3 else '--'}}/5.0\"",
                   "                   }",
                   "                   {% if memory.place_name_4|length %}",
                   "                   ,{",
                   "                     \"buttons\": [",
-                  "                       {\"type\": \"web_url\", \"title\": \"在地圖上查看\", \"url\": \"{{memory.place_url_4}}\"},",
-                  "                       {\"type\": \"postback\", \"title\": \"加入我的最愛\", \"payload\": \"加入我的最愛 {{memory.place_id_4}}\"}",
+                  "                       {% if memory.FEATURE == 'PartyVoteRestaurants' %}",
+                  "                       {\"type\": \"postback\", \"title\": \"票選吃這家\", \"payload\": \"票選吃這家 {{memory.place_id_4}} {{memory.place_name_4|safe_json}}\"},",
+                  "                       {% endif %}",
+                  "                       {% if memory.FEATURE != 'FavoriteRandom' %}",
+                  "                       {\"type\": \"postback\", \"title\": \"加入我的最愛\", \"payload\": \"加入我的最愛 {{memory.place_id_4}}\"},",
+                  "                       {% endif %}",
+                  "                       {\"type\": \"web_url\", \"title\": \"在地圖上查看\", \"url\": \"{{memory.place_url_4}}\"}",
                   "                     ],",
                   "                     \"image_url\": \"{{memory.place_image_url_4}}\",",
-                  "                     \"title\": \"{{memory.place_name_4}}\",",
-                  "                     \"subtitle\": \"{{memory.place_vicinity_4}}\\n評價：{{memory.place_rating_4 if memory.place_rating_4 else '--'}}/5.0\"",
+                  "                     \"title\": \"{{memory.place_name_4|safe_json}}\",",
+                  "                     \"subtitle\": \"{{memory.place_vicinity_4|safe_json}}\\n評價：{{memory.place_rating_4 if memory.place_rating_4 else '--'}}/5.0\"",
                   "                   }",
                   "                   {% endif %}",
                   "                   {% endif %}",
@@ -1240,7 +1413,7 @@
           "config": {
             "messages": [
               {
-                "text": "往上捲，再選一次，或是直接輸入其他菜名。打「主選單」可以重新來過。"
+                "text": "往上捲，再選一次，或是直接輸入其他菜名。打「主選單」回主選單。"
               }
             ],
             "quick_replies": [
@@ -1273,7 +1446,7 @@
                 "template": [
                   "{",
                   "  \"messages\": [{",
-                  "    \"text\": \"儲存：{{transform_input.result}}。往上捲，再選一次，或是直接輸入其他菜名。打「主選單」可以重新來過。\"",
+                  "    \"text\": \"儲存：{{transform_input.result}}。往上捲，再選一次，或是直接輸入其他菜名。打「主選單」回主選單。\"",
                   "  }]",
                   "}"
                 ]
@@ -1285,11 +1458,52 @@
         }
       },
 
+      "VoteRestaurant": {
+        "name": "VoteRestaurant",
+        "description": "VoteRestaurant",
+        "expect_input": false,
+        "next_node_id": "ComposeAiGetRecommendedFoodsRouter",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "{{memory.ajax_root}}/want_ajax?action=VoteRestaurant",
+            "params": [
+              ["user_lang", "zh_TW"],
+              ["party_id", "{{memory.party_id}}"],
+              ["platform_user_ident", "{{user.platform_user_ident}}"],
+              ["place_id", "{{memory.vote_place_id}}"],
+              ["place_name", "{{memory.vote_place_name}}"]
+            ],
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"messages\": [{",
+                  "    \"text\": \"已票選：{{transform_input.result}}。往上捲，票選其他其他餐廳。票選完畢，輸入「選完了」。\"",
+                  "  }],",
+                  "  \"quick_replies\": [{",
+                  "    \"content_type\": \"text\",",
+                  "    \"title\": \"選完了\"",
+                  "  }, {",
+                  "    \"content_type\": \"text\",",
+                  "    \"title\": \"主選單\"",
+                  "  }]",
+                  "}"
+                ]
+              }
+            ],
+            "debug": false,
+            "$on_error": "我好像壞掉了，快通知管理員。(VoteRestaurant)"
+          }
+        }
+      },
+
       "FavoriteRandom": {
         "name": "FavoriteRandom",
         "description": "FavoriteRandom",
         "expect_input": false,
-        "next_node_id": "GetLocalRestaurantsDetails",
+        "next_node_id": "GetLocalRestaurantsDetailsBranch0",
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
@@ -1336,6 +1550,920 @@
             ],
             "debug": false,
             "on_error": "我好像壞掉了，快通知管理員。(FavoriteRandom)"
+          }
+        }
+      },
+
+      "Party": {
+        "name": "Party",
+        "description": "Party",
+        "expect_input": false,
+        "next_node_id": "PartyRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "和朋友一起聚餐嗎？可以「建立新的聚餐」「選擇聚餐點子」「票選聚餐餐廳」「看票選的結果」。"
+              }
+            ],
+            "quick_replies": [
+              {
+                "content_type": "text",
+                "title": "建立新的聚餐"
+              },
+              {
+                "content_type": "text",
+                "title": "選擇聚餐點子"
+              },
+              {
+                "content_type": "text",
+                "title": "票選聚餐餐廳"
+              },
+              {
+                "content_type": "text",
+                "title": "看票選的結果"
+              }
+            ]
+          }
+        }
+      },
+
+      "PartyRouter": {
+        "name": "PartyRouter",
+        "description": "Party router",
+        "expect_input": true,
+        "next_node_id": "Party",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(使用)?說明", "tutorial", "^\\?", "(?i)hi", "(?i)help", "幫助", "怎麼用?", "^？", "不會用", "求救"]
+                },
+                "end_node_id": "Root",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["建立", "建立新的聚餐"]
+                },
+                "end_node_id": "PartyCreate",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["已建立", "查看已建立的聚餐"]
+                },
+                "end_node_id": "Party",
+                "ack_message": "FIXME: 這個功能還沒做好"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["選擇", "選擇聚餐點子"],
+                  "memory_set": [
+                    {"key": "FEATURE", "value": "PartySelect"},
+                    {"key": "NextStateOfPartyDetails", "value": "TestTaste"}
+                  ]
+                },
+                "end_node_id": "PartyDetails",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["([a-zA-Z0-9]+)"],
+                  "memory_set": [
+                    {"key": "FEATURE", "value": "PartySelect"},
+                    {"key": "party_id"},
+                    {"key": "NextStateOfPartyDetails", "value": "TestTaste"}
+                  ]
+                },
+                "end_node_id": "PartyDetailsGetName",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["^票選", "票選聚餐餐廳"],
+                  "memory_set": [
+                    {"key": "FEATURE", "value": "PartyVoteRestaurants"},
+                    {"key": "party_id"}
+                  ]
+                },
+                "end_node_id": "PartyVoteRestaurants",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["結果", "看票選的結果"]
+                },
+                "end_node_id": "PartyShowRestaurantVotes",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["^(?i)(hi|hello)$", "你好", "主選單", "(?i)menu", "哈囉", "reset", "重來"]
+                },
+                "end_node_id": "Root",
+                "ack_message": ""
+              }
+            ],
+            "on_error": {
+              "end_node_id": "Party",
+              "ack_message": "我不了解你的指令，再輸入一次"
+            }
+          }
+        }
+      },
+
+      "PartyCreate": {
+        "name": "PartyCreate",
+        "description": "PartyCreate",
+        "expect_input": false,
+        "next_node_id": "PartyCreateRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "輸入聚餐的區域，或是上傳目前位置。"
+              }
+            ],
+            "quick_replies": [
+              {
+                "content_type": "location"
+              }
+            ]
+          }
+        }
+      },
+      "PartyCreateRouter": {
+        "name": "PartyCreateRouter",
+        "description": "Party create router",
+        "expect_input": true,
+        "next_node_id": "Party",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "location",
+                  "collect_as": {"key": "location"},
+                  "memory_set": {"key": "location"}
+                },
+                "end_node_id": "PartyCreateDesc",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["^(?i)(hi|hello)$", "你好", "主選單", "(?i)menu", "哈囉", "reset", "重來"]
+                },
+                "end_node_id": "Root",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [".*"],
+                  "memory_set": {"key": "caller", "value": "PartyCreateRouter"}
+                },
+                "end_node_id": "Geocoding",
+                "ack_message": ""
+              }
+            ],
+            "on_error": {
+              "end_node_id": "PartyCreate",
+              "ack_message": ""
+            }
+          }
+        }
+      },
+
+      "PartyCreateDesc": {
+        "name": "PartyCreateDesc",
+        "description": "PartyCreateDesc",
+        "expect_input": false,
+        "next_node_id": "PartyCreateDescRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "聚餐的目的是什麼？"
+              }
+            ]
+          }
+        }
+      },
+      "PartyCreateDescRouter": {
+        "name": "PartyCreateDescRouter",
+        "description": "Party create desc router",
+        "expect_input": true,
+        "next_node_id": "PartyCreateWhen",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["^(?i)(hi|hello)$", "你好", "主選單", "(?i)menu", "哈囉", "reset", "重來"]
+                },
+                "end_node_id": "Root",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [".*"],
+                  "memory_set": {"key": "party_desc"}
+                },
+                "end_node_id": "PartyCreateWhen",
+                "ack_message": ""
+              }
+            ],
+            "on_error": {
+              "end_node_id": "PartyCreate",
+              "ack_message": "SHOULD NOT HAPPEN"
+            }
+          }
+        }
+      },
+
+      "PartyCreateWhen": {
+        "name": "PartyCreateWhen",
+        "description": "PartyCreateWhen",
+        "expect_input": false,
+        "next_node_id": "PartyCreateWhenRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "什麼時候要聚餐？"
+              }
+            ]
+          }
+        }
+      },
+      "PartyCreateWhenRouter": {
+        "name": "PartyCreateWhenRouter",
+        "description": "Party create when router",
+        "expect_input": true,
+        "next_node_id": "PartyCreateAjax",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["^(?i)(hi|hello)$", "你好", "主選單", "(?i)menu", "哈囉", "reset", "重來"]
+                },
+                "end_node_id": "Root",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [".*"],
+                  "memory_set": {"key": "party_when"}
+                },
+                "end_node_id": "PartyCreateAjax",
+                "ack_message": ""
+              }
+            ],
+            "on_error": {
+              "end_node_id": "PartyCreate",
+              "ack_message": "SHOULD NOT HAPPEN"
+            }
+          }
+        }
+      },
+
+      "PartyCreateAjax": {
+        "name": "PartyCreateAjax",
+        "description": "PartyCreateAjax",
+        "expect_input": false,
+        "next_node_id": "Party",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "{{memory.ajax_root}}/want_ajax?action=CreateParty",
+            "params": [
+              ["user_lang", "zh_TW"],
+              ["creator", "{{user.first_name}}"],
+              ["desc", "{{memory.party_desc}}"],
+              ["platform_user_ident", "{{user.platform_user_ident}}"],
+              ["when", "{{memory.party_when}}"],
+              ["location", "{{memory.location}}"]
+            ],
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"messages\": [{",
+                  "    \"text\": \"聚餐已新增完成。聚餐代碼： {{transform_input.party_id}} 。\"",
+                  "  }, {",
+                  "    \"text\": \"和朋友分享這個機器人，並且請朋友依序輸入：「Hi」，「聚餐」，「{{transform_input.party_id}}」。\"",
+                  "  }]",
+                  "}"
+                ]
+              }
+            ],
+            "debug": false,
+            "$on_error": "我好像壞掉了，快通知管理員。(PartyCreateAjax)"
+          }
+        }
+      },
+
+      "PartyDetails": {
+        "name": "PartyDetails",
+        "description": "PartyDetails",
+        "expect_input": false,
+        "next_node_id": "PartyDetailsRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "輸入聚餐代碼吧，例如：「65KT91」。"
+              }
+            ]
+          }
+        }
+      },
+
+      "PartyDetailsRouter": {
+        "name": "PartyDetailsRouter",
+        "description": "PartyDetails router",
+        "expect_input": true,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [".*([a-zA-Z0-9]+).*"],
+                  "memory_set": [
+                    {"key": "FEATURE", "value": "PartySelect"},
+                    {"key": "party_id"}
+                  ]
+                },
+                "end_node_id": "PartyDetailsGetName",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["^(?i)(hi|hello)$", "你好", "主選單", "(?i)menu", "哈囉", "reset", "重來"]
+                },
+                "end_node_id": "Root",
+                "ack_message": ""
+              }
+            ],
+            "on_error": {
+              "end_node_id": "Party",
+              "ack_message": "我不了解你的指令，再輸入一次"
+            }
+          }
+        }
+      },
+
+      "PartyDetailsGetName": {
+        "name": "PartyDetailsGetName",
+        "description": "PartyDetailsGetName",
+        "expect_input": false,
+        "next_node_id": "PartyDetailsNoop",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "{{memory.ajax_root}}/want_ajax?action=GetPartyDetails",
+            "params": [
+              ["party_id", "{{memory.party_id}}"]
+            ],
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"memory\": {",
+                  "    \"party_creator\": \"{{transform_input.creator|safe_json}}\",",
+                  "    \"party_when\": \"{{transform_input.when|safe_json}}\",",
+                  "    \"party_desc\": \"{{transform_input.desc|safe_json}}\"",
+                  "  }",
+                  "}"
+                ]
+              }
+            ],
+            "debug": true,
+            "on_error": "我好像壞掉了，快通知管理員。 (PartyDetailsGetName)"
+          }
+        }
+      },
+
+      "PartyDetailsNoop": {
+        "name": "PartyDetailsNoop",
+        "description": "PartyDetailsNoop",
+        "expect_input": false,
+        "next_node_id": "{{'PartyDetailsShowName' if memory.party_creator else 'PartyDetailsNotFound'}}",
+        "module": {
+          "id": "ai.compose.content.core.noop",
+          "config": {}
+        }
+      },
+
+      "PartyDetailsNotFound": {
+        "name": "PartyDetailsNotFound",
+        "description": "PartyDetailsNotFound",
+        "expect_input": false,
+        "next_node_id": "Party",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "無法找到這個聚餐「{{memory.party_id}}」。"
+              }
+            ]
+          }
+        }
+      },
+
+      "PartyDetailsShowName": {
+        "name": "PartyDetailsShowName",
+        "description": "PartyDetailsShowName",
+        "expect_input": false,
+        "next_node_id": "{{memory.NextStateOfPartyDetails}}",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"messages\": [",
+                  "    {",
+                  "      \"text\": \"由 {{memory.party_creator|safe_json}} 建立的聚餐({{memory.party_when|safe_json}})：{{memory.party_desc|safe_json}}\"",
+                  "    }",
+                  "  ]",
+                  "}"
+                ]
+              }
+            ],
+            "debug": true,
+            "on_error": "我好像壞掉了，快通知管理員。 (PartyDetailsShowName)"
+          }
+        }
+      },
+
+      "PartySelectUpdate": {
+        "name": "PartySelectUpdate",
+        "description": "PartySelectUpdate",
+        "expect_input": false,
+        "next_node_id": "GetPartyDetails",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "{{memory.ajax_root}}/want_ajax?action=AddToParty",
+            "params": [
+              ["user_lang", "zh_TW"],
+              ["party_id", "{{memory.party_id}}"],
+              ["selected", "[\"{{memory.Answer0}}\", \"{{memory.Answer1}}\", \"{{memory.Answer2}}\", \"{{memory.Answer3}}\", \"{{memory.Answer4}}\"]"],
+              ["platform_user_ident", "{{user.platform_user_ident}}"]
+            ],
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"messages\": [{",
+                  "    \"text\": \"已儲存至資料庫。\"",
+                  "  }]",
+                  "}"
+                ]
+              }
+            ],
+            "debug": true,
+            "on_error": "我好像壞掉了，快通知管理員。 (PartySelectUpdate)"
+          }
+        }
+      },
+
+      "PartyVoteRestaurants": {
+        "name": "PartyVoteRestaurants",
+        "description": "PartyVoteRestaurants",
+        "expect_input": false,
+        "next_node_id": "PartyVoteRestaurantsRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "輸入聚餐代碼吧，例如：「65KT91」。"
+              }
+            ]
+          }
+        }
+      },
+
+      "PartyVoteRestaurantsRouter": {
+        "name": "PartyVoteRestaurantsRouter",
+        "description": "PartyVoteRestaurantsRouter",
+        "expect_input": true,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [".*([a-zA-Z0-9]+).*"],
+                  "memory_set": [
+                    {"key": "FEATURE", "value": "PartyVoteRestaurants"},
+                    {"key": "NextStateOfPartyDetails", "value": "GetPartyDetails"},
+                    {"key": "party_id"}
+                  ]
+                },
+                "end_node_id": "PartyDetailsGetName",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["^(?i)(hi|hello)$", "你好", "主選單", "(?i)menu", "哈囉", "reset", "重來"]
+                },
+                "end_node_id": "Root",
+                "ack_message": ""
+              }
+            ],
+            "on_error": {
+              "end_node_id": "PartyVoteRestaurants",
+              "ack_message": "我不了解你的指令，再輸入一次"
+            }
+          }
+        }
+      },
+
+      "GetPartyDetails": {
+        "name": "GetPartyDetails",
+        "description": "GetPartyDetails",
+        "expect_input": false,
+        "next_node_id": "GetPartyDetailsNoop",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "{{memory.ajax_root}}/want_ajax?action=GetPartyDetails",
+            "params": [
+              ["party_id", "{{memory.party_id}}"]
+            ],
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"memory\": {",
+                  "    \"FEATURE\": \"PartyVoteRestaurants\",",
+                  "    \"party_creator\": \"{{transform_input.creator|safe_json}}\",",
+                  "    \"search_radius\": \"{{transform_input.radius}}\"",
+                  "  },",
+                  "  \"memory_copy\": {",
+                  "    \"location\": \"transform_input.location\"",
+                  "  }",
+                  "}"
+                ]
+              }
+            ],
+            "debug": true,
+            "on_error": "我好像壞掉了，快通知管理員。 (GetPartyDetails)"
+          }
+        }
+      },
+
+      "GetPartyDetailsNoop": {
+        "name": "GetPartyDetailsNoop",
+        "description": "GetPartyDetailsNoop",
+        "expect_input": false,
+        "next_node_id": "{{'PartyGetRecommendedFoods' if memory.party_creator else 'PartyDetailsNotFound'}}",
+        "module": {
+          "id": "ai.compose.content.core.noop",
+          "config": {}
+        }
+      },
+
+      "PartyGetRecommendedFoods": {
+        "name": "PartyGetRecommendedFoods",
+        "description": "PartyGetRecommendedFoods",
+        "expect_input": false,
+        "next_node_id": "GetLocalRestaurantForParty0",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "{{memory.ajax_root}}/want_ajax?action=GetRecommendedFoodsForParty",
+            "params": [
+              ["user_lang", "zh_TW"],
+              ["party_id", "{{memory.party_id}}"],
+              ["platform_user_ident", "{{user.platform_user_ident}}"]
+            ],
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"memory_copy\": {",
+                  "    \"recommended_foods\": \"transform_input\"",
+                  "  }",
+                  "}"
+                ]
+              }
+            ],
+            "debug": true,
+            "on_error": "我好像壞掉了，快通知管理員。 (GetRecommendedFoodsForParty)"
+          }
+        }
+      },
+
+      "GetLocalRestaurantForParty0": {
+        "name": "GetLocalRestaurantForParty0",
+        "description": "GetLocalRestaurantForParty0",
+        "expect_input": false,
+        "next_node_id": "GetLocalRestaurantForParty1",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "https://maps.googleapis.com/maps/api/place/nearbysearch/json?",
+            "params": [
+              ["key", "AIzaSyCapypvaHnAcYZCrldgEIrYQ6Ev18tX5FE"],
+              ["location", "{{memory.location.coordinates.lat}},{{memory.location.coordinates.long}}"],
+              ["radius", "{{memory.search_radius}}"],
+              ["language", "zh_TW"],
+              ["keyword", "{{memory.recommended_foods#0.food}}"],
+              ["type", "restaurant"]
+            ],
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"memory\": {",
+                  "    \"place_id_0\": \"{{transform_input.results[0].place_id if transform_input.results else ''}}\"",
+                  "  }",
+                  "}"
+                ]
+              }
+            ],
+            "debug": true,
+            "on_error": "我好像壞掉了，快通知管理員。(GetLocalRestaurantForParty0)"
+          }
+        }
+      },
+
+      "GetLocalRestaurantForParty1": {
+        "name": "GetLocalRestaurantForParty1",
+        "description": "GetLocalRestaurantForParty1",
+        "expect_input": false,
+        "next_node_id": "GetLocalRestaurantForParty2",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "https://maps.googleapis.com/maps/api/place/nearbysearch/json?",
+            "params": [
+              ["key", "AIzaSyCapypvaHnAcYZCrldgEIrYQ6Ev18tX5FE"],
+              ["location", "{{memory.location.coordinates.lat}},{{memory.location.coordinates.long}}"],
+              ["radius", "{{memory.search_radius}}"],
+              ["language", "zh_TW"],
+              ["keyword", "{{memory.recommended_foods#1.food}}"],
+              ["type", "restaurant"]
+            ],
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"memory\": {",
+                  "    \"place_id_1\": \"{{transform_input.results[0].place_id if transform_input.results else ''}}\"",
+                  "  }",
+                  "}"
+                ]
+              }
+            ],
+            "debug": false,
+            "on_error": "我好像壞掉了，快通知管理員。(GetLocalRestaurantForParty1)"
+          }
+        }
+      },
+
+      "GetLocalRestaurantForParty2": {
+        "name": "GetLocalRestaurantForParty2",
+        "description": "GetLocalRestaurantForParty2",
+        "expect_input": false,
+        "next_node_id": "GetLocalRestaurantForParty3",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "https://maps.googleapis.com/maps/api/place/nearbysearch/json?",
+            "params": [
+              ["key", "AIzaSyCapypvaHnAcYZCrldgEIrYQ6Ev18tX5FE"],
+              ["location", "{{memory.location.coordinates.lat}},{{memory.location.coordinates.long}}"],
+              ["radius", "{{memory.search_radius}}"],
+              ["language", "zh_TW"],
+              ["keyword", "{{memory.recommended_foods#2.food}}"],
+              ["type", "restaurant"]
+            ],
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"memory\": {",
+                  "    \"place_id_2\": \"{{transform_input.results[0].place_id if transform_input.results else ''}}\"",
+                  "  }",
+                  "}"
+                ]
+              }
+            ],
+            "debug": false,
+            "on_error": "我好像壞掉了，快通知管理員。(GetLocalRestaurantForParty2)"
+          }
+        }
+      },
+
+      "GetLocalRestaurantForParty3": {
+        "name": "GetLocalRestaurantForParty3",
+        "description": "GetLocalRestaurantForParty3",
+        "expect_input": false,
+        "next_node_id": "GetLocalRestaurantForParty4",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "https://maps.googleapis.com/maps/api/place/nearbysearch/json?",
+            "params": [
+              ["key", "AIzaSyCapypvaHnAcYZCrldgEIrYQ6Ev18tX5FE"],
+              ["location", "{{memory.location.coordinates.lat}},{{memory.location.coordinates.long}}"],
+              ["radius", "{{memory.search_radius}}"],
+              ["language", "zh_TW"],
+              ["keyword", "{{memory.recommended_foods#3.food}}"],
+              ["type", "restaurant"]
+            ],
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"memory\": {",
+                  "    \"place_id_3\": \"{{transform_input.results[0].place_id if transform_input.results else ''}}\"",
+                  "  }",
+                  "}"
+                ]
+              }
+            ],
+            "debug": false,
+            "on_error": "我好像壞掉了，快通知管理員。(GetLocalRestaurantForParty3)"
+          }
+        }
+      },
+
+      "GetLocalRestaurantForParty4": {
+        "name": "GetLocalRestaurantForParty4",
+        "description": "GetLocalRestaurantForParty4",
+        "expect_input": false,
+        "next_node_id": "GetLocalRestaurantsDetailsBranch0",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "https://maps.googleapis.com/maps/api/place/nearbysearch/json?",
+            "params": [
+              ["key", "AIzaSyCapypvaHnAcYZCrldgEIrYQ6Ev18tX5FE"],
+              ["location", "{{memory.location.coordinates.lat}},{{memory.location.coordinates.long}}"],
+              ["radius", "{{memory.search_radius}}"],
+              ["language", "zh_TW"],
+              ["keyword", "{{memory.recommended_foods#4.food}}"],
+              ["type", "restaurant"]
+            ],
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"memory\": {",
+                  "    \"place_id_4\": \"{{transform_input.results[0].place_id if transform_input.results else ''}}\"",
+                  "  }",
+                  "}"
+                ]
+              }
+            ],
+            "debug": false,
+            "on_error": "我好像壞掉了，快通知管理員。(GetLocalRestaurantForParty4)"
+          }
+        }
+      },
+
+      "PartyShowRestaurantVotes": {
+        "name": "PartyShowRestaurantVotes",
+        "description": "PartyShowRestaurantVotes",
+        "expect_input": false,
+        "next_node_id": "PartyShowRestaurantVotesRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "輸入聚餐代碼吧，例如：「65KT91」。"
+              }
+            ]
+          }
+        }
+      },
+
+      "PartyShowRestaurantVotesRouter": {
+        "name": "PartyShowRestaurantVotesRouter",
+        "description": "PartyShowRestaurantVotesRouter",
+        "expect_input": true,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [".*([a-zA-Z0-9]+).*"],
+                  "memory_set": [
+                    {"key": "FEATURE", "value": "PartyShowRestaurantVotes"},
+                    {"key": "NextStateOfPartyDetails", "value": "GetPartyVotes"},
+                    {"key": "party_id"}
+                  ]
+                },
+                "end_node_id": "PartyDetailsGetName",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["^(?i)(hi|hello)$", "你好", "主選單", "(?i)menu", "哈囉", "reset", "重來"]
+                },
+                "end_node_id": "Root",
+                "ack_message": ""
+              }
+            ],
+            "on_error": {
+              "end_node_id": "PartyShowRestaurantVotes",
+              "ack_message": "我不了解你的指令，再輸入一次"
+            }
+          }
+        }
+      },
+
+      "GetPartyVotes": {
+        "name": "GetPartyVotes",
+        "description": "GetPartyVotes",
+        "expect_input": false,
+        "next_node_id": "Party",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "{{memory.ajax_root}}/want_ajax?action=GetPartyVotes",
+            "params": [
+              ["user_lang", "zh_TW"],
+              ["party_id", "{{memory.party_id}}"],
+              ["platform_user_ident", "{{user.platform_user_ident}}"]
+            ],
+            "transform": [
+              {
+                "type": "jinja",
+                "template": [
+                  "{",
+                  "  \"messages\": [",
+                  "    {% if transform_input|length > 0 %}",
+                  "      {% for result in transform_input %}",
+                  "        {\"text\": \"{{result.votes}}票: {{result.place_name|safe_json}}\"},",
+                  "      {% endfor %}",
+                  "        {\"text\": \"沒有想吃的嗎？還可以繼續投票喔！\"}",
+                  "    {% else %}",
+                  "      {\"text\": \"還沒有人投票。\"}",
+                  "    {% endif %}",
+                  "  ]",
+                  "}"
+                ]
+              }
+            ],
+            "debug": true,
+            "on_error": "我好像壞掉了，快通知管理員。 (GetPartyVotes)"
           }
         }
       }
