@@ -556,5 +556,5 @@ def Render(template, variables):
 
     def replace(m):
         ret = parse(m.group(1), variables)
-        return ret if ret else ''
+        return ret if ret else m.group(0)
     return HAS_VARIABLE_RE.sub(replace, to_unicode(template))
