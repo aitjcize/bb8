@@ -96,6 +96,9 @@ class TemplateUnittest(unittest.TestCase):
                       'I am {{age|inc|str}} years old.', variables)
         self.assertEquals(text, 'Hi ISAAC, I am bb8. I am 101 years old.')
 
+        self.assertEquals(Render("{{a.b|unref('')}}", {}), '')
+        self.assertEquals(Render("{{a.b|unref('A')}}", {}), 'A')
+
     def test_if_else(self):
         variables = {
             'a': {'b': 'test_value', 'c': 'test_value2', 'd': True},

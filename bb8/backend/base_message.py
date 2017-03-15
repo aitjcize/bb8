@@ -715,14 +715,14 @@ class Message(object):
     def as_dict(self):
         data = {}
 
-        if self.text:
+        if self.text is not None:
             data['text'] = self.text
         elif self.image_url:
             data['attachment'] = {
                 'type': 'image',
                 'payload': {'url': self.image_url}
             }
-        elif self.buttons_text:
+        elif self.buttons_text is not None:
             data['attachment'] = {
                 'type': 'template',
                 'payload': {

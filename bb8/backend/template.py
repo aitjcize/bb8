@@ -447,7 +447,7 @@ def parse_values(context, tokens):
                 raise ParserError('SyntaxError: expecting SEMICOLON, got %s' %
                                   str(token))
             tokens = parse_value(context, tokens)
-            if context.value and context.evaluate:
+            if context.value is not None and context.evaluate:
                 result = context.value
                 context.evaluate = False
             if result is None:
@@ -556,5 +556,5 @@ def Render(template, variables):
 
     def replace(m):
         ret = parse(m.group(1), variables)
-        return ret if ret else m.group(0)
+        return ret if ret is not None else m.group(0)
     return HAS_VARIABLE_RE.sub(replace, to_unicode(template))

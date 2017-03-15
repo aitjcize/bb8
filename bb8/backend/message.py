@@ -179,7 +179,7 @@ class UserInput(object):
         self.ref = 'http://m.me/%s' % referral['ref']
 
     def ParseAudioAsText(self, user):
-        if self.audio and not self.text:
+        if self.audio and self.text is None:
             data = messaging.download_audio_as_data(user, self.audio)
             self.text = speech_to_text(data, user.locale or 'zh_TW') or ''
 
@@ -285,7 +285,7 @@ def Resolve(obj, variables):
 class DataQuery(object):
     def __init__(self, key):
         self.key = key
-        self.fallback_value = ''
+        self.fallback_value = None
         self.query = CollectedDatum.query(
             CollectedDatum.value, CollectedDatum.created_at).filter_by(
                 key=key, user_id=g.user.id)
@@ -615,7 +615,7 @@ class Message(base_message.Message):
 
     def apply_limits(self, platform_type):
         limits = self.limits[platform_type]
-        if self.text:
+        if self.text is not None:
             self.text = self.text[:limits['text']]
         if self.buttons_text:
             self.buttons_text = self.buttons_text[:limits['buttons_text']]
@@ -639,7 +639,7 @@ class Message(base_message.Message):
         """Return message as a list of Line message dictionary."""
         self.apply_limits(PlatformTypeEnum.Line)
 
-        if self.text:
+        if self.text is not None:
             return [{'type': 'text', 'text': self.text}]
         elif self.image_url:
             return [{
@@ -649,7 +649,7 @@ class Message(base_message.Message):
                 'previewImageUrl':
                     image_convert_url(self.image_url, (240, 240))
             }]
-        elif self.buttons_text:
+        elif self.buttons_text is not None:
             buttons = []
             for but in self.buttons:
                 if but.type == Message.ButtonType.WEB_URL:
