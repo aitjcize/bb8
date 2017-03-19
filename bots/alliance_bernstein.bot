@@ -96,7 +96,7 @@
                   "type": "regexp",
                   "params": ["測驗"],
                   "collect_as": {"key": "FEATURE", "value": "NoIdea"},
-                  "memory_set": {"key": "ajax_root", "value": "http://yjlou-backup.appspot.com"}
+                  "memory_set": {"key": "ajax_root", "value": "http://dotted-lexicon-133523.appspot.com"}
                 },
                 "end_node_id": "TestTaste",
                 "ack_message": "接下來，我會問你喜不喜歡以下五個企業家，請輸入「喜歡」或「不喜歡」。"
@@ -105,7 +105,7 @@
                 "rule": {
                   "type": "regexp",
                   "params": ["dev"],
-                  "memory_set": {"key": "ajax_root", "value": "http://sad5566.com:8888"}
+                  "memory_set": {"key": "ajax_root", "value": "http://localhost:8888"}
                 },
                 "end_node_id": "TestTaste",
                 "ack_message": "DEV 接下來，我會問你五個人名，你再回答喜歡不喜歡他們。"
