@@ -1,0 +1,23 @@
+application: dotted-lexicon-133523
+# yjlou-backup
+version: v2
+runtime: python27
+api_version: 1
+threadsafe: false
+
+handlers:
+# For HTMLs and pictures
+- url: /s
+  static_dir: s
+
+- url: /want_ajax
+  script: home.app
+
+builtins:
+- remote_api: on
+
+libraries:
+- name: webapp2
+  version: latest
+- name: jinja2
+  version: latest
