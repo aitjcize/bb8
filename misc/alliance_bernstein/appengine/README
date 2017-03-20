@@ -1,0 +1,16 @@
+This is the App Engine code for Alliance Bernstein Fund Recommendation feature.
+
+- INSTALL App Engine SDK to your home (or whatever place you prefer)
+
+  cd ~/
+  wget https://storage.googleapis.com/appengine-sdks/featured/google_appengine_1.9.50.zip
+  unzip google_appengine_1.9.50.zip
+
+- Run the devserver
+
+  cd bb8/misc/alliance_bernstein/appengine
+  ~/google_appengine/dev_appserver.py --port 8888 .
+
+- Upload code to production
+
+  ~/google_appengine/appcfg.py --noauth_local_webserver --oauth2 update .
