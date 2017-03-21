@@ -603,7 +603,7 @@
       "ZeroToThree": {
         "name": "ZeroToThree",
         "expect_input": false,
-        "next_node_id": "Root",
+        "next_node_id": "RootRouter",
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
@@ -621,15 +621,21 @@
                   "  \"quick_replies\": [",
                   "     {",
                   "       \"content_type\": \"text\",",
-                  "       \"title\": \"我想再挑選其他類型的書籍\",",
+                  "       \"title\": \"請推薦商品給我\",",
                   "       \"payload\": {",
                   "         \"message\": {",
                   "           \"text\": \"PickABook\"",
                   "         }",
-                  "       },",
-                  "       \"acceptable_inputs\": [",
-                  "         \"其他\"",
-                  "       ]",
+                  "       }",
+                  "     },",
+                  "     {",
+                  "       \"content_type\": \"text\",",
+                  "       \"title\": \"聯絡小編\",",
+                  "       \"payload\": {",
+                  "         \"message\": {",
+                  "           \"text\": \"Feedback\"",
+                  "         }",
+                  "       }",
                   "     }",
                   "   ],",
                   "  \"messages\": [",
@@ -676,7 +682,7 @@
       "FourToSix": {
         "name": "FourToSix",
         "expect_input": false,
-        "next_node_id": "Root",
+        "next_node_id": "RootRouter",
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
@@ -694,15 +700,21 @@
                   "  \"quick_replies\": [",
                   "     {",
                   "       \"content_type\": \"text\",",
-                  "       \"title\": \"我想再挑選其他類型的書籍\",",
+                  "       \"title\": \"請推薦商品給我\",",
                   "       \"payload\": {",
                   "         \"message\": {",
                   "           \"text\": \"PickABook\"",
                   "         }",
-                  "       },",
-                  "       \"acceptable_inputs\": [",
-                  "         \"其他\"",
-                  "       ]",
+                  "       }",
+                  "     },",
+                  "     {",
+                  "       \"content_type\": \"text\",",
+                  "       \"title\": \"聯絡小編\",",
+                  "       \"payload\": {",
+                  "         \"message\": {",
+                  "           \"text\": \"Feedback\"",
+                  "         }",
+                  "       }",
                   "     }",
                   "   ],",
                   "  \"messages\": [",
@@ -749,7 +761,7 @@
       "SevenToTen": {
         "name": "SevenToTen",
         "expect_input": false,
-        "next_node_id": "Root",
+        "next_node_id": "RootRouter",
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
@@ -767,15 +779,21 @@
                   "  \"quick_replies\": [",
                   "     {",
                   "       \"content_type\": \"text\",",
-                  "       \"title\": \"我想再挑選其他類型的書籍\",",
+                  "       \"title\": \"請推薦商品給我\",",
                   "       \"payload\": {",
                   "         \"message\": {",
                   "           \"text\": \"PickABook\"",
                   "         }",
-                  "       },",
-                  "       \"acceptable_inputs\": [",
-                  "         \"其他\"",
-                  "       ]",
+                  "       }",
+                  "     },",
+                  "     {",
+                  "       \"content_type\": \"text\",",
+                  "       \"title\": \"聯絡小編\",",
+                  "       \"payload\": {",
+                  "         \"message\": {",
+                  "           \"text\": \"Feedback\"",
+                  "         }",
+                  "       }",
                   "     }",
                   "   ],",
                   "  \"messages\": [",
@@ -822,7 +840,7 @@
       "ElevenToFifteen": {
         "name": "ElevenToFifteen",
         "expect_input": false,
-        "next_node_id": "Root",
+        "next_node_id": "RootRouter",
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
@@ -840,15 +858,21 @@
                   "  \"quick_replies\": [",
                   "     {",
                   "       \"content_type\": \"text\",",
-                  "       \"title\": \"我想再挑選其他類型的書籍\",",
+                  "       \"title\": \"請推薦商品給我\",",
                   "       \"payload\": {",
                   "         \"message\": {",
                   "           \"text\": \"PickABook\"",
                   "         }",
-                  "       },",
-                  "       \"acceptable_inputs\": [",
-                  "         \"其他\"",
-                  "       ]",
+                  "       }",
+                  "     },",
+                  "     {",
+                  "       \"content_type\": \"text\",",
+                  "       \"title\": \"聯絡小編\",",
+                  "       \"payload\": {",
+                  "         \"message\": {",
+                  "           \"text\": \"Feedback\"",
+                  "         }",
+                  "       }",
                   "     }",
                   "   ],",
                   "  \"messages\": [",
@@ -1042,7 +1066,7 @@
       "ParentsOne": {
         "name": "ParentsOne",
         "expect_input": false,
-        "next_node_id": "Root",
+        "next_node_id": "RootRouter",
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
@@ -1060,15 +1084,21 @@
                   "  \"quick_replies\": [",
                   "     {",
                   "       \"content_type\": \"text\",",
-                  "       \"title\": \"我想再挑選其他類型的書籍\",",
+                  "       \"title\": \"請推薦商品給我\",",
                   "       \"payload\": {",
                   "         \"message\": {",
                   "           \"text\": \"PickABook\"",
                   "         }",
-                  "       },",
-                  "       \"acceptable_inputs\": [",
-                  "         \"其他\"",
-                  "       ]",
+                  "       }",
+                  "     },",
+                  "     {",
+                  "       \"content_type\": \"text\",",
+                  "       \"title\": \"聯絡小編\",",
+                  "       \"payload\": {",
+                  "         \"message\": {",
+                  "           \"text\": \"Feedback\"",
+                  "         }",
+                  "       }",
                   "     }",
                   "   ],",
                   "  \"messages\": [",
@@ -1115,7 +1145,7 @@
       "ParentsTwo": {
         "name": "ParentsTwo",
         "expect_input": false,
-        "next_node_id": "Root",
+        "next_node_id": "RootRouter",
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
@@ -1133,15 +1163,21 @@
                   "  \"quick_replies\": [",
                   "     {",
                   "       \"content_type\": \"text\",",
-                  "       \"title\": \"我想再挑選其他類型的書籍\",",
+                  "       \"title\": \"請推薦商品給我\",",
                   "       \"payload\": {",
                   "         \"message\": {",
                   "           \"text\": \"PickABook\"",
                   "         }",
-                  "       },",
-                  "       \"acceptable_inputs\": [",
-                  "         \"其他\"",
-                  "       ]",
+                  "       }",
+                  "     },",
+                  "     {",
+                  "       \"content_type\": \"text\",",
+                  "       \"title\": \"聯絡小編\",",
+                  "       \"payload\": {",
+                  "         \"message\": {",
+                  "           \"text\": \"Feedback\"",
+                  "         }",
+                  "       }",
                   "     }",
                   "   ],",
                   "  \"messages\": [",
@@ -1188,7 +1224,7 @@
       "ParentsThree": {
         "name": "ParentsThree",
         "expect_input": false,
-        "next_node_id": "Root",
+        "next_node_id": "RootRouter",
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
@@ -1206,15 +1242,21 @@
                   "  \"quick_replies\": [",
                   "     {",
                   "       \"content_type\": \"text\",",
-                  "       \"title\": \"我想再挑選其他類型的書籍\",",
+                  "       \"title\": \"請推薦商品給我\",",
                   "       \"payload\": {",
                   "         \"message\": {",
                   "           \"text\": \"PickABook\"",
                   "         }",
-                  "       },",
-                  "       \"acceptable_inputs\": [",
-                  "         \"其他\"",
-                  "       ]",
+                  "       }",
+                  "     },",
+                  "     {",
+                  "       \"content_type\": \"text\",",
+                  "       \"title\": \"聯絡小編\",",
+                  "       \"payload\": {",
+                  "         \"message\": {",
+                  "           \"text\": \"Feedback\"",
+                  "         }",
+                  "       }",
                   "     }",
                   "   ],",
                   "  \"messages\": [",
@@ -1261,7 +1303,7 @@
       "ParentsFour": {
         "name": "ParentsFour",
         "expect_input": false,
-        "next_node_id": "Root",
+        "next_node_id": "RootRouter",
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
@@ -1279,15 +1321,21 @@
                   "  \"quick_replies\": [",
                   "     {",
                   "       \"content_type\": \"text\",",
-                  "       \"title\": \"我想再挑選其他類型的書籍\",",
+                  "       \"title\": \"請推薦商品給我\",",
                   "       \"payload\": {",
                   "         \"message\": {",
                   "           \"text\": \"PickABook\"",
                   "         }",
-                  "       },",
-                  "       \"acceptable_inputs\": [",
-                  "         \"其他\"",
-                  "       ]",
+                  "       }",
+                  "     },",
+                  "     {",
+                  "       \"content_type\": \"text\",",
+                  "       \"title\": \"聯絡小編\",",
+                  "       \"payload\": {",
+                  "         \"message\": {",
+                  "           \"text\": \"Feedback\"",
+                  "         }",
+                  "       }",
                   "     }",
                   "   ],",
                   "  \"messages\": [",
@@ -1334,7 +1382,7 @@
       "ParentsFive": {
         "name": "ParentsFive",
         "expect_input": false,
-        "next_node_id": "Root",
+        "next_node_id": "RootRouter",
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
@@ -1352,15 +1400,21 @@
                   "  \"quick_replies\": [",
                   "     {",
                   "       \"content_type\": \"text\",",
-                  "       \"title\": \"我想再挑選其他類型的書籍\",",
+                  "       \"title\": \"請推薦商品給我\",",
                   "       \"payload\": {",
                   "         \"message\": {",
                   "           \"text\": \"PickABook\"",
                   "         }",
-                  "       },",
-                  "       \"acceptable_inputs\": [",
-                  "         \"其他\"",
-                  "       ]",
+                  "       }",
+                  "     },",
+                  "     {",
+                  "       \"content_type\": \"text\",",
+                  "       \"title\": \"聯絡小編\",",
+                  "       \"payload\": {",
+                  "         \"message\": {",
+                  "           \"text\": \"Feedback\"",
+                  "         }",
+                  "       }",
                   "     }",
                   "   ],",
                   "  \"messages\": [",
@@ -1473,7 +1527,7 @@
       "BooksForTeachers": {
         "name": "BooksForTeachers",
         "expect_input": false,
-        "next_node_id": "Root",
+        "next_node_id": "RootRouter",
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
@@ -1491,15 +1545,21 @@
                   "  \"quick_replies\": [",
                   "     {",
                   "       \"content_type\": \"text\",",
-                  "       \"title\": \"我想再挑選其他類型的書籍\",",
+                  "       \"title\": \"請推薦商品給我\",",
                   "       \"payload\": {",
                   "         \"message\": {",
                   "           \"text\": \"PickABook\"",
                   "         }",
-                  "       },",
-                  "       \"acceptable_inputs\": [",
-                  "         \"其他\"",
-                  "       ]",
+                  "       }",
+                  "     },",
+                  "     {",
+                  "       \"content_type\": \"text\",",
+                  "       \"title\": \"聯絡小編\",",
+                  "       \"payload\": {",
+                  "         \"message\": {",
+                  "           \"text\": \"Feedback\"",
+                  "         }",
+                  "       }",
                   "     }",
                   "   ],",
                   "  \"messages\": [",
@@ -1546,7 +1606,7 @@
       "MessageReport": {
         "name": "Generate message report",
         "expect_input": false,
-        "next_node_id": "Root",
+        "next_node_id": "FeedbackDone",
         "module": {
           "id": "ai.compose.function.core.report",
           "config": {
@@ -1581,6 +1641,7 @@
         "name": "FeedbackRouter",
         "description": "Feedback router",
         "expect_input": true,
+        "next_node_id": "Root",
         "module": {
           "id": "ai.compose.router.core.default",
           "config": {
@@ -1596,12 +1657,59 @@
                   }
                 },
                 "end_node_id": "MessageReport",
-                "ack_message": "謝謝您的留言，小編會盡快回覆您!"
+                "ack_message": ""
               }
             ],
             "on_error": {
               "end_node_id": "Root"
             }
+          }
+        }
+      },
+      "FeedbackDone": {
+        "name": "FeedbackDone",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "謝謝您的留言，小編會盡快回覆您!"
+              }
+            ],
+            "quick_replies": [
+              {
+                "content_type": "text",
+                "title": "請推薦商品給我",
+                "payload": {
+                  "message": {
+                    "text": "PickABook"
+                  }
+                },
+                "acceptable_inputs": [
+                  "買書",
+                  "(?i)Buy",
+                  "選書",
+                  "找書"
+                ]
+              },
+              {
+                "content_type": "text",
+                "title": "聯絡小編",
+                "payload": {
+                  "message": {
+                    "text": "Feedback"
+                  }
+                },
+                "acceptable_inputs": [
+                  "小編",
+                  "留言",
+                  "客訴",
+                  "客服"
+                ]
+              }
+            ]
           }
         }
       },
