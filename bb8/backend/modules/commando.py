@@ -252,6 +252,10 @@ def run(config, unused_user_input, unused_env, variables):
             msg = Message.FromDict(m)
             msgs.append(msg)
 
+        quick_replies = js.get('quick_replies', [])
+        for q in quick_replies:
+            msgs[-1].add_quick_reply(Message.QuickReply.FromDict(q))
+
         memory = js.get('memory', {})
         for k, v in memory.iteritems():
             Memory.Set(k, v)
