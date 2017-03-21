@@ -351,6 +351,14 @@
                   ":)",
                   "><"
                 ]
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)Start"]
+                },
+                "end_node_id": "Root",
+                "ack_message": ""
               }
             ],
             "on_error": {
@@ -1681,33 +1689,12 @@
             "quick_replies": [
               {
                 "content_type": "text",
-                "title": "請推薦商品給我",
+                "title": "開始使用",
                 "payload": {
                   "message": {
-                    "text": "PickABook"
+                    "text": "Start"
                   }
-                },
-                "acceptable_inputs": [
-                  "買書",
-                  "(?i)Buy",
-                  "選書",
-                  "找書"
-                ]
-              },
-              {
-                "content_type": "text",
-                "title": "聯絡小編",
-                "payload": {
-                  "message": {
-                    "text": "Feedback"
-                  }
-                },
-                "acceptable_inputs": [
-                  "小編",
-                  "留言",
-                  "客訴",
-                  "客服"
-                ]
+                }
               }
             ]
           }
