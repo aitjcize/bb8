@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-funds = {
+data = {
     '聯博全球高收益債券基金': {
         'image_url': 'https://www.abfunds.com.tw/APAC/TW/Biographies/Images/gershon.jpg',
         'item_url': 'https://www.abfunds.com.tw/APAC/TW/Funds/Global-High-Yield.htm?ShareClassId=68035586',

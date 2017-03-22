@@ -28,7 +28,7 @@ def get_recommended_foods(input, user_lang, local_langs):
   """
   assert len(input) > 0
 
-  scores = {k: 0.0 for k in fund.funds.keys()}
+  scores = {k: 0.0 for k in fund.data.keys()}
 
   # Convert getLangs() structure to dict:
   #   [["zh-TW", 1.0], ["en-US", 0.1]];
@@ -55,6 +55,8 @@ def get_recommended_foods(input, user_lang, local_langs):
 
     likes = alliance_bernstein.data[inp]
     for fund_name, score in likes.iteritems():
+      if score == '':
+        score = 0.0
       scores[fund_name] += score * weight
 
   # sort before return.
