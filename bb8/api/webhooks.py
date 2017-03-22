@@ -44,7 +44,7 @@ def facebook_receive():
                            'failed to verify message')
     try:
         if config.DEPLOY:
-            facebook_webhook_task.apply_async(priority=9)
+            facebook_webhook_task.apply_async(priority=0)
         else:
             facebook_webhook_task()
     except Exception as e:
@@ -72,7 +72,7 @@ def line_receive(provider_ident):
                        'failed to verify message')
     try:
         if config.DEPLOY:
-            line_webhook_task.apply_async((provider_ident,), priority=9)
+            line_webhook_task.apply_async((provider_ident,), priority=0)
         else:
             line_webhook_task(provider_ident)
     except Exception as e:
