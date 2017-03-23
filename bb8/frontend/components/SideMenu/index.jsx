@@ -3,6 +3,7 @@ import { hashHistory } from 'react-router'
 
 import stylePropType from 'react-style-proptype'
 import ActionDashboard from 'material-ui/svg-icons/action/dashboard'
+import ActionTimeline from 'material-ui/svg-icons/action/timeline'
 import { List, ListItem } from 'material-ui/List'
 import Paper from 'material-ui/Paper'
 import { Toolbar, ToolbarTitle } from 'material-ui/Toolbar'
@@ -66,6 +67,11 @@ class SideMenu extends React.Component {
             onTouchTap={() => hashHistory.push('/botManager')}
             primaryText="Manage Chatbots"
             leftIcon={<ActionDashboard />}
+          />
+          <ListItem
+            onTouchTap={() => hashHistory.push('/analytics')}
+            primaryText="Analytics"
+            leftIcon={<ActionTimeline />}
           />
         </List>
       </div>

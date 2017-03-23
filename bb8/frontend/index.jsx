@@ -18,6 +18,7 @@ import modules from './modules'
 import './styles/style.scss'
 
 const {
+  Analytics,
   App,
   Login,
   BotManager,
@@ -50,6 +51,7 @@ render(
       <Route onEnter={authRequired} path="/" component={App} >
         <IndexRoute component={BotManager} />
         <Route path="botmanager" component={BotManager} />
+        <Route path="analytics" component={Analytics} />
       </Route>
       <Route onEnter={notAuthRequired} path="login" component={Login} />
       <Route onEnter={notAuthRequired} path="signup" component={Signup} />
