@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-intro = {
+data = {
     '葛洛斯': {
         'desc': '債券天王，熟悉全球債券市場。',
     },

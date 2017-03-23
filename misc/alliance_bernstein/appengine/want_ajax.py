@@ -106,7 +106,7 @@ class WantAjax(ajax_helper.AjaxHelper):
       if person.startswith('+'):
         like_count += 1
         name = person[1:].encode('utf-8')
-        intro = people.intro[name]['desc']
+        intro = people.data[name]['desc']
         why += name + '：' + intro
 
     # Line has limitation for max 5 messages. Compress the reasons.
