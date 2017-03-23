@@ -35,6 +35,10 @@ const styles = {
   tableContainer: {
     marginLeft: '1.5em',
   },
+  authButton: {
+    margin: '0.5em',
+    zIndex: 99,
+  }
 }
 
 const drawDiagram = (startDate, endDate, viewId, callback) => {
@@ -294,7 +298,6 @@ class Diagrams extends React.Component {
         gapi.analytics.auth.authorize({
           container: 'embed-api-auth-container',
           clientid: CLIENT_ID,
-          userInfoLabel: '',
         })
         // eslint-disable-next-line no-undef
         gapi.analytics.auth.on('success', () => {
@@ -348,7 +351,7 @@ class Diagrams extends React.Component {
       <div
         style={styles.container}
       >
-        <div id="embed-api-auth-container" style={{ display: 'none' }} />
+        <div id="embed-api-auth-container" style={styles.authButton} />
         {
         this.state.loading ? <div style={styles.loader}>
           <CircularProgress thickness={5} />
