@@ -8,13 +8,31 @@ import logging
 
 import alliance_bernstein
 import fund
+import gram
 import people
 import user
 import utils
 
+def IndexFunds(funds):
+  """Generate the index for all funds.
 
-# ============================================================================
-#  從使用者已選的口味與菜色當中，選出最高分的菜色。
+  Args:
+    funds: dict of fund. Typically, the fund.data
+
+  Returns:
+    gram.Documnets.
+  """
+  docs = []
+
+  for fund_name, fund in funds.iteritems():
+    keywords = fund['keywords'].split(',')
+    docs.append(
+        gram.Document(
+            void_p=fund,
+            bigram_dict=gram.BigramDict.FromStringList(keywords)))
+
+  return gram.Documents(docs)
+
 def get_recommended_foods(input, user_lang, local_langs):
   """Returns foods for user to eat.
 
@@ -109,3 +127,21 @@ def next_foods_to_choose(input, lang, platform_user_ident=None):
     diet_habit = MockDietHabit()
 
   return [{'food': name, 'score': 1.0} for name in celebrity]
+
+def KeywordQuery(user_lang, keyword):
+  """Use keyword to query most relative funds.
+
+  Args:
+    user_lang: string. Can be 'xx_YY' or 'xx-YY'
+    keyword: string. Keyword use to query. Can be multiple separated by spaces
+
+  Returns:
+    list of fund.data element.
+  """
+  bigram_dict = gram.BigramDict.FromString(keyword)
+  docs = fund_index.Search(bigram_dict)
+  return [x.void_p for x in docs if x.score > 0]
+
+
+# Global variable. Load once.
+fund_index = IndexFunds(fund.data)

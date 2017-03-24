@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""This file is to handle the AJAX request.
+"""This file is to handle the AJAX request and output commando format.
+
+TODO: This file will be migrated to bb8 backend module.
 
 Note that all JSON inputs are unicode-encoded.
 """
@@ -66,7 +68,7 @@ class WantAjax(ajax_helper.AjaxHelper):
     elements = []
     for food in foods[:5]:
 
-      f = fund.funds[food['food']]
+      f = fund.data[food['food']]
       elements.append({
           'image_url': f['image_url'],
           'item_url': f['item_url'],
@@ -205,3 +207,65 @@ class WantAjax(ajax_helper.AjaxHelper):
       del n["score"]
 
     return next[:5]
+
+  def KeywordQuery(self):
+    """Use keyword to query most relative funds.
+
+    Args:
+      user_lang: string. Can be 'xx_YY' or 'xx-YY'
+      keyword: string. Keyword use to query. Can be multiple separated by spaces
+
+    Returns:
+      Commando format.
+    """
+    user_lang = self.request.get('user_lang')
+    keyword = self.request.get('keyword')
+
+    funds = want.KeywordQuery(user_lang, keyword)
+
+    msgs = []
+
+    elements = []
+    for f in funds[:5]:
+
+      elements.append({
+          'image_url': f['image_url'],
+          'item_url': f['item_url'],
+          'title': f['key'],
+          'subtitle': f['desc'],
+          'buttons': [{
+            'type': 'web_url',
+            'title': '基金介紹',
+            'url': f['item_url'],
+          }, {
+            'type': 'web_url',
+            'title': '淨值表現',
+            'url': f['net_worth_url'],
+          }, {
+            'type': 'web_url',
+            'title': '聯絡推薦理專',
+            'url': f['sales_url'],
+          }],
+      })
+
+    if elements:
+      msgs.append({
+          'text': u'以下是使用關鍵字「%s」搜尋的基金:：' % keyword,
+      })
+      msgs.append({
+          'attachment': {
+              'type': 'template',
+              'payload': {
+                  'template_type': 'generic',
+                  'elements': elements,
+              },
+          }
+      })
+    else:
+      msgs.append({
+          'text': u'找不到「%s」相關的基金:：' % keyword,
+      })
+
+    return {
+      'messages': msgs,
+    }

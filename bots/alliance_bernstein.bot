@@ -53,7 +53,7 @@
           "config": {
             "messages": [
               {
-                "text": "不知道買什麼基金嗎? 輸入「測驗」。"
+                "text": "這是主選單，輸入「說明」可以看功能說明。"
               }
             ],
             "quick_replies": [
@@ -78,37 +78,59 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(使用)?說明", "tutorial", "^\\?", "(?i)help", "幫助", "怎麼用?", "^？", "不會用", "求救"]
+                  "params": ["(使用)?說明", "tutorial", "^\\?", "(?i)help", "幫助", "怎麼用?", "^？", "不會用", "求救", "求助"]
                 },
-                "end_node_id": "Root",
+                "end_node_id": "ShowHelp",
                 "ack_message": ""
               },
               {
                 "rule": {
                   "type": "regexp",
-                  "params": [","]
+                  "params": ["查詢(.+)", "搜尋(.+)", "關鍵字(.+)"],
+                  "collect_as": {"key": "FEATURE", "value": "KeywordQuery"},
+                  "memory_set": [
+                    {"key": "FEATURE", "value": "KeywordQuery"},
+                    {"key": "keyword", "value": "{{matches#1}}"},
+                    {"key": "ajax_root", "value": "{{memory.ajax_root|unref('') if memory.ajax_root else 'http://dotted-lexicon-133523.appspot.com'}}"}
+                  ]
                 },
-                "end_node_id": "ComposeAiGetRecommendedFoods",
-                "ack_message": ""
+                "end_node_id": "KeywordQuery",
+                "ack_message": "使用關鍵字查詢中..."
               },
               {
                 "rule": {
                   "type": "regexp",
                   "params": ["測驗"],
                   "collect_as": {"key": "FEATURE", "value": "NoIdea"},
-                  "memory_set": {"key": "ajax_root", "value": "http://dotted-lexicon-133523.appspot.com"}
+                  "memory_set": [
+                    {"key": "FEATURE", "value": "NoIdea"},
+                    {"key": "ajax_root", "value": "{{memory.ajax_root|unref('') if memory.ajax_root else 'http://dotted-lexicon-133523.appspot.com'}}"}
+                  ]
                 },
-                "end_node_id": "TestTaste",
-                "ack_message": "接下來，我會問你喜不喜歡以下五個企業家，請輸入「喜歡」或「不喜歡」。"
+                "end_node_id": "RecommendFunds",
+                "ack_message": "接下來，我會問你喜不喜歡以下五個名人，請輸入「喜歡」或「不喜歡」。"
               },
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["dev"],
-                  "memory_set": {"key": "ajax_root", "value": "http://localhost:8888"}
+                  "params": ["(?i)prod"],
+                  "memory_set": [
+                    {"key": "ajax_root", "value": "http://dotted-lexicon-133523.appspot.com"}
+                  ]
                 },
-                "end_node_id": "TestTaste",
-                "ack_message": "DEV 接下來，我會問你五個人名，你再回答喜歡不喜歡他們。"
+                "end_node_id": "Root",
+                "ack_message": "Switched to PROD: {{memory.ajax_root}}"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)dev"],
+                  "memory_set": [
+                    {"key": "ajax_root", "value": "http://localhost:8888"}
+                  ]
+                },
+                "end_node_id": "Root",
+                "ack_message": "Switched to DEV: {{memory.ajax_root}}"
               }
             ],
             "on_error": {
@@ -119,9 +141,29 @@
         }
       },
 
-      "TestTaste": {
-        "name": "TestTaste",
-        "description": "TestTaste",
+      "ShowHelp": {
+        "name": "ShowHelp",
+        "description": "Show help",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "「測驗」可以找到適合你的基金。"
+              },
+              {
+                "text": "「查詢+關鍵字」可以搜尋基金。例如：「查詢新興市場」"
+              }
+            ]
+          }
+        }
+      },
+
+      "RecommendFunds": {
+        "name": "RecommendFunds",
+        "description": "RecommendFunds",
         "expect_input": false,
         "next_node_id": "Questionaire0",
         "module": {
@@ -653,6 +695,25 @@
               "end_node_id": "ComposeAiGetRecommendedFoodsRouter",
               "ack_message": "我好像壞掉了，快通知管理員。"
             }
+          }
+        }
+      },
+
+      "KeywordQuery": {
+        "name": "KeywordQuery",
+        "description": "KeywordQuery",
+        "expect_input": false,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "{{memory.ajax_root}}/want_ajax?action=KeywordQuery",
+            "params": [
+              ["user_lang", "zh_TW"],
+              ["keyword", "{{memory.keyword}}"]
+            ],
+            "debug": true,
+            "on_error": "我好像壞掉了，快通知管理員。"
           }
         }
       }
