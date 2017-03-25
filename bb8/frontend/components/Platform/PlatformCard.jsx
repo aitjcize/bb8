@@ -179,7 +179,7 @@ class PlatformCard extends React.Component {
           label="Delete"
           secondary
           onTouchTap={() =>
-            this.dialogActions.openDelPlatform(this.props.platform.id)}
+            this.dialogActions.openDelPlatform(this.props.platform)}
         />
       </CardActions>}
     </Card>)
@@ -188,9 +188,7 @@ class PlatformCard extends React.Component {
 
 PlatformCard.propTypes = {
   dispatch: React.PropTypes.func,
-  platform: React.PropTypes.shape({
-    id: React.PropTypes.number.isRequired,
-  }).isRequired,
+  platform: React.PropTypes.shape({}).isRequired,
   bots: React.PropTypes.shape({}),
   isFirst: React.PropTypes.bool,
   selectedBotId: React.PropTypes.number,

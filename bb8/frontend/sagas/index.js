@@ -310,14 +310,19 @@ export function* updatePlatformSaga() {
 export function* deletePlatformSaga() {
   while (true) {
     const { payload } = yield take(types.PLATFORMS_DELETE.REQUEST)
-    const platformId = payload
+    const platform = payload
 
-    const { error } = yield call(api.deletePlatform, platformId)
+    // Unsubscribe app before deleting the platform.
+    if (platform.typeEnum === 'Facebook') {
+      yield call(fbAPI.subscribeApp, platform.config.accessToken, false)
+    }
+
+    const { error } = yield call(api.deletePlatform, platform.id)
 
     if (error) {
       yield put({ type: types.PLATFORMS_DELETE.ERROR, payload: error })
     } else {
-      yield put({ type: types.PLATFORMS_DELETE.SUCCESS, payload: platformId })
+      yield put({ type: types.PLATFORMS_DELETE.SUCCESS, payload: platform.id })
     }
   }
 }

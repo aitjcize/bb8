@@ -76,14 +76,14 @@ export const confirmDelBroadcast = broadcastId => ({
 
 /* Platform Dialog */
 
-export const openDelPlatform = platformId => ({
+export const openDelPlatform = platform => ({
   type: types.DIALOG_PLATFORM_DEL.OPEN,
-  payload: platformId,
+  payload: platform,
 })
 
-export const confirmDelPlatform = platformId => ({
+export const confirmDelPlatform = platform => ({
   type: types.DIALOG_PLATFORM_DEL.CONFIRM,
-  payload: platformId,
+  payload: platform,
 })
 
 export const openCreatePlatform = () => ({

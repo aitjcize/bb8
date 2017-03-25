@@ -137,7 +137,7 @@ class AccountUser(DeclarativeBase, ModelMixin, JSONSerializableMixin):
             return account_user
 
         # Temporarily only allow invited social auth
-        if not invite:
+        if config.DEPLOY and not invite:
             raise RuntimeError('we are currently invite-only')
 
         if invite:

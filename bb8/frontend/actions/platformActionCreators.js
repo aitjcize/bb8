@@ -10,11 +10,6 @@ export const createPlatform = platform => ({
   payload: platform,
 })
 
-export const delPlatform = platformId => ({
-  type: types.PLATFORMS_DELETE.REQUEST,
-  payload: platformId,
-})
-
 export const updatePlatform = (platformId, platform) => ({
   type: types.PLATFORMS_UPDATE.REQUEST,
   payload: {
