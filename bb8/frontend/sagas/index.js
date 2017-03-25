@@ -41,7 +41,7 @@ export function* facebookAuthSaga() {
   while (true) {
     yield take(types.FACEBOOK_AUTH.REQUEST)
 
-    const { authResponse, error } = yield call(fbAPI.authorize)
+    const { accessToken, error } = yield call(fbAPI.authorize)
 
     if (error) {
       yield put(uiActionCreators.openNotification(
@@ -51,7 +51,8 @@ export function* facebookAuthSaga() {
       continue
     }
     const { email } = yield call(fbAPI.fetchMe)
-    const { response, err } = yield call(api.social_auth, email, 'Facebook', authResponse.accessToken)
+    const { response, err } = yield call(api.social_auth, email, 'Facebook',
+        accessToken)
 
     if (err) {
       yield put(uiActionCreators.openNotification(
@@ -69,7 +70,7 @@ export function* facebookAuthSaga() {
 export function* logoutSaga() {
   while (true) {
     yield take(types.ACCOUNTS_LOGOUT)
-    storage.remove(AUTH_TOKEN)
+    storage.clear()
     hashHistory.push('/login')
   }
 }
@@ -278,7 +279,8 @@ export function* updatePlatformSaga() {
     const { payload: { platformId, platform } } = yield take(types.PLATFORMS_UPDATE.REQUEST)
 
     if (platform.typeEnum === 'Facebook') {
-      const { error } = yield call(fbAPI.subscribeApp, platform.config.accessToken)
+      const { error } = yield call(
+          fbAPI.subscribeApp, platform.config.accessToken, platform.botId !== null)
       if (error) {
         yield put({ type: types.NOTIFICATION_OPEN, payload: 'Cannot attach bot to your facebook fans page, please try again later' })
         // eslint-disable-next-line no-continue

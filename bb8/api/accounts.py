@@ -95,7 +95,7 @@ def social_auth():
                        'schema validation fail')
 
     try:
-        facebook_id = oauth.verify_facebook(data['provider_token'])
+        facebook_id = oauth.facebook_verify_token(data['provider_token'])
     except Exception:
         raise AppError(
             HTTPStatus.STATUS_CLIENT_ERROR,
@@ -117,6 +117,35 @@ def social_auth():
     ret = account_user.to_json()
     ret[Key.AUTH_TOKEN] = account_user.auth_token
     return jsonify(ret)
+
+
+@app.route('/api/facebook_token_check', methods=['POST'])
+def facebook_token_check():
+    data = request.json
+
+    try:
+        oauth.facebook_verify_token(data['accessToken'])
+    except Exception:
+        raise AppError(
+            HTTPStatus.STATUS_CLIENT_ERROR,
+            CustomError.ERR_UNAUTHENTICATED,
+            'Invalid facebook token: %s' % data['accessToken'])
+
+    return jsonify({'status': 'ok'})
+
+
+@app.route('/api/facebook_token_extend', methods=['POST'])
+def facebook_token_extend():
+    data = request.json
+
+    try:
+        token = oauth.facebook_get_long_lived_token(data['accessToken'])
+        return jsonify({'accessToken': token})
+    except Exception:
+        raise AppError(
+            HTTPStatus.STATUS_CLIENT_ERROR,
+            CustomError.ERR_UNAUTHENTICATED,
+            'Failed to exchange token')
 
 
 @app.route('/api/login', methods=['POST'])

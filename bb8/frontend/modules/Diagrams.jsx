@@ -38,7 +38,7 @@ const styles = {
   authButton: {
     margin: '0.5em',
     zIndex: 99,
-  }
+  },
 }
 
 const drawDiagram = (startDate, endDate, viewId, callback) => {
