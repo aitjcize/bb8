@@ -9,6 +9,8 @@ data = {
         'net_worth_url': 'https://yjlou-backup.appspot.com/s/img/net_worth.png',
         'channel': '華南銀行，永豐金，臺灣銀行',
         'sales_url': 'https://yjlou-backup.appspot.com/s/img/sales.jpg',
+        'key': '聯博全球高收益債券基金',
+        'keywords': '全球,高收益,債券',
     },
     '聯博美國收益基金': {
         'image_url': 'https://www.abfunds.com.tw/APAC/TW/Biographies/Images/Matthew.jpg',
@@ -17,6 +19,8 @@ data = {
         'net_worth_url': 'https://yjlou-backup.appspot.com/s/img/net_worth.png',
         'channel': '華南銀行，永豐金，臺灣銀行',
         'sales_url': 'https://yjlou-backup.appspot.com/s/img/sales.jpg',
+        'key': '聯博美國收益基金',
+        'keywords': '美國,高收益,債券',
     },
     '聯博聚焦美國股票基金': {
         'image_url': 'https://www.abfunds.com.tw/APAC/TW/Biographies/Images/james.jpg',
@@ -25,6 +29,8 @@ data = {
         'net_worth_url': 'https://yjlou-backup.appspot.com/s/img/net_worth.png',
         'channel': '華南銀行，永豐金，臺灣銀行',
         'sales_url': 'https://yjlou-backup.appspot.com/s/img/sales.jpg',
+        'key': '聯博聚焦美國股票基金',
+        'keywords': '美國,股票',
     },
     '聯博歐洲收益基金': {
         'image_url': 'https://www.abfunds.com.tw/APAC/TW/Biographies/Images/ScottDiMaggio.jpg',
@@ -33,6 +39,8 @@ data = {
         'net_worth_url': 'https://yjlou-backup.appspot.com/s/img/net_worth.png',
         'channel': '華南銀行，永豐金，臺灣銀行',
         'sales_url': 'https://yjlou-backup.appspot.com/s/img/sales.jpg',
+        'key': '聯博歐洲收益基金',
+        'keywords': '歐洲,收益,債券',
     },
     '聯博新興市場多元收益基金': {
         'image_url': 'https://www.abfunds.com.tw/APAC/TW/Biographies/Images/morgan.jpg',
@@ -41,6 +49,8 @@ data = {
         'net_worth_url': 'https://yjlou-backup.appspot.com/s/img/net_worth.png',
         'channel': '華南銀行，永豐金，臺灣銀行',
         'sales_url': 'https://yjlou-backup.appspot.com/s/img/sales.jpg',
+        'key': '聯博新興市場多元收益基金',
+        'keywords': '新興,收益,債券',
     },
     '聯博日本策略價值基金': {
         'image_url': 'https://www.abfunds.com.tw/APAC/TW/Biographies/Images/Katsuaki.jpg',
@@ -49,6 +59,8 @@ data = {
         'net_worth_url': 'https://yjlou-backup.appspot.com/s/img/net_worth.png',
         'channel': '華南銀行，永豐金，臺灣銀行',
         'sales_url': 'https://yjlou-backup.appspot.com/s/img/sales.jpg',
+        'key': '聯博日本策略價值基金',
+        'keywords': '日本,價值,股票,亞洲',
     },
     '聯博美國成長基金': {
         'image_url': 'https://www.abfunds.com.tw/APAC/TW/Biographies/Images/frank.jpg',
@@ -57,6 +69,8 @@ data = {
         'net_worth_url': 'https://yjlou-backup.appspot.com/s/img/net_worth.png',
         'channel': '華南銀行，永豐金，臺灣銀行',
         'sales_url': 'https://yjlou-backup.appspot.com/s/img/sales.jpg',
+        'key': '聯博美國成長基金',
+        'keywords': '美國,成長,股票',
     },
     '聯博歐洲成長基金': {
         'image_url': 'https://www.abfunds.com.tw/APAC/TW/Biographies/Images/tawhid.jpg',
@@ -65,6 +79,8 @@ data = {
         'net_worth_url': 'https://yjlou-backup.appspot.com/s/img/net_worth.png',
         'channel': '華南銀行，永豐金，臺灣銀行',
         'sales_url': 'https://yjlou-backup.appspot.com/s/img/sales.jpg',
+        'key': '聯博歐洲成長基金',
+        'keywords': '歐洲,成長,股票',
     },
     '聯博新興市場成長基金': {
         'image_url': 'https://www.abfunds.com.tw/APAC/TW/Biographies/Images/Sergey.jpg',
@@ -73,6 +89,8 @@ data = {
         'net_worth_url': 'https://yjlou-backup.appspot.com/s/img/net_worth.png',
         'channel': '華南銀行，永豐金，臺灣銀行',
         'sales_url': 'https://yjlou-backup.appspot.com/s/img/sales.jpg',
+        'key': '聯博新興市場成長基金',
+        'keywords': '新興,成長,股票',
     },
     '聯博歐洲價值型基金': {
         'image_url': 'https://www.abfunds.com.tw/APAC/TW/Biographies/Images/tawhid.jpg',
@@ -81,6 +99,8 @@ data = {
         'net_worth_url': 'https://yjlou-backup.appspot.com/s/img/net_worth.png',
         'channel': '華南銀行，永豐金，臺灣銀行',
         'sales_url': 'https://yjlou-backup.appspot.com/s/img/sales.jpg',
+        'key': '聯博歐洲價值型基金',
+        'keywords': '歐洲,價值,股票',
     },
     '聯博全球平衡型基金': {
         'image_url': 'https://www.abfunds.com.tw/APAC/TW/Biographies/Images/avi.jpg',
@@ -89,6 +109,8 @@ data = {
         'net_worth_url': 'https://yjlou-backup.appspot.com/s/img/net_worth.png',
         'channel': '華南銀行，永豐金，臺灣銀行',
         'sales_url': 'https://yjlou-backup.appspot.com/s/img/sales.jpg',
+        'key': '聯博全球平衡型基金',
+        'keywords': '全球,平衡,股票,債券',
     },
     '聯博中國時機基金': {
         'image_url': 'https://www.abfunds.com.tw/APAC/TW/Biographies/Images/stuart.jpg',
@@ -97,6 +119,8 @@ data = {
         'net_worth_url': 'https://yjlou-backup.appspot.com/s/img/net_worth.png',
         'channel': '華南銀行，永豐金，臺灣銀行',
         'sales_url': 'https://yjlou-backup.appspot.com/s/img/sales.jpg',
+        'key': '聯博中國時機基金',
+        'keywords': '股票,中國,亞洲',
     },
     '聯博全球複合型股票基金': {
         'image_url': 'https://www.abfunds.com.tw/APAC/TW/Biographies/Images/danielr.jpg',
@@ -105,6 +129,8 @@ data = {
         'net_worth_url': 'https://yjlou-backup.appspot.com/s/img/net_worth.png',
         'channel': '華南銀行，永豐金，臺灣銀行',
         'sales_url': 'https://yjlou-backup.appspot.com/s/img/sales.jpg',
+        'key': '聯博全球複合型股票基金',
+        'keywords': '股票,全球,複合,債券',
     },
     '聯博全球前瞻主題基金': {
         'image_url': 'https://www.abfunds.com.tw/APAC/TW/Biographies/Images/danielr.jpg',
@@ -113,6 +139,8 @@ data = {
         'net_worth_url': 'https://yjlou-backup.appspot.com/s/img/net_worth.png',
         'channel': '華南銀行，永豐金，臺灣銀行',
         'sales_url': 'https://yjlou-backup.appspot.com/s/img/sales.jpg',
+        'key': '聯博全球前瞻主題基金',
+        'keywords': '股票,全球,前瞻',
     },
     '聯博全球價值型基金': {
         'image_url': 'https://www.abfunds.com.tw/APAC/TW/Biographies/Images/tawhid.jpg',
@@ -121,6 +149,8 @@ data = {
         'net_worth_url': 'https://yjlou-backup.appspot.com/s/img/net_worth.png',
         'channel': '華南銀行，永豐金，臺灣銀行',
         'sales_url': 'https://yjlou-backup.appspot.com/s/img/sales.jpg',
+        'key': '聯博全球價值型基金',
+        'keywords': '股票,全球,價值',
     },
     '聯博房貸收益基金': {
         'image_url': 'https://www.abfunds.com.tw/APAC/TW/Biographies/Images/michaels.jpg',
@@ -129,6 +159,8 @@ data = {
         'net_worth_url': 'https://yjlou-backup.appspot.com/s/img/net_worth.png',
         'channel': '華南銀行，永豐金，臺灣銀行',
         'sales_url': 'https://yjlou-backup.appspot.com/s/img/sales.jpg',
+        'key': '聯博房貸收益基金',
+        'keywords': '全球,房貸,收益,債券',
     },
     '聯博亞洲股票基金': {
         'image_url': 'https://www.abfunds.com.tw/APAC/TW/Biographies/Images/stuart.jpg',
@@ -137,6 +169,8 @@ data = {
         'net_worth_url': 'https://yjlou-backup.appspot.com/s/img/net_worth.png',
         'channel': '華南銀行，永豐金，臺灣銀行',
         'sales_url': 'https://yjlou-backup.appspot.com/s/img/sales.jpg',
+        'key': '聯博亞洲股票基金',
+        'keywords': '亞洲,股票',
     },
     '聯博印度成長基金': {
         'image_url': 'https://www.abfunds.com.tw/APAC/TW/Biographies/Images/Sergey.jpg',
@@ -145,6 +179,8 @@ data = {
         'net_worth_url': 'https://yjlou-backup.appspot.com/s/img/net_worth.png',
         'channel': '華南銀行，永豐金，臺灣銀行',
         'sales_url': 'https://yjlou-backup.appspot.com/s/img/sales.jpg',
+        'key': '聯博印度成長基金',
+        'keywords': '亞洲,印度,成長,股票',
     },
     '聯博國際醫療基金': {
         'image_url': 'https://www.abfunds.com.tw/APAC/TW/Biographies/Images/Sergey.jpg',
@@ -153,5 +189,7 @@ data = {
         'net_worth_url': 'https://yjlou-backup.appspot.com/s/img/net_worth.png',
         'channel': '華南銀行，永豐金，臺灣銀行',
         'sales_url': 'https://yjlou-backup.appspot.com/s/img/sales.jpg',
+        'key': '聯博國際醫療基金',
+        'keywords': '全球,國際,醫療,成長,股票',
     },
 }
