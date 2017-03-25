@@ -1,4 +1,5 @@
 export const AUTH_TOKEN = 'auth_token'
+export const ACCESS_TOKEN = 'access_token'
 
 export const TIME_ZONES = [
   'Africa/Abidjan',

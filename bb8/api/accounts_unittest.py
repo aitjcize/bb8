@@ -100,10 +100,10 @@ class AccountUserAPIUnittest(unittest.TestCase):
         user = AccountUser.get_by(email='test-3@gmail.com', single=True)
         self.assertEquals(self.account.id, user.account_id)
 
-    @mock.patch('bb8.backend.oauth.verify_facebook')
-    def test_social_auth(self, mock_verify_facebook):
+    @mock.patch('bb8.backend.oauth.facebook_verify_token')
+    def test_social_auth(self, mock_facebook_verify_token):
         # Test social_auth
-        mock_verify_facebook.return_value = '00000000'
+        mock_facebook_verify_token.return_value = '00000000'
         rv = self.app.post('/api/social_auth',
                            data=json.dumps(dict(
                                email='test-1@gmail.com',
@@ -113,7 +113,7 @@ class AccountUserAPIUnittest(unittest.TestCase):
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
 
         # Test social_auth with org invite, wrong invite code email
-        mock_verify_facebook.return_value = '11111111'
+        mock_facebook_verify_token.return_value = '11111111'
         invite_code = self.account.invite_code('test-2@gmail.com')
         rv = self.app.post('/api/social_auth?invite=%s' % invite_code,
                            data=json.dumps(dict(
@@ -124,7 +124,7 @@ class AccountUserAPIUnittest(unittest.TestCase):
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
 
         # Test social_auth with org invite
-        mock_verify_facebook.return_value = '22222222'
+        mock_facebook_verify_token.return_value = '22222222'
         invite_code = self.account.invite_code('test-2@gmail.com')
         rv = self.app.post('/api/social_auth?invite=%s' % invite_code,
                            data=json.dumps(dict(
