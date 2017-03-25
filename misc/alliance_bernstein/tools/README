@@ -1,0 +1,8 @@
+This is steps to import the fund data from Alliance Bernstein.
+
+WARNING! This could overwrite the data *.py under ../appengine/.
+
+- Export all tabs as CSV in https://docs.google.com/spreadsheets/d/1tvPmoXhDRrZWLWXT2ymk83SER2fcp_m1MLrsnoYQPoo/edit?usp=sharing
+  and save them in input_csv/.
+
+- Run 'make'. All CSV files have been converted to *.py under ../appengine/.
