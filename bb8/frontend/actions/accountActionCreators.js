@@ -1,7 +1,10 @@
 import types from '../constants/ActionTypes'
 
-export const startfacebookAuth = () => ({
+export const startfacebookAuth = inviteCode => ({
   type: types.FACEBOOK_AUTH.REQUEST,
+  payload: {
+    inviteCode,
+  },
 })
 
 export const startLogin = (email, passwd) => ({

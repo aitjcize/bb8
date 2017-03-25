@@ -48,7 +48,8 @@ SOCIAL_AUTH_SCHEMA = {
             'pattern': r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)'
         },
         'provider': {'enum': ['Facebook']},
-        'provider_token': {'type': 'string'}
+        'provider_token': {'type': 'string'},
+        'invite_code': {'type': 'string'}
     }
 }
 
@@ -105,12 +106,12 @@ def social_auth():
     try:
         account_user = AccountUser.register_oauth(
             data['email'], data['provider'], facebook_id,
-            request.args.get('invite'))
-    except Exception:
+            data.get('invite_code'))
+    except Exception as e:
         raise AppError(
             HTTPStatus.STATUS_CLIENT_ERROR,
             CustomError.ERR_WRONG_PARAM,
-            'Cannot register the user')
+            str(e))
 
     DatabaseManager.commit()
 

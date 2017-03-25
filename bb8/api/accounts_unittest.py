@@ -103,14 +103,15 @@ class AccountUserAPIUnittest(unittest.TestCase):
     @mock.patch('bb8.backend.oauth.facebook_verify_token')
     def test_social_auth(self, mock_facebook_verify_token):
         # Test social_auth
-        mock_facebook_verify_token.return_value = '00000000'
-        rv = self.app.post('/api/social_auth',
-                           data=json.dumps(dict(
-                               email='test-1@gmail.com',
-                               provider='Facebook',
-                               provider_token='token',
-                           )), content_type='application/json')
-        self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
+        # XXX: temporarily disable social auth without invite
+        # mock_facebook_verify_token.return_value = '00000000'
+        # rv = self.app.post('/api/social_auth',
+        #                    data=json.dumps(dict(
+        #                        email='test-1@gmail.com',
+        #                        provider='Facebook',
+        #                        provider_token='token',
+        #                    )), content_type='application/json')
+        # self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
 
         # Test social_auth with org invite, wrong invite code email
         mock_facebook_verify_token.return_value = '11111111'
@@ -120,17 +121,19 @@ class AccountUserAPIUnittest(unittest.TestCase):
                                email='test-20@gmail.com',
                                provider='Facebook',
                                provider_token='token',
+                               invite_code=invite_code
                            )), content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
 
         # Test social_auth with org invite
         mock_facebook_verify_token.return_value = '22222222'
         invite_code = self.account.invite_code('test-2@gmail.com')
-        rv = self.app.post('/api/social_auth?invite=%s' % invite_code,
+        rv = self.app.post('/api/social_auth',
                            data=json.dumps(dict(
                                email='test-2@gmail.com',
                                provider='Facebook',
                                provider_token='token',
+                               invite_code=invite_code
                            )), content_type='application/json')
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
 

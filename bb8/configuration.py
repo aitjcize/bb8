@@ -29,10 +29,8 @@ class Config(object):
     N_THREADS = 64
 
     # Secrets
-    # FIXME: Replace these secrets in production
     JWT_SECRET = 'JWT_SECRET_REPLACE_ME'
-    # Secret key for Flask session
-    SECRET_KEY = 'SECRET_KEY_REPLACE_ME'
+    INVITE_MASTER = 'master@compose.ai'
 
     # Log
     LOG_DIR = BB8_ROOT + '/log'
@@ -147,6 +145,9 @@ class DeployConfig(DevelopmentConfig):
 
     # Log
     LOG_DIR = BB8_ROOT + '/app_log'
+
+    # Secrets
+    JWT_SECRET = '4e1243bd22c66e76c2ba9eddc1f91394e57f9f83'
 
     # Server
     HOSTNAME = os.getenv('BB8_HOSTNAME', 'bot.compose.ai')
