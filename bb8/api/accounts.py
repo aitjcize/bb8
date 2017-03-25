@@ -107,11 +107,11 @@ def social_auth():
         account_user = AccountUser.register_oauth(
             data['email'], data['provider'], facebook_id,
             data.get('invite_code'))
-    except Exception:
+    except Exception as e:
         raise AppError(
             HTTPStatus.STATUS_CLIENT_ERROR,
             CustomError.ERR_WRONG_PARAM,
-            'Cannot register the user')
+            str(e))
 
     DatabaseManager.commit()
 
