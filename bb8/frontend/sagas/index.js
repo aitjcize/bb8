@@ -39,7 +39,8 @@ export function* facebookPagesSaga() {
 
 export function* facebookAuthSaga() {
   while (true) {
-    yield take(types.FACEBOOK_AUTH.REQUEST)
+    const request = yield take(types.FACEBOOK_AUTH.REQUEST)
+    const { inviteCode } = request.payload
 
     const { accessToken, error } = yield call(fbAPI.authorize)
 
@@ -51,18 +52,19 @@ export function* facebookAuthSaga() {
       continue
     }
     const { email } = yield call(fbAPI.fetchMe)
-    const { response, err } = yield call(api.social_auth, email, 'Facebook',
-        accessToken)
+    const resp = yield call(api.social_auth, email, 'Facebook',
+        accessToken, inviteCode)
 
-    if (err) {
+    if (resp.error) {
       yield put(uiActionCreators.openNotification(
         'Failed to sign up'))
-      yield put({ type: types.FACEBOOK_AUTH.ERROR, payload: err })
+      yield put({ type: types.FACEBOOK_AUTH.ERROR, payload: resp.error })
+      storage.clear()
       // eslint-disable-next-line no-continue
       continue
     }
-    storage.set(AUTH_TOKEN, response.authToken)
-    yield put({ type: types.FACEBOOK_AUTH.ERROR, payload: response })
+    storage.set(AUTH_TOKEN, resp.response.authToken)
+    yield put({ type: types.FACEBOOK_AUTH.ERROR, payload: resp.response })
     hashHistory.push('/')
   }
 }

@@ -9,14 +9,14 @@ import FacebookIcon from '../assets/svgIcon/FacebookIcon'
 
 const FacebookAuth = props =>
   <FlatButton
-    onClick={() => props.dispatch(startfacebookAuth())}
+    onClick={() => props.dispatch(startfacebookAuth(props.inviteCode))}
     style={{ ...{
       backgroundColor: '#3B5998',
       color: 'white',
     },
       ...props.style }}
     icon={<FacebookIcon />}
-    label="Login via Facebook"
+    label={props.label || 'Login via Facebook'}
     labelPosition="after"
     labelStyle={{ textTransform: 'none' }}
   />
@@ -24,6 +24,8 @@ const FacebookAuth = props =>
 FacebookAuth.propTypes = {
   dispatch: React.PropTypes.func,
   style: stylePropType,
+  label: React.PropTypes.string,
+  inviteCode: React.PropTypes.string,
 }
 
 const ConnectedFacebookAuth = connect()(FacebookAuth)

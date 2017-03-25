@@ -15,9 +15,9 @@ const auth = {
     .then(response => ({ response }))
     .catch(error => ({ error }))
   },
-  social_auth(email, provider, providerToken) {
+  social_auth(email, provider, providerToken, inviteCode) {
     return fetch('POST', '/api/social_auth', {
-      email, provider, providerToken,
+      email, provider, providerToken, inviteCode,
     })
     .then(response => ({ response }))
     .catch(error => ({ error }))
