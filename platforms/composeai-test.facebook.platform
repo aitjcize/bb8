@@ -1,9 +1,0 @@
-{
-  "name": "Compose.ai test Messenger bot",
-  "type_enum": "Facebook",
-  "deployed": true,
-  "provider_ident": "1896499930584495",
-  "config": {
-    "access_token": "EAAZAi0GnycPEBACl4hDy88HUGDJv66bsZB9Q0hD1bQUwZAneBMxxz78ID8QbTnS0a5r3HZCJXWLWnsZAJuXpCIgJOPYGCmsCemxZC6sfdDrROwvBsWvB8qZASVplrZAf4NJZCSAZAFQTrxoZBLsdK4OO02xNm7IkAvAW9pxeqaNRhLxUQZDZD"
-  }
-}

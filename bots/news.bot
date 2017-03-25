@@ -1,8 +1,4 @@
 {
-  "platforms": {
-    "Facebook": "687078918112948",
-    "Line": "news.composeai"
-  },
   "bot": {
     "name": "News",
     "description": "News",

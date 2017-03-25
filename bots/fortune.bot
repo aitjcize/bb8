@@ -1,8 +1,4 @@
 {
-  "platforms": {
-      "Facebook": "325044184558412",
-      "Line": "fortune.composeai"
-  },
   "bot": {
     "name": "Fortune",
     "description": "The fortune teller",
