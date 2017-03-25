@@ -142,7 +142,10 @@ class AccountUser(DeclarativeBase, ModelMixin, JSONSerializableMixin):
 
         if invite:
             account, payload = Account.from_invite_code(invite)
-            if payload['email'] != email:
+            # If email is master email, a user is able to create new Account.
+            if payload['email'] == config.INVITE_MASTER:
+                account = Account(name=email).add()
+            elif payload['email'] != email:
                 raise RuntimeError('invitation link not intended for this '
                                    'email')
         else:

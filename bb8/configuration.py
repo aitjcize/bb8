@@ -30,8 +30,7 @@ class Config(object):
 
     # Secrets
     JWT_SECRET = 'JWT_SECRET_REPLACE_ME'
-    # Secret key for Flask session
-    SECRET_KEY = 'SECRET_KEY_REPLACE_ME'
+    INVITE_MASTER = 'master@compose.ai'
 
     # Log
     LOG_DIR = BB8_ROOT + '/log'
