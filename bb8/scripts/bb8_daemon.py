@@ -1,0 +1,132 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+    BB8 Slack Daemon
+    ~~~~~~~~~~~~~~~~
+
+    Slack bot for controlling BB8 server.
+
+    Copyright 2016 bb8 Authors
+"""
+
+import json
+import logging
+import subprocess
+import traceback
+
+import websocket
+
+from slacker import Slacker
+
+
+_SLACK_TOKEN = 'xoxb-102806872243-CID1gwuenpeYcARR6M6bcrox'
+
+
+def setup_logger():
+    logger = logging.getLogger('websocket')
+    logger.setLevel(logging.INFO)
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(
+        '%(asctime)s %(message)s', '%Y/%m/%d %H:%M:%S')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+
+class SlackClient(object):
+    def __init__(self, channel):
+        self._slack = Slacker(_SLACK_TOKEN)
+        self._channel_id = None
+
+        response = self._slack.rtm.start()
+        self._myself = response.body['self']
+        self._id = self._myself['id']
+        self._mention = '<@%s>' % self._id
+
+        for ch in response.body['channels']:
+            if ch['name'] == channel:
+                self._channel_id = ch['id']
+
+        if self._channel_id is None:
+            raise RuntimeError('can not find channel `%s\'' % channel)
+
+        self._ws = websocket.WebSocketApp(response.body['url'],
+                                          on_message=self.on_message)
+
+    def start(self):
+        self._ws.run_forever()
+
+    def run(self, command, input_data=None, allow_error=False):
+        """Simple wrapper for executing shell command."""
+        try:
+            p = subprocess.Popen(command,
+                                 stdin=subprocess.PIPE,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE,
+                                 shell=True)
+            (stdout, stderr) = p.communicate(input_data)
+            self.post_message('```%s```' % stdout)
+            if stderr:
+                self.post_message('```%s```' % stderr)
+        except Exception:
+            if not allow_error:
+                raise Exception(stderr)
+
+    def on_message(self, unused_ws, msg):
+        try:
+            data = json.loads(msg)
+            if data.get('type') == 'message':
+                if data['text'].startswith(self._mention):
+                    text = data['text'][len(self._mention):].lstrip()
+                    self.process_command(text)
+        except Exception as e:
+            logging.exception(e)
+
+    def post_message(self, message):
+        self._ws.send(
+            json.dumps({
+                'type': 'message',
+                'channel': self._channel_id,
+                'text': message
+            })
+        )
+
+    def pong(self):
+        self.post_message('pong')
+
+    def full_deploy(self):
+        try:
+            self.post_message('Checking out latest code ...')
+            self.run('git pull')
+            self.post_message('Running `make deploy` ...')
+            self.run('make deploy')
+            self.post_message('Updating bots ...')
+            self.run('manage update_bots', 'yes\n\n')
+        except Exception:
+            self.post_message(traceback.format_exc())
+        else:
+            self.post_message('It\'s a success ;)')
+
+    def update_bots(self):
+        try:
+            self.post_message('Checking out latest code ...')
+            self.run('git pull')
+            self.post_message('Updating bots ...')
+            self.run('manage update_bots', 'yes\n\n')
+        except Exception:
+            self.post_message(traceback.format_exc())
+        else:
+            self.post_message('It\'s a success ;)')
+
+    def process_command(self, command):
+        if command == 'ping':
+            self.pong()
+        elif command == 'full deploy':
+            self.full_deploy()
+        elif command == 'update bots':
+            self.update_bots()
+
+
+if __name__ == '__main__':
+    setup_logger()
+    client = SlackClient('operation')
+    client.start()
