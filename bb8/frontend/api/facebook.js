@@ -100,3 +100,21 @@ export const refreshPage = () => authorize()
     },
     { access_token: response.accessToken })
   }))
+
+// refresh the name and access token of a given page
+export const getRefreshedPage = providerIdent => authorize()
+  .then(response => new Promise((resolve, reject) => {
+    // eslint-disable-next-line no-undef
+    FB.api('/me/accounts', (resp) => {
+      for (const page of resp.data) {
+        if (page.id === providerIdent) {
+          resolve(Object.assign({}, {
+            name: page.name,
+            accessToken: page.access_token,
+          }))
+        }
+      }
+      reject({ error: new Error(`Cannot find facebook page id: ${providerIdent}`) })
+    },
+    { access_token: response.accessToken })
+  }))

@@ -171,9 +171,10 @@ class PlatformCard extends React.Component {
       </CardHeader>
       {!selectedBotId && <CardActions>
         <FlatButton
-          label="Edit"
+          label="Refresh"
           onTouchTap={() =>
-            this.dialogActions.openUpdatePlatform(this.props.platform)}
+            this.platformActions.refreshPage(this.props.platform)
+          }
         />
         <FlatButton
           label="Delete"
