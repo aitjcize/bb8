@@ -50,25 +50,29 @@ def threaded(func):
 class SlackClient(object):
     def __init__(self, channel):
         self._slack = Slacker(_SLACK_TOKEN)
+        self._channel = channel
+        self._id = None
+        self._mention = None
         self._channel_id = None
+        self._ws = None
         self.thread = None
 
+    def start(self):
         response = self._slack.rtm.start()
-        self._myself = response.body['self']
-        self._id = self._myself['id']
+        self._id = response.body['self']['id']
         self._mention = '<@%s>' % self._id
 
         for ch in response.body['channels']:
-            if ch['name'] == channel:
+            if ch['name'] == self._channel:
                 self._channel_id = ch['id']
 
         if self._channel_id is None:
-            raise RuntimeError('can not find channel `%s\'' % channel)
+            raise RuntimeError('can not find channel `%s\'' % self._channel)
 
         self._ws = websocket.WebSocketApp(response.body['url'],
+                                          on_error=self.on_error,
+                                          on_close=self.on_close,
                                           on_message=self.on_message)
-
-    def start(self):
         self._ws.run_forever()
 
     def run(self, command, input_data=None, allow_error=False):
@@ -86,6 +90,12 @@ class SlackClient(object):
         except Exception:
             if not allow_error:
                 raise Exception(stderr)
+
+    def on_error(self, unused_ws, error):
+        logging.error(error)
+
+    def on_close(self, unused_ws):
+        logging.info('connect closed')
 
     def on_message(self, unused_ws, msg):
         try:
@@ -155,4 +165,8 @@ class SlackClient(object):
 if __name__ == '__main__':
     setup_logger()
     client = SlackClient('operation')
-    client.start()
+    try:
+        while True:
+            client.start()
+    except KeyboardInterrupt:
+        pass
