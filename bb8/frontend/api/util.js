@@ -13,7 +13,7 @@ function checkStatus(response) {
     return response
   }
   return response.json().then((json) => {
-    const error = new Error(response.statusText)
+    const error = new Error(json.message)
     error.response = response
     error.body = camelizeKeys(json)
     if (error.body.errorCode === 100) {

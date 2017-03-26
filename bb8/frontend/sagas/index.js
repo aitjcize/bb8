@@ -57,7 +57,7 @@ export function* facebookAuthSaga() {
 
     if (resp.error) {
       yield put(uiActionCreators.openNotification(
-        'Failed to sign up'))
+        `Failed to signup: ${resp.error}`))
       yield put({ type: types.FACEBOOK_AUTH.ERROR, payload: resp.error })
       storage.clear()
       // eslint-disable-next-line no-continue
