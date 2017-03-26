@@ -12,6 +12,7 @@
 import json
 import logging
 import subprocess
+import threading
 import traceback
 
 import websocket
@@ -32,10 +33,25 @@ def setup_logger():
     logger.addHandler(handler)
 
 
+def threaded(func):
+    def _wrapped(self):
+        if self.thread is None:
+            def thread_func():
+                func(self)
+                self.thread = None
+
+            self.thread = threading.Thread(target=thread_func)
+            self.thread.start()
+        else:
+            self.post_message('An active task is running, command ignored.')
+    return _wrapped
+
+
 class SlackClient(object):
     def __init__(self, channel):
         self._slack = Slacker(_SLACK_TOKEN)
         self._channel_id = None
+        self.thread = None
 
         response = self._slack.rtm.start()
         self._myself = response.body['self']
@@ -99,6 +115,7 @@ class SlackClient(object):
         except Exception:
             self.post_message(traceback.format_exc())
 
+    @threaded
     def full_deploy(self):
         try:
             self.post_message('Checking out latest code ...')
@@ -112,6 +129,7 @@ class SlackClient(object):
         else:
             self.post_message('It\'s a success ;)')
 
+    @threaded
     def update_bots(self):
         try:
             self.post_message('Checking out latest code ...')
