@@ -93,6 +93,12 @@ class SlackClient(object):
     def pong(self):
         self.post_message('pong')
 
+    def status(self):
+        try:
+            self.run('bb8ctl status')
+        except Exception:
+            self.post_message(traceback.format_exc())
+
     def full_deploy(self):
         try:
             self.post_message('Checking out latest code ...')
@@ -120,6 +126,8 @@ class SlackClient(object):
     def process_command(self, command):
         if command == 'ping':
             self.pong()
+        elif command == 'status':
+            self.status()
         elif command == 'full deploy':
             self.full_deploy()
         elif command == 'update bots':
