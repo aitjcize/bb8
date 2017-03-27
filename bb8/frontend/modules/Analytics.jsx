@@ -108,9 +108,17 @@ Analytics.propTypes = {
   gaId: React.PropTypes.string,
 }
 
+const getGaId = (bots, activeId) => {
+  const bot = bots[activeId]
+  if (bot) {
+    return bot.gaId
+  }
+  return ''
+}
+
 const ConnectedAnalytics = connect(
   state => ({
-    gaId: state.entities.bots[state.bots.active].gaId,
+    gaId: getGaId(state.entities.bots, state.bots.active),
   }),
   () => ({}),
 )(Analytics)

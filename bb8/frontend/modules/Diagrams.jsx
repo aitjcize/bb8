@@ -41,8 +41,12 @@ const styles = {
   },
 }
 
-const drawDiagram = (startDate, endDate, viewId, callback) => {
-  if (!viewId) return
+function drawDiagram(startDate, endDate, viewId, callback) {
+  if (!viewId) {
+    const error = new Error('Failed to load analytics because of empty viewId')
+    callback(error)
+    return
+  }
 
   const gaViewId = `ga:${viewId}`
 
@@ -283,30 +287,19 @@ class Diagrams extends React.Component {
     this.state = { startDate, endDate, gaId, loading: true }
 
     this.loadMapping = this.loadMapping.bind(this)
+    this.loadGoogleAnalyticsAndDraw = this.loadGoogleAnalyticsAndDraw.bind(this)
     this.mapping = {}
+  }
+
+  componentDidMount() {
+    const { startDate, endDate, gaId } = this.props
+    // eslint-disable-next-line no-undef
+    this.loadGoogleAnalyticsAndDraw(startDate, endDate, gaId)
   }
 
   componentWillReceiveProps(props) {
     const { startDate, endDate, gaId } = props
-    this.setState({ startDate, endDate, gaId })
-
-    // eslint-disable-next-line no-undef
-    gapi.analytics.ready(() => {
-      // eslint-disable-next-line no-undef
-      if (!gapi.analytics.auth.isAuthorized()) {
-        // eslint-disable-next-line no-undef
-        gapi.analytics.auth.authorize({
-          container: 'embed-api-auth-container',
-          clientid: CLIENT_ID,
-        })
-        // eslint-disable-next-line no-undef
-        gapi.analytics.auth.on('success', () => {
-          this.loadMapping().then(mapping => this.setState({ viewId: mapping[gaId] }))
-        })
-      } else {
-        this.loadMapping().then(mapping => this.setState({ viewId: mapping[gaId] }))
-      }
-    })
+    this.setState({ startDate, endDate, gaId, viewId: this.mapping[gaId] })
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -315,9 +308,8 @@ class Diagrams extends React.Component {
         this.state.viewId === prevState.viewId) {
       return
     }
-    drawDiagram(this.state.startDate, this.state.endDate, this.state.viewId, () => {
-      this.setState({ loading: false })
-    })
+    const { startDate, endDate, gaId } = this.props
+    this.loadGoogleAnalyticsAndDraw(startDate, endDate, gaId)
   }
 
   loadMapping() {
@@ -333,10 +325,11 @@ class Diagrams extends React.Component {
         gapi.client.analytics.management.webproperties.list({ accountId }))))
       .then(responses =>
         responses.map(resp =>
-          Object.assign({}, ...Object.values(resp.result.items)
-                                     .map(item => ({
-                                       [item.id]: item.defaultProfileId,
-                                     })))
+          Object.assign({},
+            ...Object.values(resp.result.items)
+                               .map(item => ({
+                                 [item.id]: item.defaultProfileId,
+                               })))
         )
       )
       .then(responses => Object.assign({}, ...responses))
@@ -344,6 +337,34 @@ class Diagrams extends React.Component {
         this.mapping = mapping
         return mapping
       })
+  }
+
+  loadGoogleAnalyticsAndDraw(startDate, endDate, gaId) {
+    const successCallback = () => {
+      this.loadMapping()
+          .then((mapping) => {
+            this.setState({ viewId: mapping[gaId] })
+            drawDiagram(startDate, endDate, mapping[gaId], () => {
+              this.setState({ loading: false })
+            })
+          })
+    }
+
+    // eslint-disable-next-line no-undef
+    gapi.analytics.ready(() => {
+      // eslint-disable-next-line no-undef
+      if (!gapi.analytics.auth.isAuthorized()) {
+        // eslint-disable-next-line no-undef
+        gapi.analytics.auth.authorize({
+          container: 'embed-api-auth-container',
+          clientid: CLIENT_ID,
+        })
+        // eslint-disable-next-line no-undef
+        gapi.analytics.auth.on('success', () => successCallback())
+      } else {
+        successCallback()
+      }
+    })
   }
 
   render() {
