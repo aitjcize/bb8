@@ -1,13 +1,21 @@
 import React from 'react'
 import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
 
 import Moment from 'moment'
 import DatePicker from 'material-ui/DatePicker'
+import FlatButton from 'material-ui/FlatButton'
 import Subheader from 'material-ui/Subheader'
+import TextField from 'material-ui/TextField'
 
 import Diagrams from './Diagrams'
 
+import * as uiActionCreators from '../actions/uiActionCreators'
+import * as botActionCreators from '../actions/botActionCreators'
+
 const formatDate = date => Moment(date).format('YYYY-MM-DD')
+
+const validateGaId = gaId => /^(UA|YT|MO)-\d+-\d+$/i.test(gaId)
 
 const styles = {
   container: {
@@ -44,6 +52,8 @@ class Analytics extends React.Component {
     super(props)
     this.handleStartDateChange = this.handleStartDateChange.bind(this)
     this.handleEndDateChange = this.handleEndDateChange.bind(this)
+    this.handleGaIdInputChange = this.handleGaIdInputChange.bind(this)
+    this.updateGaId = this.updateGaId.bind(this)
 
     const now = new Date()
     const sevenDaysAgo = new Date()
@@ -52,6 +62,8 @@ class Analytics extends React.Component {
       startDate: sevenDaysAgo,
       endDate: now,
       datePickerOpen: false,
+      gaIdInput: '',
+      gaIdError: null,
     }
   }
 
@@ -63,7 +75,57 @@ class Analytics extends React.Component {
     this.setState({ endDate })
   }
 
+  handleGaIdInputChange(e, gaId) {
+    const valid = validateGaId(gaId)
+    this.setState({
+      gaIdInput: gaId,
+      gaIdError: (valid || !gaId) ? null : 'Please enter a valid Google Analytcis trackingID',
+    })
+  }
+
+  updateGaId() {
+    const uiActions = bindActionCreators(
+      uiActionCreators, this.props.dispatch)
+    const botActions = bindActionCreators(
+      botActionCreators, this.props.dispatch)
+
+    if (this.state.gaIdError) {
+      uiActions.openNotification('Please enter a correct trackingID')
+    } else {
+      botActions.updateBot(this.props.bot.id, {
+        bot: {
+          name: this.props.bot.name,
+          description: this.props.bot.description,
+          gaId: this.state.gaIdInput,
+        },
+      })
+    }
+  }
+
   render() {
+    if (!validateGaId(this.props.gaId)) {
+      return (
+        <div>
+          <p> Please tell us your Google Analytics Tracking ID so we can track the data for you </p>
+          <p> Here is how to get your Google Analytics Tracking ID: https://support.google.com/analytics/answer/1032385 </p>
+
+          <div>
+            <TextField
+              hintText="UA-41575341-1"
+              floatingLabelText="Google Analytics TrackingID"
+              errorText={this.state.gaIdError}
+              onChange={this.handleGaIdInputChange}
+            />
+            <FlatButton
+              label="Update trackID"
+              primary
+              onTouchTap={this.updateGaId}
+            />
+          </div>
+        </div>
+      )
+    }
+
     return (
       <div
         style={styles.container}
@@ -106,6 +168,12 @@ class Analytics extends React.Component {
 
 Analytics.propTypes = {
   gaId: React.PropTypes.string,
+  dispatch: React.PropTypes.func.isRequired,
+  bot: React.PropTypes.shape({
+    id: React.PropTypes.number.isRequired,
+    name: React.PropTypes.string.isRequired,
+    description: React.PropTypes.string.isRequired,
+  }),
 }
 
 const getGaId = (bots, activeId) => {
@@ -119,8 +187,8 @@ const getGaId = (bots, activeId) => {
 const ConnectedAnalytics = connect(
   state => ({
     gaId: getGaId(state.entities.bots, state.bots.active),
+    bot: state.entities.bots[state.bots.active],
   }),
-  () => ({}),
 )(Analytics)
 
 export default ConnectedAnalytics
