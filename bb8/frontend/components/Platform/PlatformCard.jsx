@@ -169,12 +169,17 @@ class PlatformCard extends React.Component {
       >
         {cardHeaderRightGroup}
       </CardHeader>
-      {!selectedBotId && <CardActions>
+      {!selectedBotId &&
+      <CardActions>
         <FlatButton
-          label="Refresh"
-          onTouchTap={() =>
-            this.platformActions.refreshPage(this.props.platform)
-          }
+          label={platform.typeEnum === 'Facebook' ? 'Refresh' : 'Edit'}
+          onTouchTap={() => {
+            if (platform.typeEnum === 'Facebook') {
+              this.platformActions.refreshPage(this.props.platform)
+            } else {
+              this.dialogActions.openUpdatePlatform(this.props.platform)
+            }
+          }}
         />
         <FlatButton
           label="Delete"
