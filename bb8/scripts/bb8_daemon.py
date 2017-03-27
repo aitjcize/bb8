@@ -116,6 +116,15 @@ class SlackClient(object):
             })
         )
 
+    def help(self):
+        self.post_message('''```Available commands are:
+* help - show this help menu.
+* ping - check if server is alive.
+* status - list the result of `bb8ctl status`.
+* deploy - pull latest code and run `make deploy`.
+* update_bots - pull latest code and run `manage update_bots`.
+```''')
+
     def pong(self):
         self.post_message('pong')
 
@@ -126,14 +135,12 @@ class SlackClient(object):
             self.post_message(traceback.format_exc())
 
     @threaded
-    def full_deploy(self):
+    def deploy(self):
         try:
             self.post_message('Checking out latest code ...')
             self.run('git pull')
             self.post_message('Running `make deploy` ...')
             self.run('make deploy')
-            self.post_message('Updating bots ...')
-            self.run('manage update_bots', 'yes\n\n')
         except Exception:
             self.post_message(traceback.format_exc())
         else:
@@ -152,12 +159,14 @@ class SlackClient(object):
             self.post_message('It\'s a success ;)')
 
     def process_command(self, command):
-        if command == 'ping':
+        if command == 'help':
+            self.help()
+        elif command == 'ping':
             self.pong()
         elif command == 'status':
             self.status()
-        elif command == 'full deploy':
-            self.full_deploy()
+        elif command == 'deploy':
+            self.deploy()
         elif command == 'update bots':
             self.update_bots()
 
