@@ -17,3 +17,8 @@ export const updatePlatform = (platformId, platform) => ({
     platform,
   },
 })
+
+export const refreshPage = platform => ({
+  type: types.PLATFORMS_REFRESH.REQUEST,
+  payload: platform,
+})

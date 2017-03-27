@@ -241,6 +241,44 @@ export function* getBotDefRevision() {
 
 /* Platform Sagas */
 
+export function* refreshPageSaga() {
+  while (true) {
+    const { payload } = yield take(types.PLATFORMS_REFRESH.REQUEST)
+    const platform = payload
+
+    const page = yield call(fbAPI.getRefreshedPage, platform.providerIdent)
+    const { response, error } = yield call(
+      api.updatePlatform,
+      platform.id,
+      Object.assign(
+        {}, platform,
+        {
+          name: page.name,
+          config: { accessToken: page.accessToken },
+        }))
+
+    if (error) {
+      yield put({
+        type: types.PLATFORMS_REFRESH.ERROR,
+        payload: error,
+      })
+      yield put({
+        type: types.NOTIFICATION_OPEN,
+        payload: 'Cannot refresh the page',
+      })
+    } else {
+      yield put({
+        type: types.PLATFORMS_REFRESH.SUCCESS,
+        payload: response,
+      })
+      yield put({
+        type: types.NOTIFICATION_OPEN,
+        payload: 'Successfully refreshed the page',
+      })
+    }
+  }
+}
+
 export function* fetchPlatformsSaga() {
   while (true) {
     yield take(types.PLATFORMS_LIST.REQUEST)
@@ -555,6 +593,7 @@ export default function* root() {
   yield fork(updateBotDefRevisionsSaga)
 
   /* Platform Saga */
+  yield fork(refreshPageSaga)
   yield fork(fetchPlatformsSaga)
   yield fork(createPlatformSaga)
   yield fork(updatePlatformSaga)
