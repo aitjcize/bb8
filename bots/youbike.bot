@@ -1,8 +1,4 @@
 {
-  "platforms": {
-      "Facebook": "1764704343742166",
-      "Line": "youbike.composeai"
-  },
   "bot": {
     "name": "Youbike",
     "description": "Provide location-based youbike info",

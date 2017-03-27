@@ -1,8 +1,4 @@
 {
-  "platforms": {
-      "Facebook": "1880882345482564",
-      "Line": "ab.composeai"
-  },
   "bot": {
     "name": "Alliance Bernstein",
     "description": "Alliance Bernstein Fund Bot",

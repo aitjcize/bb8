@@ -1,8 +1,4 @@
 {
-  "platforms": {
-    "Facebook": "233392910121400",
-    "Line": "twrealprice"
-  },
   "bot": {
     "name": "TwRealPrice",
     "description": "Provide the information for Taiwan estate",

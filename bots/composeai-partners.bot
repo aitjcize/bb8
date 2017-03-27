@@ -1,7 +1,4 @@
 {
-  "platforms": {
-    "Facebook": "317499591965696"
-  },
   "bot": {
     "name": "Compose.ai Partner",
     "description": "Compose.ai Partner fans page bot",

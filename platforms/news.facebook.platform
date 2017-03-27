@@ -1,9 +1,0 @@
-{
-  "name": "新聞小幫手 Messenger",
-  "type_enum": "Facebook",
-  "deployed": true,
-  "provider_ident": "687078918112948",
-  "config": {
-    "access_token": "EAAZAi0GnycPEBAPUmTL49Vm3GEYIbm6tmn5e1kHbmiZBvy30wvLlsNfTiD5X7PDFNSCtHeAKUqsn19iEZCEhMebVENs5sA0QBEtHcJZAboV2PVoefNYpJRFgEeIDHcZBcmAxvj6oyGqamZAWUU18L3cWaE2wJ7ZA67lauImmfbiNgZDZD"
-  }
-}

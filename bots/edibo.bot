@@ -1,8 +1,4 @@
 {
-  "platforms": {
-      "Facebook": "243146796119681",
-      "Line": "ediboZhTw"
-  },
   "bot": {
     "name": "Edibo",
     "description": "Give you idea what to eat",
