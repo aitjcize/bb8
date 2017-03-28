@@ -29,6 +29,7 @@ const styles = {
     flex: 1,
     padding: '.5em',
     marginBottom: '10vh',
+    minWidth: 300,
   },
   colsHeader: {
     display: 'flex',
@@ -108,7 +109,21 @@ class BotManager extends React.Component {
                   !selectedBotId && index !== 0 && <Divider />,
                   <ListItem
                     key={id}
-                    primaryText={bots[id].name}
+                    primaryText={
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span style={{ wordBreak: 'break-all' }}>
+                          {bots[id].name}
+                        </span>
+                        <span style={{ marginLeft: '1em', marginTop: '-.5em' }}>
+                          {
+                            selectedBotId ?
+                            bots[id].gaId && (<Chip>{`gaId: #${bots[id].gaId}`}</Chip>) :
+                            (platformIds.filter(v => platforms[v].botId === id).length > 0)
+                            && <IconShortText />
+                          }
+                        </span>
+                      </div>
+                    }
                     secondaryText={
                       <span
                         style={{
@@ -130,14 +145,6 @@ class BotManager extends React.Component {
                         opacity: 0.3,
                       } : {},
                     }}
-                    rightAvatar={<span>
-                      {
-                        selectedBotId ?
-                        bots[id].gaId && (<Chip>{`gaId: #${bots[id].gaId}`}</Chip>) :
-                        (platformIds.filter(v => platforms[v].botId === id).length > 0)
-                        && <IconShortText />
-                      }
-                    </span>}
                   />,
                   selectedBotId === id && <div style={{ padding: '.5em' }}>
                     <FlatButton
