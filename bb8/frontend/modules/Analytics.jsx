@@ -25,6 +25,9 @@ const styles = {
     minHeight: '100%',
     padding: '1em',
   },
+  emptyContainer: {
+    margin: '3em 3em',
+  },
   header: {
     display: 'flex',
     justifyContent: 'flex-end',
@@ -105,7 +108,7 @@ class Analytics extends React.Component {
   render() {
     if (!validateGaId(this.props.gaId)) {
       return (
-        <div>
+        <div style={styles.emptyContainer}>
           <p> Please tell us your Google Analytics Tracking ID so we can track the data for you </p>
           <p> Here is how to get your Google Analytics Tracking ID: https://support.google.com/analytics/answer/1032385 </p>
 

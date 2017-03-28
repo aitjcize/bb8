@@ -305,7 +305,7 @@ class Diagrams extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     if (this.state.startDate === prevState.startDate &&
         this.state.endDate === prevState.endDate &&
-        this.state.viewId === prevState.viewId) {
+        this.state.gaId === prevState.gaId) {
       return
     }
     const { startDate, endDate, gaId } = this.props
@@ -368,15 +368,37 @@ class Diagrams extends React.Component {
   }
 
   render() {
+    if (!this.state.loading && !this.mapping[this.props.gaId]) {
+      return (
+        <div
+          style={{
+            margin: '3em 3em',
+          }}
+        >
+          <div
+            id="embed-api-auth-container"
+            style={styles.authButton}
+          />
+          <p> Your Google Account is not authorized to access the
+            Google Analytics trackingID: {this.state.gaId}
+          </p>
+          <p> Please contact the administrator of your Google Analytics account </p>
+        </div>
+      )
+    }
+
     return (
       <div
         style={styles.container}
       >
-        <div id="embed-api-auth-container" style={styles.authButton} />
+        <div
+          id="embed-api-auth-container"
+          style={styles.authButton}
+        />
         {
-        this.state.loading ? <div style={styles.loader}>
-          <CircularProgress thickness={5} />
-        </div> : null
+          this.state.loading ? <div style={styles.loader}>
+            <CircularProgress thickness={5} />
+          </div> : null
         }
         <Paper style={styles.rows}>
           <div id="user-session-line" style={styles.item} />
