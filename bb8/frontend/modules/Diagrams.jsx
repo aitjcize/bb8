@@ -1,5 +1,4 @@
 import React from 'react'
-import CircularProgress from 'material-ui/CircularProgress'
 import Paper from 'material-ui/Paper'
 
 const styles = {
@@ -35,19 +34,9 @@ const styles = {
   tableContainer: {
     marginLeft: '1.5em',
   },
-  authButton: {
-    margin: '0.5em',
-    zIndex: 99,
-  },
 }
 
-function drawDiagram(startDate, endDate, viewId, callback) {
-  if (!viewId) {
-    const error = new Error('Failed to load analytics because of empty viewId')
-    callback(error)
-    return
-  }
-
+function drawDiagram(startDate, endDate, viewId) {
   const gaViewId = `ga:${viewId}`
 
   const pieDefaultOption = {
@@ -258,148 +247,30 @@ function drawDiagram(startDate, endDate, viewId, callback) {
     },
   })
   pagePathTable.execute()
-
-  userTypePie.on('success', callback)
 }
-
-const CLIENT_ID = '791471658501-jdp3nf8jc1aueei26qhh73npe35r167o.apps.googleusercontent.com'
 
 class Diagrams extends React.Component {
 
-  constructor(props) {
-    const GA_EMBED_SCRIPT = 'ga-embed-script'
-    if (!document.getElementById(GA_EMBED_SCRIPT)) {
-      const script = document.createElement('script')
-
-      script.id = GA_EMBED_SCRIPT
-      script.text = `
-        (function(w,d,s,g,js,fs){
-          g=w.gapi||(w.gapi={});g.analytics={q:[],ready:function(f){this.q.push(f);}};
-          js=d.createElement(s);fs=d.getElementsByTagName(s)[0];
-          js.src='https://apis.google.com/js/platform.js';
-          fs.parentNode.insertBefore(js,fs);js.onload=function(){g.load('analytics');};
-        }(window,document,'script'))`
-      document.body.appendChild(script)
-    }
-
-    super(props)
-    const { startDate, endDate, gaId } = this.props
-    this.state = { startDate, endDate, gaId, loading: true }
-
-    this.loadMapping = this.loadMapping.bind(this)
-    this.loadGoogleAnalyticsAndDraw = this.loadGoogleAnalyticsAndDraw.bind(this)
-    this.mapping = {}
-  }
-
   componentDidMount() {
-    const { startDate, endDate, gaId } = this.props
-    // eslint-disable-next-line no-undef
-    this.loadGoogleAnalyticsAndDraw(startDate, endDate, gaId)
+    const { startDate, endDate, viewId } = this.props
+    drawDiagram(startDate, endDate, viewId)
   }
 
-  componentWillReceiveProps(props) {
-    const { startDate, endDate, gaId } = props
-    this.setState({ startDate, endDate, gaId, viewId: this.mapping[gaId] })
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.startDate === prevState.startDate &&
-        this.state.endDate === prevState.endDate &&
-        this.state.gaId === prevState.gaId) {
+  componentDidUpdate(prevProps) {
+    if (this.props.startDate === prevProps.startDate &&
+        this.props.endDate === prevProps.endDate &&
+        this.props.viewId === prevProps.viewId) {
       return
     }
-    const { startDate, endDate, gaId } = this.props
-    this.loadGoogleAnalyticsAndDraw(startDate, endDate, gaId)
-  }
-
-  loadMapping() {
-    if (Object.keys(this.mapping).length >= 1) {
-      return Promise.resolve(this.mapping)
-    }
-    // eslint-disable-next-line no-undef
-    return gapi.client.analytics.management.accounts.list()
-      .then(response =>
-        Object.values(response.result.items).map(item => item.id))
-      .then(accountIds => Promise.all(accountIds.map(accountId =>
-        // eslint-disable-next-line no-undef
-        gapi.client.analytics.management.webproperties.list({ accountId }))))
-      .then(responses =>
-        responses.map(resp =>
-          Object.assign({},
-            ...Object.values(resp.result.items)
-                               .map(item => ({
-                                 [item.id]: item.defaultProfileId,
-                               })))
-        )
-      )
-      .then(responses => Object.assign({}, ...responses))
-      .then((mapping) => {
-        this.mapping = mapping
-        return mapping
-      })
-  }
-
-  loadGoogleAnalyticsAndDraw(startDate, endDate, gaId) {
-    const successCallback = () => {
-      this.loadMapping()
-          .then((mapping) => {
-            this.setState({ viewId: mapping[gaId] })
-            drawDiagram(startDate, endDate, mapping[gaId], () => {
-              this.setState({ loading: false })
-            })
-          })
-    }
-
-    // eslint-disable-next-line no-undef
-    gapi.analytics.ready(() => {
-      // eslint-disable-next-line no-undef
-      if (!gapi.analytics.auth.isAuthorized()) {
-        // eslint-disable-next-line no-undef
-        gapi.analytics.auth.authorize({
-          container: 'embed-api-auth-container',
-          clientid: CLIENT_ID,
-        })
-        // eslint-disable-next-line no-undef
-        gapi.analytics.auth.on('success', () => successCallback())
-      } else {
-        successCallback()
-      }
-    })
+    const { startDate, endDate, viewId } = this.props
+    drawDiagram(startDate, endDate, viewId)
   }
 
   render() {
-    if (!this.state.loading && !this.mapping[this.props.gaId]) {
-      return (
-        <div
-          style={{
-            margin: '3em 3em',
-          }}
-        >
-          <div
-            id="embed-api-auth-container"
-            style={styles.authButton}
-          />
-          <p> Your Google Account is not authorized to access the
-            Google Analytics trackingID: {this.state.gaId}
-          </p>
-          <p> Please contact the administrator of your Google Analytics account </p>
-        </div>
-      )
-    }
-
     return (
       <div
         style={styles.container}
       >
-        <div
-          id="embed-api-auth-container"
-          style={styles.authButton}
-        />
-        {
-          this.state.loading ? <div style={styles.loader}>
-            <CircularProgress thickness={5} />
-          </div> : null
-        }
         <Paper style={styles.rows}>
           <div id="user-session-line" style={styles.item} />
           <div
@@ -440,9 +311,9 @@ class Diagrams extends React.Component {
 }
 
 Diagrams.propTypes = {
-  gaId: React.PropTypes.string,
-  startDate: React.PropTypes.string,
-  endDate: React.PropTypes.string,
+  viewId: React.PropTypes.string.isRequired,
+  startDate: React.PropTypes.string.isRequired,
+  endDate: React.PropTypes.string.isRequired,
 }
 
 export default Diagrams
