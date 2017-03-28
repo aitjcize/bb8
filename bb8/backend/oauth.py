@@ -6,8 +6,6 @@
     Copyright 2016 bb8 Authors
 """
 
-import re
-
 import requests
 
 from bb8 import config
@@ -38,5 +36,4 @@ def facebook_get_long_lived_token(access_token):
         'fb_exchange_token=%s' %
         (config.FACEBOOK_APP_ID, config.FACEBOOK_APP_SECRET, access_token))
     res.raise_for_status()
-    m = re.search(r'access_token=([^&]*)', res.text)
-    return m.group(1)
+    return res.json()['access_token']
