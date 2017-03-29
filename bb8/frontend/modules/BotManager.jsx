@@ -1,3 +1,4 @@
+import storage from 'store2'
 import React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
@@ -14,6 +15,7 @@ import IconAdd from 'material-ui/svg-icons/content/add'
 import IconShortText from 'material-ui/svg-icons/editor/short-text'
 
 import Platforms from './Platforms'
+import { ACTIVE_BOT } from '../constants'
 import * as dialogActionCreators from '../actions/dialogActionCreators'
 
 const styles = {
@@ -230,7 +232,7 @@ const mapStateToProps = state => ({
   platforms: state.entities.platforms,
   botIds: state.bots.ids,
   platformIds: state.platforms.ids,
-  activeId: state.bots.active,
+  activeId: storage.get(ACTIVE_BOT) || -1,
 })
 
 const ConnectedBotManager = connect(

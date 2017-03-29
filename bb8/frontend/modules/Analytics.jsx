@@ -1,3 +1,4 @@
+import storage from 'store2'
 import React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
@@ -11,6 +12,7 @@ import TextField from 'material-ui/TextField'
 
 import Diagrams from './Diagrams'
 
+import { ACTIVE_BOT } from '../constants'
 import * as uiActionCreators from '../actions/uiActionCreators'
 import * as botActionCreators from '../actions/botActionCreators'
 
@@ -237,7 +239,7 @@ class Analytics extends React.Component {
           <p> Your Google account is not authorized to access the
             Google Analytics trackingID: {this.props.gaId}
           </p>
-          <p> Please contact the administrator of your Google Analytics account </p>
+          <p> Please contact the administrator of your Google Analytics account. </p>
         </div>
       )
     }
@@ -302,8 +304,8 @@ const getGaId = (bots, activeId) => {
 
 const ConnectedAnalytics = connect(
   state => ({
-    gaId: getGaId(state.entities.bots, state.bots.active),
-    bot: state.entities.bots[state.bots.active],
+    gaId: getGaId(state.entities.bots, storage.get(ACTIVE_BOT)),
+    bot: state.entities.bots[storage.get(ACTIVE_BOT)],
   }),
 )(Analytics)
 

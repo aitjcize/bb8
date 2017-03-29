@@ -1,3 +1,4 @@
+import storage from 'store2'
 import React from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
@@ -5,6 +6,7 @@ import { connect } from 'react-redux'
 import Paper from 'material-ui/Paper'
 import Subheader from 'material-ui/Subheader'
 
+import { ACTIVE_BOT } from '../constants'
 import * as platformActionCreators from '../actions/platformActionCreators'
 import PlatformCard from '../components/Platform/PlatformCard'
 
@@ -66,7 +68,7 @@ Platforms.propTypes = {
 }
 
 const mapStateToProps = state => ({
-  activeBotId: state.bots.active,
+  activeBotId: storage.get(ACTIVE_BOT) || -1,
   platforms: state.platforms.ids.reduce((obj, id) =>
     Object.assign(obj, {
       [id]: state.entities.platforms[id],
