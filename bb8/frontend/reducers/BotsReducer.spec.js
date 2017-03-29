@@ -62,7 +62,6 @@ describe('Reducer for Bots', () => {
     expect(
       BotsReducer(undefined, {})
     ).toEqual({
-      active: -1,
       ids: [],
     })
   })
@@ -74,7 +73,6 @@ describe('Reducer for Bots', () => {
         payload: normalize(BOTS_LISTING, arrayOf(Bot)),
       })
     ).toEqual({
-      active: 1,
       ids: [1, 2],
     })
   })
@@ -92,7 +90,6 @@ describe('Reducer for Bots', () => {
         })
       })()
     ).toEqual({
-      active: 1,
       ids: [1, 2],
     })
   })
@@ -104,7 +101,6 @@ describe('Reducer for Bots', () => {
         payload: normalize(BOTS[0], Bot),
       })
     ).toEqual({
-      active: 1,
       ids: [1],
     })
   })
@@ -122,7 +118,6 @@ describe('Reducer for Bots', () => {
         })
       })()
     ).toEqual({
-      active: -1,
       ids: [2],
     })
   })
@@ -134,7 +129,6 @@ describe('Reducer for Bots', () => {
         payload: 5,
       })
     ).toEqual({
-      active: -1,
       ids: [],
     })
   })
@@ -150,7 +144,6 @@ describe('Reducer for Bots', () => {
         payload: 1,
       })
     ).toEqual({
-      active: 1,
       ids: [1, 2],
     })
   })

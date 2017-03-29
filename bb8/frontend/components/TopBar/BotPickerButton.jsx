@@ -1,3 +1,4 @@
+import storage from 'store2'
 import React from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
@@ -12,6 +13,7 @@ import Divider from 'material-ui/Divider'
 import IconArrowDropUp from 'material-ui/svg-icons/navigation/arrow-drop-up'
 import IconArrowDropDown from 'material-ui/svg-icons/navigation/arrow-drop-down'
 
+import { ACTIVE_BOT } from '../../constants'
 import * as botActionCreators from '../../actions/botActionCreators'
 import * as dialogActionCreators from '../../actions/dialogActionCreators'
 
@@ -77,7 +79,7 @@ class BotPickerButton extends React.Component {
 
     return (<FlatButton
       onTouchTap={this.handleTouchTap}
-      label={activeId === -1 ? 'Choose a bot' : this.props.data[activeId].name}
+      label={data[activeId] ? this.props.data[activeId].name : 'Choose a bot'}
       labelPosition="before"
       icon={this.state.open ? <IconArrowDropUp /> : <IconArrowDropDown />}
       labelStyle={styles.buttonText}
@@ -146,7 +148,7 @@ const mapStateToProps = state => ({
       [id]: state.entities.bots[id],
     }), {}),
   ids: state.bots.ids,
-  activeId: state.bots.active,
+  activeId: storage.get(ACTIVE_BOT) || -1,
 })
 
 const ConnectedBotPickerButton = connect(

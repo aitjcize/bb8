@@ -6,7 +6,7 @@ import { take, call, put, fork } from 'redux-saga/effects'
 import api from '../api'
 import { FBPage } from '../constants/Schema'
 import types from '../constants/ActionTypes'
-import { AUTH_TOKEN } from '../constants'
+import { AUTH_TOKEN, ACTIVE_BOT } from '../constants'
 import CustomError from '../constants/CustomError'
 import * as broadcastActionCreators from '../actions/broadcastActionCreators'
 import * as uiActionCreators from '../actions/uiActionCreators'
@@ -118,6 +118,8 @@ export function* signupSaga() {
 export function* setActiveBotSaga() {
   while (true) {
     const { payload } = yield take(types.BOTS_SET_ACTIVE)
+
+    storage.set(ACTIVE_BOT, payload)
 
     // trigger refresh for current page
     yield put({ type: types.BROADCASTS_LIST.REQUEST, payload })
