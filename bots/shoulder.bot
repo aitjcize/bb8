@@ -1,0 +1,2543 @@
+{
+  "bot": {
+    "name": "Shoulder",
+    "settings": {
+      "get_start_button": {
+        "message": {
+          "text": "Hi"
+        }
+      },
+      "persistent_menu": [
+        {
+          "type": "postback",
+          "payload": {
+            "message": {
+              "text": "Diagnose"
+            }
+          },
+          "title": "自我診斷"
+        },
+        {
+          "type": "postback",
+          "payload": {
+            "message": {
+              "text": "在哪看診"
+            }
+          },
+          "title": "就診地點"
+        }
+      ]
+    },
+    "admin_interaction_timeout": 10,
+    "interaction_timeout": 120,
+    "session_timeout": 0,
+    "nodes": {
+      "Node27": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "請先完成一個月的肩部復健"
+              },
+              {
+                "text": "身體修復需要時間，請至少完成一個月的治療。\n\n一般而言，輕微的五十肩可透過物理治療及規律的自我運動獲得改善，以醫學的角度，先採取溫和的治療為第一步，若是復健及治療超過一個月仍未改善，或是疼痛度已嚴重影響日常生活，再考慮下一步「肩關節囊擴張術」改善。"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "Operation"
+                  }
+                },
+                "content_type": "text",
+                "title": "肩關節囊擴張術"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Node27",
+        "expect_input": false,
+        "description": "Node27"
+      },
+      "Start": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "Hi, {{user.first_name}}，歡迎您來到五十肩診斷機器人！請問您，有什麼想問的呢？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "自我診斷"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Start",
+        "expect_input": false,
+        "description": "Start node"
+      },
+      "Node29Router": {
+        "module": {
+          "config": {
+            "on_error": {
+              "ack_message": "我不太懂您的意思",
+              "end_node_id": "Node29"
+            },
+            "links": [
+              {
+                "ack_message": "",
+                "end_node_id": "Node26",
+                "rule": {
+                  "params": [
+                    "goto_node26"
+                  ],
+                  "type": "regexp"
+                }
+              }
+            ]
+          },
+          "id": "ai.compose.router.core.default"
+        },
+        "next_node_id": "Node29",
+        "name": "Node29Router",
+        "expect_input": true,
+        "description": "Node29Router"
+      },
+      "Node24Router": {
+        "module": {
+          "config": {
+            "on_error": {
+              "ack_message": "我不太懂您的意思",
+              "end_node_id": "Node24"
+            },
+            "links": [
+              {
+                "ack_message": "",
+                "end_node_id": "Node25",
+                "rule": {
+                  "params": [
+                    "goto_node25"
+                  ],
+                  "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node19",
+                "rule": {
+                  "params": [
+                    "goto_node19"
+                  ],
+                  "type": "regexp"
+                }
+              }
+            ]
+          },
+          "id": "ai.compose.router.core.default"
+        },
+        "next_node_id": "Node24",
+        "name": "Node24Router",
+        "expect_input": true,
+        "description": "Node24Router"
+      },
+      "Node15Router": {
+        "module": {
+          "config": {
+            "on_error": {
+              "ack_message": "我不太懂您的意思",
+              "end_node_id": "Node15"
+            },
+            "links": [
+              {
+                "ack_message": "",
+                "end_node_id": "Node16",
+                "rule": {
+                  "params": [
+                    "goto_node16"
+                  ],
+                  "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node20",
+                "rule": {
+                  "params": [
+                    "goto_node20"
+                  ],
+                  "type": "regexp"
+                }
+              }
+            ]
+          },
+          "id": "ai.compose.router.core.default"
+        },
+        "next_node_id": "Node15",
+        "name": "Node15Router",
+        "expect_input": true,
+        "description": "Node15Router"
+      },
+      "Node28": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "請至復健科確立診斷，早期治療。\n\n肩部因構造多角度、活動度大，常與周邊頸部、背部混在一起，也可能多重原因並發，雖然症狀相似，但仍需有經驗的醫師理學檢查後才能確診，請盡快就近至復健科找出真正病因，對症下藥，回復健康。"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Node28",
+        "expect_input": false
+      },
+      "Node29": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "我該怎麼辦？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "我該怎麼辦？"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "goto_node26"
+                  }
+                },
+                "content_type": "text",
+                "title": "我該怎麼辦？"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "Node29Router",
+        "name": "Node29",
+        "expect_input": false,
+        "description": "Node29"
+      },
+      "Node18Router": {
+        "module": {
+          "config": {
+            "on_error": {
+              "ack_message": "我不太懂您的意思",
+              "end_node_id": "Node18"
+            },
+            "links": [
+              {
+                "ack_message": "",
+                "end_node_id": "Node10",
+                "rule": {
+                  "params": [
+                    "goto_node10"
+                  ],
+                  "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node19",
+                "rule": {
+                  "params": [
+                    "goto_node19"
+                  ],
+                  "type": "regexp"
+                }
+              }
+            ]
+          },
+          "id": "ai.compose.router.core.default"
+        },
+        "next_node_id": "Node18",
+        "name": "Node18Router",
+        "expect_input": true,
+        "description": "Node18Router"
+      },
+      "Node25": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "可能是「頸椎神經根壓迫」或「肌筋膜徵候群」"
+              },
+              {
+                "text": "您的症狀可能是「頸椎神經根壓迫」或「肌筋膜徵候群」，需接受近一步的理學檢查才能判斷。\n「頸部神經根病變」指的是頸神經根受傷造成的肩頸僵硬，常見灶因為頸椎的關節退化或椎間盤突出，而壓迫神經根所造成。嚴重時會合併感覺及運動功能的異常，頸部的轉動及後仰則會使疼痛加劇。\n「肌筋膜徵候群」是一種身體長期緊繃，出現區域性疼痛的狀況。好發在平常運動少又常維持同一姿勢的人身上，像是：新手媽媽、辦公室職員等，年齡約在30至50歲之間。一般以「預防」為主，避免緊張的生活型態，以及固定不動的姿勢，保持運動習慣。\n兩者症狀相似，但嚴重度不同，請盡快就醫確診。"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Node25",
+        "expect_input": false,
+        "description": "Node25"
+      },
+      "Node26": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "請至復健科確診，並完成一個月的肩部復健"
+              },
+              {
+                "text": "肩部因為關節活動較大，可能會有多種問題合併發生，建議先就近至復健科了解情況，才能對症下藥。\n\n一般而言，輕微的五十肩可透過物理治療及規律的自我運動獲得改善，以醫學的角度，先採取溫和的治療為第一步，若是復健及治療超過一個月仍未改善，或是疼痛度已嚴重影響日常生活，再考慮下一步「肩關節囊擴張術」改善。"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "Operation"
+                  }
+                },
+                "content_type": "text",
+                "title": "肩關節囊擴張術"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Node26",
+        "expect_input": false,
+        "description": "Node26"
+      },
+      "Node7Router": {
+        "module": {
+          "config": {
+            "on_error": {
+              "ack_message": "我不太懂您的意思",
+              "end_node_id": "Node7"
+            },
+            "links": [
+              {
+                "ack_message": "",
+                "end_node_id": "Node8",
+                "rule": {
+                  "params": [
+                    "goto_node8"
+                  ],
+                  "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node24",
+                "rule": {
+                  "params": [
+                    "goto_node24"
+                  ],
+                  "type": "regexp"
+                }
+              }
+            ]
+          },
+          "id": "ai.compose.router.core.default"
+        },
+        "next_node_id": "Node7",
+        "name": "Node7Router",
+        "expect_input": true,
+        "description": "Node7Router"
+      },
+      "Node20": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "請問這三個動作您能做到幾個呢？"
+              },
+              {
+                "attachment": {
+                  "type": "image",
+                  "payload": {
+                    "url": "http://i.imgur.com/LJNbZzj.jpg"
+                  }
+                }
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node22"
+                  }
+                },
+                "content_type": "text",
+                "title": "三個"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node22"
+                  }
+                },
+                "content_type": "text",
+                "title": "兩個"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node21"
+                  }
+                },
+                "content_type": "text",
+                "title": "一個"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node21"
+                  }
+                },
+                "content_type": "text",
+                "title": "都不能"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "Node20Router",
+        "name": "Node20",
+        "expect_input": false,
+        "description": "Node20"
+      },
+      "Node21": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "可能是「夾擠徵候群」"
+              },
+              {
+                "text": "夾擠徵候群好發在年輕且高度手部活動的人，像是投手，簡單說就是組織被骨頭夾到了，所以會痛。\n此症和五十肩常常被混淆，兩者都有舉手會痛的狀況，主要差別在夾擠徵候群是「肌肉、肌腱或滑囊」的問題，而五十肩是「關節囊」沾黏，所以一個休息會好，一個休息不動會痛。"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "Node28",
+        "name": "Node21",
+        "expect_input": false,
+        "description": "Node21"
+      },
+      "Node22": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "可能是「肌筋膜徵候群」"
+              },
+              {
+                "text": "「肌筋膜徵候群」是一種身體長期緊繃，出現區域性疼痛的狀況。\n好發在平常運動少又常維持同一姿勢的人身上，像是：新手媽媽、辦公室職員等，年齡約在30至50歲之間。\n\n一般以「預防」為主，避免緊張的生活型態，以及固定不動的姿勢，保持運動習慣。"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "Node23",
+        "name": "Node22",
+        "expect_input": false,
+        "description": "Node22"
+      },
+      "Node23": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "我該怎麼辦？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "我該怎麼辦？"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "goto_node28"
+                  }
+                },
+                "content_type": "text",
+                "title": "我該怎麼辦？"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "Node23Router",
+        "name": "Node23",
+        "expect_input": false,
+        "description": "Node23"
+      },
+      "Node1": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "請問您的肩膀會痛嗎？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "會痛?"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "goto_node3"
+                  }
+                },
+                "content_type": "text",
+                "title": "會！會痛!"
+              },
+              {
+                "acceptable_inputs": [
+                  "不會"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "goto_node2"
+                  }
+                },
+                "content_type": "text",
+                "title": "不會啊，好的很！"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "Node1Router",
+        "name": "Node1",
+        "expect_input": false,
+        "description": "Ask the user if he has shoulder issue"
+      },
+      "Node16Router": {
+        "module": {
+          "config": {
+            "on_error": {
+              "ack_message": "我不太懂您的意思",
+              "end_node_id": "Node16"
+            },
+            "links": [
+              {
+                "ack_message": "",
+                "end_node_id": "Node18",
+                "rule": {
+                  "params": [
+                    "goto_node18"
+                  ],
+                  "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node19",
+                "rule": {
+                  "params": [
+                    "goto_node19"
+                  ],
+                  "type": "regexp"
+                }
+              }
+            ]
+          },
+          "id": "ai.compose.router.core.default"
+        },
+        "next_node_id": "Node16",
+        "name": "Node16Router",
+        "expect_input": true,
+        "description": "Node16Router"
+      },
+      "Node10Router": {
+        "module": {
+          "config": {
+            "on_error": {
+              "ack_message": "我不太懂您的意思",
+              "end_node_id": "Node10"
+            },
+            "links": [
+              {
+                "ack_message": "",
+                "end_node_id": "Node12",
+                "rule": {
+                  "params": [
+                    "goto_node12"
+                  ],
+                  "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node11",
+                "rule": {
+                  "params": [
+                    "goto_node11"
+                  ],
+                  "type": "regexp"
+                }
+              }
+            ]
+          },
+          "id": "ai.compose.router.core.default"
+        },
+        "next_node_id": "Node8",
+        "name": "Node10Router",
+        "expect_input": true,
+        "description": "Node10Router"
+      },
+      "Node23Router": {
+        "module": {
+          "config": {
+            "on_error": {
+              "ack_message": "我不太懂您的意思",
+              "end_node_id": "Node23"
+            },
+            "links": [
+              {
+                "ack_message": "",
+                "end_node_id": "Node28",
+                "rule": {
+                  "params": [
+                    "goto_node28"
+                  ],
+                  "type": "regexp"
+                }
+              }
+            ]
+          },
+          "id": "ai.compose.router.core.default"
+        },
+        "next_node_id": "Node23",
+        "name": "Node23Router",
+        "expect_input": true,
+        "description": "Node23Router"
+      },
+      "Node9": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "有九成機率是頑固型五十肩！"
+              },
+              {
+                "text": "常見治療方式有三種：\n\n一、關節鬆動術\n\n用外力拉開黏住的關節囊，需進開刀房，需麻醉，術後需修休養數日，健保有給付。\n\n二、內視鏡\n\n開刀術式的一種，直接以內視鏡進到關節囊把沾黏的部份清理，有傷口、需要住院及術後休養，健保有給付。\n\n三、肩關節囊擴張術\n\n用擴張液將沾黏的關節囊和緩撐開，過程舒服，效果極佳，不需住院、當日仍可上班，惟需自費。"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "自我診斷"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "Operation"
+                  }
+                },
+                "content_type": "text",
+                "title": "肩關節囊擴張術"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Node9",
+        "expect_input": false,
+        "description": "Node9"
+      },
+      "Node8": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "請問這三個動作您能做到幾個呢？"
+              },
+              {
+                "attachment": {
+                  "type": "image",
+                  "payload": {
+                    "url": "http://i.imgur.com/LJNbZzj.jpg"
+                  }
+                }
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node19"
+                  }
+                },
+                "content_type": "text",
+                "title": "三個"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node19"
+                  }
+                },
+                "content_type": "text",
+                "title": "兩個"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node10"
+                  }
+                },
+                "content_type": "text",
+                "title": "一個"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node10"
+                  }
+                },
+                "content_type": "text",
+                "title": "都不能"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "Node8Router",
+        "name": "Node8",
+        "expect_input": false,
+        "description": "Node8"
+      },
+      "Node8Router": {
+        "module": {
+          "config": {
+            "on_error": {
+              "ack_message": "我不太懂您的意思",
+              "end_node_id": "Node8"
+            },
+            "links": [
+              {
+                "ack_message": "",
+                "end_node_id": "Node19",
+                "rule": {
+                  "params": [
+                    "goto_node19"
+                  ],
+                  "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node10",
+                "rule": {
+                  "params": [
+                    "goto_node10"
+                  ],
+                  "type": "regexp"
+                }
+              }
+            ]
+          },
+          "id": "ai.compose.router.core.default"
+        },
+        "next_node_id": "Node8",
+        "name": "Node8Router",
+        "expect_input": true,
+        "description": "Node8Router"
+      },
+      "Node3": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "請問您年過 40 了嗎？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "是",
+                  "是的"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "goto_node7"
+                  }
+                },
+                "content_type": "text",
+                "title": "是的"
+              },
+              {
+                "acceptable_inputs": [
+                  "不是"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "goto_node15"
+                  }
+                },
+                "content_type": "text",
+                "title": "不是"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "Node3Router",
+        "name": "Node3",
+        "expect_input": false,
+        "description": "Ask user if he is older than 40"
+      },
+      "Node2": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "恭喜你有個健康的肩膀！"
+              },
+              {
+                "text": "要再做一次診斷嗎？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "自我診斷"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Node2",
+        "expect_input": false,
+        "description": "Node2"
+      },
+      "Root": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "Hi, {{user.first_name}}! 請問您，有什麼問題想問呢？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "自我診斷"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Root",
+        "expect_input": false,
+        "description": "Main bot operation node"
+      },
+      "Node7": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "睡眠是否會疼痛？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "(?<!不)會",
+                  "(?<!不)對"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "goto_node8"
+                  }
+                },
+                "content_type": "text",
+                "title": "對！睡眠常常會被中斷！"
+              },
+              {
+                "acceptable_inputs": [
+                  "不會"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "goto_node24"
+                  }
+                },
+                "content_type": "text",
+                "title": "不會，睡覺時不太會痛。"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "Node7Router",
+        "name": "Node7",
+        "expect_input": false,
+        "description": "Node7"
+      },
+      "Node3Router": {
+        "module": {
+          "config": {
+            "on_error": {
+              "ack_message": "我不太懂您的意思",
+              "end_node_id": "Node3"
+            },
+            "links": [
+              {
+                "ack_message": "",
+                "end_node_id": "Node7",
+                "rule": {
+                  "params": [
+                    "goto_node7"
+                  ],
+                  "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node15",
+                "rule": {
+                  "params": [
+                    "goto_node15"
+                  ],
+                  "type": "regexp"
+                }
+              }
+            ]
+          },
+          "id": "ai.compose.router.core.default"
+        },
+        "next_node_id": "Node3",
+        "name": "Node3Router",
+        "expect_input": true,
+        "description": "Router for node 3"
+      },
+      "Node11": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "可能是輕微五十肩"
+              },
+              {
+                "text": "五十肩是因為肩關節沾黏造成，原因不明，只知好發在四十至六十歲之間，約每一百個人會有二到五個人有此疾。"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "自我診斷"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "Node29",
+        "name": "Node11",
+        "expect_input": false,
+        "description": "Node11"
+      },
+      "Node10": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "請問疼痛持續超過三個月了嗎？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node12"
+                  }
+                },
+                "content_type": "text",
+                "title": "是"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node11"
+                  }
+                },
+                "content_type": "text",
+                "title": "不是"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "Node10Router",
+        "name": "Node10",
+        "expect_input": false,
+        "description": "Node10"
+      },
+      "Node12": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "治療超過一個月了嗎？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node9"
+                  }
+                },
+                "content_type": "text",
+                "title": "有但效果差"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node27"
+                  }
+                },
+                "content_type": "text",
+                "title": "治療未滿一個月"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node26"
+                  }
+                },
+                "content_type": "text",
+                "title": "未曾治療"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "Node12Router",
+        "name": "Node12",
+        "expect_input": false,
+        "description": "Node12"
+      },
+      "Node15": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "睡眠是否會疼痛？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "是",
+                  "是的"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "goto_node16"
+                  }
+                },
+                "content_type": "text",
+                "title": "是的"
+              },
+              {
+                "acceptable_inputs": [
+                  "不是"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "goto_node20"
+                  }
+                },
+                "content_type": "text",
+                "title": "不是"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "Node15Router",
+        "name": "Node15",
+        "expect_input": false,
+        "description": "Node15"
+      },
+      "Node14": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "「肩關節囊擴張術」真人諮詢預約",
+                    "buttons": [
+                      {
+                        "url": "https://docs.google.com/forms/d/1c5bmLlLbz6FNpH_inJu4-VnDyeZ0EAeulh2nJKnE2SY/edit",
+                        "type": "web_url",
+                        "title": "諮詢預約"
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Node14",
+        "expect_input": false,
+        "description": "Node14"
+      },
+      "Node16": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "請問這三個動作您能做到幾個呢？"
+              },
+              {
+                "attachment": {
+                  "type": "image",
+                  "payload": {
+                    "url": "http://i.imgur.com/LJNbZzj.jpg"
+                  }
+                }
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node19"
+                  }
+                },
+                "content_type": "text",
+                "title": "三個"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node19"
+                  }
+                },
+                "content_type": "text",
+                "title": "兩個"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node18"
+                  }
+                },
+                "content_type": "text",
+                "title": "一個"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node18"
+                  }
+                },
+                "content_type": "text",
+                "title": "都不能"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "Node16Router",
+        "name": "Node16",
+        "expect_input": false,
+        "description": "Node16"
+      },
+      "Node19": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "可能是「輕微五十肩」或「夾擠徵候群」"
+              },
+              {
+                "text": "「五十肩」是因為肩關節沾黏造成，原因不明，只知好發在四十至六十歲之間，約每一百個人會有二到五個人有此疾，您的症狀較為輕微。\n 夾擠徵候群」好發在年輕且高度手部活動的人，像是投手，簡單說就是組織被骨頭夾到了，所以會痛。\n 五十肩和夾擠徵候群常常被混淆，兩者都有舉手會痛的狀況，主要差別在夾擠徵候群是「肌肉、肌腱或滑囊」的問題，而五十肩是「關節囊」沾黏，所以一個休息會好，一個休息不動會痛。"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "自我診斷"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Node19",
+        "expect_input": false,
+        "description": "Node19"
+      },
+      "Node18": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "請問是否有外傷、骨折或車禍？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node10"
+                  }
+                },
+                "content_type": "text",
+                "title": "是，曾有外傷"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node19"
+                  }
+                },
+                "content_type": "text",
+                "title": "否，不曾外傷"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "Node18Router",
+        "name": "Node18",
+        "expect_input": false,
+        "description": "Node18"
+      },
+      "Node31": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "初次治療為求設備及人力最佳化，需至壢新醫院，若有台北診需求，請點這邊留下聯絡方式，會有專人致電與您說明。",
+                    "buttons": [
+                      {
+                        "url": "https://docs.google.com/forms/d/e/1FAIpQLSeLIIFwEFSw8TqgHaP29_SuFc-FlcrASr6A2JzdOxu9FE31mw/viewform",
+                        "type": "web_url",
+                        "title": "專人諮詢與協助掛號"
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Node31",
+        "expect_input": false,
+        "description": "Location in Taipei/NewTaipei"
+      },
+      "Node30": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "壢新醫院位於「桃園平鎮桃園平鎮區廣泰路77號」，您可以參考官網的交通資訊。",
+                    "buttons": [
+                      {
+                        "url": "http://www.landseedhospital.com.tw/lishin/traffic/car.php",
+                        "type": "web_url",
+                        "title": "壢新醫院交通資訊"
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Node30",
+        "expect_input": false,
+        "description": "Show Location to user"
+      },
+      "RootRouter": {
+        "module": {
+          "config": {
+            "on_error": {
+              "ack_message": "我不太懂您的意思",
+              "end_node_id": "Root"
+            },
+            "links": [
+              {
+                "ack_message": "",
+                "end_node_id": "Node1",
+                "rule": {
+                  "params": [
+                    "自我診斷",
+                    "Diagnose"
+                  ],
+                  "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node14",
+                "rule": {
+                  "params": [
+                    "肩關節囊擴張術",
+                    "Operation"
+                  ],
+                  "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node30",
+                "rule": {
+                  "params": [
+                    "在哪|那",
+                    "Where",
+                    "哪|那邊"
+                  ],
+                  "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node31",
+                "rule": {
+                  "params": [
+                    "(台北|新北)(有(|診所)嗎)*"
+                  ],
+                  "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node33",
+                "rule": {
+                  "params": [
+                    "((門|看)診時間|禮拜(幾)*|(哪|那)時(有診)*)"
+                  ],
+                  "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node34",
+                "rule": {
+                  "params": [
+                    "(睡不著|痛|沒辦法睡)"
+                  ],
+                  "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node32",
+                "rule": {
+                  "params": [
+                    "(新竹|宜蘭|桃園|(台|臺)中|(台|臺)南|高雄|基隆|嘉義|苗栗|彰化|南投|雲林|嘉義|屏東|(台|臺)東|花蓮|澎湖|金門)(有(|診所)嗎)*"
+                  ],
+                  "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node37",
+                "rule": {
+                  "params": [
+                    "((^沒辦法(扣內衣|抓頭|穿褲子))|((扣|穿)不起來)|(卡(住|卡)))"
+                  ],
+                  "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node38",
+                "rule": {
+                   "params": [
+                     "((有效|真的)嗎|騙人|廣告|效果)"
+                   ],
+                   "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node39",
+                "rule": {
+                  "params": [
+                    "(療程|治療|時間)多久"
+                    ],
+                    "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node40",
+                "rule": {
+                  "params": [
+                    "((會痛|要打針|要進開刀房)嗎)|手術"
+                  ],
+                  "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node41",
+                "rule": {
+                  "params": [
+                    "要復健嗎"
+                  ],
+                  "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node42",
+                "rule": {
+                  "params": [
+                    "((會(復發|好|再犯))|治(的|得)好)嗎"
+                  ],
+                  "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node43",
+                "rule": {
+                  "params": [
+                    "(多少錢|費用|健保|自費|很貴)"
+                  ],
+                  "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node44",
+                "rule": {
+                  "params": [
+                    "保險"
+                  ],
+                  "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node45",
+                "rule": {
+                  "params": [
+                    "診斷書"
+                  ],
+                  "type": "regexp"
+                }
+              }
+            ]
+          },
+          "id": "ai.compose.router.core.default"
+        },
+        "next_node_id": "Root",
+        "name": "RootRouter",
+        "expect_input": true,
+        "description": "Root router"
+      },
+      "Node34":{
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "肩膀痛到睡不著嗎？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "(是|恩|嗯|對)"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "是"
+              },
+              {
+                "acceptable_inputs": [
+                  "(不是|沒有)"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "goto_node35"
+                  }
+                },
+                "content_type": "text",
+                "title": "不是"
+              },
+              {
+                "acceptable_inputs": [
+                  "掛號"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Counsel"
+                  }
+                },
+                "content_type": "text",
+                "title": "專人諮詢與協助掛號"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "Node35Router",
+        "name": "Node34",
+        "expect_input": false,
+        "description": "Pain"
+      },
+      "Node36": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "專人掛號諮詢",
+                    "buttons": [
+                      {
+                        "url": "https://docs.google.com/forms/d/e/1FAIpQLSeLIIFwEFSw8TqgHaP29_SuFc-FlcrASr6A2JzdOxu9FE31mw/viewform",
+                        "type": "web_url",
+                        "title": "專人諮詢與協助掛號"
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Node36",
+        "expect_input": false,
+        "description": "Counsel"
+      },
+      "Node35Router": {
+        "module": {
+          "config": {
+            "on_error":{
+              "ack_message": "我不太懂您的意思",
+              "end_node_id": "Node35"
+            },
+            "links": [
+              {
+                "ack_message": "",
+                "end_node_id": "Node35",
+                "rule": {
+                  "params": [
+                    "goto_node35"
+                  ],
+                  "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node36",
+                "rule": {
+                  "params": [
+                    "Counsel"
+                  ],
+                  "type": "regexp"
+                }
+              }
+            ]
+          },
+          "id" : "ai.compose.router.core.default"
+        },
+        "next_node_id": "Root",
+        "name": "Node35Router",
+        "expect_input": true,
+        "description": "Node35Router"
+      },
+      "Node40": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "「肩關節囊擴張術」在門診實行，過程僅有輕微穿刺感，大部份病人表示過程舒服。",
+                    "buttons": [
+                      {
+                        "url": "https://docs.google.com/forms/d/e/1FAIpQLSeLIIFwEFSw8TqgHaP29_SuFc-FlcrASr6A2JzdOxu9FE31mw/viewform",
+                        "type": "web_url",
+                        "title": "專人諮詢與協助掛號"
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Node39",
+        "expect_input": false,
+        "description": "Treatment"
+      },
+
+      "Node39": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "大多肩友是五次療程，共四週，每次約一小時。",
+                    "buttons": [
+                      {
+                        "url": "https://docs.google.com/forms/d/e/1FAIpQLSeLIIFwEFSw8TqgHaP29_SuFc-FlcrASr6A2JzdOxu9FE31mw/viewform",
+                        "type": "web_url",
+                        "title": "專人諮詢與協助掛號"
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Node40",
+        "expect_input": false,
+        "description": "Node40"
+      },
+      "Node41": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "在家依個別運動處方執行即可，除接受治療外，不需再到院。",
+                    "buttons": [
+                      {
+                        "url": "https://docs.google.com/forms/d/e/1FAIpQLSeLIIFwEFSw8TqgHaP29_SuFc-FlcrASr6A2JzdOxu9FE31mw/viewform",
+                        "type": "web_url",
+                        "title": "專人諮詢與協助掛號"
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Node41",
+        "expect_input": false,
+        "description": "Node41"
+      },
+      "Node42": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "「肩關節囊擴張術」直接處理沾黏的肩關節囊，若無外傷或其他疾病問題，關節囊極少再重覆沾黏。",
+                    "buttons": [
+                      {
+                        "url": "https://docs.google.com/forms/d/e/1FAIpQLSeLIIFwEFSw8TqgHaP29_SuFc-FlcrASr6A2JzdOxu9FE31mw/viewform",
+                        "type": "web_url",
+                        "title": "專人諮詢與協助掛號"
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Node42",
+        "expect_input": false,
+        "description": "Node42"
+      },
+      "Node38": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "不如直接看看其它肩友學長姐怎麼說吧！",
+                    "buttons": [
+                      {
+                        "url": "https://docs.google.com/presentation/d/1UrO6g8DvjiGqxyR8VDrus9yF6eh9X5BYIvJiJ-AJ9RQ/pub?start=false&loop=false&delayms=5000&slide=id.p",
+                        "type": "web_url",
+                        "title": "FB見證者實際留言"
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Node38",
+        "expect_input": false,
+        "description": "result"
+      },
+      "Node44": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "一般而言，保險約給付七成，細節非醫療專業，請與您的保險業務員聯絡。",
+                    "buttons": [
+                      {
+                        "url": "https://docs.google.com/forms/d/e/1FAIpQLSeLIIFwEFSw8TqgHaP29_SuFc-FlcrASr6A2JzdOxu9FE31mw/viewform",
+                        "type": "web_url",
+                        "title": "專人諮詢與協助掛號"
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Node44",
+        "expect_input": false,
+        "description": "result"
+      },
+      "Node45": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "診斷書會寫「肩關節囊擴張術」以及「沾黏性肩關節囊炎」。",
+                    "buttons": [
+                      {
+                        "url": "https://docs.google.com/forms/d/e/1FAIpQLSeLIIFwEFSw8TqgHaP29_SuFc-FlcrASr6A2JzdOxu9FE31mw/viewform",
+                        "type": "web_url",
+                        "title": "專人諮詢與協助掛號"
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Node45",
+        "expect_input": false,
+        "description": "result"
+      },
+      "Node43": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "肩關節囊擴張術」為自費療程，沒有健保。一個基礎療程含五次治療（每週一次），費用為42,500元，視病況調整。首次治療繳9500元，剩餘費用於第二次再繳。",
+                    "buttons": [
+                      {
+                        "url": "https://docs.google.com/forms/d/e/1FAIpQLSeLIIFwEFSw8TqgHaP29_SuFc-FlcrASr6A2JzdOxu9FE31mw/viewform",
+                        "type": "web_url",
+                        "title": "專人諮詢與協助掛號"
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Node43",
+        "expect_input": false,
+        "description": "result"
+      },
+      "Node37": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "做看看「自我診斷」，找出可能原因嗎？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "(好|恩|ok|嗯)"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "好"
+              },
+              {
+                "acceptable_inputs": [
+                  "(^不(好|要))"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "goto_node35"
+                  }
+                },
+                "content_type": "text",
+                "title": "不要"
+              },
+              {
+                "acceptable_inputs": [
+                  "掛號"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Counsel"
+                  }
+                },
+                "content_type": "text",
+                "title": "專人諮詢與協助掛號"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "Node35Router",
+        "name": "Node37",
+        "expect_input": false,
+        "description": "Node37"
+      },
+      "Node35": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "那就近找復健科醫生看看怎麼一回事吧!",
+                    "buttons": [
+                      {
+                        "url": "https://www.google.com.tw/search?q=附近的復健科&oq=附近的復健科",
+                        "type": "web_url",
+                        "title": "我附近的復健科有哪些？"
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Node35",
+        "expect_input": false,
+        "description": "Node35"
+      },
+      "Node33":{
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "門診時間為週二、週三的下午和晚上，以及星期六早上，初診可線上掛號。",
+                    "buttons": [
+                      {
+                        "url": "https://docs.google.com/forms/d/e/1FAIpQLSeLIIFwEFSw8TqgHaP29_SuFc-FlcrASr6A2JzdOxu9FE31mw/viewform",
+                        "type": "web_url",
+                        "title": "專人諮詢與協助掛號"
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Node33",
+        "expect_input": false,
+        "description": "Time"
+      },
+      "Node32": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "因人員及設備建置不易，為提供最好的治療品質，目前僅在壢新醫院提供服務。",
+                    "buttons": [
+                      {
+                        "url": "https://docs.google.com/forms/d/e/1FAIpQLSeLIIFwEFSw8TqgHaP29_SuFc-FlcrASr6A2JzdOxu9FE31mw/viewform",
+                        "type": "web_url",
+                        "title": "專人諮詢與協助掛號"
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [
+                  "診斷$",
+                  "自我診斷"
+                ],
+                "payload": {
+                  "message": {
+                    "text": "Diagnose"
+                  }
+                },
+                "content_type": "text",
+                "title": "重新診斷"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Node32",
+        "expect_input": false,
+        "description": "Location in Taiwan but not Taipei/NewTaipei"
+      },
+      "Node24": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "text": "請問這三個動作您能做到幾個呢？"
+              },
+              {
+                "attachment": {
+                  "type": "image",
+                  "payload": {
+                    "url": "http://i.imgur.com/LJNbZzj.jpg"
+                  }
+                }
+              }
+            ],
+            "quick_replies": [
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node25"
+                  }
+                },
+                "content_type": "text",
+                "title": "三個"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node25"
+                  }
+                },
+                "content_type": "text",
+                "title": "兩個"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node19"
+                  }
+                },
+                "content_type": "text",
+                "title": "一個"
+              },
+              {
+                "acceptable_inputs": [],
+                "payload": {
+                  "message": {
+                    "text": "goto_node19"
+                  }
+                },
+                "content_type": "text",
+                "title": "都不能"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "Node24Router",
+        "name": "Node24",
+        "expect_input": false,
+        "description": "Node24"
+      },
+      "Node1Router": {
+        "module": {
+          "config": {
+            "on_error": {
+              "ack_message": "我不太懂您的意思",
+              "end_node_id": "Node1"
+            },
+            "links": [
+              {
+                "ack_message": "",
+                "end_node_id": "Node2",
+                "rule": {
+                  "params": [
+                    "goto_node2"
+                  ],
+                  "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node3",
+                "rule": {
+                  "params": [
+                    "goto_node3"
+                  ],
+                  "type": "regexp"
+                }
+              }
+            ]
+          },
+          "id": "ai.compose.router.core.default"
+        },
+        "next_node_id": "Node1",
+        "name": "Node1Router",
+        "expect_input": true,
+        "description": "Node1Router"
+      },
+      "Node20Router": {
+        "module": {
+          "config": {
+            "on_error": {
+              "ack_message": "我不太懂您的意思",
+              "end_node_id": "Node20"
+            },
+            "links": [
+              {
+                "ack_message": "",
+                "end_node_id": "Node21",
+                "rule": {
+                  "params": [
+                    "goto_node21"
+                  ],
+                  "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node22",
+                "rule": {
+                  "params": [
+                    "goto_node22"
+                  ],
+                  "type": "regexp"
+                }
+              }
+            ]
+          },
+          "id": "ai.compose.router.core.default"
+        },
+        "next_node_id": "Node20",
+        "name": "Node20Router",
+        "expect_input": true,
+        "description": "Node20Router"
+      },
+      "Node12Router": {
+        "module": {
+          "config": {
+            "on_error": {
+              "ack_message": "我不太懂您的意思",
+              "end_node_id": "Node12"
+            },
+            "links": [
+              {
+                "ack_message": "",
+                "end_node_id": "Node9",
+                "rule": {
+                  "params": [
+                    "goto_node9"
+                  ],
+                  "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node27",
+                "rule": {
+                  "params": [
+                    "goto_node27"
+                  ],
+                  "type": "regexp"
+                }
+              },
+              {
+                "ack_message": "",
+                "end_node_id": "Node26",
+                "rule": {
+                  "params": [
+                    "goto_node26"
+                  ],
+                  "type": "regexp"
+                }
+              }
+            ]
+          },
+          "id": "ai.compose.router.core.default"
+        },
+        "next_node_id": "Node12",
+        "name": "Node12Router",
+        "expect_input": true,
+        "description": "Node12Router"
+      }
+    },
+    "description": "string"
+  }
+}
