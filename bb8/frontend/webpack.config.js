@@ -93,6 +93,7 @@ const defaultConfig = {
       links: [
         'https://fonts.googleapis.com/css?family=Roboto',
       ],
+      scripts: [ 'https://apis.google.com/js/api.js' ],
     }),
     new ExtractTextPlugin('[name].[hash].css'),
   ],
