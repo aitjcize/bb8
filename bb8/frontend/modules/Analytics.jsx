@@ -9,6 +9,7 @@ import DatePicker from 'material-ui/DatePicker'
 import FlatButton from 'material-ui/FlatButton'
 import Subheader from 'material-ui/Subheader'
 import TextField from 'material-ui/TextField'
+import Avatar from 'material-ui/Avatar'
 
 import Diagrams from './Diagrams'
 
@@ -29,13 +30,9 @@ const styles = {
     minHeight: '100%',
     padding: '1em',
   },
-  emptyContainer: {
-    margin: '3em 3em',
-  },
   loadingContainer: {
-    width: '100%',
-    marginTop: '30%',
-    textAlign: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
     display: 'flex',
@@ -60,6 +57,23 @@ const styles = {
   authButton: {
     margin: '0.5em',
     zIndex: 99,
+  },
+  hintContainer: {
+    justifyContent: 'center',
+    padding: '0 10vw',
+    paddingBottom: '10vw',
+  },
+  hintText: {
+    margin: '1.5em 0',
+    fontSize: '.875em',
+  },
+  hintTextLink: {
+    color: '#757575',
+    fontSize: '.875em',
+    padding: '.5em',
+    margin: '-.5em 0',
+    textDecoration: 'underline',
+    cursor: 'pointer',
   },
 }
 
@@ -189,7 +203,7 @@ class Analytics extends React.Component {
     if (this.state.loading) {
       return (
         <div
-          style={styles.loadingContainer}
+          style={{ ...styles.container, ...styles.loadingContainer }}
         >
           <div
             id="embed-api-auth-container"
@@ -199,8 +213,8 @@ class Analytics extends React.Component {
             }}
           />
           <CircularProgress
-            size={80}
-            thickness={5}
+            size={30}
+            thickness={3}
           />
         </div>
       )
@@ -208,21 +222,40 @@ class Analytics extends React.Component {
 
     if (!validateGaId(this.props.gaId)) {
       return (
-        <div style={styles.emptyContainer}>
-          <p> Please tell us your Google Analytics Tracking ID so we can track the data for you </p>
-          <p> Here is how to get your Google Analytics Tracking ID: https://support.google.com/analytics/answer/1032385 </p>
+        <div
+          style={{
+            ...styles.container,
+            ...styles.hintContainer,
+          }}
+        >
+          <div style={{ fontSize: '3em', color: '#BCBCBC' }}>
+            :-(
+          </div>
           <div>
             <TextField
-              hintText="UA-41575341-1"
-              floatingLabelText="Google Analytics TrackingID"
+              hintText="UA-98765432-1"
+              floatingLabelText="TrackingID"
               errorText={this.state.gaIdError}
               onChange={this.handleGaIdInputChange}
             />
             <FlatButton
-              label="Update trackID"
+              label="Update"
               primary
               onTouchTap={this.updateGaId}
+              style={{ margin: '0 1em' }}
             />
+          </div>
+          <p style={styles.hintText}>
+            Please tell us your Google Analytics Tracking ID so we can track the data for you!
+          </p>
+          <div>
+            <Avatar> ? </Avatar>
+            <a
+              href="//support.google.com/analytics/answer/1032385"
+              style={styles.hintTextLink}
+            >
+              How to get your Google Analytics Tracking ID
+            </a>
           </div>
         </div>
       )
@@ -231,15 +264,24 @@ class Analytics extends React.Component {
     const viewId = this.viewIdMapping[this.props.gaId]
     if (!viewId) {
       return (
-        <div style={styles.emptyContainer}>
+        <div
+          style={{
+            ...styles.container,
+            ...styles.hintContainer,
+          }}
+        >
+          <div style={{ fontSize: '3em', color: '#BCBCBC' }}>
+            :-(
+          </div>
           <div
             id="embed-api-auth-container"
             style={styles.authButton}
           />
-          <p> Your Google account is not authorized to access the
+          <p style={styles.hintText}>
+            Your Google account is not authorized to access the
             Google Analytics trackingID: {this.props.gaId}
+            Please contact the administrator of your Google Analytics account.
           </p>
-          <p> Please contact the administrator of your Google Analytics account. </p>
         </div>
       )
     }
