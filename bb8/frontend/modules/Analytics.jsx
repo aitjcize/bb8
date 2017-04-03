@@ -7,6 +7,7 @@ import Moment from 'moment'
 import CircularProgress from 'material-ui/CircularProgress'
 import DatePicker from 'material-ui/DatePicker'
 import FlatButton from 'material-ui/FlatButton'
+import RaisedButton from 'material-ui/RaisedButton'
 import Subheader from 'material-ui/Subheader'
 import TextField from 'material-ui/TextField'
 
@@ -17,6 +18,7 @@ import * as uiActionCreators from '../actions/uiActionCreators'
 import * as botActionCreators from '../actions/botActionCreators'
 
 const CLIENT_ID = '791471658501-jdp3nf8jc1aueei26qhh73npe35r167o.apps.googleusercontent.com'
+const OAUTH_SCOPE = 'https://www.googleapis.com/auth/analytics.readonly'
 
 const formatDate = date => Moment(date).format('YYYY-MM-DD')
 const validateGaId = gaId => /^(UA|YT|MO)-\d+-\d+$/i.test(gaId)
@@ -82,9 +84,11 @@ class Analytics extends React.Component {
     }
 
     super(props)
-    this.handleStartDateChange = this.handleStartDateChange.bind(this)
+    this.authCallback = this.authCallback.bind(this)
+    this.handleAuthentication = this.handleAuthentication.bind(this)
     this.handleEndDateChange = this.handleEndDateChange.bind(this)
     this.handleGaIdInputChange = this.handleGaIdInputChange.bind(this)
+    this.handleStartDateChange = this.handleStartDateChange.bind(this)
     this.updateGaId = this.updateGaId.bind(this)
     this.loadViewIds = this.loadViewIds.bind(this)
 
@@ -106,23 +110,50 @@ class Analytics extends React.Component {
 
   componentDidMount() {
     // eslint-disable-next-line no-undef
-    gapi.analytics.ready(() => {
+    gapi.load('client:auth2', () => {
       // eslint-disable-next-line no-undef
-      if (!gapi.analytics.auth.isAuthorized()) {
+      gapi.client.init({
+        clientId: CLIENT_ID,
+        scope: OAUTH_SCOPE,
+      }).then(() => {
+        // eslint-disable-next-line no-undef
+        const authInstance = gapi.auth2.getAuthInstance()
+        const user = authInstance.currentUser.get()
+        const isAuthorized = user.hasGrantedScopes(OAUTH_SCOPE)
+
+        if (isAuthorized) {
+          this.setState({ unauthorized: false })
+          this.authCallback(true)
+        } else {
+          this.setState({ unauthorized: true, loading: false })
+          authInstance.isSignedIn.listen(this.authCallback)
+        }
+      })
+    })
+  }
+
+  authCallback(isSignedIn) {
+    // eslint-disable-next-line no-undef
+    const token = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token
+    // eslint-disable-next-line no-undef
+    gapi.analytics.ready(() => {
+      if (isSignedIn) {
         // eslint-disable-next-line no-undef
         gapi.analytics.auth.authorize({
-          container: 'embed-api-auth-container',
-          clientid: CLIENT_ID,
+          serverAuth: {
+            access_token: token,
+          },
         })
-        // eslint-disable-next-line no-undef
-        gapi.analytics.auth.on('success', () => this.loadViewIds())
-      } else {
+        this.setState({ unauthorized: false })
         this.loadViewIds()
+        return
       }
+      this.setState({ unauthorized: true, loading: false })
     })
   }
 
   loadViewIds() {
+    this.setState({ loading: true })
     if (Object.keys(this.viewIdMapping).length >= 1) {
       return Promise.resolve(this.viewIdMapping)
     }
@@ -148,6 +179,14 @@ class Analytics extends React.Component {
         this.setState({ loading: false })
         return mapping
       })
+  }
+
+  handleAuthentication() {
+    if (!this.state.unauthorized) {
+      return
+    }
+    // eslint-disable-next-line no-undef
+    gapi.auth2.getAuthInstance().signIn()
   }
 
   handleStartDateChange(e, startDate) {
@@ -191,17 +230,31 @@ class Analytics extends React.Component {
         <div
           style={styles.loadingContainer}
         >
-          <div
-            id="embed-api-auth-container"
-            style={{
-              ...styles.authButton,
-              display: 'none',
-            }}
-          />
           <CircularProgress
             size={80}
             thickness={5}
           />
+        </div>
+      )
+    }
+
+    if (this.state.unauthorized) {
+      return (
+        <div
+          style={styles.authButton}
+        >
+          You have not logined to the Google Analytics yet, please click this button to login
+          <div>
+            <RaisedButton
+              style={{
+                margin: '1em',
+              }}
+              onClick={() => {
+                this.handleAuthentication()
+              }}
+              label="Authorize"
+            />
+          </div>
         </div>
       )
     }
@@ -232,10 +285,6 @@ class Analytics extends React.Component {
     if (!viewId) {
       return (
         <div style={styles.emptyContainer}>
-          <div
-            id="embed-api-auth-container"
-            style={styles.authButton}
-          />
           <p> Your Google account is not authorized to access the
             Google Analytics trackingID: {this.props.gaId}
           </p>
