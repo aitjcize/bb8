@@ -111,11 +111,9 @@ class DramaInfo(object):
 
 def append_categories_to_quick_reply(m):
     m.add_quick_reply(Message.QuickReply(
-        Message.QuickReplyType.TEXT, u'Westworld S01E06'))
+        Message.QuickReplyType.TEXT, u'通靈少女'))
     m.add_quick_reply(Message.QuickReply(
-        Message.QuickReplyType.TEXT, u'月薪嬌妻'))
-    m.add_quick_reply(Message.QuickReply(
-        Message.QuickReplyType.TEXT, u'The K2 第十集'))
+        Message.QuickReplyType.TEXT, u'鬼怪'))
     m.add_quick_reply(Message.QuickReply(
         Message.QuickReplyType.TEXT, u'熱門美劇'))
     m.add_quick_reply(Message.QuickReply(
