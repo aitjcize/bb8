@@ -53,6 +53,18 @@ SOCIAL_AUTH_SCHEMA = {
     }
 }
 
+INVITE_CODE_SCHEMA = {
+    'type': 'object',
+    'required': ['email'],
+    'additionalProperties': False,
+    'properties': {
+        'email': {
+            'type': 'string',
+            'pattern': r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)'
+        }
+    }
+}
+
 
 @app.route('/api/email_register', methods=['POST'])
 def email_register():
@@ -172,3 +184,20 @@ def verify_email():
 @login_required
 def get_me():
     return jsonify(g.account_user.to_json())
+
+
+@app.route('/api/invite_code', methods=['POST'])
+@login_required
+def get_invite_code():
+    data = request.json
+    try:
+        jsonschema.validate(data, INVITE_CODE_SCHEMA)
+    except Exception:
+        raise AppError(HTTPStatus.STATUS_CLIENT_ERROR,
+                       CustomError.ERR_FORM_VALIDATION,
+                       'schema validation fail')
+
+    invited_email = request.json['email']
+    invite_code = g.account_user.account.invite_code(invited_email)
+
+    return jsonify(dict(invite_code=invite_code))
