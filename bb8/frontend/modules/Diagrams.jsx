@@ -23,6 +23,7 @@ const styles = {
   },
   rows: {
     display: 'flex',
+    flexWrap: 'wrap',
     padding: '.5em 1em',
     marginBottom: '1em',
   },
