@@ -26,7 +26,7 @@ HAS_VARIABLE_RE = re.compile('{{(.*?)}}')
 
 
 class Engine(object):
-    STEP_MAX_DEPTH = 10
+    STEP_MAX_DEPTH = 30
 
     def send_ack_message(self, user, message, variables):
         """Send text message.
@@ -107,6 +107,7 @@ class Engine(object):
     def step(self, bot, user, user_input=None, input_vars=None, depth=0):
         # Don't do anything if STEP_MAX_DEPTH reached
         if depth > Engine.STEP_MAX_DEPTH:
+            logger.critical('STEP_MAX_DEPTH is reached!')
             return
 
         node = Node.get_cached(bot.id, user.session.node_id)
