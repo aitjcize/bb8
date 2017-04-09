@@ -1,4 +1,6 @@
 import React from 'react'
+
+import CircularProgress from 'material-ui/CircularProgress'
 import Paper from 'material-ui/Paper'
 
 const styles = {
@@ -34,6 +36,17 @@ const styles = {
   tableContainer: {
     marginLeft: '1.5em',
   },
+}
+
+function promisify(component) {
+  return new Promise((resolve, reject) => {
+    component.on('success', () => {
+      resolve()
+    })
+    component.on('error', () => {
+      reject()
+    })
+  })
 }
 
 function drawDiagram(startDate, endDate, viewId) {
@@ -95,7 +108,6 @@ function drawDiagram(startDate, endDate, viewId) {
       options: pieDefaultOption,
     },
   })
-  userTypePie.execute()
 
   // eslint-disable-next-line no-undef
   const userTypeTable = new gapi.analytics.googleCharts.DataChart({
@@ -125,7 +137,6 @@ function drawDiagram(startDate, endDate, viewId) {
       },
     },
   })
-  userTypeTable.execute()
 
   // eslint-disable-next-line no-undef
   const userSessionLine = new gapi.analytics.googleCharts.DataChart({
@@ -142,7 +153,6 @@ function drawDiagram(startDate, endDate, viewId) {
       options: lineDefaultOption,
     },
   })
-  userSessionLine.execute()
 
   // eslint-disable-next-line no-undef
   const userSessionTable = new gapi.analytics.googleCharts.DataChart({
@@ -173,7 +183,6 @@ function drawDiagram(startDate, endDate, viewId) {
       },
     },
   })
-  userSessionTable.execute()
 
   // eslint-disable-next-line no-undef
   const eventCategoryPie = new gapi.analytics.googleCharts.DataChart({
@@ -190,7 +199,6 @@ function drawDiagram(startDate, endDate, viewId) {
       options: pieDefaultOption,
     },
   })
-  eventCategoryPie.execute()
 
   // eslint-disable-next-line no-undef
   const eventCategoryTable = new gapi.analytics.googleCharts.DataChart({
@@ -208,7 +216,6 @@ function drawDiagram(startDate, endDate, viewId) {
       options: tableDefaultOption,
     },
   })
-  eventCategoryTable.execute()
 
   // eslint-disable-next-line no-undef
   const pagePathPie = new gapi.analytics.googleCharts.DataChart({
@@ -227,7 +234,6 @@ function drawDiagram(startDate, endDate, viewId) {
       options: pieDefaultOption,
     },
   })
-  pagePathPie.execute()
 
   // eslint-disable-next-line no-undef
   const pagePathTable = new gapi.analytics.googleCharts.DataChart({
@@ -246,14 +252,41 @@ function drawDiagram(startDate, endDate, viewId) {
       options: tableDefaultOption,
     },
   })
+  userTypePie.execute()
+  userTypeTable.execute()
+  userSessionLine.execute()
+  userSessionTable.execute()
+  eventCategoryPie.execute()
+  eventCategoryTable.execute()
+  pagePathPie.execute()
   pagePathTable.execute()
+
+  const promises = [
+    userTypePie, userTypeTable,
+    userSessionLine, userSessionTable,
+    eventCategoryPie, eventCategoryTable,
+    pagePathPie, pagePathTable,
+  ].map(c => promisify(c))
+
+  return Promise.all(promises)
 }
 
 class Diagrams extends React.Component {
 
+  constructor(props) {
+    super(props)
+    this.state = {
+      loading: true,
+    }
+  }
+
   componentDidMount() {
     const { startDate, endDate, viewId } = this.props
+
     drawDiagram(startDate, endDate, viewId)
+      .then(() => {
+        this.setState({ loading: false })
+      })
   }
 
   componentDidUpdate(prevProps) {
@@ -271,40 +304,58 @@ class Diagrams extends React.Component {
       <div
         style={styles.container}
       >
-        <Paper style={styles.rows}>
-          <div id="user-session-line" style={styles.item} />
+        {
+          this.state.loading &&
           <div
-            id="user-session-table"
             style={{
-              ...styles.item,
-              ...styles.tableContainer,
-              ...{ flex: 'none' },
+              width: '100%',
+              marginTop: '30%',
+              textAlign: 'center',
             }}
-          />
-        </Paper>
-        <Paper style={styles.rows}>
-          <div style={styles.item}>
-            <div id="user-type-pie" />
-            <div
-              id="user-type-table"
-              style={styles.tableContainer}
+          >
+            <CircularProgress
+              size={80}
+              thickness={5}
             />
           </div>
-          <div style={styles.item}>
-            <div id="event-catagory-pie" />
-            <div id="event-catagory-table" style={styles.tableContainer} />
-          </div>
-        </Paper>
-        <Paper style={styles.rows}>
-          <div id="pagepath-pie" style={styles.item} />
-          <div
-            id="pagepath-table"
-            style={{
-              ...styles.item,
-              ...styles.tableContainer,
-            }}
-          />
-        </Paper>
+        }
+        <div
+          style={{ display: this.state.loading ? 'none' : 'initial' }}
+        >
+          <Paper style={styles.rows}>
+            <div id="user-session-line" style={styles.item} />
+            <div
+              id="user-session-table"
+              style={{
+                ...styles.item,
+                ...styles.tableContainer,
+              }}
+            />
+          </Paper>
+          <Paper style={styles.rows}>
+            <div style={styles.item}>
+              <div id="user-type-pie" />
+              <div
+                id="user-type-table"
+                style={styles.tableContainer}
+              />
+            </div>
+            <div style={styles.item}>
+              <div id="event-catagory-pie" />
+              <div id="event-catagory-table" style={styles.tableContainer} />
+            </div>
+          </Paper>
+          <Paper style={styles.rows}>
+            <div id="pagepath-pie" style={styles.item} />
+            <div
+              id="pagepath-table"
+              style={{
+                ...styles.item,
+                ...styles.tableContainer,
+              }}
+            />
+          </Paper>
+        </div>
       </div>
     )
   }
