@@ -26,7 +26,7 @@ const auth = {
     return fetch('POST', '/api/invite_code', {
       email,
     })
-    .then(response => response.inviteCode)
+    .then(response => ({ inviteCode: response.inviteCode }))
     .catch(error => ({ error }))
   },
 }

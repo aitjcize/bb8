@@ -17,6 +17,11 @@ function AccountsReducer(state = INITIAL_STATE, action) {
     case types.ACCOUNTS_GET_ME.SUCCESS:
       return merge({}, state, action.payload)
 
+    case types.ACCOUNTS_INVITE.SUCCESS:
+      return merge({}, state, {
+        inviteCode: action.payload,
+      })
+
     default:
       return state
   }

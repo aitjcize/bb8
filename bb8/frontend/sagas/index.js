@@ -113,6 +113,22 @@ export function* signupSaga() {
   }
 }
 
+export function* inviteSaga() {
+  while (true) {
+    const { payload } = yield take(types.ACCOUNTS_INVITE.REQUEST)
+
+    const { inviteCode, error } = yield call(api.invite, payload)
+
+    if (error) {
+      yield put({ type: types.ACCOUNTS_INVITE.ERROR, payload: error })
+      yield put(uiActionCreators.openNotification(
+        'Failed to invite this email'))
+    } else {
+      yield put({ type: types.ACCOUNTS_INVITE.SUCCESS, payload: inviteCode })
+    }
+  }
+}
+
 /* Bots Sagas */
 
 export function* setActiveBotSaga() {
@@ -582,6 +598,7 @@ export default function* root() {
   yield fork(loginSaga)
   yield fork(signupSaga)
   yield fork(logoutSaga)
+  yield fork(inviteSaga)
 
   /* Bots Saga */
   yield fork(setActiveBotSaga)

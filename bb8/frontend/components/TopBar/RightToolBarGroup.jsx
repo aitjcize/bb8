@@ -8,6 +8,7 @@ import FlatButton from 'material-ui/FlatButton'
 import MenuItem from 'material-ui/MenuItem'
 
 import { logout } from '../../actions/accountActionCreators'
+import { openInviteDialog } from '../../actions/dialogActionCreators'
 
 const styles = {
   container: {
@@ -27,6 +28,11 @@ const RightToolbarGroup = props =>
       targetOrigin={{ horizontal: 'right', vertical: 'top' }}
       style={{ height: '100%', display: 'flex', alignItems: 'center' }}
     >
+      <MenuItem
+        onClick={() => props.dispatch(openInviteDialog())}
+        primaryText="Invite"
+        style={styles.menuItem}
+      />
       <MenuItem
         onClick={() => props.dispatch(logout())}
         primaryText="Sign out"

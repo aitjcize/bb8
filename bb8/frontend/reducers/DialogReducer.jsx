@@ -6,6 +6,7 @@ import BotDeleteDialog from '../components/Dialog/BotDeleteDialog'
 import BroadcastDateDialog from '../components/Dialog/BroadcastDateDialog'
 import BroadcastSendDialog from '../components/Dialog/BroadcastSendDialog'
 import BroadcastDelDialog from '../components/Dialog/BroadcastDelDialog'
+import InviteDialog from '../components/Dialog/InviteDialog'
 import PlatformDelDialog from '../components/Dialog/PlatformDelDialog'
 import PlatformDialog from '../components/Dialog/PlatformDialog'
 
@@ -67,6 +68,12 @@ function DialogReducer(state = INITIAL_STATE, action) {
         open: true,
         payload: action.payload,
         component: <PlatformDelDialog />,
+      }
+    case types.DIALOG_ACCOUNT_INVITE:
+      return {
+        open: true,
+        payload: action.payload,
+        component: <InviteDialog />,
       }
     case types.DIALOG_CLOSE:
       return INITIAL_STATE

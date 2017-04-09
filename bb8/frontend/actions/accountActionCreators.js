@@ -26,3 +26,8 @@ export const logout = () => ({
   type: types.ACCOUNTS_LOGOUT,
   payload: {},
 })
+
+export const invite = email => ({
+  type: types.ACCOUNTS_INVITE.REQUEST,
+  payload: email,
+})
