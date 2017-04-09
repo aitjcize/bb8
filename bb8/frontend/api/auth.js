@@ -22,6 +22,13 @@ const auth = {
     .then(response => ({ response }))
     .catch(error => ({ error }))
   },
+  invite(email) {
+    return fetch('POST', '/api/invite_code', {
+      email,
+    })
+    .then(response => ({ inviteCode: response.inviteCode }))
+    .catch(error => ({ error }))
+  },
 }
 
 export default auth

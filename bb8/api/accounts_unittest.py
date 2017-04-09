@@ -32,6 +32,15 @@ class AccountUserAPIUnittest(unittest.TestCase):
     def tearDown(self):
         DatabaseManager.disconnect()
 
+    def login(self, acnt):
+        rv = self.app.post('/api/login', data=json.dumps(dict(
+            email=acnt.email,
+            passwd='12345678'
+        )), content_type='application/json')
+        self.assertEquals(rv.status_code, HTTPStatus.STATUS_OK)
+        data = json.loads(rv.data)
+        self.app.set_auth_token(data['auth_token'])
+
     def setup_prerequisite(self):
         self.account = Account(name=u'test').add()
         AccountUser(name=u'test', email='test@gmail.com',
@@ -88,7 +97,12 @@ class AccountUserAPIUnittest(unittest.TestCase):
         self.assertEquals(rv.status_code, HTTPStatus.STATUS_CLIENT_ERROR)
 
         # Test register with org invite
-        invite_code = self.account.invite_code('test-3@gmail.com')
+        self.login(AccountUser.get_by(email='test@gmail.com', single=True))
+        rv = self.app.post('/api/invite_code',
+                           data=json.dumps(dict(email='test-3@gmail.com')),
+                           content_type='application/json')
+        invite_code = json.loads(rv.data)['invite_code']
+
         rv = self.app.post('/api/email_register?invite=%s' % invite_code,
                            data=json.dumps(dict(
                                email='test-3@gmail.com',

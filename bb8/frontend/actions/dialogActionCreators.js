@@ -6,6 +6,11 @@ export const closeDialog = () => ({
   payload: {},
 })
 
+export const openInviteDialog = () => ({
+  type: types.DIALOG_ACCOUNT_INVITE,
+  payload: {},
+})
+
 /* Bot Dialog */
 
 export const openBotCreate = () => ({

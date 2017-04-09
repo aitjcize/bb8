@@ -35,6 +35,17 @@ describe('Reducer for bots', () => {
     ).toEqual({})
   })
 
+  it('should update invite code', () => {
+    expect(
+      AccountsReducer(undefined, {
+        type: types.ACCOUNTS_INVITE.SUCCESS,
+        payload: 'mock-invite-code',
+      })
+    ).toEqual({
+      inviteCode: 'mock-invite-code',
+    })
+  })
+
   it('should merge the account info if account is not null', () => {
     expect(
       AccountsReducer(

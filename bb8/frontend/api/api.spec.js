@@ -66,6 +66,12 @@ describe('API testing', () => {
       .then((resp) => {
         expect(resp.response.email).toEqual('tester1@gmail.com')
         expect(resp.response.authToken.length).toBeGreaterThan(20)
+        storage.set(AUTH_TOKEN, resp.response.authToken)
+        return Promise.resolve()
+      })
+      .then(() => api.invite('tester2@gmail.com'))
+      .then((inviteCode) => {
+        expect(inviteCode.length).toBeGreaterThan(10)
       })
       .catch((error) => console.log(error))
   )
