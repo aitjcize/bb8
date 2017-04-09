@@ -202,6 +202,8 @@ def Transform(transform, js, unused_debug):
                     imports[p] = importlib.import_module(p)
 
             env = jinja2.Environment()
+            env.filters['safe_json'] = lambda x: json.dumps(unicode(x))[1:-1]
+
             tmpl = env.from_string(template_json)
             js_str = tmpl.render(  # pylint: disable=E1101
                 transform_input=js,
@@ -230,7 +232,7 @@ def run(config, unused_user_input, unused_env, variables):
     debug = config.get('debug')
     on_error = config.get(
         'on_error',
-        u'Ooops! Something wrong while) talking to remote server.')
+        u'Ooops! Something wrong while talking to remote server.')
 
     try:
         if url:
