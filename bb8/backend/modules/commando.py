@@ -267,6 +267,7 @@ def run(config, unused_user_input, unused_env, variables):
             js = FetchData(url=url, params=params, method=method)
         else:
             js = None  # Loopback. Process data in memory or settings.
+        transform_input = js
 
         transform = config.get('transform')
         if transform:
@@ -288,6 +289,8 @@ def run(config, unused_user_input, unused_env, variables):
 
         memory = js.get('memory', {})
         for k, v in memory.iteritems():
+            if v is None:
+                v = transform_input
             Memory.Set(k, v)
 
         memory = js.get('memory_copy', {})
@@ -296,6 +299,8 @@ def run(config, unused_user_input, unused_env, variables):
 
         settings = js.get('settings', {})
         for k, v in settings.iteritems():
+            if v is None:
+                v = transform_input
             Settings.Set(k, v)
 
         settings = js.get('settings_copy', {})
