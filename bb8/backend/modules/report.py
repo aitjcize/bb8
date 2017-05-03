@@ -29,7 +29,7 @@ def properties():
 def schema():
     return {
         'type': 'object',
-        'required': ['admins', 'template', 'keys', 'report_key'],
+        'required': ['admins', 'template', 'keys'],
         'additionalProperties': False,
         'properties': {
             'admins': {
@@ -60,7 +60,8 @@ def run(config, unused_input, unused_env, variables):
     for key in config['keys']:
         data[key] = Memory.Get(key, variables.get(key))
 
-    CollectedData.Add(config['report_key'], data)
+    if config.has_key('report_key'):
+        CollectedData.Add(config['report_key'], data)
 
     variables.update(data)
     msg = Message(config['template'], variables=variables)
