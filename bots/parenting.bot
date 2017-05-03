@@ -424,12 +424,18 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": [
-                    "hi"
-                  ]
+                  "params": ["hi"]
                 },
                 "ack_message": "",
                 "end_node_id": "RootRouter"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [".*"]
+                },
+                "ack_message": "",
+                "end_node_id": "PauseChatNoOp"
               }
             ],
             "on_error": {
