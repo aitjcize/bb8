@@ -125,7 +125,7 @@ class Analytics extends React.Component {
           this.setState({ unauthorized: false })
           this.authCallback(true)
         } else {
-          this.setState({ unauthorized: true })
+          this.setState({ unauthorized: true, loading: false })
           authInstance.isSignedIn.listen(this.authCallback)
         }
       })
