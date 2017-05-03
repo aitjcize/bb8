@@ -60,7 +60,7 @@ def run(config, unused_input, unused_env, variables):
     for key in config['keys']:
         data[key] = Memory.Get(key, variables.get(key))
 
-    if config.has_key('report_key'):
+    if 'report_key' in config:
         CollectedData.Add(config['report_key'], data)
 
     variables.update(data)
