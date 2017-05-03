@@ -41,7 +41,7 @@
         },
         {
           "type": "postback",
-          "title": "聯絡小編",
+          "title": "留言給小編",
           "payload": {
             "message": {
               "text": "Feedback"
@@ -86,7 +86,7 @@
               },
               {
                 "content_type": "text",
-                "title": "聯絡小編",
+                "title": "留言給小編",
                 "payload": {
                   "message": {
                     "text": "Feedback"
@@ -134,7 +134,7 @@
               },
               {
                 "content_type": "text",
-                "title": "聯絡小編",
+                "title": "留言給小編",
                 "payload": {
                   "message": {
                     "text": "Feedback"
@@ -223,7 +223,7 @@
                     "^(?i)feedback$",
                     "意見",
                     "留言",
-                    "聯絡小編",
+                    "留言小編",
                     "客訴",
                     "客服"
                   ]
@@ -326,6 +326,16 @@
               },
               {
                 "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "真人"
+                  ]
+                },
+                "end_node_id": "ContactHuman",
+                "ack_message": "好的，我已經請我的真人小編同事聯絡您，請稍等。輸入「hi」可以重新開始對話。"
+              },
+              {
+                "rule": {
                   "type": "sticker",
                   "params": [
                     "369239263222822",
@@ -359,10 +369,83 @@
               }
             ],
             "on_error": {
-              "ack_message": "我不太懂您的意思",
-              "end_node_id": "Root"
+              "ack_message": "",
+              "end_node_id": "AskForHuman"
             }
           }
+        }
+      },
+      "AskForHuman": {
+        "name": "AskForHuman",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "我不太懂您的意思，要聯絡真人小編嗎？"
+              }
+            ],
+            "quick_replies": [
+              {
+                "content_type": "text",
+                "title": "聯絡真人小編"
+              }
+            ]
+          }
+        }
+      },
+      "ContactHuman": {
+        "name": "ContactHuman",
+        "expect_input": false,
+        "next_node_id": "PauseChatNoOp",
+        "module": {
+          "id": "ai.compose.function.core.report",
+          "config": {
+            "admins": [
+              "1591374857620268",
+              "1318992774844738",
+              "1266659896757458"
+            ],
+            "template": "{{user.first_name}} {{user.last_name}} 想聯絡小編",
+            "keys": []
+          }
+        }
+      },
+      "PauseChat": {
+        "name": "PauseChat",
+        "expect_input": true,
+        "next_node_id": "NoOpRootRouter",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": [
+                    "hi"
+                  ]
+                },
+                "ack_message": "",
+                "end_node_id": "RootRouter"
+              }
+            ],
+            "on_error": {
+              "ack_message": "",
+              "end_node_id": "PauseChatNoOp"
+            }
+          }
+        }
+      },
+      "PauseChatNoOp": {
+        "name": "PauseChatNoOp",
+        "expect_input": false,
+        "next_node_id": "PauseChat",
+        "module": {
+          "id": "ai.compose.content.core.noop",
+          "config": {}
         }
       },
       "PickABook": {
@@ -635,7 +718,7 @@
                   "     },",
                   "     {",
                   "       \"content_type\": \"text\",",
-                  "       \"title\": \"聯絡小編\",",
+                  "       \"title\": \"留言給小編\",",
                   "       \"payload\": {",
                   "         \"message\": {",
                   "           \"text\": \"Feedback\"",
@@ -714,7 +797,7 @@
                   "     },",
                   "     {",
                   "       \"content_type\": \"text\",",
-                  "       \"title\": \"聯絡小編\",",
+                  "       \"title\": \"留言給小編\",",
                   "       \"payload\": {",
                   "         \"message\": {",
                   "           \"text\": \"Feedback\"",
@@ -793,7 +876,7 @@
                   "     },",
                   "     {",
                   "       \"content_type\": \"text\",",
-                  "       \"title\": \"聯絡小編\",",
+                  "       \"title\": \"留言給小編\",",
                   "       \"payload\": {",
                   "         \"message\": {",
                   "           \"text\": \"Feedback\"",
@@ -872,7 +955,7 @@
                   "     },",
                   "     {",
                   "       \"content_type\": \"text\",",
-                  "       \"title\": \"聯絡小編\",",
+                  "       \"title\": \"留言給小編\",",
                   "       \"payload\": {",
                   "         \"message\": {",
                   "           \"text\": \"Feedback\"",
@@ -1098,7 +1181,7 @@
                   "     },",
                   "     {",
                   "       \"content_type\": \"text\",",
-                  "       \"title\": \"聯絡小編\",",
+                  "       \"title\": \"留言給小編\",",
                   "       \"payload\": {",
                   "         \"message\": {",
                   "           \"text\": \"Feedback\"",
@@ -1177,7 +1260,7 @@
                   "     },",
                   "     {",
                   "       \"content_type\": \"text\",",
-                  "       \"title\": \"聯絡小編\",",
+                  "       \"title\": \"留言給小編\",",
                   "       \"payload\": {",
                   "         \"message\": {",
                   "           \"text\": \"Feedback\"",
@@ -1256,7 +1339,7 @@
                   "     },",
                   "     {",
                   "       \"content_type\": \"text\",",
-                  "       \"title\": \"聯絡小編\",",
+                  "       \"title\": \"留言給小編\",",
                   "       \"payload\": {",
                   "         \"message\": {",
                   "           \"text\": \"Feedback\"",
@@ -1335,7 +1418,7 @@
                   "     },",
                   "     {",
                   "       \"content_type\": \"text\",",
-                  "       \"title\": \"聯絡小編\",",
+                  "       \"title\": \"留言給小編\",",
                   "       \"payload\": {",
                   "         \"message\": {",
                   "           \"text\": \"Feedback\"",
@@ -1414,7 +1497,7 @@
                   "     },",
                   "     {",
                   "       \"content_type\": \"text\",",
-                  "       \"title\": \"聯絡小編\",",
+                  "       \"title\": \"留言給小編\",",
                   "       \"payload\": {",
                   "         \"message\": {",
                   "           \"text\": \"Feedback\"",
@@ -1559,7 +1642,7 @@
                   "     },",
                   "     {",
                   "       \"content_type\": \"text\",",
-                  "       \"title\": \"聯絡小編\",",
+                  "       \"title\": \"留言給小編\",",
                   "       \"payload\": {",
                   "         \"message\": {",
                   "           \"text\": \"Feedback\"",
