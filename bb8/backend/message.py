@@ -14,6 +14,8 @@ import random
 import re
 import sys
 
+from datetime import datetime
+
 import jsonschema
 
 from flask import g
@@ -360,6 +362,7 @@ def Render(tmpl, variables):
 
     # Inject some useful modules
     variables['randint'] = random.randint
+    variables['now'] = datetime.today()
 
     # Inject data query object
     variables['data'] = DataQuery
