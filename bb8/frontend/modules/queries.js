@@ -14,8 +14,13 @@ function applyTime(query, viewId, start, end) {
 
 export const numUsersByPlatformQuery = (gaId, start, end) => applyFilter(applyTime({
   metrics: 'ga:users',
-  dimensions: 'ga:userType',
+  dimensions: 'ga:eventCategory',
 }, gaId, start, end))
+
+export const numUsersByNewOrReturnQuery = (gaId, start, end) => applyTime({
+  metrics: 'ga:users',
+  dimensions: 'ga:userType',
+}, gaId, start, end)
 
 export const numUsersQuery = (gaId, start, end) => applyTime({
   metrics: 'ga:users',

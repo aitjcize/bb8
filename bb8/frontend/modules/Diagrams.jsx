@@ -14,6 +14,8 @@ import Chart from 'chart.js'
 
 import { numUsersQuery,
          numUsersByDateQuery,
+         numUsersByNewOrReturnQuery,
+         numUsersByPlatformQuery,
          numNewUsersQuery,
          numNewUsersByDateQuery,
          sessionByDateQuery,
@@ -27,6 +29,14 @@ const styles = {
     position: 'relative',
     flex: 1,
     padding: '1em .5em',
+  },
+  canvasRowContainer: {
+    marginTop: '1em',
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+  canvasRowItem: {
+    width: '45%',
   },
   overview: {
     container: {
@@ -135,6 +145,64 @@ class Diagrams extends React.Component {
     )
 
     promises.push(
+      fetch(numUsersByNewOrReturnQuery(gaViewId, startDate, endDate))
+        .then((result) => {
+          const labels = result.rows.map(r => r[0])
+          const values = result.rows.map(r => r[1])
+
+          // eslint-disable-next-line no-new
+          new Chart('userTypes', {
+            type: 'pie',
+            data: {
+              labels,
+              datasets: [
+                {
+                  data: values,
+                  backgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                  ],
+                  hoverBackgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                  ],
+                },
+              ],
+            },
+          })
+        })
+    )
+
+    promises.push(
+      fetch(numUsersByPlatformQuery(gaViewId, startDate, endDate))
+        .then((result) => {
+          const labels = result.rows.map(r => r[0])
+          const values = result.rows.map(r => r[1])
+
+          // eslint-disable-next-line no-new
+          new Chart('platformChart', {
+            type: 'pie',
+            data: {
+              labels,
+              datasets: [
+                {
+                  data: values,
+                  backgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                  ],
+                  hoverBackgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                  ],
+                },
+              ],
+            },
+          })
+        })
+    )
+
+    promises.push(
       Promise.all([
         fetch(popularBlocksQuery(gaViewId, startDate, endDate)),
         fetch(popularInputsQuery(gaViewId, startDate, endDate)),
@@ -212,6 +280,26 @@ class Diagrams extends React.Component {
             width="200"
             height="100"
           />
+
+          <div style={styles.canvasRowContainer}>
+            <div style={styles.canvasRowItem}>
+              <canvas
+                style={{
+                  backgroundColor: '#ffffff',
+                }}
+                id="platformChart"
+              />
+            </div>
+
+            <div style={styles.canvasRowItem}>
+              <canvas
+                style={{
+                  backgroundColor: '#ffffff',
+                }}
+                id="userTypes"
+              />
+            </div>
+          </div>
 
           <h5> Popular blocks </h5>
           <Table>
