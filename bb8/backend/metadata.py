@@ -50,9 +50,10 @@ class SessionRecord(Mutable):
 
 
 class ModuleResult(object):
-    def __init__(self, messages=None, variables=None):
+    def __init__(self, messages=None, variables=None, memory=None):
         self.messages = messages or []
         self.variables = variables or {}
+        self.memory = memory or {}
 
 
 class RouteResult(object):

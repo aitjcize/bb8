@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-    Geocoder
-    ~~~~~~~~
+    GoogleMaps
+    ~~~~~~~~~~
 
-    Helper function to query Google Maps Place API.
+    GoogleMaps related helper functions.
 
     Copyright 2016 bb8 Authors
 """
@@ -67,10 +67,8 @@ class GoogleMapsPlaceAPI(object):
             'GET',
             self.API_ENDPOINT,
             params=params)
+        response.raise_for_status()
 
-        if response.status_code != 200:
-            raise RuntimeError('HTTP %d: %s' % (response.status_code,
-                                                response.text))
         result = response.json()['results']
 
         # Remove result if it's outside of bounding box
@@ -106,6 +104,36 @@ class GoogleMapsPlaceAPI(object):
             })
 
         return final_result
+
+
+class GoogleMapsGeocodingAPI(object):
+    """Google Maps Geocoding API
+
+    Only reverse geocoding is implemented for now.
+    """
+    API_ENDPOINT = 'https://maps.googleapis.com/maps/api/geocode/json'
+
+    def __init__(self, api_key):
+        self._api_key = api_key
+
+    def reverse(self, latlng, language, result_types=None):
+        result_types = result_types or []
+
+        params = {
+            'key': self._api_key,
+            'latlng': '%s,%s' % latlng,
+            'language': language,
+            'result_type': '|'.join(result_types)
+        }
+        response = requests.request(
+            'GET',
+            self.API_ENDPOINT,
+            params=params)
+        response.raise_for_status()
+        results = response.json()['results']
+
+        if results:
+            return results[0]['formatted_address']
 
 
 class GoogleStaticMapAPIRequestBuilder(object):

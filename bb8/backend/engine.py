@@ -142,6 +142,9 @@ class Engine(object):
             module = node.module.get_python_module()
             result = module.run(node.config, user_input, env, input_vars)
 
+            for k, v in result.memory.iteritems():
+                user.memory[k] = v
+
             # Send message
             if result.messages:
                 messaging.send_message(user, result.messages)
@@ -162,7 +165,8 @@ class Engine(object):
             if node.module.type == ModuleTypeEnum.Content:
                 user_input = None
 
-            return self.step(bot, user, user_input, result.variables,
+            return self.step(bot, user, user_input,
+                             dict(input_vars, **result.variables),
                              depth=depth + 1)
         elif node.module.type == ModuleTypeEnum.Router:
             result, variables = self.run_router_module(

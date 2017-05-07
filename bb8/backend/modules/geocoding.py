@@ -15,8 +15,9 @@ import re
 from bb8.backend.module_api import (EventPayload, Message,
                                     Resolve, SupportedPlatform,
                                     LocationPayload, ModuleTypeEnum,
-                                    PureContentModule)
-from bb8.backend.modules.lib.google_maps import GoogleMapsPlaceAPI
+                                    ModuleResult)
+from bb8.backend.modules.lib.google_maps import (GoogleMapsPlaceAPI,
+                                                 GoogleMapsGeocodingAPI)
 
 
 STOP_WORDS = u'(我|在|要|去|的|到)'
@@ -37,7 +38,7 @@ def properties():
 def schema():
     return {
         'type': 'object',
-        'required': ['send_payload_to_current_node', 'api_key', 'query_term'],
+        'required': ['api_key', 'language'],
         'additionalProperties': True,
         'properties': {
             'send_payload_to_current_node': {'type': 'boolean'},
@@ -49,7 +50,25 @@ def schema():
                 'type': 'array',
                 'items': {'$ref': '#/definitions/rect'}
             },
-            'center': {'$ref': '#/definitions/gps'}
+            'center': {'$ref': '#/definitions/gps'},
+            'location': {
+                'oneOf': [{
+                    'type': 'string'
+                }, {
+                    'type': 'object',
+                    'required': ['coordinates'],
+                    'properties': {
+                        'coordinates': {
+                            'type': 'object',
+                            'required': ['lat', 'long'],
+                            'properties': {
+                                'lat': {'type': 'number'},
+                                'long': {'type': 'number'}
+                            }
+                        }
+                    }
+                }]
+            },
         },
         'definitions': {
             'gps': {
@@ -71,44 +90,24 @@ def schema():
     }
 
 
-@PureContentModule
-def run(config, unused_user_input, unused_env, variables):
-    """
-    config schema:
-
-    Platform dependent message:
-    {
-        'send_payload_to_current_node': False,
-        'api_key': 'google geocoding api key',
-        'query_term': 'query term',
-        'language': 'zh_TW',
-        'region': 'tw',
-        'bounds': [
-            {'lat': 23.816576, 'long': 119.781068},
-            {'lat': 25.314444, 'long': 122.053702}
-        ],
-        'center': {'lat': 23.816576, 'long': 122.053702}
-    }
-    """
+def geocoding(config, variables):
     query_term = Resolve(config['query_term'], variables)
 
     # Remove stop words
     query_term = re.sub(STOP_WORDS, '', query_term)
 
-    cfg = config
-
     api = GoogleMapsPlaceAPI(config['api_key'])
 
     py_bounds = []
-    for b in cfg.get('bounds', []):
+    for b in config.get('bounds', []):
         py_bounds.append([(b[0]['lat'], b[0]['long']),
                           (b[1]['lat'], b[1]['long'])])
 
-    results = api.query_top_n(3, query_term, cfg.get('language'),
-                              cfg.get('region'), py_bounds,
-                              cfg.get('center', None))
+    results = api.query_top_n(3, query_term, config['language'],
+                              config.get('region'), py_bounds,
+                              config.get('center', None))
 
-    in_currrent = config['send_payload_to_current_node']
+    in_currrent = config.get('send_payload_to_current_node', False)
 
     if not results:
         m = Message(u'對不起，我找不到這個地址, 請重新輸入 >_<')
@@ -132,4 +131,41 @@ def run(config, unused_user_input, unused_env, variables):
                                         r['address'],
                                         payload=LocationPayload(r['location'],
                                                                 in_currrent)))
-    return [m]
+    return ModuleResult(messages=[m])
+
+
+def reverse_geocoding(config, variables):
+    location = Resolve(config['location'], variables)
+    latlng = (location['coordinates']['lat'], location['coordinates']['long'])
+
+    api = GoogleMapsGeocodingAPI(config['api_key'])
+    address = api.reverse(latlng, config['language'])
+    res = {'address': address}
+
+    return ModuleResult(variables=res, memory=res)
+
+
+def run(config, unused_user_input, unused_env, variables):
+    """
+    config schema:
+
+    Platform dependent message:
+    {
+        'send_payload_to_current_node': False,
+        'api_key': 'google geocoding api key',
+        'query_term': 'query term',
+        'language': 'zh_TW',
+        'region': 'tw',
+        'bounds': [
+            {'lat': 23.816576, 'long': 119.781068},
+            {'lat': 25.314444, 'long': 122.053702}
+        ],
+        'center': {'lat': 23.816576, 'long': 122.053702}
+    }
+    """
+    if 'query_term' in config:
+        return geocoding(config, variables)
+    elif 'location' in config:
+        return reverse_geocoding(config, variables)
+    else:
+        raise RuntimeError('no action can be performed')
