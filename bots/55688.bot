@@ -46,34 +46,6 @@
           }
         }
       },
-      "Root": {
-        "name": "Root",
-        "description": "Root node, show usage",
-        "expect_input": false,
-        "next_node_id": "RootRouter",
-        "module": {
-          "id": "ai.compose.content.core.message",
-          "config": {
-            "messages": [
-              {
-                "text": "請問我能提供您甚麼服務呢?"
-              }
-            ],
-            "quick_replies": [
-              {
-                "content_type": "text",
-                "title": "現在地點叫車",
-                "acceptable_inputs": ["現在", "叫車"]
-              },
-              {
-                "content_type": "text",
-                "title": "預約叫車",
-                "acceptable_inputs": ["預約"]
-              }
-            ]
-          }
-        }
-      },
       "GetTaxiNow": {
         "name": "GetTaxiNow",
         "description": "Root node, show usage",
@@ -93,19 +65,15 @@
               },
               {
                 "content_type": "text",
-                "title": "{{data('query_address').fallback('常用地址').lru(0)}}"
+                "title": "{{data('query_address').fallback('台北車站').lru(0)}}"
               },
               {
                 "content_type": "text",
-                "title": "{{data('query_address').fallback('台北車站').lru(1)}}"
+                "title": "{{data('query_address').fallback('台北101').lru(1)}}"
               },
               {
                 "content_type": "text",
-                "title": "{{data('query_address').fallback('台北101').lru(2)}}"
-              },
-              {
-                "content_type": "text",
-                "title": "{{data('query_address').fallback('信義威秀').lru(3)}}"
+                "title": "{{data('query_address').fallback('信義威秀').lru(2)}}"
               }
             ]
           }
@@ -121,20 +89,7 @@
           "config": {
             "messages": [
               {
-                "attachment": {
-                  "type": "template",
-                  "payload": {
-                    "template_type": "button",
-                    "text": "請輸入預約叫車時間 (mm/dd hh:mm)",
-                    "buttons": [
-                      {
-                        "type": "postback",
-                        "payload": "text",
-                        "title": "{{now.month}}/{{now.day}} {{now.hour}}:{{now.minute}}"
-                      }
-                    ]
-                  }
-                }
+                  "text": "請輸入預約叫車時間 (mm/dd hh:mm)"
               }
             ]
           }
@@ -143,7 +98,7 @@
       "BookTaxiRouter": {
         "name": "BookTaxiRouter",
         "description": "Book Taxi Router",
-        "expect_input": false,
+        "expect_input": true,
         "next_node_id": "GetTaxi",
         "module": {
           "id": "ai.compose.router.core.default",
@@ -152,15 +107,42 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["{{now.month}}/{{now.day}} {{now.hour}}:{{now.minute}}"]
+                  "params": [".*"]
                 },
                 "end_node_id": "GetTaxiNow",
                 "ack_message": "已加入預約叫車時間"
               }
             ],
             "on_error": {
-              "end_node_id": "Root"
+              "end_node_id": "Root",
+              "ack_message": "error"
             }
+          }
+        }
+      },
+      "Root": {
+        "name": "Root",
+        "description": "Root node, show usage",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "請問我能提供您甚麼服務呢?"
+              }
+            ],
+            "quick_replies": [
+              {
+                "content_type": "text",
+                "title": "現在地點叫車"
+              },
+              {
+                "content_type": "text",
+                "title": "預約叫車"
+              }
+            ]
           }
         }
       },
@@ -187,7 +169,7 @@
                 "rule": {
                   "type": "regexp",
                   "params": [
-                    "預約叫車"
+                    "預約"
                   ]
                 },
                 "end_node_id": "BookTaxi",
@@ -197,7 +179,7 @@
                 "rule": {
                   "type": "regexp",
                   "params": [
-                    "現在地點叫車"
+                    "(現在地點)?叫車"
                   ]
                 },
                 "end_node_id": "GetTaxiNow",
@@ -220,7 +202,7 @@
                     "key": "location"
                   }
                 },
-                "end_node_id": "GetTaxi",
+                "end_node_id": "PreGetTaxiReverseGeocoding",
                 "ack_message": ""
               },
               {
@@ -319,6 +301,19 @@
           }
         }
       },
+      "PreGetTaxiReverseGeocoding": {
+        "name": "PreGetTaxiReverseGeocoding",
+        "expect_input": false,
+        "next_node_id": "GetTaxi",
+        "module": {
+          "id": "ai.compose.content.core.geocoding",
+          "config": {
+            "api_key": "AIzaSyAJjjE4BnIS-JAlfC1V77QGvb5kCauUVnc",
+            "location": "{{location}}",
+            "language": "zh_TW"
+          }
+        }
+      },
       "GetTaxi": {
         "name": "GetTaxi",
         "description": "Get nearby Taxi",
@@ -329,7 +324,7 @@
           "config": {
             "messages": [
               {
-                "text": "上車地點為{{data('query_address').fallback('xxxx').lru(0)}}，請問是否有以下特殊需求?"
+                "text": "上車地點為「{{memory.address}}」，請問是否有以下特殊需求?"
               }
             ],
             "quick_replies": [
@@ -410,7 +405,7 @@
                   ]
                 },
                 "end_node_id": "Confirmation",
-                "ack_message": "您的司機聯絡方式為:000000000"
+                "ack_message": "您的司機聯絡方式為: 0912345678"
               }
             ],
             "on_error": {
@@ -429,7 +424,7 @@
           "config": {
             "messages": [
               {
-                "text": "上車地點為{{data('query_address').fallback('xxxx').lru(0)}}，司機預計於5分鐘後抵達，請問您要確認叫車嗎?"
+                "text": "上車地點為「{{memory.address}}」，司機預計於5分鐘後抵達，請問您要確認叫車嗎?"
               }
             ],
             "quick_replies": [
