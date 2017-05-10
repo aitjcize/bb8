@@ -113,7 +113,7 @@
           "config": {
             "messages": [
               {
-                "text": "Hi, {{user.first_name}}! 請問您，有什麼問題想問呢？"
+                "text": "Hi, {{user.first_name}}，我是育兒好物聊天機器人，可推薦適合你的書籍，或是有其他問題要問，請按下按鈕告訴我！"
               }
             ],
             "quick_replies": [
