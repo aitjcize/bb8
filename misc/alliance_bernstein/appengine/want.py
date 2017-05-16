@@ -110,7 +110,7 @@ def next_foods_to_choose(input, lang, platform_user_ident=None):
   """
   lang = utils.canonize_locale(lang)
 
-  celebrity = people.intro.keys()
+  celebrity = people.data.keys()
 
   if not celebrity:
     raise Exception('No celebrity in language: %s' % lang)

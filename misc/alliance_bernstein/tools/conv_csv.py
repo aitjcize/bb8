@@ -71,7 +71,7 @@ def Main():
 
   args.output.write(
       '#!/usr/bin/python\n' +
-      '\n' + 
+      '\n' +
       'data = ')  # No newline
   pp = pprint.PrettyPrinter(indent=2, stream=args.output)
   pp.pprint(output)
