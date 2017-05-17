@@ -21,6 +21,7 @@ from slacker import Slacker
 
 
 _SLACK_TOKEN = 'xoxb-102806872243-CID1gwuenpeYcARR6M6bcrox'
+_MAX_MSG_LEN = 8000
 
 
 def setup_logger():
@@ -84,9 +85,9 @@ class SlackClient(object):
                                  stderr=subprocess.PIPE,
                                  shell=True)
             (stdout, stderr) = p.communicate(input_data)
-            self.post_message('```%s```' % stdout)
+            self.post_long_message('```%s```' % stdout)
             if stderr:
-                self.post_message('```%s```' % stderr)
+                self.post_long_message('```%s```' % stderr)
         except Exception:
             if not allow_error:
                 raise Exception(stderr)
@@ -115,6 +116,21 @@ class SlackClient(object):
                 'text': message
             })
         )
+
+    def post_long_message(self, message):
+        quoted = message.startswith('```')
+
+        while message:
+            msg = message[:_MAX_MSG_LEN]
+            message = message[_MAX_MSG_LEN:]
+
+            if message:
+                msg += ('```' if quoted else '')
+
+            self.post_message(msg)
+
+            if message:
+                message = ('```' if quoted else '') + message
 
     def help(self):
         self.post_message('''```Available commands are:
@@ -167,15 +183,15 @@ class SlackClient(object):
             self.status()
         elif command == 'deploy':
             self.deploy()
-        elif command == 'update bots':
+        elif command == 'update_bots':
             self.update_bots()
+        else:
+            self.post_message('Command not found')
 
 
 if __name__ == '__main__':
     setup_logger()
     client = SlackClient('operation')
-    try:
-        while True:
-            client.start()
-    except KeyboardInterrupt:
-        pass
+
+    while True:
+        client.start()
