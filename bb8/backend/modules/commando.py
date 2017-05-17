@@ -57,9 +57,17 @@
         "whatever_key_0": "whatever_value_0",
         "whatever_key_1": "whatever_value_1"
       },
+      "memory_copy": {
+        "whatever_key_0": "local_variable_name_0",
+        "whatever_key_1": "local_variable_name_1"
+      },
       "settings": {
         "whatever_key_0": "whatever_value_0",
         "whatever_key_1": "whatever_value_1"
+      },
+      "settings_copy": {
+        "whatever_key_0": "local_variable_name_0",
+        "whatever_key_1": "local_variable_name_1"
       }
     }
 
@@ -69,6 +77,10 @@
     If the url is not specified in the config, this means not to fetch data
     from external website. Instead, the transform must be configured. This is
     useful for the case that output the values in settings and memory.
+
+    'memory' and 'settings' are used to set the variables in memory and
+    setting. The setting value is basically a string. If you want to copy a
+    dict or array use 'memory_copy' and 'settings_copy'.
 
     The jinja document: http://jinja.pocoo.org/docs/dev/templates/
 """
@@ -202,6 +214,8 @@ def Transform(transform, js, unused_debug):
                     imports[p] = importlib.import_module(p)
 
             env = jinja2.Environment()
+            env.filters['safe_json'] = lambda x: json.dumps(unicode(x))[1:-1]
+
             tmpl = env.from_string(template_json)
             js_str = tmpl.render(  # pylint: disable=E1101
                 transform_input=js,
@@ -214,6 +228,22 @@ def Transform(transform, js, unused_debug):
             js = json.loads(js_str)
 
     return js, debug_msg
+
+
+def VarCopy(var_name, local_vars):
+    """Resolve the variable name to copy whole dict/array.
+
+    Args:
+      var_name: str. may contain '.' and '[number]'.
+      local_vars: from locals().
+
+    Returns:
+      str, dict, or array
+    """
+    value = local_vars
+    for name in var_name.split('.'):
+        value = value[name]
+    return value
 
 
 @PureContentModule
@@ -230,13 +260,14 @@ def run(config, unused_user_input, unused_env, variables):
     debug = config.get('debug')
     on_error = config.get(
         'on_error',
-        u'Ooops! Something wrong while) talking to remote server.')
+        u'Ooops! Something wrong while talking to remote server.')
 
     try:
         if url:
             js = FetchData(url=url, params=params, method=method)
         else:
             js = None  # Loopback. Process data in memory or settings.
+        transform_input = js
 
         transform = config.get('transform')
         if transform:
@@ -258,11 +289,23 @@ def run(config, unused_user_input, unused_env, variables):
 
         memory = js.get('memory', {})
         for k, v in memory.iteritems():
+            if v is None:
+                v = transform_input
             Memory.Set(k, v)
+
+        memory = js.get('memory_copy', {})
+        for k, v in memory.iteritems():
+            Memory.Set(k, VarCopy(v, locals()))
 
         settings = js.get('settings', {})
         for k, v in settings.iteritems():
+            if v is None:
+                v = transform_input
             Settings.Set(k, v)
+
+        settings = js.get('settings_copy', {})
+        for k, v in settings.iteritems():
+            Settings.Set(k, VarCopy(v, locals()))
 
     except Exception as e:
         _LOG.exception(e)
