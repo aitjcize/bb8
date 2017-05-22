@@ -5,6 +5,7 @@
     "interaction_timeout": 120,
     "admin_interaction_timeout": 10,
     "session_timeout": 0,
+    "ga_id": "UA-79887532-8",
     "settings": {
       "get_start_button": {
         "message": {
