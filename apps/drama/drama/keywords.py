@@ -14,9 +14,9 @@ import urlparse
 import lxml.html
 
 
-FAKE_USER_AGENT = ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) '
+FAKE_USER_AGENT = ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) '
                    'AppleWebKit/537.36 (KHTML, like Gecko) '
-                   'Chrome/54.0.2840.98 Safari/537.36')
+                   'Chrome/59.0.3071.115 Safari/537.3')
 
 
 def extract_popular_dramas():
