@@ -584,7 +584,8 @@ class Message(object):
             elif attachment['type'] == 'template':
                 ttype = attachment['payload']['template_type']
                 if ttype == 'button':
-                    m.buttons_text = attachment['payload']['text']
+                    m.buttons_text = Render(attachment['payload']['text'],
+                                            variables)
                     for x in attachment['payload']['buttons']:
                         m.add_button(cls.Button.FromDict(x, variables))
                 elif ttype == 'generic':

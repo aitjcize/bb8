@@ -73,9 +73,17 @@ def get_recommended_foods(input, user_lang, local_langs):
 
     likes = alliance_bernstein.data[inp]
     for fund_name, score in likes.iteritems():
+      if fund_name.startswith('key'):
+        continue
+
       if score == '':
         score = 0.0
-      scores[fund_name] += score * weight
+
+      try:
+        scores[fund_name] += float(score) * weight
+      except TypeError as e:
+        logging.debug('%r score=[%r], weight=[%r]', e, score, weight)
+        raise
 
   # sort before return.
   sorted_scores = [{"food": x, "score": scores[x]} for x in scores]

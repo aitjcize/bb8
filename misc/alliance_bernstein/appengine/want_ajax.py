@@ -66,7 +66,7 @@ class WantAjax(ajax_helper.AjaxHelper):
     # Return partial list to save bandwidth and not to leak the table.
     msgs = []
     elements = []
-    for food in foods[:5]:
+    for food in foods[:3]:
 
       f = fund.data[food['food']]
       elements.append({
@@ -78,14 +78,6 @@ class WantAjax(ajax_helper.AjaxHelper):
             'type': 'web_url',
             'title': '基金介紹',
             'url': f['item_url'],
-          }, {
-            'type': 'web_url',
-            'title': '淨值表現',
-            'url': f['net_worth_url'],
-          }, {
-            'type': 'web_url',
-            'title': '聯絡推薦理專',
-            'url': f['sales_url'],
           }],
       })
 
@@ -109,20 +101,21 @@ class WantAjax(ajax_helper.AjaxHelper):
         like_count += 1
         name = person[1:].encode('utf-8')
         intro = people.data[name]['desc']
-        why += name + '：' + intro
+        why += name + '：' + intro + '。'
 
     # Line has limitation for max 5 messages. Compress the reasons.
     if like_count:
       why = why.decode('utf-8')
       for _ in range(3):
+        max_len = 60  # in a LINE message
         msgs.append({
-            'text': why,
+            'text': why[:max_len],
         })
-        why = why[60:]
+        why = why[max_len:]
         if not why:
           break
     else:
-      pass  # Don't show anything if use dislikes everything.
+      pass  # Don't show anything if user dislikes everything.
 
     return {
       'messages': msgs,
@@ -226,7 +219,7 @@ class WantAjax(ajax_helper.AjaxHelper):
     msgs = []
 
     elements = []
-    for f in funds[:5]:
+    for f in funds[:3]:
 
       elements.append({
           'image_url': f['image_url'],
@@ -237,14 +230,6 @@ class WantAjax(ajax_helper.AjaxHelper):
             'type': 'web_url',
             'title': '基金介紹',
             'url': f['item_url'],
-          }, {
-            'type': 'web_url',
-            'title': '淨值表現',
-            'url': f['net_worth_url'],
-          }, {
-            'type': 'web_url',
-            'title': '聯絡推薦理專',
-            'url': f['sales_url'],
           }],
       })
 
