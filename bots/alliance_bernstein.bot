@@ -11,11 +11,6 @@
       "persistent_menu": [
         {
           "type": "web_url",
-          "title": "粉絲頁",
-          "url": "https://www.facebook.com/ediboZhTw"
-        },
-        {
-          "type": "web_url",
           "title": "Compose.ai 官方網站",
           "url": "http://compose.ai"
         }
@@ -32,7 +27,7 @@
           "config": {
             "messages": [
               {
-                "text": "嗨 {{user.first_name}}，機器人可以幫你推薦適合的基金喔！由 compose.ai 公司提供技術支援與維運支援。"
+                "text": "嗨 {{user.first_name}}，機器人可以幫你推薦適合的基金喔！"
               }
             ]
           }
@@ -104,7 +99,7 @@
                   ]
                 },
                 "end_node_id": "RecommendFunds",
-                "ack_message": "接下來，我會問你喜不喜歡以下五個名人，請輸入「喜歡」或「不喜歡」。"
+                "ack_message": "接下來，我會問你喜不喜歡以下五個名人，請輸入「喜歡」或「討厭」。"
               },
               {
                 "rule": {
@@ -202,21 +197,24 @@
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
-            "messages": [
-              {
-                "text": "你喜歡{{memory.Questionaire0}}嗎?"
+            "messages": [{
+              "attachment": {
+                "type": "template",
+                "payload": {
+                  "template_type": "button",
+                  "text": "你喜歡{{memory.Questionaire0}}嗎?",
+                  "buttons": [{
+                    "type": "postback",
+                    "title": "喜歡",
+                    "payload": "喜歡"
+                  }, {
+                    "type": "postback",
+                    "title": "討厭",
+                    "payload": "討厭"
+                  }]
+                }
               }
-            ],
-            "quick_replies": [
-              {
-                "content_type": "text",
-                "title": "喜歡"
-              },
-              {
-                "content_type": "text",
-                "title": "不喜歡"
-              }
-            ]
+            }]
           }
         }
       },
@@ -240,7 +238,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(no)", "不好", "不喜歡?", "不是"],
+                  "params": ["(?i)(no)", "不好", "討厭", "不是"],
                   "memory_set": {"key": "Answer0", "value": "-{{memory.Questionaire0}}"}
                 },
                 "ack_message": "",
@@ -249,7 +247,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(yes|ok)", "好", "喜歡?", "是"],
+                  "params": ["(?i)(yes|ok)", "好", "喜歡", "是"],
                   "memory_set": {"key": "Answer0", "value": "+{{memory.Questionaire0}}"}
                 },
                 "ack_message": "",
@@ -280,21 +278,24 @@
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
-            "messages": [
-              {
-                "text": "你喜歡{{memory.Questionaire1}}嗎?"
+            "messages": [{
+              "attachment": {
+                "type": "template",
+                "payload": {
+                  "template_type": "button",
+                  "text": "你喜歡{{memory.Questionaire1}}嗎?",
+                  "buttons": [{
+                    "type": "postback",
+                    "title": "喜歡",
+                    "payload": "喜歡"
+                  }, {
+                    "type": "postback",
+                    "title": "討厭",
+                    "payload": "討厭"
+                  }]
+                }
               }
-            ],
-            "quick_replies": [
-              {
-                "content_type": "text",
-                "title": "喜歡"
-              },
-              {
-                "content_type": "text",
-                "title": "不喜歡"
-              }
-            ]
+            }]
           }
         }
       },
@@ -318,7 +319,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(no)", "不好", "不喜歡?", "不是"],
+                  "params": ["(?i)(no)", "不好", "討厭", "不是"],
                   "memory_set": {"key": "Answer1", "value": "-{{memory.Questionaire1}}"}
                 },
                 "ack_message": "",
@@ -327,7 +328,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(yes|ok)", "好", "喜歡?", "是"],
+                  "params": ["(?i)(yes|ok)", "好", "喜歡", "是"],
                   "memory_set": {"key": "Answer1", "value": "+{{memory.Questionaire1}}"}
                 },
                 "ack_message": "",
@@ -358,21 +359,24 @@
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
-            "messages": [
-              {
-                "text": "你喜歡{{memory.Questionaire2}}嗎?"
+            "messages": [{
+              "attachment": {
+                "type": "template",
+                "payload": {
+                  "template_type": "button",
+                  "text": "你喜歡{{memory.Questionaire2}}嗎?",
+                  "buttons": [{
+                    "type": "postback",
+                    "title": "喜歡",
+                    "payload": "喜歡"
+                  }, {
+                    "type": "postback",
+                    "title": "討厭",
+                    "payload": "討厭"
+                  }]
+                }
               }
-            ],
-            "quick_replies": [
-              {
-                "content_type": "text",
-                "title": "喜歡"
-              },
-              {
-                "content_type": "text",
-                "title": "不喜歡"
-              }
-            ]
+            }]
           }
         }
       },
@@ -396,7 +400,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(no)", "不好", "不喜歡?", "不是"],
+                  "params": ["(?i)(no)", "不好", "討厭", "不是"],
                   "memory_set": {"key": "Answer2", "value": "-{{memory.Questionaire2}}"}
                 },
                 "ack_message": "",
@@ -405,7 +409,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(yes|ok)", "好", "喜歡?", "是"],
+                  "params": ["(?i)(yes|ok)", "好", "喜歡", "是"],
                   "memory_set": {"key": "Answer2", "value": "+{{memory.Questionaire2}}"}
                 },
                 "ack_message": "",
@@ -436,21 +440,24 @@
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
-            "messages": [
-              {
-                "text": "你喜歡{{memory.Questionaire3}}嗎?"
+            "messages": [{
+              "attachment": {
+                "type": "template",
+                "payload": {
+                  "template_type": "button",
+                  "text": "你喜歡{{memory.Questionaire3}}嗎?",
+                  "buttons": [{
+                    "type": "postback",
+                    "title": "喜歡",
+                    "payload": "喜歡"
+                  }, {
+                    "type": "postback",
+                    "title": "討厭",
+                    "payload": "討厭"
+                  }]
+                }
               }
-            ],
-            "quick_replies": [
-              {
-                "content_type": "text",
-                "title": "喜歡"
-              },
-              {
-                "content_type": "text",
-                "title": "不喜歡"
-              }
-            ]
+            }]
           }
         }
       },
@@ -474,7 +481,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(no)", "不好", "不喜歡?", "不是"],
+                  "params": ["(?i)(no)", "不好", "討厭", "不是"],
                   "memory_set": {"key": "Answer3", "value": "-{{memory.Questionaire3}}"}
                 },
                 "ack_message": "",
@@ -483,7 +490,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(yes|ok)", "好", "喜歡?", "是"],
+                  "params": ["(?i)(yes|ok)", "好", "喜歡", "是"],
                   "memory_set": {"key": "Answer3", "value": "+{{memory.Questionaire3}}"}
                 },
                 "ack_message": "",
@@ -514,21 +521,24 @@
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
-            "messages": [
-              {
-                "text": "你喜歡{{memory.Questionaire4}}嗎?"
+            "messages": [{
+              "attachment": {
+                "type": "template",
+                "payload": {
+                  "template_type": "button",
+                  "text": "你喜歡{{memory.Questionaire4}}嗎?",
+                  "buttons": [{
+                    "type": "postback",
+                    "title": "喜歡",
+                    "payload": "喜歡"
+                  }, {
+                    "type": "postback",
+                    "title": "討厭",
+                    "payload": "討厭"
+                  }]
+                }
               }
-            ],
-            "quick_replies": [
-              {
-                "content_type": "text",
-                "title": "喜歡"
-              },
-              {
-                "content_type": "text",
-                "title": "不喜歡"
-              }
-            ]
+            }]
           }
         }
       },
@@ -552,7 +562,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(no)", "不好", "不喜歡?", "不是"],
+                  "params": ["(?i)(no)", "不好", "討厭", "不是"],
                   "collect_as": {"key": "NoIdeaQuestionaires", "value": "[\"{{memory.Answer0}}\", \"{{memory.Answer1}}\", \"{{memory.Answer2}}\", \"{{memory.Answer3}}\", \"-{{memory.Questionaire4}}\"]"},
                   "memory_set": {"key": "Answer4", "value": "-{{memory.Questionaire4}}"}
                 },
@@ -562,7 +572,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(yes|ok)", "好", "喜歡?", "是"],
+                  "params": ["(?i)(yes|ok)", "好", "喜歡", "是"],
                   "collect_as": {"key": "NoIdeaQuestionaires", "value": "[\"{{memory.Answer0}}\", \"{{memory.Answer1}}\", \"{{memory.Answer2}}\", \"{{memory.Answer3}}\", \"+{{memory.Questionaire4}}\"]"},
                   "memory_set": {"key": "Answer4", "value": "+{{memory.Questionaire4}}"}
                 },
