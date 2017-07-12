@@ -154,7 +154,7 @@
             ],
             "on_error": {
               "end_node_id": "Root",
-              "ack_message": "我不了解你的指令，可以再輸入一次，或輸入「使用說明」喔。"
+              "ack_message": ""
             }
           }
         }
@@ -297,7 +297,7 @@
             ],
             "on_error": {
               "end_node_id": "Questionaire0",
-              "ack_message": "我不了解你的指令，可以再輸入一次，或輸入「使用說明」喔。"
+              "ack_message": ""
             }
           }
         }
@@ -383,7 +383,7 @@
             ],
             "on_error": {
               "end_node_id": "Questionaire1",
-              "ack_message": "我不了解你的指令，可以再輸入一次，或輸入「使用說明」喔。"
+              "ack_message": ""
             }
           }
         }
@@ -469,7 +469,7 @@
             ],
             "on_error": {
               "end_node_id": "Questionaire2",
-              "ack_message": "我不了解你的指令，可以再輸入一次，或輸入「使用說明」喔。"
+              "ack_message": ""
             }
           }
         }
@@ -555,7 +555,7 @@
             ],
             "on_error": {
               "end_node_id": "Questionaire3",
-              "ack_message": "我不了解你的指令，可以再輸入一次，或輸入「使用說明」喔。"
+              "ack_message": ""
             }
           }
         }
@@ -643,7 +643,7 @@
             ],
             "on_error": {
               "end_node_id": "Questionaire4",
-              "ack_message": "我不了解你的指令，可以再輸入一次，或輸入「使用說明」喔。"
+              "ack_message": ""
             }
           }
         }
