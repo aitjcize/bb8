@@ -484,7 +484,7 @@ class Message(base_message.Message):
         def register_mapping(self, key):
             if self.type == Message.ButtonType.POSTBACK:
                 acceptable_inputs = self.acceptable_inputs[:]
-                acceptable_inputs.extend(['^%s$' % key, self.title])
+                acceptable_inputs.extend(['^%s$' % key, '^%s$' % self.title])
                 InputTransformation.add_mapping(acceptable_inputs,
                                                 self.payload)
 
