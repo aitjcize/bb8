@@ -21,13 +21,26 @@
         "name": "First time user",
         "description": "First time user",
         "expect_input": false,
-        "next_node_id": "Root",
+        "next_node_id": "RootRouter",
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
               {
-                "text": "嗨 {{user.first_name}}，機器人可以幫你推薦適合的基金喔！"
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "嗨 {{user.first_name}}，這個遊戲非常簡單，接下來我會問你喜不喜歡以下五個名人，並依據你的回答判斷你可能會喜歡的基金，準備好開始了嗎?",
+                    "buttons": [
+                      {
+                        "type": "postback",
+                        "title": "開始測驗",
+                        "payload": "測驗"
+                      }
+                    ]
+                  }
+                }
               }
             ]
           }
@@ -44,13 +57,20 @@
           "config": {
             "messages": [
               {
-                "text": "這是主選單，輸入「說明」可以看功能說明。"
-              }
-            ],
-            "quick_replies": [
-              {
-                "content_type": "text",
-                "title": "測驗"
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "嗨 {{user.first_name}}，接下來我會問你喜不喜歡以下五個名人，並依據你的回答判斷你可能會喜歡的基金，準備好開始了嗎?",
+                    "buttons": [
+                      {
+                        "type": "postback",
+                        "title": "開始測驗",
+                        "payload": "測驗"
+                      }
+                    ]
+                  }
+                }
               }
             ]
           }
@@ -91,7 +111,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["測驗"],
+                  "params": ["測驗", "不滿意"],
                   "collect_as": {"key": "FEATURE", "value": "NoIdea"},
                   "memory_set": [
                     {"key": "FEATURE", "value": "NoIdea"},
@@ -99,7 +119,7 @@
                   ]
                 },
                 "end_node_id": "RecommendFunds",
-                "ack_message": "接下來，我會問你喜不喜歡以下五個名人，請輸入「喜歡」或「討厭」。"
+                "ack_message": "測驗開始囉!"
               },
               {
                 "rule": {
@@ -122,6 +142,14 @@
                 },
                 "end_node_id": "Root",
                 "ack_message": "Switched to DEV: {{memory.ajax_root}}"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["滿意"]
+                },
+                "end_node_id": "Root",
+                "ack_message": "謝謝你的支持! 你可以透過輸入「測驗」再玩一次喔! "
               }
             ],
             "on_error": {
@@ -197,24 +225,29 @@
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
-            "messages": [{
-              "attachment": {
-                "type": "template",
-                "payload": {
-                  "template_type": "button",
-                  "text": "你喜歡{{memory.Questionaire0}}嗎?",
-                  "buttons": [{
-                    "type": "postback",
-                    "title": "喜歡",
-                    "payload": "喜歡"
-                  }, {
-                    "type": "postback",
-                    "title": "討厭",
-                    "payload": "討厭"
-                  }]
+            "messages": [
+              {
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "你喜歡{{memory.Questionaire0}}嗎?",
+                    "buttons": [
+                      {
+                        "type": "postback",
+                        "title": "喜歡",
+                        "payload": "喜歡"
+                      },
+                      {
+                        "type": "postback",
+                        "title": "不喜歡",
+                        "payload": "不喜歡"
+                      }
+                    ]
+                  }
                 }
               }
-            }]
+            ]
           }
         }
       },
@@ -238,7 +271,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(no)", "不好", "討厭", "不是"],
+                  "params": ["(?i)(no)", "不好", "不喜歡", "不是"],
                   "memory_set": {"key": "Answer0", "value": "-{{memory.Questionaire0}}"}
                 },
                 "ack_message": "",
@@ -278,24 +311,29 @@
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
-            "messages": [{
-              "attachment": {
-                "type": "template",
-                "payload": {
-                  "template_type": "button",
-                  "text": "你喜歡{{memory.Questionaire1}}嗎?",
-                  "buttons": [{
-                    "type": "postback",
-                    "title": "喜歡",
-                    "payload": "喜歡"
-                  }, {
-                    "type": "postback",
-                    "title": "討厭",
-                    "payload": "討厭"
-                  }]
+            "messages": [
+              {
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "你喜歡{{memory.Questionaire1}}嗎?",
+                    "buttons": [
+                      {
+                        "type": "postback",
+                        "title": "喜歡",
+                        "payload": "喜歡"
+                      },
+                      {
+                        "type": "postback",
+                        "title": "不喜歡",
+                        "payload": "不喜歡"
+                      }
+                    ]
+                  }
                 }
               }
-            }]
+            ]
           }
         }
       },
@@ -319,7 +357,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(no)", "不好", "討厭", "不是"],
+                  "params": ["(?i)(no)", "不好", "不喜歡", "不是"],
                   "memory_set": {"key": "Answer1", "value": "-{{memory.Questionaire1}}"}
                 },
                 "ack_message": "",
@@ -359,24 +397,29 @@
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
-            "messages": [{
-              "attachment": {
-                "type": "template",
-                "payload": {
-                  "template_type": "button",
-                  "text": "你喜歡{{memory.Questionaire2}}嗎?",
-                  "buttons": [{
-                    "type": "postback",
-                    "title": "喜歡",
-                    "payload": "喜歡"
-                  }, {
-                    "type": "postback",
-                    "title": "討厭",
-                    "payload": "討厭"
-                  }]
+            "messages": [
+              {
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "你喜歡{{memory.Questionaire2}}嗎?",
+                    "buttons": [
+                      {
+                        "type": "postback",
+                        "title": "喜歡",
+                        "payload": "喜歡"
+                      },
+                      {
+                        "type": "postback",
+                        "title": "不喜歡",
+                        "payload": "不喜歡"
+                      }
+                    ]
+                  }
                 }
               }
-            }]
+            ]
           }
         }
       },
@@ -400,7 +443,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(no)", "不好", "討厭", "不是"],
+                  "params": ["(?i)(no)", "不好", "不喜歡", "不是"],
                   "memory_set": {"key": "Answer2", "value": "-{{memory.Questionaire2}}"}
                 },
                 "ack_message": "",
@@ -440,24 +483,29 @@
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
-            "messages": [{
-              "attachment": {
-                "type": "template",
-                "payload": {
-                  "template_type": "button",
-                  "text": "你喜歡{{memory.Questionaire3}}嗎?",
-                  "buttons": [{
-                    "type": "postback",
-                    "title": "喜歡",
-                    "payload": "喜歡"
-                  }, {
-                    "type": "postback",
-                    "title": "討厭",
-                    "payload": "討厭"
-                  }]
+            "messages": [
+              {
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "你喜歡{{memory.Questionaire3}}嗎?",
+                    "buttons": [
+                      {
+                        "type": "postback",
+                        "title": "喜歡",
+                        "payload": "喜歡"
+                      },
+                      {
+                        "type": "postback",
+                        "title": "不喜歡",
+                        "payload": "不喜歡"
+                      }
+                    ]
+                  }
                 }
               }
-            }]
+            ]
           }
         }
       },
@@ -481,7 +529,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(no)", "不好", "討厭", "不是"],
+                  "params": ["(?i)(no)", "不好", "不喜歡", "不是"],
                   "memory_set": {"key": "Answer3", "value": "-{{memory.Questionaire3}}"}
                 },
                 "ack_message": "",
@@ -521,24 +569,29 @@
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
-            "messages": [{
-              "attachment": {
-                "type": "template",
-                "payload": {
-                  "template_type": "button",
-                  "text": "你喜歡{{memory.Questionaire4}}嗎?",
-                  "buttons": [{
-                    "type": "postback",
-                    "title": "喜歡",
-                    "payload": "喜歡"
-                  }, {
-                    "type": "postback",
-                    "title": "討厭",
-                    "payload": "討厭"
-                  }]
+            "messages": [
+              {
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "你喜歡{{memory.Questionaire4}}嗎?",
+                    "buttons": [
+                      {
+                        "type": "postback",
+                        "title": "喜歡",
+                        "payload": "喜歡"
+                      },
+                      {
+                        "type": "postback",
+                        "title": "不喜歡",
+                        "payload": "不喜歡"
+                      }
+                    ]
+                  }
                 }
               }
-            }]
+            ]
           }
         }
       },
@@ -562,7 +615,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(no)", "不好", "討厭", "不是"],
+                  "params": ["(?i)(no)", "不好", "不喜歡", "不是"],
                   "collect_as": {"key": "NoIdeaQuestionaires", "value": "[\"{{memory.Answer0}}\", \"{{memory.Answer1}}\", \"{{memory.Answer2}}\", \"{{memory.Answer3}}\", \"-{{memory.Questionaire4}}\"]"},
                   "memory_set": {"key": "Answer4", "value": "-{{memory.Questionaire4}}"}
                 },
@@ -648,7 +701,7 @@
         "name": "ComposeAiGetRecommendedFoods",
         "description": "ComposeAiGetRecommendedFoods",
         "expect_input": false,
-        "next_node_id": "Root",
+        "next_node_id": "ComposeAiGetRecommendedFoodsNext",
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
@@ -663,47 +716,40 @@
         }
       },
 
-      "ComposeAiGetRecommendedFoodsRouter": {
-        "name": "ComposeAiGetRecommendedFoodsRouter",
-        "description": "ComposeAiGetRecommendedFoodsRouter",
-        "expect_input": true,
-        "next_node_id": "Root",
+      "ComposeAiGetRecommendedFoodsNext": {
+        "name": "ComposeAiGetRecommendedFoodsNext",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
         "module": {
-          "id": "ai.compose.router.core.default",
+          "id": "ai.compose.content.core.message",
           "config": {
-            "links": [
+            "messages": [
               {
-                "rule": {
-                  "type": "regexp",
-                  "params": ["(使用)?說明", "tutorial", "^\\?", "(?i)help", "幫助", "怎麼用?", "^？", "不會用", "求救"]
-                },
-                "end_node_id": "Root",
-                "ack_message": ""
-              },
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": [".*聯博.*"]
-                },
-                "end_node_id": "ComposeAiGetRecommendedFoods",
-                "ack_message": "[待續] 未來會連到基金詳細介紹的網頁 https://www.abfunds.com.tw/apac/tw/funds/views/nav.htm"
-              },
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": ["^(?i)(hi|hello)$", "你好", "主選單", "哈囉", "reset", "重來"]
-                },
-                "end_node_id": "Root",
-                "ack_message": ""
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "滿意這個測驗結果嗎?",
+                    "buttons": [
+                      {
+                        "type": "postback",
+                        "title": "滿意",
+                        "payload": "滿意"
+                      },
+                      {
+                        "type": "postback",
+                        "title": "不滿意, 我要再玩一次！",
+                        "payload": "不滿意"
+                      }
+                    ]
+                  }
+                }
               }
-            ],
-            "on_error": {
-              "end_node_id": "ComposeAiGetRecommendedFoodsRouter",
-              "ack_message": "我好像壞掉了，快通知管理員。"
-            }
+            ]
           }
         }
       },
+
 
       "KeywordQuery": {
         "name": "KeywordQuery",
@@ -723,7 +769,6 @@
           }
         }
       }
-
     }
   }
 }
