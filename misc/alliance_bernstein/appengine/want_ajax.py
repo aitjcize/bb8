@@ -72,7 +72,7 @@ class WantAjax(ajax_helper.AjaxHelper):
       elements.append({
           'image_url': f['image_url'],
           'item_url': f['item_url'],
-          'title': food['food'],
+          'title': f['display_name'],
           'subtitle': f['desc'],
           'buttons': [{
             'type': 'web_url',
@@ -224,7 +224,7 @@ class WantAjax(ajax_helper.AjaxHelper):
       elements.append({
           'image_url': f['image_url'],
           'item_url': f['item_url'],
-          'title': f['key'],
+          'title': f['display_name'],
           'subtitle': f['desc'],
           'buttons': [{
             'type': 'web_url',
