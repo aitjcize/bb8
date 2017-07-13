@@ -60,11 +60,14 @@
           "config": {
             "messages": [
               {
+                "text": "嗨 {{user.first_name}} !"
+              },
+              {
                 "attachment": {
                   "type": "template",
                   "payload": {
                     "template_type": "button",
-                    "text": "嗨 {{user.first_name}}，接下來我會問你喜不喜歡以下五個名人，並依據你的回答判斷你可能會喜歡的基金，準備好開始了嗎?",
+                    "text": "接下來我會問你喜不喜歡以下五個名人，並依據你的回答判斷你可能會喜歡的基金，準備好開始了嗎?",
                     "buttons": [
                       {
                         "type": "postback",
