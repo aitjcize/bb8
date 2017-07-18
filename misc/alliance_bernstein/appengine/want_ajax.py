@@ -82,7 +82,7 @@ class WantAjax(ajax_helper.AjaxHelper):
       })
 
     msgs.append({
-        'text': '以下是我們認為你可能會喜歡的基金：',
+        'text': '以下是我們認為你可能會喜歡的基金： 💋 ',
     })
     msgs.append({
         'attachment': {
@@ -94,6 +94,7 @@ class WantAjax(ajax_helper.AjaxHelper):
         }
     })
 
+    """FIXME: remove me
     why = '為什麼我們推薦你這些基金？因為你喜歡這些人：'
     like_count = 0
     for person in selected:
@@ -116,6 +117,49 @@ class WantAjax(ajax_helper.AjaxHelper):
           break
     else:
       pass  # Don't show anything if user dislikes everything.
+    """
+
+    return {
+      'messages': msgs,
+    }
+
+  def GetReasons(self):
+    """Get recommendation reasons.
+
+    Args:
+      Common:
+        user_lang=zh_TW
+        selected=["+羊肉爐", "+漢堡", "+洋蔥", "+肉圓", "+豆腐鍋"]
+      Web:
+        local_langs=[["zh_TW", 1.0]]
+      Comopse.ai:
+        location={u'coordinates': {u'lat': 25.0339031, u'long': 121.5645099}}
+        platform_user_ident=1115862448503460
+
+    Returns:
+      list of a dict:
+    """
+    selected = json.loads(self.request.get("selected"))
+    user_lang = self.request.get("user_lang")
+
+    logging.debug('selected: %r', selected)
+    logging.debug('user_lang: %r', user_lang)
+
+    msgs = []
+    like_count = 0
+    for person in selected:
+      if person.startswith('+'):
+        like_count += 1
+        name = person[1:].encode('utf-8')
+        intro = people.data[name]['desc']
+        msgs.append({
+            'text': name + '：' + intro + '。',
+        })
+
+    if not like_count:
+      msgs.append({
+          'text': '你沒有喜歡的名人，所以我自己找了一些基金給你。',
+      })
 
     return {
       'messages': msgs,
@@ -220,7 +264,6 @@ class WantAjax(ajax_helper.AjaxHelper):
 
     elements = []
     for f in funds[:3]:
-
       elements.append({
           'image_url': f['image_url'],
           'item_url': f['item_url'],
@@ -249,6 +292,57 @@ class WantAjax(ajax_helper.AjaxHelper):
     else:
       msgs.append({
           'text': u'找不到「%s」相關的基金:：' % keyword,
+      })
+
+    return {
+      'messages': msgs,
+    }
+
+  def ListCategory(self):
+    """Get a random list from category.
+
+    Args:
+      category: one of 債券型, 股票型, 平衡型
+
+    Returns:
+      Commando format.
+    """
+    category = self.request.get('category')
+    funds = want.ListCategory(category)
+
+    msgs = []
+
+    elements = []
+    random.shuffle(funds)
+    for f in funds[:3]:
+      elements.append({
+          'image_url': f['image_url'],
+          'item_url': f['item_url'],
+          'title': f['display_name'],
+          'subtitle': f['desc'],
+          'buttons': [{
+            'type': 'web_url',
+            'title': '基金介紹',
+            'url': f['item_url'],
+          }],
+      })
+
+    if elements:
+      msgs.append({
+          'text': u'你可能會喜歡的「%s」基金： 💋 ' % category,
+      })
+      msgs.append({
+          'attachment': {
+              'type': 'template',
+              'payload': {
+                  'template_type': 'generic',
+                  'elements': elements,
+              },
+          }
+      })
+    else:
+      msgs.append({
+          'text': u'找不到「%s」相關的基金:：' % category,
       })
 
     return {

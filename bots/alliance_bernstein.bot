@@ -27,7 +27,7 @@
           "config": {
             "messages": [
               {
-                "text": "嗨 {{user.first_name}} !"
+                "text": "嗨 {{user.first_name}} ! ☺"
               },
               {
                 "attachment": {
@@ -60,7 +60,7 @@
           "config": {
             "messages": [
               {
-                "text": "嗨 {{user.first_name}} !"
+                "text": "嗨 {{user.first_name}} ! ☺"
               },
               {
                 "attachment": {
@@ -92,6 +92,17 @@
           "id": "ai.compose.router.core.default",
           "config": {
             "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["測驗結果說明"],
+                  "memory_set": [
+                    {"key": "ajax_root", "value": "{{memory.ajax_root|unref('') if memory.ajax_root else 'http://dotted-lexicon-133523.appspot.com'}}"}
+                  ]
+                },
+                "end_node_id": "GetReasons",
+                "ack_message": ""
+              },
               {
                 "rule": {
                   "type": "regexp",
@@ -217,7 +228,7 @@
                 ]
               }
             ],
-            "debug": true,
+            "debug": false,
             "on_error": "我好像壞掉了，快通知管理員。"
           }
         }
@@ -678,8 +689,8 @@
                 ]
               }
             ],
-            "debug": true,
-            "on_error": "我好像壞掉了，快通知管理員。 (UpdateDietHabit)"
+            "debug": false,
+            "on_error": "我好像壞掉了，快通知管理員。 (Update)"
           }
         }
       },
@@ -697,7 +708,7 @@
               ["platform_user_ident", "{{user.platform_user_ident}}"],
               ["timezone", "{{user.timezone}}"]
             ],
-            "debug": true,
+            "debug": false,
             "on_error": "我好像壞掉了，快通知管理員。(GetPreference)"
           }
         }
@@ -716,8 +727,27 @@
               ["user_lang", "zh_TW"],
               ["selected", "[\"{{memory.Answer0}}\", \"{{memory.Answer1}}\", \"{{memory.Answer2}}\", \"{{memory.Answer3}}\", \"{{memory.Answer4}}\"]"]
             ],
-            "debug": true,
+            "debug": false,
             "on_error": "我好像壞掉了，快通知管理員。"
+          }
+        }
+      },
+
+      "GetReasons": {
+        "name": "GetReasons",
+        "description": "GetReasons",
+        "expect_input": false,
+        "next_node_id": "ComposeAiGetRecommendedFoodsNext",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "{{memory.ajax_root}}/want_ajax?action=GetReasons",
+            "params": [
+              ["user_lang", "zh_TW"],
+              ["selected", "[\"{{memory.Answer0}}\", \"{{memory.Answer1}}\", \"{{memory.Answer2}}\", \"{{memory.Answer3}}\", \"{{memory.Answer4}}\"]"]
+            ],
+            "debug": false,
+            "on_error": "我好像壞掉了，快通知管理員。(GetReasons)"
           }
         }
       },
@@ -746,6 +776,11 @@
                         "type": "postback",
                         "title": "不滿意, 我要再玩一次！",
                         "payload": "不滿意"
+                      },
+                      {
+                        "type": "postback",
+                        "title": "測驗結果說明",
+                        "payload": "測驗結果說明"
                       }
                     ]
                   }
@@ -770,7 +805,7 @@
               ["user_lang", "zh_TW"],
               ["keyword", "{{memory.keyword}}"]
             ],
-            "debug": true,
+            "debug": false,
             "on_error": "我好像壞掉了，快通知管理員。"
           }
         }

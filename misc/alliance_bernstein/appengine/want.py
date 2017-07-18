@@ -150,6 +150,17 @@ def KeywordQuery(user_lang, keyword):
   docs = fund_index.Search(bigram_dict)
   return [x.void_p for x in docs if x.score > 0]
 
+def ListCategory(category, max_num=3):
+  """Get a random list from category.
+
+    Args:
+      category: one of 債券型, 股票型, 平衡型
+
+    Returns:
+      list of fund
+  """
+  return [value for key, value in fund.data.iteritems()
+          if value['category'] == category]
 
 # Global variable. Load once.
 fund_index = IndexFunds(fund.data)
