@@ -94,31 +94,6 @@ class WantAjax(ajax_helper.AjaxHelper):
         }
     })
 
-    """FIXME: remove me
-    why = '為什麼我們推薦你這些基金？因為你喜歡這些人：'
-    like_count = 0
-    for person in selected:
-      if person.startswith('+'):
-        like_count += 1
-        name = person[1:].encode('utf-8')
-        intro = people.data[name]['desc']
-        why += name + '：' + intro + '。'
-
-    # Line has limitation for max 5 messages. Compress the reasons.
-    if like_count:
-      why = why.decode('utf-8')
-      for _ in range(3):
-        max_len = 60  # in a LINE message
-        msgs.append({
-            'text': why[:max_len],
-        })
-        why = why[max_len:]
-        if not why:
-          break
-    else:
-      pass  # Don't show anything if user dislikes everything.
-    """
-
     return {
       'messages': msgs,
     }
@@ -302,13 +277,13 @@ class WantAjax(ajax_helper.AjaxHelper):
     """Get a random list from category.
 
     Args:
-      category: one of 債券型, 股票型, 平衡型
+      category: one of 債券型, 股票型, 平衡型 (in Unicode)
 
     Returns:
       Commando format.
     """
     category = self.request.get('category')
-    funds = want.ListCategory(category)
+    funds = want.ListCategory(category.encode('utf-8'))
 
     msgs = []
 
