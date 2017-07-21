@@ -128,7 +128,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["測驗", "不滿意"],
+                  "params": ["測驗"],
                   "collect_as": {"key": "FEATURE", "value": "NoIdea"},
                   "memory_set": [
                     {"key": "FEATURE", "value": "NoIdea"},
@@ -137,6 +137,33 @@
                 },
                 "end_node_id": "RecommendFunds",
                 "ack_message": "測驗開始囉!"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["不滿意"],
+                  "collect_as": {"key": "FEATURE", "value": "Category"},
+                  "memory_set": [
+                    {"key": "FEATURE", "value": "Category"},
+                    {"key": "ajax_root", "value": "{{memory.ajax_root|unref('') if memory.ajax_root else 'http://dotted-lexicon-133523.appspot.com'}}"}
+                  ]
+                },
+                "end_node_id": "ShowCategory",
+                "ack_message": "我欣賞你對投資很有想法! 👍 "
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["債券型", "股票型", "平衡型"],
+                  "collect_as": {"key": "FEATURE", "value": "ListCategory"},
+                  "memory_set": [
+                    {"key": "FEATURE", "value": "ListCategory"},
+                    {"key": "category"},
+                    {"key": "ajax_root", "value": "{{memory.ajax_root|unref('') if memory.ajax_root else 'http://dotted-lexicon-133523.appspot.com'}}"}
+                  ]
+                },
+                "end_node_id": "ListCategory",
+                "ack_message": "我欣賞你對投資很有想法! 👍 "
               },
               {
                 "rule": {
@@ -774,7 +801,7 @@
                       },
                       {
                         "type": "postback",
-                        "title": "不滿意, 我要再玩一次！",
+                        "title": "不滿意",
                         "payload": "不滿意"
                       },
                       {
@@ -790,7 +817,6 @@
           }
         }
       },
-
 
       "KeywordQuery": {
         "name": "KeywordQuery",
@@ -809,7 +835,149 @@
             "on_error": "我好像壞掉了，快通知管理員。"
           }
         }
+      },
+
+      "ShowCategory": {
+        "name": "ShowCategory",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "請問你喜歡哪一類型的基金呢？",
+                    "buttons": [
+                      {
+                        "type": "postback",
+                        "title": "股票型",
+                        "payload": "股票型"
+                      },
+                      {
+                        "type": "postback",
+                        "title": "債券型",
+                        "payload": "債券型"
+                      },
+                      {
+                        "type": "postback",
+                        "title": "平衡型",
+                        "payload": "平衡型"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+
+      "ListCategory": {
+        "name": "ListCategory",
+        "description": "ListCategory",
+        "expect_input": false,
+        "next_node_id": "ListCategoryGoodOrNot",
+        "module": {
+          "id": "ai.compose.content.core.commando",
+          "config": {
+            "url": "{{memory.ajax_root}}/want_ajax?action=ListCategory",
+            "params": [
+              ["category", "{{memory.category}}"]
+            ],
+            "debug": false,
+            "on_error": "我好像壞掉了，快通知管理員。(ListCategory)"
+          }
+        }
+      },
+
+      "ListCategoryGoodOrNot": {
+        "name": "ListCategoryGoodOrNot",
+        "expect_input": false,
+        "next_node_id": "ListCategoryGoodOrNotRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "喜歡這些基金嗎?",
+                    "buttons": [
+                      {
+                        "type": "postback",
+                        "title": "喜歡",
+                        "payload": "喜歡"
+                      },
+                      {
+                        "type": "postback",
+                        "title": "不喜歡",
+                        "payload": "不喜歡"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+
+      "ListCategoryGoodOrNotRouter": {
+        "name": "ListCategoryGoodOrNotRouter",
+        "description": "ListCategoryGoodOrNotRouter",
+        "expect_input": true,
+        "next_node_id": "Root",
+        "module": {
+          "id": "ai.compose.router.core.default",
+          "config": {
+            "links": [
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(使用)?說明", "tutorial", "^\\?", "(?i)help", "幫助", "怎麼用?", "^？", "不會用", "求救"]
+                },
+                "end_node_id": "Root",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)(no)", "不好", "不喜歡", "不是"]
+                },
+                "ack_message": "",
+                "end_node_id": "ShowCategory"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)(yes|ok)", "好", "喜歡", "是"]
+                },
+                "end_node_id": "Root",
+                "ack_message": "謝謝你的支持! 你可以透過輸入「測驗」再玩一次喔! "
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["(?i)(hi|hello)", "你好", "主選單", "哈囉"]
+                },
+                "end_node_id": "Root",
+                "ack_message": ""
+              }
+            ],
+            "on_error": {
+              "end_node_id": "ListCategoryGoodOrNot",
+              "ack_message": ""
+            }
+          }
+        }
       }
+
     }
   }
 }

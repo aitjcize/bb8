@@ -154,11 +154,12 @@ def ListCategory(category, max_num=3):
   """Get a random list from category.
 
     Args:
-      category: one of 債券型, 股票型, 平衡型
+      category: one of 債券型, 股票型, 平衡型 in UTF-8
 
     Returns:
       list of fund
   """
+  print type(category)
   return [value for key, value in fund.data.iteritems()
           if value['category'] == category]
 
