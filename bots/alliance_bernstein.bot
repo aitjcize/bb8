@@ -192,8 +192,8 @@
                   "type": "regexp",
                   "params": ["滿意"]
                 },
-                "end_node_id": "Root",
-                "ack_message": "謝謝你的支持! 你可以透過輸入「測驗」再玩一次喔! "
+                "end_node_id": "Satisfy",
+                "ack_message": ""
               }
             ],
             "on_error": {
@@ -958,7 +958,7 @@
                   "type": "regexp",
                   "params": ["(?i)(yes|ok)", "好", "喜歡", "是"]
                 },
-                "end_node_id": "Root",
+                "end_node_id": "Satisfy",
                 "ack_message": "謝謝你的支持! 你可以透過輸入「測驗」再玩一次喔! "
               },
               {
@@ -976,8 +976,51 @@
             }
           }
         }
-      }
+      },
 
+      "Satisfy": {
+        "name": "Satisfy",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": {
+              "Facebook": [
+                {
+                  "text": "謝謝你的喜愛 :D"
+                },
+                {
+                  "attachment": {
+                    "type": "template",
+                    "payload": {
+                      "template_type": "generic",
+                      "elements": [
+                        {
+                          "title": "或許你的好友也會想玩玩看",
+                          "buttons": [
+                            {
+                              "type": "element_share"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "Line": [
+                {
+                  "text": "謝謝你的喜愛 :D"
+                },
+                {
+                  "text": "或許你的好友也會想玩玩看，把這個連結傳給他們就可以囉:「http://line.me/ti/p/<TBD>」"
+                }
+              ]
+            }
+          }
+        }
+      }
     }
   }
 }
