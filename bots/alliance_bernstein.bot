@@ -148,13 +148,13 @@
                     {"key": "ajax_root", "value": "{{memory.ajax_root|unref('') if memory.ajax_root else 'http://dotted-lexicon-133523.appspot.com'}}"}
                   ]
                 },
-                "end_node_id": "ShowCategory",
-                "ack_message": "我欣賞你對投資很有想法! 👍 "
+                "end_node_id": "NotSatisfied",
+                "ack_message": ""
               },
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["債券型", "股票型", "平衡型"],
+                  "params": ["債券型", "股票型", "多元資產"],
                   "collect_as": {"key": "FEATURE", "value": "ListCategory"},
                   "memory_set": [
                     {"key": "FEATURE", "value": "ListCategory"},
@@ -163,7 +163,7 @@
                   ]
                 },
                 "end_node_id": "ListCategory",
-                "ack_message": "我欣賞你對投資很有想法! 👍 "
+                "ack_message": ""
               },
               {
                 "rule": {
@@ -315,7 +315,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(no)", "不好", "不喜歡", "不是"],
+                  "params": ["(?i)(no)", "不好", "不喜歡", "不是", "不喜"],
                   "memory_set": {"key": "Answer0", "value": "-{{memory.Questionaire0}}"}
                 },
                 "ack_message": "",
@@ -401,7 +401,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(no)", "不好", "不喜歡", "不是"],
+                  "params": ["(?i)(no)", "不好", "不喜歡", "不是", "不喜"],
                   "memory_set": {"key": "Answer1", "value": "-{{memory.Questionaire1}}"}
                 },
                 "ack_message": "",
@@ -487,7 +487,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(no)", "不好", "不喜歡", "不是"],
+                  "params": ["(?i)(no)", "不好", "不喜歡", "不是", "不喜"],
                   "memory_set": {"key": "Answer2", "value": "-{{memory.Questionaire2}}"}
                 },
                 "ack_message": "",
@@ -573,7 +573,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(no)", "不好", "不喜歡", "不是"],
+                  "params": ["(?i)(no)", "不好", "不喜歡", "不是", "不喜"],
                   "memory_set": {"key": "Answer3", "value": "-{{memory.Questionaire3}}"}
                 },
                 "ack_message": "",
@@ -659,7 +659,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(no)", "不好", "不喜歡", "不是"],
+                  "params": ["(?i)(no)", "不好", "不喜歡", "不是", "不喜"],
                   "collect_as": {"key": "NoIdeaQuestionaires", "value": "[\"{{memory.Answer0}}\", \"{{memory.Answer1}}\", \"{{memory.Answer2}}\", \"{{memory.Answer3}}\", \"-{{memory.Questionaire4}}\"]"},
                   "memory_set": {"key": "Answer4", "value": "-{{memory.Questionaire4}}"}
                 },
@@ -837,6 +837,26 @@
         }
       },
 
+      "NotSatisfied": {
+        "name": "NotSatisfied",
+        "description": "NotSatisfied",
+        "expect_input": false,
+        "next_node_id": "ShowCategory",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "{{user.first_name}} 我欣賞你對投資很有想法!"
+              },
+              {
+                "text": "👍 "
+              }
+            ]
+          }
+        }
+      },
+
       "ShowCategory": {
         "name": "ShowCategory",
         "expect_input": false,
@@ -864,8 +884,8 @@
                       },
                       {
                         "type": "postback",
-                        "title": "平衡型",
-                        "payload": "平衡型"
+                        "title": "多元資產",
+                        "payload": "多元資產"
                       }
                     ]
                   }
@@ -948,7 +968,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["(?i)(no)", "不好", "不喜歡", "不是"]
+                  "params": ["(?i)(no)", "不好", "不喜歡", "不是", "不喜"]
                 },
                 "ack_message": "",
                 "end_node_id": "ShowCategory"
@@ -959,7 +979,7 @@
                   "params": ["(?i)(yes|ok)", "好", "喜歡", "是"]
                 },
                 "end_node_id": "Satisfy",
-                "ack_message": "謝謝你的支持! 你可以透過輸入「測驗」再玩一次喔! "
+                "ack_message": ""
               },
               {
                 "rule": {
@@ -988,7 +1008,10 @@
             "messages": {
               "Facebook": [
                 {
-                  "text": "謝謝你的喜愛 :D"
+                  "text": "謝謝你的喜愛"
+                },
+                {
+                  "text": "😜"
                 },
                 {
                   "attachment": {
@@ -1011,10 +1034,16 @@
               ],
               "Line": [
                 {
-                  "text": "謝謝你的喜愛 :D"
+                  "text": "謝謝你的喜愛"
                 },
                 {
-                  "text": "或許你的好友也會想玩玩看，把這個連結傳給他們就可以囉:「http://line.me/ti/p/%40tlg8995g」"
+                  "text": "😜"
+                },
+                {
+                  "text": "或許你的好友也會想玩玩看"
+                },
+                {
+                  "text": "把這個連結傳給他們就可以囉:「http://line.me/ti/p/%40tlg8995g」"
                 }
               ]
             }

@@ -277,7 +277,7 @@ class WantAjax(ajax_helper.AjaxHelper):
     """Get a random list from category.
 
     Args:
-      category: one of 債券型, 股票型, 平衡型 (in Unicode)
+      category: one of 債券型, 股票型, 多元資產 (in Unicode)
 
     Returns:
       Commando format.

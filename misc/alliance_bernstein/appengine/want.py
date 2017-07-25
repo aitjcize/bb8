@@ -150,11 +150,14 @@ def KeywordQuery(user_lang, keyword):
   docs = fund_index.Search(bigram_dict)
   return [x.void_p for x in docs if x.score > 0]
 
+# TODO: dynamically generate category list from
+#           set([v['category'] for v in fund.data.values()])
+
 def ListCategory(category, max_num=3):
   """Get a random list from category.
 
     Args:
-      category: one of 債券型, 股票型, 平衡型 in UTF-8
+      category: one of 債券型, 股票型, 多元資產 in UTF-8
 
     Returns:
       list of fund
