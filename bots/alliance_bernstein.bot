@@ -958,7 +958,7 @@
                   "type": "regexp",
                   "params": ["(?i)(yes|ok)", "好", "喜歡", "是"]
                 },
-                "end_node_id": "Root",
+                "end_node_id": "Satisfy",
                 "ack_message": "謝謝你的支持! 你可以透過輸入「測驗」再玩一次喔! "
               },
               {
