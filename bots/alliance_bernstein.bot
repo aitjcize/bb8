@@ -54,14 +54,28 @@
         "name": "Root",
         "description": "Root node, show usage",
         "expect_input": false,
-        "next_node_id": "RootRouter",
+        "next_node_id": "RootMenu",
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
               {
                 "text": "嗨 {{user.first_name}} ! ☺"
-              },
+              }
+            ]
+          }
+        }
+      },
+
+      "RootMenu": {
+        "name": "RootMenu",
+        "description": "Only menu, no greeting",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
               {
                 "attachment": {
                   "type": "template",
@@ -316,7 +330,10 @@
                 "rule": {
                   "type": "regexp",
                   "params": ["(?i)(no)", "不好", "不喜歡", "不是", "不喜"],
-                  "memory_set": {"key": "Answer0", "value": "-{{memory.Questionaire0}}"}
+                  "memory_set": [
+                    {"key": "Answer0", "value": "-{{memory.Questionaire0}}"},
+                    {"key": "Answers", "value": "-"}
+                  ]
                 },
                 "ack_message": "",
                 "end_node_id": "Questionaire1"
@@ -325,7 +342,10 @@
                 "rule": {
                   "type": "regexp",
                   "params": ["(?i)(yes|ok)", "好", "喜歡", "是"],
-                  "memory_set": {"key": "Answer0", "value": "+{{memory.Questionaire0}}"}
+                  "memory_set": [
+                    {"key": "Answer0", "value": "+{{memory.Questionaire0}}"},
+                    {"key": "Answers", "value": "+"}
+                  ]
                 },
                 "ack_message": "",
                 "end_node_id": "Questionaire1"
@@ -402,7 +422,10 @@
                 "rule": {
                   "type": "regexp",
                   "params": ["(?i)(no)", "不好", "不喜歡", "不是", "不喜"],
-                  "memory_set": {"key": "Answer1", "value": "-{{memory.Questionaire1}}"}
+                  "memory_set": [
+                    {"key": "Answer1", "value": "-{{memory.Questionaire1}}"},
+                    {"key": "Answers", "value": "{{memory.Answers}}-"}
+                  ]
                 },
                 "ack_message": "",
                 "end_node_id": "Questionaire2"
@@ -411,7 +434,10 @@
                 "rule": {
                   "type": "regexp",
                   "params": ["(?i)(yes|ok)", "好", "喜歡", "是"],
-                  "memory_set": {"key": "Answer1", "value": "+{{memory.Questionaire1}}"}
+                  "memory_set": [
+                    {"key": "Answer1", "value": "+{{memory.Questionaire1}}"},
+                    {"key": "Answers", "value": "{{memory.Answers}}+"}
+                  ]
                 },
                 "ack_message": "",
                 "end_node_id": "Questionaire2"
@@ -488,7 +514,10 @@
                 "rule": {
                   "type": "regexp",
                   "params": ["(?i)(no)", "不好", "不喜歡", "不是", "不喜"],
-                  "memory_set": {"key": "Answer2", "value": "-{{memory.Questionaire2}}"}
+                  "memory_set": [
+                    {"key": "Answer2", "value": "-{{memory.Questionaire2}}"},
+                    {"key": "Answers", "value": "{{memory.Answers}}-"}
+                  ]
                 },
                 "ack_message": "",
                 "end_node_id": "Questionaire3"
@@ -497,7 +526,10 @@
                 "rule": {
                   "type": "regexp",
                   "params": ["(?i)(yes|ok)", "好", "喜歡", "是"],
-                  "memory_set": {"key": "Answer2", "value": "+{{memory.Questionaire2}}"}
+                  "memory_set": [
+                    {"key": "Answer2", "value": "+{{memory.Questionaire2}}"},
+                    {"key": "Answers", "value": "{{memory.Answers}}+"}
+                  ]
                 },
                 "ack_message": "",
                 "end_node_id": "Questionaire3"
@@ -574,7 +606,10 @@
                 "rule": {
                   "type": "regexp",
                   "params": ["(?i)(no)", "不好", "不喜歡", "不是", "不喜"],
-                  "memory_set": {"key": "Answer3", "value": "-{{memory.Questionaire3}}"}
+                  "memory_set": [
+                    {"key": "Answer3", "value": "-{{memory.Questionaire3}}"},
+                    {"key": "Answers", "value": "{{memory.Answers}}-"}
+                  ]
                 },
                 "ack_message": "",
                 "end_node_id": "Questionaire4"
@@ -583,7 +618,10 @@
                 "rule": {
                   "type": "regexp",
                   "params": ["(?i)(yes|ok)", "好", "喜歡", "是"],
-                  "memory_set": {"key": "Answer3", "value": "+{{memory.Questionaire3}}"}
+                  "memory_set": [
+                    {"key": "Answer3", "value": "+{{memory.Questionaire3}}"},
+                    {"key": "Answers", "value": "{{memory.Answers}}+"}
+                  ]
                 },
                 "ack_message": "",
                 "end_node_id": "Questionaire4"
@@ -661,7 +699,10 @@
                   "type": "regexp",
                   "params": ["(?i)(no)", "不好", "不喜歡", "不是", "不喜"],
                   "collect_as": {"key": "NoIdeaQuestionaires", "value": "[\"{{memory.Answer0}}\", \"{{memory.Answer1}}\", \"{{memory.Answer2}}\", \"{{memory.Answer3}}\", \"-{{memory.Questionaire4}}\"]"},
-                  "memory_set": {"key": "Answer4", "value": "-{{memory.Questionaire4}}"}
+                  "memory_set": [
+                    {"key": "Answer4", "value": "-{{memory.Questionaire4}}"},
+                    {"key": "Answers", "value": "{{memory.Answers}}-"}
+                  ]
                 },
                 "ack_message": "",
                 "end_node_id": "UpdateDietHabit"
@@ -671,7 +712,10 @@
                   "type": "regexp",
                   "params": ["(?i)(yes|ok)", "好", "喜歡", "是"],
                   "collect_as": {"key": "NoIdeaQuestionaires", "value": "[\"{{memory.Answer0}}\", \"{{memory.Answer1}}\", \"{{memory.Answer2}}\", \"{{memory.Answer3}}\", \"+{{memory.Questionaire4}}\"]"},
-                  "memory_set": {"key": "Answer4", "value": "+{{memory.Questionaire4}}"}
+                  "memory_set": [
+                    {"key": "Answer4", "value": "+{{memory.Questionaire4}}"},
+                    {"key": "Answers", "value": "{{memory.Answers}}+"}
+                  ]
                 },
                 "ack_message": "",
                 "end_node_id": "UpdateDietHabit"
@@ -697,7 +741,7 @@
         "name": "UpdateDietHabit",
         "description": "UpdateDietHabit",
         "expect_input": false,
-        "next_node_id": "GetPreference",
+        "next_node_id": "{{'ShowCategory' if memory.Answers == '-----' else 'GetPreference'}}",
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
@@ -1001,7 +1045,7 @@
       "Satisfy": {
         "name": "Satisfy",
         "expect_input": false,
-        "next_node_id": "RootRouter",
+        "next_node_id": "RootMenu",
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
