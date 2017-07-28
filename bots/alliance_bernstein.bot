@@ -54,28 +54,14 @@
         "name": "Root",
         "description": "Root node, show usage",
         "expect_input": false,
-        "next_node_id": "RootMenu",
+        "next_node_id": "RootRouter",
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
               {
                 "text": "嗨 {{user.first_name}} ! ☺"
-              }
-            ]
-          }
-        }
-      },
-
-      "RootMenu": {
-        "name": "RootMenu",
-        "description": "Only menu, no greeting",
-        "expect_input": false,
-        "next_node_id": "RootRouter",
-        "module": {
-          "id": "ai.compose.content.core.message",
-          "config": {
-            "messages": [
+              },
               {
                 "attachment": {
                   "type": "template",
@@ -808,7 +794,7 @@
         "name": "GetReasons",
         "description": "GetReasons",
         "expect_input": false,
-        "next_node_id": "ComposeAiGetRecommendedFoodsNext",
+        "next_node_id": "RootRouter",
         "module": {
           "id": "ai.compose.content.core.commando",
           "config": {
@@ -831,6 +817,9 @@
           "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
+              {
+                "text": "本結果基於您所填寫的資料進行推測。本測驗結果僅供參考為遊戲目的之使用，在任何狀況下都不得視為投資建議。基金風險聲明請詳網站。"
+              },
               {
                 "attachment": {
                   "type": "template",
@@ -1045,7 +1034,7 @@
       "Satisfy": {
         "name": "Satisfy",
         "expect_input": false,
-        "next_node_id": "RootMenu",
+        "next_node_id": "RootRouter",
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
@@ -1055,7 +1044,7 @@
                   "text": "謝謝你的喜愛"
                 },
                 {
-                  "text": "😜"
+                  "text": "😜       "
                 },
                 {
                   "attachment": {
@@ -1064,12 +1053,31 @@
                       "template_type": "generic",
                       "elements": [
                         {
-                          "title": "或許你的好友也會想玩玩看",
+                          "title": "或許你的好友也會想玩玩看，接下來長按下面這則訊息 ↓↓，選擇選單中的「轉傳」，就可以分享給你的好朋友喔 :D",
                           "buttons": [
                             {
                               "type": "element_share"
                             }
                           ]
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "text": "推薦你玩玩「投資靈感製造機 」，先按此連結與我成為LINE 好友吧~「http://line.me/ti/p/%40tlg8995g」"
+                },
+                {
+                  "attachment": {
+                    "type": "template",
+                    "payload": {
+                      "template_type": "button",
+                      "text": "想再玩一次嗎？你可以透過點選主選單內的「開始測驗」按鈕再玩一次喔 :)",
+                      "buttons": [
+                        {
+                          "type": "postback",
+                          "title": "開始測驗",
+                          "payload": "測驗"
                         }
                       ]
                     }
@@ -1081,13 +1089,29 @@
                   "text": "謝謝你的喜愛"
                 },
                 {
-                  "text": "😜"
+                  "text": "😜       "
                 },
                 {
-                  "text": "或許你的好友也會想玩玩看"
+                  "text": "或許你的好友也會想玩玩看，接下來長按下面這則訊息 ↓↓，選擇選單中的「轉傳」，就可以分享給你的好朋友喔 :D"
                 },
                 {
-                  "text": "把這個連結傳給他們就可以囉:「http://line.me/ti/p/%40tlg8995g」"
+                  "text": "推薦你玩玩「投資靈感製造機 」，先按此連結與我成為LINE 好友吧~「http://line.me/ti/p/%40tlg8995g」"
+                },
+                {
+                  "attachment": {
+                    "type": "template",
+                    "payload": {
+                      "template_type": "button",
+                      "text": "想再玩一次嗎？你可以透過點選主選單內的「開始測驗」按鈕再玩一次喔 :)",
+                      "buttons": [
+                        {
+                          "type": "postback",
+                          "title": "開始測驗",
+                          "payload": "測驗"
+                        }
+                      ]
+                    }
+                  }
                 }
               ]
             }
