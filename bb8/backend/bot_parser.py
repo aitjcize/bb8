@@ -142,7 +142,7 @@ def parse_bot(bot_json, to_bot_id=None, source='bot_json'):
 
     # Validate that module linkages are present in this bot file.
     for stable_id, node in nodes.iteritems():
-        n = Node.get_by(id=id_map[stable_id], single=True)
+        n = Node.get_by(id=id_map[stable_id], bot_id=bot.id, single=True)
         if n.module.type != ModuleTypeEnum.Router:
             if n.next_node_id:
                 if re.search(HAS_VARIABLE_RE, n.next_node_id):
@@ -165,8 +165,9 @@ def parse_bot(bot_json, to_bot_id=None, source='bot_json'):
                         raise RuntimeError('end_node_id `%s\' is invalid' %
                                            end_node_id)
     # Extra Constraint check
-    root = Node.get_by(stable_id='Root', single=True)
-    root_router = Node.get_by(stable_id='RootRouter', single=True)
+    root = Node.get_by(stable_id='Root', bot_id=bot.id, single=True)
+    root_router = Node.get_by(stable_id='RootRouter', bot_id=bot.id,
+                              single=True)
 
     if root.next_node_id != 'RootRouter':
         raise RuntimeError('next_node_id for Root must be RootRouter')
