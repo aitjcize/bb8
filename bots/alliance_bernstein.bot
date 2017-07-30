@@ -818,9 +818,6 @@
           "config": {
             "messages": [
               {
-                "text": "本結果基於您所填寫的資料進行推測。本測驗結果僅供參考為遊戲目的之使用，在任何狀況下都不得視為投資建議。基金風險聲明請詳網站。"
-              },
-              {
                 "attachment": {
                   "type": "template",
                   "payload": {
@@ -1072,11 +1069,11 @@
                     "type": "template",
                     "payload": {
                       "template_type": "button",
-                      "text": "想再玩一次嗎？你可以透過點選主選單內的「開始測驗」按鈕再玩一次喔 :)",
+                      "text": "想再玩一次嗎？",
                       "buttons": [
                         {
                           "type": "postback",
-                          "title": "開始測驗",
+                          "title": "是",
                           "payload": "測驗"
                         }
                       ]
@@ -1102,11 +1099,11 @@
                     "type": "template",
                     "payload": {
                       "template_type": "button",
-                      "text": "想再玩一次嗎？你可以透過點選主選單內的「開始測驗」按鈕再玩一次喔 :)",
+                      "text": "想再玩一次嗎？",
                       "buttons": [
                         {
                           "type": "postback",
-                          "title": "開始測驗",
+                          "title": "是",
                           "payload": "測驗"
                         }
                       ]
