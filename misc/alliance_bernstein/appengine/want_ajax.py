@@ -131,9 +131,16 @@ class WantAjax(ajax_helper.AjaxHelper):
             'text': name + '：' + intro + '。',
         })
 
-    if not like_count:
+    risk = '本結果基於您所填寫的資料進行推測。本測驗結果僅供參考為遊戲目的之使用，在任何狀況下都不得視為投資建議。基金風險聲明請詳網站。'
+    if like_count == 0:
       msgs.append({
           'text': '你沒有喜歡的名人，所以我自己找了一些基金給你。',
+      })
+    elif like_count >= 5:
+      msgs[4]['text'] += risk
+    else:
+      msgs.append({
+          'text': risk,
       })
 
     return {
