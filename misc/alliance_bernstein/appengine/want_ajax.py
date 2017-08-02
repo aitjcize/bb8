@@ -76,7 +76,7 @@ class WantAjax(ajax_helper.AjaxHelper):
           'subtitle': f['desc'],
           'buttons': [{
             'type': 'web_url',
-            'title': '基金介紹',
+            'title': '相關基金介紹',
             'url': f['item_url'],
           }],
       })
