@@ -194,6 +194,14 @@
                 },
                 "end_node_id": "Satisfy",
                 "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "sticker",
+                  "params": [".*"]
+                },
+                "end_node_id": "Root",
+                "ack_message": ""
               }
             ],
             "on_error": {
