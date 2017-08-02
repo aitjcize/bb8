@@ -200,6 +200,9 @@ class UserInput(object):
                         'long': message['longitude']
                     }
                 }
+            elif message['type'] == 'sticker':
+                u.sticker = '%s.%s' % (message['packageId'],
+                                       message['stickerId'])
             elif message['type'] == 'audio':
                 u.audio = message['id']
             return u
