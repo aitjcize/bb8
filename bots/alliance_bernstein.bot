@@ -34,7 +34,7 @@
                   "type": "template",
                   "payload": {
                     "template_type": "button",
-                    "text": "這個遊戲非常簡單，接下來我會問你喜不喜歡以下五個名人，並依據你的回答判斷你可能會喜歡的基金，準備好開始了嗎?",
+                    "text": "這個遊戲非常簡單，接下來我會問你喜不喜歡以下五個名人，並依據你的回答判斷你可能會喜歡的投資策略，準備好開始了嗎?",
                     "buttons": [
                       {
                         "type": "postback",
@@ -67,7 +67,7 @@
                   "type": "template",
                   "payload": {
                     "template_type": "button",
-                    "text": "接下來我會問你喜不喜歡以下五個名人，並依據你的回答判斷你可能會喜歡的基金，準備好開始了嗎?",
+                    "text": "接下來我會問你喜不喜歡以下五個名人，並依據你的回答判斷你可能會喜歡的投資策略，準備好開始了嗎?",
                     "buttons": [
                       {
                         "type": "postback",
@@ -222,7 +222,7 @@
           "config": {
             "messages": [
               {
-                "text": "「測驗」可以找到適合你的基金。"
+                "text": "「測驗」可以找到適合你的投資策略。"
               },
               {
                 "text": "「查詢+關鍵字」可以搜尋基金。例如：「查詢新興市場」"
@@ -908,7 +908,7 @@
                   "type": "template",
                   "payload": {
                     "template_type": "button",
-                    "text": "請問你喜歡哪一類型的基金呢？",
+                    "text": "請問你喜歡哪一類型的投資策略呢？",
                     "buttons": [
                       {
                         "type": "postback",
@@ -965,7 +965,7 @@
                   "type": "template",
                   "payload": {
                     "template_type": "button",
-                    "text": "喜歡這些基金嗎?",
+                    "text": "喜歡這些投資策略嗎?",
                     "buttons": [
                       {
                         "type": "postback",

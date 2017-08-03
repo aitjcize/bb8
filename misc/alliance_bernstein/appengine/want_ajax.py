@@ -82,7 +82,7 @@ class WantAjax(ajax_helper.AjaxHelper):
       })
 
     msgs.append({
-        'text': '以下是我們認為你可能會喜歡的基金： 💋 ',
+        'text': '以下是我們認為你可能會喜歡的投資策略： 💋 ',
     })
     msgs.append({
         'attachment': {
@@ -134,7 +134,7 @@ class WantAjax(ajax_helper.AjaxHelper):
     risk = '本結果基於您所填寫的資料進行推測。本測驗結果僅供參考為遊戲目的之使用，在任何狀況下都不得視為投資建議。基金風險聲明請詳網站。'
     if like_count == 0:
       msgs.append({
-          'text': '你沒有喜歡的名人，所以我自己找了一些基金給你。',
+          'text': '你沒有喜歡的名人，所以我自己找了一些投資策略給你。',
       })
     elif like_count >= 5:
       msgs[4]['text'] += risk
@@ -253,14 +253,14 @@ class WantAjax(ajax_helper.AjaxHelper):
           'subtitle': f['desc'],
           'buttons': [{
             'type': 'web_url',
-            'title': '基金介紹',
+            'title': '相關基金介紹',
             'url': f['item_url'],
           }],
       })
 
     if elements:
       msgs.append({
-          'text': u'以下是使用關鍵字「%s」搜尋的基金:：' % keyword,
+          'text': u'以下是使用關鍵字「%s」搜尋的投資策略:：' % keyword,
       })
       msgs.append({
           'attachment': {
@@ -273,7 +273,7 @@ class WantAjax(ajax_helper.AjaxHelper):
       })
     else:
       msgs.append({
-          'text': u'找不到「%s」相關的基金:：' % keyword,
+          'text': u'找不到「%s」相關的投資策略:：' % keyword,
       })
 
     return {
@@ -304,14 +304,14 @@ class WantAjax(ajax_helper.AjaxHelper):
           'subtitle': f['desc'],
           'buttons': [{
             'type': 'web_url',
-            'title': '基金介紹',
+            'title': '相關基金介紹',
             'url': f['item_url'],
           }],
       })
 
     if elements:
       msgs.append({
-          'text': u'你可能會喜歡的「%s」基金： 💋 ' % category,
+          'text': u'你可能會喜歡的「%s」投資策略： 💋 ' % category,
       })
       msgs.append({
           'attachment': {
@@ -324,7 +324,7 @@ class WantAjax(ajax_helper.AjaxHelper):
       })
     else:
       msgs.append({
-          'text': u'找不到「%s」相關的基金:：' % category,
+          'text': u'找不到「%s」相關的投資策略:：' % category,
       })
 
     return {
