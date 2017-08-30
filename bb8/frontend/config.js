@@ -1,11 +1,12 @@
+const BB8_HOSTNAME = process.env.BB8_HOSTNAME
 const HTTP_PORT = process.env.HTTP_PORT
 
 const constants = {
   dev: {
-    LINE_WEBHOOK: `https://dev.compose.ai:${HTTP_PORT}/bot/line/`,
+    LINE_WEBHOOK: `https://${BB8_HOSTNAME}:${HTTP_PORT}/bot/line/`,
   },
   prod: {
-    LINE_WEBHOOK: `https://dev.compose.ai:${HTTP_PORT}/bot/line/`,
+    LINE_WEBHOOK: `https://${BB8_HOSTNAME}:${HTTP_PORT}/bot/line/`,
   },
 }
 
