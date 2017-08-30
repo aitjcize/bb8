@@ -205,10 +205,20 @@
               }
             ],
             "on_error": {
-              "end_node_id": "Root",
+              "end_node_id": "DoNothing",
               "ack_message": ""
             }
           }
+        }
+      },
+
+      "DoNothing": {
+        "name": "DoNothing",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.noop",
+          "config": {}
         }
       },
 
