@@ -184,6 +184,9 @@ def get_user_profile(platform, user_ident):
 
     ret = response.json()
 
+    if 'id' in ret:
+        del ret['id']
+
     # Some account does not have gender for some reason ... assume male
     if 'gender' not in ret:
         ret['gender'] = 'male'
