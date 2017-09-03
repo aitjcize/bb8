@@ -25,27 +25,18 @@
         "module": {
           "id": "ai.compose.content.core.message",
           "config": {
-            "messages": [
-              {
-                "text": "嗨 {{user.first_name}} ! ☺"
-              },
-              {
-                "attachment": {
-                  "type": "template",
-                  "payload": {
-                    "template_type": "button",
-                    "text": "這個遊戲非常簡單，接下來我會問你喜不喜歡以下五個名人，並依據你的回答判斷你可能會喜歡的投資策略，準備好開始了嗎?",
-                    "buttons": [
-                      {
-                        "type": "postback",
-                        "title": "開始測驗",
-                        "payload": "測驗"
-                      }
-                    ]
-                  }
+            "messages": {
+              "Facebook": [
+                {
+                  "text": "歡迎您與聯博投信成為好友，我們將會經常在這裡，和您分享各種豐富的投資訊息。\n\n還想查詢最新淨值、配息或休市日等資訊?   輸入 AB 有更多訊息喔!"
                 }
-              }
-            ]
+              ],
+              "Line": [
+                {
+                  "text": "(laugh) 歡迎您與聯博投信成為好友，我們將會經常在這裡，和您分享各種豐富的投資訊息。\n\n還想查詢最新淨值、配息或休市日等資訊?   輸入 AB 有更多訊息喔! (pencil)"
+                }
+              ]
+            }
           }
         }
       },
@@ -61,22 +52,6 @@
             "messages": [
               {
                 "text": "嗨 {{user.first_name}} ! ☺"
-              },
-              {
-                "attachment": {
-                  "type": "template",
-                  "payload": {
-                    "template_type": "button",
-                    "text": "接下來我會問你喜不喜歡以下五個名人，並依據你的回答判斷你可能會喜歡的投資策略，準備好開始了嗎?",
-                    "buttons": [
-                      {
-                        "type": "postback",
-                        "title": "開始測驗",
-                        "payload": "測驗"
-                      }
-                    ]
-                  }
-                }
               }
             ]
           }
@@ -128,7 +103,15 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["測驗"],
+                  "params": ["測驗"]
+                },
+                "end_node_id": "StartGame",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["開始"],
                   "collect_as": {"key": "FEATURE", "value": "NoIdea"},
                   "memory_set": [
                     {"key": "FEATURE", "value": "NoIdea"},
@@ -136,7 +119,7 @@
                   ]
                 },
                 "end_node_id": "RecommendFunds",
-                "ack_message": "測驗開始囉!"
+                "ack_message": ""
               },
               {
                 "rule": {
@@ -285,8 +268,8 @@
               }
             ],
             "on_error": {
-              "end_node_id": "DoNothing",
-              "ack_message": ""
+              "end_node_id": "RootRouter",
+              "ack_message": "謝謝您的留言! 此為自動回覆訊息，我們無法進行個別對談 (moon wink)\n歡迎您致電聯博 (02)8758-3888 (cellphone) 服務時間：09:00-18:00\n\n最新淨值 https://goo.gl/eBke8o\n基金配息 https://goo.gl/Cqn5Bl\n投資透視 https://goo.gl/nqjQW1\n基金績效 https://goo.gl/iI2pCN\n影音專區 https://goo.gl/NiE0QS\n我的關注基金 https://goo.gl/RQQ4ZC\n\n或輸入AB，可了解更多投資訊息喔! (pencil)"
             }
           }
         }
@@ -426,6 +409,41 @@
               },
               {
                 "text": "「查詢+關鍵字」可以搜尋基金。例如：「查詢新興市場」"
+              }
+            ]
+          }
+        }
+      },
+
+      "StartGame": {
+        "name": "StartGame",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "Hi {{user.first_name}}"
+              },
+              {
+                "text": "接下來測驗純屬趣味，不代表任何投資建議、顧問或銷售。"
+              },
+              {
+                "attachment": {
+                  "type": "template",
+                  "payload": {
+                    "template_type": "button",
+                    "text": "接下來我會問你喜不喜歡以下五個名人，並依據你的回答判斷你可能會喜歡的投資策略，準備好開始了嗎?",
+                    "buttons": [
+                      {
+                        "type": "postback",
+                        "title": "開始測驗",
+                        "payload": "開始"
+                      }
+                    ]
+                  }
+                }
               }
             ]
           }
