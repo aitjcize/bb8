@@ -139,6 +139,10 @@ class Engine(object):
             input_vars = input_vars or {}
             input_vars.update(global_variables)
 
+            # Clear input transformation for a new content module.
+            if node.module.type == ModuleTypeEnum.Content:
+                user.session.input_transformation = []
+
             # TODO(aitjcize): figure out how to deal with module exceptions
             module = node.module.get_python_module()
             result = module.run(node.config, user_input, env, input_vars)
@@ -151,8 +155,7 @@ class Engine(object):
                 messaging.send_message(user, result.messages)
 
                 # Store InputTransformation in session
-                user.session.input_transformation = (
-                    InputTransformation.get())
+                user.session.input_transformation = InputTransformation.get()
 
             next_node_id = node.next_node_id
             if next_node_id and re.search(HAS_VARIABLE_RE, next_node_id):
