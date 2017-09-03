@@ -202,6 +202,86 @@
                 },
                 "end_node_id": "Root",
                 "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["AB", "ab", "tttt"]
+                },
+                "end_node_id": "RootRouter",
+                "ack_message": "謝謝您的關注\n今天想了解何種投資訊息？\n輸入下列數字，一秒立即回覆 (pencil) \n[1] 債券\n[2] 股票\n[3] 多元資產\n[4] 配息試算\n[5] 查詢配息資訊\n[6] 查詢休市日期\n[7] 查詢最新淨值"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["1", "bond"]
+                },
+                "end_node_id": "RootRouter",
+                "ack_message": "關於債券，您應該要知道的3件事\n\n立即點閱，讓收益投資管家為您解答 (pencil)\n\n+ 淺談債券基金 https://goo.gl/LKMaiC\n+ 債券基金與配息率 https://goo.gl/QmxuLx\n+ 債券基金種類與風險 https://goo.gl/f7QyVL\n\n想回上一頁，請輸入AB  (ok)"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["2"]
+                },
+                "end_node_id": "RootRouter",
+                "ack_message": "關於股票，您應該要知道的3件事\n\n立即點閱，讓收益投資管家為您解答 (pencil)\n\n+ 參考指數和報酬率的關係 https://goo.gl/z108Br\n+ 股價怎樣看才算合理 https://goo.gl/3GxQ64\n+ 評估企業獲利很重要 https://goo.gl/stmzNy\n\n想回上一頁，請輸入AB  (ok)"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["3"]
+                },
+                "end_node_id": "RootRouter",
+                "ack_message": "多元資產之所以稱做「多元」，是因為投資範圍不只是股票、債券等傳統單一資產，更涵蓋了其他資產和策略，才能創造出廣泛的收益來源。\n\n看更多↘https://goo.gl/xzEQZd\n\n想回上一頁，請輸入AB  (ok)"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["4"]
+                },
+                "end_node_id": "RootRouter",
+                "ack_message": "手機滑一滑，算算每月期望現金流 (eighthnote)\n\n馬上算↘https://goo.gl/MHSkQD\n\n最新配息資訊 : https://goo.gl/Mi6UjP\n\n想回上一頁，請輸入AB  (ok)"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["5", "配息", "配息基準日"]
+                },
+                "end_node_id": "Node5",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["6", "休市日", "休市日期"]
+                },
+                "end_node_id": "Node6",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["7", "淨值"]
+                },
+                "end_node_id": "RootRouter",
+                "ack_message": "最新基金淨值馬上看 :  https://goo.gl/eBke8o\n\n想回上一頁，請輸入AB  (ok)"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["qr"]
+                },
+                "end_node_id": "QRCode",
+                "ack_message": ""
+              },
+              {
+                "rule": {
+                  "type": "regexp",
+                  "params": ["退休"]
+                },
+                "end_node_id": "Retire",
+                "ack_message": ""
               }
             ],
             "on_error": {
@@ -210,6 +290,116 @@
             }
           }
         }
+      },
+
+      "Retire": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "attachment": {
+                  "type": "image",
+                  "payload": {
+                    "url": "http://i.imgur.com/sygogof.jpg"
+                  }
+                }
+              },
+              {
+                "text": "還在煩惱年金怎麼計算? 勞退夠不夠養老嗎?\n\n聯博用一張圖，讓你秒懂退休金如何規劃 https://goo.gl/Vsxbrv"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Retire",
+        "expect_input": false,
+        "description": "Retire"
+      },
+
+      "Node5": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "attachment": {
+                  "type": "image",
+                  "payload": {
+                    "url": "http://i.imgur.com/hkASG8W.png"
+                  }
+                }
+              },
+              {
+                "attachment": {
+                  "type": "image",
+                  "payload": {
+                    "url": "http://i.imgur.com/Zz2S7Ft.png"
+                  }
+                }
+              },
+              {
+                "text": "聯博最新配息紀錄 : https://goo.gl/Mi6UjP\n\n想回上一頁，請輸入AB  (ok)"
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Node5",
+        "expect_input": false,
+        "description": "Node5"
+      },
+
+      "Node6": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "attachment": {
+                  "type": "image",
+                  "payload": {
+                    "url": "http://i.imgur.com/ofNkct5.jpg"
+                  }
+                }
+              },
+              {
+                "attachment": {
+                  "type": "image",
+                  "payload": {
+                    "url": "http://i.imgur.com/vcA5MCg.jpg"
+                  }
+                }
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "Node6",
+        "expect_input": false,
+        "description": "Node6"
+      },
+
+      "QRCode": {
+        "module": {
+          "config": {
+            "messages": [
+              {
+                "attachment": {
+                  "type": "image",
+                  "payload": {
+                    "url": "http://i.imgur.com/pDzDnUB.png"
+                  }
+                }
+              }
+            ]
+          },
+          "id": "ai.compose.content.core.message"
+        },
+        "next_node_id": "RootRouter",
+        "name": "QRCode",
+        "expect_input": false,
+        "description": "QRCode"
       },
 
       "DoNothing": {
