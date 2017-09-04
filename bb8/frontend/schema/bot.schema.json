@@ -1,0 +1,105 @@
+{
+  "required": ["bot"],
+  "type": "object",
+  "properties": {
+    "platforms": {
+      "type": "object",
+      "patternProperties": {
+        "^[A-Za-z.]+$": {
+          "type": "string"
+        }
+      }
+    },
+    "bot": {
+      "type": "object",
+      "required": [
+        "description",
+        "interaction_timeout",
+        "admin_interaction_timeout",
+        "name",
+        "session_timeout",
+        "nodes"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "session_timeout": {
+          "type": "integer",
+          "default": 0
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "interaction_timeout": {
+          "type": "integer",
+          "default": 120
+        },
+        "admin_interaction_timeout": {
+          "type": "integer",
+          "default": 10
+        },
+        "ga_id": {
+          "type": "string",
+          "maxLength": 32
+        },
+        "nodes": {
+          "type": "object",
+          "required": [
+            "Root",
+            "RootRouter",
+            "Start"
+          ],
+          "additionalProperties": false,
+          "patternProperties": {
+            "^[A-Za-z0-9.]{1,128}$": {"$ref": "#/definitions/node"}
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "node": {
+      "required": [
+        "name",
+        "expect_input",
+        "module"
+      ],
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "description": {
+          "type": "string"
+        },
+        "expect_input": {
+          "type": "boolean"
+        },
+        "next_node_id": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "module": {
+          "required": [
+            "id",
+            "config"
+          ],
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "default": "ai.compose.content.core.message"
+            },
+            "config": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    }
+  }
+}
