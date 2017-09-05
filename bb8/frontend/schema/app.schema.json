@@ -1,0 +1,32 @@
+{
+  "type": "object",
+  "required": ["name", "description", "version", "resource"],
+  "properties": {
+    "name": {"type": "string"},
+    "description": {"type": "string"},
+    "version": {"type": "string"},
+    "resource": {
+      "type": "object",
+      "required": ["cpu", "memory"],
+      "properties": {
+        "cpu": {"type": "string"},
+        "memory": {"type": "integer"},
+        "volumes": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/volume"}
+        },
+        "states": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/volume"}
+        }
+      }
+    }
+  },
+  "definitions": {
+    "volume": {
+      "type": "array",
+      "items": [{"type": "string"}, {"type": "string"}],
+      "additionalItems": false
+    }
+  }
+}
