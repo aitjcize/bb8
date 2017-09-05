@@ -378,9 +378,6 @@ class BB8(object):
         modules.compile_module_infos(
             os.path.join(BB8_SRC_ROOT, 'bb8', 'frontend', 'constants',
                          'ModuleInfos.json'))
-        run('cp -r %s %s' %
-            (os.path.join(BB8_SRC_ROOT, 'schema'),
-             os.path.join(BB8_SRC_ROOT, 'bb8', 'frontend')))
 
     def compile_python_source(self):
         if not config.DEPLOY:
