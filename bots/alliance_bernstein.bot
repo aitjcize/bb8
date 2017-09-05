@@ -103,7 +103,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["測驗"]
+                  "params": ["測驗","投資靈感製造機"]
                 },
                 "end_node_id": "StartGame",
                 "ack_message": ""
@@ -183,7 +183,7 @@
                   "type": "sticker",
                   "params": [".*"]
                 },
-                "end_node_id": "Root",
+                "end_node_id": "StartGame",
                 "ack_message": ""
               },
               {
@@ -268,9 +268,28 @@
               }
             ],
             "on_error": {
-              "end_node_id": "RootRouter",
-              "ack_message": "謝謝您的留言! 此為自動回覆訊息，我們無法進行個別對談 (moon wink)\n歡迎您致電聯博 (02)8758-3888 (cellphone) 服務時間：09:00-18:00\n\n最新淨值 https://goo.gl/eBke8o\n基金配息 https://goo.gl/Cqn5Bl\n投資透視 https://goo.gl/nqjQW1\n基金績效 https://goo.gl/iI2pCN\n影音專區 https://goo.gl/NiE0QS\n我的關注基金 https://goo.gl/RQQ4ZC\n\n或輸入AB，可了解更多投資訊息喔! (pencil)"
+              "end_node_id": "OnError",
+              "ack_message": ""
             }
+          }
+        }
+      },
+
+      "OnError": {
+        "name": "OnError",
+        "expect_input": false,
+        "next_node_id": "RootRouter",
+        "module": {
+          "id": "ai.compose.content.core.message",
+          "config": {
+            "messages": [
+              {
+                "text": "謝謝您的留言! 此為自動回覆訊息，我們無法進行個別對談 (moon wink)\n歡迎您致電聯博 (02)8758-3888 (cellphone) 服務時間：09:00-18:00\n\n最新淨值 https://goo.gl/eBke8o\n基金配息 https://goo.gl/Cqn5Bl"
+              },
+              {
+                "text": "投資透視 https://goo.gl/nqjQW1\n基金績效 https://goo.gl/iI2pCN\n影音專區 https://goo.gl/NiE0QS\n我的關注基金 https://goo.gl/RQQ4ZC\n\n或輸入AB，可了解更多投資訊息喔! (pencil)"
+              }
+            ]
           }
         }
       },
@@ -424,7 +443,7 @@
           "config": {
             "messages": [
               {
-                "text": "Hi {{user.first_name}}"
+                "text": "Hi {{user.first_name}} ! ☺"
               },
               {
                 "text": "接下來測驗純屬趣味，不代表任何投資建議、顧問或銷售。"
@@ -434,7 +453,7 @@
                   "type": "template",
                   "payload": {
                     "template_type": "button",
-                    "text": "接下來我會問你喜不喜歡以下五個名人，並依據你的回答判斷你可能會喜歡的投資策略，準備好開始了嗎?",
+                    "text": "我們會從你喜不喜歡以下5個名人，並依據你的回答推測你可能會喜歡的投資策略，準備好開始了嗎?",
                     "buttons": [
                       {
                         "type": "postback",
