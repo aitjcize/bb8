@@ -131,7 +131,7 @@ class WantAjax(ajax_helper.AjaxHelper):
             'text': name + '：' + intro + '。',
         })
 
-    risk = '本結果基於您所填寫的資料進行推測。本遊戲測驗結果僅提供您參考，在任何情況下都不得視為投資銷售或建議。基金風險聲明與詳細基金資訊，請詳見本公司網站www.ABglobal.com.tw 或公開資訊觀測站 www.fundclear.com.tw 之基金公開說明書與投資人須知。'
+    risk = '本結果係基於您所填寫的資料進行推測。本遊戲測驗結果僅提供您參考，在任何情況下都不得視為投資建議、顧問或銷售。相關基金風險聲明與詳細基金資訊，請詳見本公司網站 www.alliancebernstein.com.tw 查詢基金公開說明書與投資人須知。'
     if like_count == 0:
       msgs.append({
           'text': '你沒有喜歡的名人，所以我自己找了一些投資策略給你。',
