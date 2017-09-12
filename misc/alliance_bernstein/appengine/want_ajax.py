@@ -69,17 +69,20 @@ class WantAjax(ajax_helper.AjaxHelper):
     for food in foods[:3]:
 
       f = fund.data[food['food']]
-      elements.append({
+      item = {
           'image_url': f['image_url'],
           'item_url': f['item_url'],
           'title': f['display_name'],
           'subtitle': f['desc'],
-          'buttons': [{
+      }
+      if f['item_url'] != '':
+          item['buttons'] = [{
             'type': 'web_url',
-            'title': '相關基金介紹',
+            'title': '相關文章',
             'url': f['item_url'],
-          }],
-      })
+          }]
+      elements.append(item)
+
 
     msgs.append({
         'text': '以下是我們認為你可能會喜歡的投資策略： 💋 ',
@@ -246,17 +249,19 @@ class WantAjax(ajax_helper.AjaxHelper):
 
     elements = []
     for f in funds[:3]:
-      elements.append({
+      item = {
           'image_url': f['image_url'],
           'item_url': f['item_url'],
           'title': f['display_name'],
           'subtitle': f['desc'],
-          'buttons': [{
+      }
+      if f['item_url'] != '':
+          item['buttons'] = [{
             'type': 'web_url',
-            'title': '相關基金介紹',
+            'title': '相關文章',
             'url': f['item_url'],
-          }],
-      })
+          }]
+      elements.append(item)
 
     if elements:
       msgs.append({
@@ -297,17 +302,19 @@ class WantAjax(ajax_helper.AjaxHelper):
     elements = []
     random.shuffle(funds)
     for f in funds[:5]:
-      elements.append({
+      item = {
           'image_url': f['image_url'],
           'item_url': f['item_url'],
           'title': f['display_name'],
           'subtitle': f['desc'],
-          'buttons': [{
-            'type': 'web_url',
-            'title': '相關基金介紹',
-            'url': f['item_url'],
-          }],
-      })
+      }
+      if f['item_url'] != '':
+        item['buttons'] = [{
+          'type': 'web_url',
+          'title': '相關文章',
+          'url': f['item_url'],
+        }]
+      elements.append(item)
 
     if elements:
       msgs.append({
