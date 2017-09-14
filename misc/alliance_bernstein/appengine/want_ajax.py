@@ -70,17 +70,23 @@ class WantAjax(ajax_helper.AjaxHelper):
 
       f = fund.data[food['food']]
       item = {
-          'image_url': f['image_url'],
-          'item_url': f['item_url'],
-          'title': f['display_name'],
-          'subtitle': f['desc'],
-      }
-      if f['item_url'] != '':
-          item['buttons'] = [{
+        'image_url': f['image_url'],
+        'item_url': f['item_url'],
+        'title': f['display_name'],
+        'subtitle': f['desc'],
+        'buttons': [
+          {
             'type': 'web_url',
             'title': '相關文章',
             'url': f['item_url'],
-          }]
+          },
+          {
+            'type': 'web_url',
+            'title': '策略介紹',
+            'url': f['item2_url'],
+          },
+        ]
+      }
       elements.append(item)
 
 
@@ -250,17 +256,23 @@ class WantAjax(ajax_helper.AjaxHelper):
     elements = []
     for f in funds[:3]:
       item = {
-          'image_url': f['image_url'],
-          'item_url': f['item_url'],
-          'title': f['display_name'],
-          'subtitle': f['desc'],
-      }
-      if f['item_url'] != '':
-          item['buttons'] = [{
+        'image_url': f['image_url'],
+        'item_url': f['item_url'],
+        'title': f['display_name'],
+        'subtitle': f['desc'],
+        'buttons': [
+          {
             'type': 'web_url',
             'title': '相關文章',
             'url': f['item_url'],
-          }]
+          },
+          {
+            'type': 'web_url',
+            'title': '策略介紹',
+            'url': f['item2_url'],
+          },
+        ]
+      }
       elements.append(item)
 
     if elements:
@@ -303,17 +315,23 @@ class WantAjax(ajax_helper.AjaxHelper):
     random.shuffle(funds)
     for f in funds[:5]:
       item = {
-          'image_url': f['image_url'],
-          'item_url': f['item_url'],
-          'title': f['display_name'],
-          'subtitle': f['desc'],
+        'image_url': f['image_url'],
+        'item_url': f['item_url'],
+        'title': f['display_name'],
+        'subtitle': f['desc'],
+        'buttons': [
+          {
+            'type': 'web_url',
+            'title': '相關文章',
+            'url': f['item_url'],
+          },
+          {
+            'type': 'web_url',
+            'title': '策略介紹',
+            'url': f['item2_url'],
+          },
+        ]
       }
-      if f['item_url'] != '':
-        item['buttons'] = [{
-          'type': 'web_url',
-          'title': '相關文章',
-          'url': f['item_url'],
-        }]
       elements.append(item)
 
     if elements:
