@@ -91,6 +91,9 @@ def send_message(unused_user, messages):
 
 def flush_message(user):
     """Flush the message in the send queue."""
+    if not hasattr(g, 'messages'):
+        return
+
     headers = {
         'Authorization': 'Bearer %s' % user.platform.config['access_token']
     }
