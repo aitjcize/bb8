@@ -190,7 +190,9 @@ class UserInput(object):
         u = UserInput()
         message = entry.get('message')
         if message:
-            if message['type'] == 'text':
+            if message['type'] == 'follow':
+                u.text = 'hi'
+            elif message['type'] == 'text':
                 u.text = message['text']
             elif message['type'] == 'location':
                 u.location = {
