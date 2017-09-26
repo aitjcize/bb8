@@ -23,11 +23,8 @@
         "expect_input": false,
         "next_node_id": "RootRouter",
         "module": {
-          "id": "ai.compose.content.core.message",
-          "config": {
-            "messages": [
-            ]
-          }
+          "id": "ai.compose.content.core.noop",
+          "config": {}
         }
       },
 
