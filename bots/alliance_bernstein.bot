@@ -289,14 +289,6 @@
           "config": {
             "messages": [
               {
-                "attachment": {
-                  "type": "image",
-                  "payload": {
-                    "url": "http://i.imgur.com/sygogof.jpg"
-                  }
-                }
-              },
-              {
                 "text": "還在煩惱年金怎麼計算? 勞退夠不夠養老嗎?\n\n聯博用一張圖，讓你秒懂退休金如何規劃 https://goo.gl/Vsxbrv"
               }
             ]
