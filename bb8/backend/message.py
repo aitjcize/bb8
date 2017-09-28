@@ -188,11 +188,13 @@ class UserInput(object):
     @classmethod
     def FromLineMessage(cls, entry):
         u = UserInput()
+        if entry.get('type') == 'follow':
+            u.text = 'hi'
+            return u
+
         message = entry.get('message')
         if message:
-            if message['type'] == 'follow':
-                u.text = 'hi'
-            elif message['type'] == 'text':
+            if message['type'] == 'text':
                 u.text = message['text']
             elif message['type'] == 'location':
                 u.location = {
