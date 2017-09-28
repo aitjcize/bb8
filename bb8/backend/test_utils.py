@@ -57,10 +57,10 @@ class BaseTestMixin(object):
         DatabaseManager.flush()
 
         config = {
-            'access_token': 'EAAP0okfsZCVkBAMhcdUVAKXLUyj5yj7mxamzuHx4p6uJrV'
-                            'l1fPfJ6E66gvXf5X8CkRKOO8udmZA70N221Q0bJ61qfO3if'
-                            'ydA2ZCAQqP9ddVxOrreF26PN2TkAKZBcT2eZAy4ZAaJZB1v'
-                            'BZAZBmVV8c6ZAxLAStBixHEtRDoOgDoPT5WgZDZD'
+            'access_token': 'EAAP0okfsZCVkBALoSMiiZAiw869QEPZCsXQZBcbtZCINH'
+                            '8pLb72yMGVYGPMI2aBcZCW6FyPZAmMVoJRDvpFNeA1AFWG'
+                            'JyNt5zkjQxGZAKXymhsoNaIspvqpPGZB2EITvEYT9zamWg'
+                            '9TCY1RDmrsL7jap6ZBSrzm9PKFhLKUFRgH7gY7QZDZD'
         }
 
         self.platform = Platform(name=u'Test platform',
