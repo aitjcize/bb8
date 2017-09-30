@@ -184,7 +184,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["1", "bond"]
+                  "params": ["^1$", "bond"]
                 },
                 "end_node_id": "RootRouter",
                 "ack_message": "關於債券，您應該要知道的3件事\n\n立即點閱，讓收益投資管家為您解答 􀐂􀇲pencil􏿿\n\n+ 淺談債券基金 https://goo.gl/LKMaiC\n+ 債券基金與配息率 https://goo.gl/QmxuLx\n+ 債券基金種類與風險 https://goo.gl/f7QyVL\n\n想回上一頁，請輸入AB  􀄃􀄳ok􏿿"
@@ -192,7 +192,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["2"]
+                  "params": ["^2$"]
                 },
                 "end_node_id": "RootRouter",
                 "ack_message": "關於股票，您應該要知道的3件事\n\n立即點閱，讓收益投資管家為您解答 􀐂􀇲pencil􏿿\n\n+ 參考指數和報酬率的關係 https://goo.gl/z108Br\n+ 股價怎樣看才算合理 https://goo.gl/3GxQ64\n+ 評估企業獲利很重要 https://goo.gl/stmzNy\n\n想回上一頁，請輸入AB  􀄃􀄳ok􏿿"
@@ -200,7 +200,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["3"]
+                  "params": ["^3$"]
                 },
                 "end_node_id": "RootRouter",
                 "ack_message": "多元資產之所以稱做「多元」，是因為投資範圍不只是股票、債券等傳統單一資產，更涵蓋了其他資產和策略，才能創造出廣泛的收益來源。\n\n看更多↘https://goo.gl/xzEQZd\n\n想回上一頁，請輸入AB  􀄃􀄳ok􏿿"
@@ -208,7 +208,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["4"]
+                  "params": ["^4$"]
                 },
                 "end_node_id": "RootRouter",
                 "ack_message": "手機滑一滑，算算每月期望現金流 􀄃􀄹eighthnote􏿿\n\n馬上算↘https://goo.gl/MHSkQD\n\n最新配息資訊 : https://goo.gl/Mi6UjP\n\n想回上一頁，請輸入AB  􀄃􀄳ok􏿿"
@@ -216,7 +216,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["5", "配息", "配息基準日"]
+                  "params": ["^5$", "配息", "配息基準日"]
                 },
                 "end_node_id": "Node5",
                 "ack_message": ""
@@ -224,7 +224,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["6", "休市日", "休市日期"]
+                  "params": ["^6$", "休市日", "休市日期"]
                 },
                 "end_node_id": "Node6",
                 "ack_message": ""
@@ -232,7 +232,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["7", "淨值"]
+                  "params": ["^7$", "淨值"]
                 },
                 "end_node_id": "RootRouter",
                 "ack_message": "最新基金淨值馬上看 :  https://goo.gl/eBke8o\n\n想回上一頁，請輸入AB  􀄃􀄳ok􏿿"
@@ -240,7 +240,7 @@
               {
                 "rule": {
                   "type": "regexp",
-                  "params": ["qr"]
+                  "params": ["^qr$"]
                 },
                 "end_node_id": "QRCode",
                 "ack_message": ""
