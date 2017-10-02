@@ -677,7 +677,7 @@ class Message(base_message.Message):
 
             return [{
                 'type': 'template',
-                'altText': 'buttons',
+                'altText': self.buttons_text,
                 'template': {
                     'type': 'buttons',
                     'text': self.buttons_text,
@@ -733,7 +733,7 @@ class Message(base_message.Message):
 
             return [{
                 'type': 'template',
-                'altText': 'carousel',
+                'altText': self.bubbles[0].title,
                 'template': {
                     'type': 'carousel',
                     'columns': columns
@@ -770,7 +770,7 @@ class Message(base_message.Message):
 
                 msgs.append({
                     'type': 'template',
-                    'altText': 'carousel',
+                    'altText': self.list_items[0].title,
                     'template': {
                         'type': 'carousel',
                         'columns': [col]
