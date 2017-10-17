@@ -25,7 +25,7 @@ from bb8 import config, logger
 from bb8.backend import base_message, template, messaging
 from bb8.backend.speech import speech_to_text
 from bb8.backend.database import CollectedDatum, PlatformTypeEnum
-from bb8.backend.util import image_convert_url
+from bb8.backend.util import image_convert_url, image_convert_base
 
 
 VARIABLE_RE = re.compile('^{{(.*?)}}$')
@@ -643,6 +643,13 @@ class Message(base_message.Message):
     def as_facebook_message(self):
         """Return message as Facebook message dictionary."""
         self.apply_limits(PlatformTypeEnum.Facebook)
+        if self.imagemap_url:
+            data = {}
+            data['attachment'] = {
+                'type': 'image',
+                'payload': {'url': self.imagemap_url}
+            }
+            return data
         return self.as_dict()
 
     def as_line_message(self):
@@ -777,6 +784,31 @@ class Message(base_message.Message):
                     }
                 })
             return msgs
+        elif self.imagemap_url:
+            actions = []
+            for action in self.imagemap_actions:
+                if action.type == Message.ButtonType.POSTBACK:
+                    actions.append({
+                        'type': 'message',
+                        'text': action.text,
+                        'area': action.area
+                    })
+                else:
+                    actions.append({
+                        'type': 'uri',
+                        'linkUri': action.url,
+                        'area': action.area
+                    })
+            return [{
+                'type': 'imagemap',
+                'baseUrl': image_convert_base(self.imagemap_url),
+                'altText': 'imagemap',
+                'baseSize': {
+                    "height": 1040,
+                    "width": 1040,
+                },
+                'actions': actions
+            }]
         else:
             raise RuntimeError('Invalid message type %r' % self)
 

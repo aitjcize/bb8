@@ -19,6 +19,13 @@ def image_convert_url(url, max_size_tuple):
              (base64.b64encode(url),)))
 
 
+def image_convert_base(url):
+    if isinstance(url, unicode):
+        url = url.encode('utf8')
+    return ('https://%s:%d/api/util/image_convert_base/%s' %
+            ((config.HOSTNAME, config.HTTP_PORT) + (base64.b64encode(url),)))
+
+
 def to_unicode(text):
     """Covert text to unicode if it's not already."""
     if not isinstance(text, unicode):

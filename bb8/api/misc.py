@@ -136,6 +136,36 @@ def image_convert_url():
     return _image_convert_url(request.args)
 
 
+@app.route('/api/util/image_convert_base/<string:url_encoded>/<int:size>',
+           methods=['GET'])
+def image_convert_url_base(url_encoded, size):
+    """Image convert service for LINE."""
+    url = base64.b64decode(url_encoded)
+
+    try:
+        h = urllib2.urlopen(url, timeout=5)
+    except Exception:
+        raise AppError(HTTPStatus.STATUS_BAD_REQUEST,
+                       CustomError.ERR_INVALID_URL,
+                       'invalid image url')
+    buf = StringIO()
+    buf.write(h.read())
+
+    img = Image.open(buf)
+    buf = StringIO()
+
+    if img.mode != 'RGB':
+        img = img.convert('RGB')
+
+    img = img.resize((size, size), Image.LANCZOS)
+    img.save(buf, 'JPEG', quality=95)
+
+    response = make_response(buf.getvalue())
+    response.headers['content-type'] = 'image/jpeg'
+
+    return response
+
+
 @app.route('/api/r/<int:bot_id>/<platform_user_ident>')
 def redirect_track_url(bot_id, platform_user_ident):
     """Handler for tracking URL

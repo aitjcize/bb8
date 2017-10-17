@@ -508,8 +508,86 @@ class Message(object):
                     'content_type': self.content_type.value
                 }
 
+    class ImageMapAction(object):
+        def __init__(self, action_type, text=None, url=None, area=None,
+                     variables=None):
+            if action_type not in Message.ButtonType:
+                raise RuntimeError('Invalid ImageMapAction type')
+
+            variables = variables or {}
+            self.type = action_type
+            self.text = Render(text, variables)
+            self.url = Render(url, variables)
+            self.area = area
+
+            if action_type == Message.ButtonType.POSTBACK and not text:
+                raise RuntimeError('postback button without text specified')
+
+            if action_type == Message.ButtonType.WEB_URL and not url:
+                raise RuntimeError('URL button without URL specified')
+
+            if url and text:
+                raise RuntimeError('can not specify text and URL at the '
+                                   'same time')
+
+        def __str__(self):
+            return json.dumps(self.as_dict())
+
+        def __eq__(self, other):
+            return (
+                self.type == other.type and
+                self.text == other.text and
+                self.url == other.url and
+                self.area == other.area
+            )
+
+        @classmethod
+        def FromDict(cls, data, variables=None):
+            """Construct QuickReply object given a dictionary."""
+            jsonschema.validate(data, cls.schema())
+
+            return cls(Message.ButtonType(data['type']),
+                       data.get('text'), data.get('url'), data.get('area'),
+                       variables)
+
+        @classmethod
+        def schema(cls):
+            return {
+                'type': 'object',
+                'required': ['type', 'area'],
+                'properties': {
+                    'type': {'enum': ['postback', 'web_url']},
+                    'text': {'type': 'string'},
+                    'url': {'type': 'string'},
+                    'area': {
+                        'type': 'object',
+                        'additionalProperties': False,
+                        'properties': {
+                            'x': {'type': 'number'},
+                            'y': {'type': 'number'},
+                            'width': {'type': 'number'},
+                            'height': {'type': 'number'}
+                        }
+                    }
+                }
+            }
+
+        def as_dict(self):
+            if self.type == Message.ButtonType.POSTBACK:
+                return {
+                    'type': self.type.value,
+                    'text': self.text,
+                    'area': self.area
+                }
+            else:
+                return {
+                    'type': self.type.value,
+                    'url': self.url,
+                    'area': self.area
+                }
+
     def __init__(self, text=None, image_url=None, buttons_text=None,
-                 top_element_style=None,
+                 top_element_style=None, imagemap_url=None,
                  notification_type=NotificationType.REGULAR, variables=None):
         """Constructor.
 
@@ -540,6 +618,8 @@ class Message(object):
         self.buttons = []
         self.list_items = []
         self.quick_replies = []
+        self.imagemap_url = imagemap_url
+        self.imagemap_actions = []
         self.register_mapping = False
 
     def __str__(self):
@@ -591,6 +671,12 @@ class Message(object):
                 elif ttype == 'generic':
                     for x in attachment['payload']['elements']:
                         m.add_bubble(cls.Bubble.FromDict(x, variables))
+                elif ttype == 'imagemap':
+                    m.imagemap_url = Render(
+                        attachment['payload'].get('imagemap_url'), variables)
+                    for x in attachment['payload']['actions']:
+                        m.add_imagemap_action(
+                            cls.ImageMapAction.FromDict(x, variables))
 
         quick_replies = data.get('quick_replies', [])
         for x in quick_replies:
@@ -695,6 +781,24 @@ class Message(object):
                                             'maxItems': 1
                                         }
                                     }
+                                }, {
+                                    'type': 'object',
+                                    'required': ['template_type',
+                                                 'imagemap_url', 'actions'],
+                                    'additionalProperties': True,
+                                    'properties': {
+                                        'template_type': {
+                                            'enum': ['imagemap']
+                                        },
+                                        'imagemap_url': {'type': 'string'},
+                                        'actions': {
+                                            'type': 'array',
+                                            'items':
+                                            Message.ImageMapAction.schema(),
+                                            'minItems': 1,
+                                            'maxItems': 50
+                                        }
+                                    }
                                 }]}
                             }
                         }]
@@ -755,6 +859,15 @@ class Message(object):
             data['attachment'] = {
                 'type': 'template',
                 'payload': payload
+            }
+        elif self.imagemap_url:
+            data['attachment'] = {
+                'type': 'template',
+                'payload': {
+                    'template_type': 'imagemap',
+                    'imagemap_url': self.imagemap_url,
+                    'actions': [x.as_dict() for x in self.imagemap_actions]
+                }
             }
         else:
             raise RuntimeError('Invalid message type %r' % self)
@@ -827,6 +940,13 @@ class Message(object):
             raise RuntimeError('object is not a Message.QuickReply object')
 
         self.quick_replies.append(reply)
+
+    def add_imagemap_action(self, action):
+        if not isinstance(action, Message.ImageMapAction):
+            raise RuntimeError('object is not a Message.ImageMapAction '
+                               'object')
+
+        self.imagemap_actions.append(action)
 
 
 # To allow pickling inner class, set module attribute alias

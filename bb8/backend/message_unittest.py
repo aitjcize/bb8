@@ -158,6 +158,21 @@ class MessageUnittest(unittest.TestCase, BaseTestMixin):
         self.assertTrue('1' in transform_keys)
         self.assertTrue('3' in transform_keys)
 
+    def test_ImageMapAction(self):
+        a = Message.ImageMapAction(
+            Message.ButtonType.POSTBACK,
+            text='message',
+            area={'x': 0, 'y': 0, 'width': 10, 'height': 10})
+        jsonschema.validate(a.as_dict(), Message.ImageMapAction.schema())
+        self.assertEquals(a, a.FromDict(a.as_dict()))
+
+        a = Message.ImageMapAction(
+            Message.ButtonType.WEB_URL,
+            url='http://google.com',
+            area={'x': 0, 'y': 0, 'width': 10, 'height': 10})
+        jsonschema.validate(a.as_dict(), Message.ImageMapAction.schema())
+        self.assertEquals(a, a.FromDict(a.as_dict()))
+
     def test_Message(self):
         but1 = Message.Button(Message.ButtonType.WEB_URL, 'test',
                               url='http://test.com')
@@ -217,6 +232,20 @@ class MessageUnittest(unittest.TestCase, BaseTestMixin):
 
         with self.assertRaises(RuntimeError):
             m = Message('test', 'url')
+
+        # Imagemap message
+        m = Message(imagemap_url='http://google.com/')
+        m.add_imagemap_action(Message.ImageMapAction(
+            Message.ButtonType.POSTBACK,
+            text='message',
+            area={'x': 0, 'y': 0, 'width': 10, 'height': 10}))
+        m.add_imagemap_action(Message.ImageMapAction(
+            Message.ButtonType.WEB_URL,
+            url='http://google.com',
+            area={'x': 0, 'y': 0, 'width': 10, 'height': 10}))
+
+        jsonschema.validate(m.as_dict(), Message.schema())
+        self.assertEquals(m, m.FromDict(m.as_dict()))
 
     def test_message_variable_rendering(self):
         """Test that variable in message can be rendered correctly."""
