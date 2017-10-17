@@ -301,22 +301,53 @@
       },
 
       "Node5": {
+        "name": "Node5",
+        "expect_input": false,
+        "description": "Node5",
+        "next_node_id": "RootRouter",
         "module": {
+          "id": "ai.compose.content.core.message",
           "config": {
             "messages": [
               {
                 "attachment": {
-                  "type": "image",
+                  "type": "template",
                   "payload": {
-                    "url": "http://i.imgur.com/Ix9DAmk.jpg"
+                    "template_type": "imagemap",
+                    "imagemap_url": "http://i.imgur.com/Ix9DAmk.jpg",
+                    "actions": [
+                      {
+                        "type": "web_url",
+                        "url": "https://www.abfunds.com.tw/apac/tw/mobile/funds/views/dividend.htm",
+                        "area": {
+                          "x": 0,
+                          "y": 0,
+                          "width": 1040,
+                          "height": 1040
+                        }
+                      }
+                    ]
                   }
                 }
               },
               {
                 "attachment": {
-                  "type": "image",
+                  "type": "template",
                   "payload": {
-                    "url": "http://i.imgur.com/SN857px.jpg"
+                    "template_type": "imagemap",
+                    "imagemap_url": "http://i.imgur.com/SN857px.jpg",
+                    "actions": [
+                      {
+                        "type": "web_url",
+                        "url": "https://www.abfunds.com.tw/apac/tw/mobile/funds/views/dividend.htm",
+                        "area": {
+                          "x": 0,
+                          "y": 0,
+                          "width": 1040,
+                          "height": 1040
+                        }
+                      }
+                    ]
                   }
                 }
               },
@@ -324,13 +355,8 @@
                 "text": "聯博最新配息紀錄 : https://goo.gl/Mi6UjP\n\n想回上一頁，請輸入AB  􀄃􀄳ok􏿿"
               }
             ]
-          },
-          "id": "ai.compose.content.core.message"
-        },
-        "next_node_id": "RootRouter",
-        "name": "Node5",
-        "expect_input": false,
-        "description": "Node5"
+          }
+        }
       },
 
       "Node6": {
