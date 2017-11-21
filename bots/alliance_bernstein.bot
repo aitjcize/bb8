@@ -59,6 +59,13 @@
               {
                 "rule": {
                   "type": "regexp",
+                  "params": ["2018OF"]
+                },
+                "ack_message": "歡迎參與2018聯博全球投資論壇，請點選此網址 https://pigeonhole.at/2018OF，與講者進行即時互動"
+              },
+              {
+                "rule": {
+                  "type": "regexp",
                   "params": ["測驗結果說明"],
                   "memory_set": [
                     {"key": "ajax_root", "value": "{{memory.ajax_root|unref('') if memory.ajax_root else 'http://dotted-lexicon-133523.appspot.com'}}"}
