@@ -88,6 +88,13 @@ case $USER in
     export APP_RPC_PORT=10005
     export WEBPACK_PORT=8086
     ;;
+  jsgame)
+    export MYSQL_PORT=3315
+    export REDIS_PORT=6387
+    export HTTP_PORT=7007
+    export APP_RPC_PORT=10006
+    export WEBPACK_PORT=8087
+    ;;
 esac
 
 export DATABASE="mysql+pymysql://bb8:bb8test@$DOCKER_HOST_IP:$MYSQL_PORT/bb8?charset=utf8mb4"
