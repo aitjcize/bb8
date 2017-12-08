@@ -55,15 +55,7 @@
         "module": {
           "id": "ai.compose.router.core.default",
           "config": {
-            "links": [    
-              {
-                "rule": {
-                  "type": "regexp",
-                  "params": ["(?i)1207"]
-                },
-                "end_node_id": "RootRouter",
-                "ack_message": "歡迎參與2018聯博全球投資論壇，請點選此網址 https://pigeonhole.at/1207 ，與講者進行即時互動。"
-              },
+            "links": [  
               {
                 "rule": {
                   "type": "regexp",
