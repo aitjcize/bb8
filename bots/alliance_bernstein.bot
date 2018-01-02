@@ -322,11 +322,11 @@
                   "type": "template",
                   "payload": {
                     "template_type": "imagemap",
-                    "imagemap_url": "http://i.imgur.com/Ix9DAmk.jpg",
+                    "imagemap_url": "http://i.imgur.com/0Nz1whZ.jpg",
                     "actions": [
                       {
                         "type": "web_url",
-                        "url": "https://www.abfunds.com.tw/apac/tw/mobile/funds/views/dividend.htm",
+                        "url": "https://www.abfunds.com.tw/apac/tw/mobile/funds/views/dividend.htm?type=Offshore",
                         "area": {
                           "x": 0,
                           "y": 0,
@@ -343,11 +343,11 @@
                   "type": "template",
                   "payload": {
                     "template_type": "imagemap",
-                    "imagemap_url": "http://i.imgur.com/SN857px.jpg",
+                    "imagemap_url": "http://i.imgur.com/9X1F6zA.jpg",
                     "actions": [
                       {
                         "type": "web_url",
-                        "url": "https://www.abfunds.com.tw/apac/tw/mobile/funds/views/dividend.htm",
+                        "url": "https://www.abfunds.com.tw/apac/tw/mobile/funds/views/dividend.htm?type=Onshore",
                         "area": {
                           "x": 0,
                           "y": 0,
@@ -375,7 +375,7 @@
                 "attachment": {
                   "type": "image",
                   "payload": {
-                    "url": "http://i.imgur.com/yRLGU2j.jpg"
+                    "url": "http://i.imgur.com/H1eqVhR.jpg"
                   }
                 }
               },
@@ -383,7 +383,7 @@
                 "attachment": {
                   "type": "image",
                   "payload": {
-                    "url": "http://i.imgur.com/hvyQ8Jc.jpg"
+                    "url": "http://i.imgur.com/hxzCg7F.jpg"
                   }
                 }
               }
