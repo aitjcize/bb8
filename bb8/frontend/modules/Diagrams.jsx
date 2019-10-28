@@ -2,6 +2,25 @@ import React from 'react'
 
 import CircularProgress from 'material-ui/CircularProgress'
 import Paper from 'material-ui/Paper'
+import {
+  Table,
+  TableBody,
+  TableHeader,
+  TableHeaderColumn,
+  TableRow,
+  TableRowColumn,
+} from 'material-ui/Table'
+import Chart from 'chart.js'
+
+import { numUsersQuery,
+         numUsersByDateQuery,
+         numUsersByNewOrReturnQuery,
+         numUsersByPlatformQuery,
+         numNewUsersQuery,
+         numNewUsersByDateQuery,
+         sessionByDateQuery,
+         popularBlocksQuery,
+         popularInputsQuery } from './queries'
 
 const styles = {
   container: {
@@ -11,280 +30,56 @@ const styles = {
     flex: 1,
     padding: '1em .5em',
   },
-  loader: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+  canvasRowContainer: {
+    marginTop: '1em',
     display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
   },
-  rows: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    padding: '.5em 1em',
-    marginBottom: '1em',
+  canvasRowItem: {
+    width: '45%',
   },
-  item: {
-    flex: 1,
-    marginBottom: '1.5em',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-  },
-  tableContainer: {
-    marginLeft: '1.5em',
+  overview: {
+    container: {
+      display: 'flex',
+      justifyContent: 'flex-start',
+      marginBottom: '1em',
+    },
+    item: {
+      width: '40%',
+      paddingLeft: '1em',
+      marginRight: '1em',
+    },
   },
 }
 
-function promisify(component) {
-  return new Promise((resolve, reject) => {
-    component.on('success', () => {
-      resolve()
+function fetch(query) {
+  return new Promise((resolve) => {
+    // eslint-disable-next-line no-undef
+    const apiQuery = new gapi.client.analytics.data.ga.get(query)
+    apiQuery.execute((results) => {
+      resolve(results)
     })
-    component.on('error', () => {
-      reject()
-    })
   })
-}
-
-function drawDiagram(startDate, endDate, viewId) {
-  const gaViewId = `ga:${viewId}`
-
-  const pieDefaultOption = {
-    width: '100%',
-    height: 400,
-    pieHole: 5 / 9,
-    sliceVisibilityThreshold: 0.1,
-    backgroundColor: 'transparent',
-    chartArea: {
-      left: 16,
-      right: 16,
-      top: 16,
-      bottom: 16,
-    },
-    legend: {
-      position: 'labeled',
-    },
-  }
-
-  const tableDefaultOption = {
-    width: '100%',
-    cssClassNames: {
-      headerRow: 'ga-table-headerRow',
-      tableRow: 'ga-table-tableRow',
-      oddTableRow: 'ga-table-oddTableRow',
-      selectedTableRow: 'ga-table-selectedTableRow',
-      hoverTableRow: 'ga-table-hoverTableRow',
-      headerCell: 'ga-table-headerCell',
-      tableCell: 'ga-table-tableCell',
-      rowNumberCell: 'ga-table-rowNumberCell',
-    },
-  }
-
-  const lineDefaultOption = {
-    width: '100%',
-    height: 350,
-    backgroundColor: 'transparent',
-    chartArea: {
-      left: 16,
-      right: 16,
-    },
-  }
-
-  // eslint-disable-next-line no-undef
-  const userTypePie = new gapi.analytics.googleCharts.DataChart({
-    query: {
-      ids: gaViewId,
-      'start-date': startDate,
-      'end-date': endDate,
-      metrics: 'ga:users',
-      dimensions: 'ga:userType',
-    },
-    chart: {
-      container: 'user-type-pie',
-      type: 'PIE',
-      options: pieDefaultOption,
-    },
-  })
-
-  // eslint-disable-next-line no-undef
-  const userTypeTable = new gapi.analytics.googleCharts.DataChart({
-    query: {
-      ids: gaViewId,
-      'start-date': startDate,
-      'end-date': endDate,
-      metrics: 'ga:users',
-      dimensions: 'ga:userType',
-      'max-results': 7,
-    },
-    chart: {
-      container: 'user-type-table',
-      type: 'TABLE',
-      options: {
-        width: '100%',
-        cssClassNames: {
-          headerRow: 'ga-table-headerRow',
-          tableRow: 'ga-table-tableRow',
-          oddTableRow: 'ga-table-oddTableRow',
-          selectedTableRow: 'ga-table-selectedTableRow',
-          hoverTableRow: 'ga-table-hoverTableRow',
-          headerCell: 'ga-table-headerCell',
-          tableCell: 'ga-table-tableCell',
-          rowNumberCell: 'ga-table-rowNumberCell',
-        },
-      },
-    },
-  })
-
-  // eslint-disable-next-line no-undef
-  const userSessionLine = new gapi.analytics.googleCharts.DataChart({
-    query: {
-      ids: gaViewId,
-      'start-date': startDate,
-      'end-date': endDate,
-      metrics: 'ga:users, ga:sessions',
-      dimensions: 'ga:date',
-    },
-    chart: {
-      container: 'user-session-line',
-      type: 'LINE',
-      options: lineDefaultOption,
-    },
-  })
-
-  // eslint-disable-next-line no-undef
-  const userSessionTable = new gapi.analytics.googleCharts.DataChart({
-    query: {
-      ids: gaViewId,
-      'start-date': startDate,
-      'end-date': endDate,
-      metrics: 'ga:newusers,ga:pageviews',
-      dimensions: 'ga:date',
-      sort: '-ga:date',
-      'max-results': 10,
-    },
-    chart: {
-      container: 'user-session-table',
-      type: 'TABLE',
-      options: {
-        width: '100%',
-        cssClassNames: {
-          headerRow: 'ga-table-headerRow',
-          tableRow: 'ga-table-tableRow',
-          oddTableRow: 'ga-table-oddTableRow',
-          selectedTableRow: 'ga-table-selectedTableRow',
-          hoverTableRow: 'ga-table-hoverTableRow',
-          headerCell: 'ga-table-headerCell',
-          tableCell: 'ga-table-tableCell',
-          rowNumberCell: 'ga-table-rowNumberCell',
-        },
-      },
-    },
-  })
-
-  // eslint-disable-next-line no-undef
-  const eventCategoryPie = new gapi.analytics.googleCharts.DataChart({
-    query: {
-      ids: gaViewId,
-      'start-date': startDate,
-      'end-date': endDate,
-      metrics: 'ga:users',
-      dimensions: 'ga:eventCategory',
-    },
-    chart: {
-      container: 'event-catagory-pie',
-      type: 'PIE',
-      options: pieDefaultOption,
-    },
-  })
-
-  // eslint-disable-next-line no-undef
-  const eventCategoryTable = new gapi.analytics.googleCharts.DataChart({
-    query: {
-      ids: gaViewId,
-      'start-date': startDate,
-      'end-date': endDate,
-      metrics: 'ga:users',
-      dimensions: 'ga:eventCategory',
-      'max-results': 10,
-    },
-    chart: {
-      container: 'event-catagory-table',
-      type: 'TABLE',
-      options: tableDefaultOption,
-    },
-  })
-
-  // eslint-disable-next-line no-undef
-  const pagePathPie = new gapi.analytics.googleCharts.DataChart({
-    query: {
-      ids: gaViewId,
-      'start-date': startDate,
-      'end-date': endDate,
-      metrics: 'ga:pageviews',
-      dimensions: 'ga:pagePath',
-      sort: '-ga:pageviews',
-      'max-results': 5,
-    },
-    chart: {
-      container: 'pagepath-pie',
-      type: 'PIE',
-      options: pieDefaultOption,
-    },
-  })
-
-  // eslint-disable-next-line no-undef
-  const pagePathTable = new gapi.analytics.googleCharts.DataChart({
-    query: {
-      ids: gaViewId,
-      'start-date': startDate,
-      'end-date': endDate,
-      metrics: 'ga:pageviews,ga:uniquePageviews',
-      dimensions: 'ga:pagePath',
-      sort: '-ga:pageviews',
-      'max-results': 10,
-    },
-    chart: {
-      container: 'pagepath-table',
-      type: 'TABLE',
-      options: tableDefaultOption,
-    },
-  })
-  userTypePie.execute()
-  userTypeTable.execute()
-  userSessionLine.execute()
-  userSessionTable.execute()
-  eventCategoryPie.execute()
-  eventCategoryTable.execute()
-  pagePathPie.execute()
-  pagePathTable.execute()
-
-  const promises = [
-    userTypePie, userTypeTable,
-    userSessionLine, userSessionTable,
-    eventCategoryPie, eventCategoryTable,
-    pagePathPie, pagePathTable,
-  ].map(c => promisify(c))
-
-  return Promise.all(promises)
 }
 
 class Diagrams extends React.Component {
 
   constructor(props) {
     super(props)
+    this.drawDiagram = this.drawDiagram.bind(this)
+
     this.state = {
       loading: true,
+      popularBlocks: [],
+      popularInputs: [],
+      numUsers: 0,
+      numNewUsers: 0,
     }
   }
 
   componentDidMount() {
     const { startDate, endDate, viewId } = this.props
-
-    drawDiagram(startDate, endDate, viewId)
+    this.drawDiagram(startDate, endDate, viewId)
       .then(() => {
         this.setState({ loading: false })
       })
@@ -297,7 +92,144 @@ class Diagrams extends React.Component {
       return
     }
     const { startDate, endDate, viewId } = this.props
-    drawDiagram(startDate, endDate, viewId)
+    this.drawDiagram(startDate, endDate, viewId)
+      .then(() => {
+        this.setState({ loading: false })
+      })
+  }
+
+  drawDiagram(startDate, endDate, viewId) {
+    this.setState({ loading: true })
+
+    const gaViewId = `ga:${viewId}`
+    const promises = []
+
+    promises.push(
+      Promise.all([
+        fetch(numUsersByDateQuery(gaViewId, startDate, endDate)),
+        fetch(numNewUsersByDateQuery(gaViewId, startDate, endDate)),
+        fetch(sessionByDateQuery(gaViewId, startDate, endDate)),
+      ]).then((result) => {
+        const result1 = result[0]
+        const result2 = result[1]
+        const result3 = result[2]
+
+        // eslint-disable-next-line no-new
+        new Chart('usageChart', {
+          type: 'line',
+          data: {
+            labels: result1.rows.map(r => r[0]),
+            datasets: [
+              {
+                label: 'number of users',
+                fill: false,
+                data: result1.rows.map(r => r[1]),
+                borderColor: 'rgba(255, 0, 0, 0.3)',
+              },
+              {
+                label: 'number of new users',
+                fill: false,
+                data: result2.rows.map(r => r[1]),
+                borderColor: 'rgba(0, 255, 0, 0.3)',
+              },
+              {
+                label: 'number of sessions',
+                fill: false,
+                data: result3.rows.map(r => r[1]),
+                borderColor: 'rgba(0, 0, 255, 0.3)',
+              },
+            ],
+          },
+        })
+      })
+    )
+
+    promises.push(
+      fetch(numUsersByNewOrReturnQuery(gaViewId, startDate, endDate))
+        .then((result) => {
+          const labels = result.rows.map(r => r[0])
+          const values = result.rows.map(r => r[1])
+
+          // eslint-disable-next-line no-new
+          new Chart('userTypes', {
+            type: 'pie',
+            data: {
+              labels,
+              datasets: [
+                {
+                  data: values,
+                  backgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                  ],
+                  hoverBackgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                  ],
+                },
+              ],
+            },
+          })
+        })
+    )
+
+    promises.push(
+      fetch(numUsersByPlatformQuery(gaViewId, startDate, endDate))
+        .then((result) => {
+          const labels = result.rows.map(r => r[0])
+          const values = result.rows.map(r => r[1])
+
+          // eslint-disable-next-line no-new
+          new Chart('platformChart', {
+            type: 'pie',
+            data: {
+              labels,
+              datasets: [
+                {
+                  data: values,
+                  backgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                  ],
+                  hoverBackgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                  ],
+                },
+              ],
+            },
+          })
+        })
+    )
+
+    promises.push(
+      Promise.all([
+        fetch(popularBlocksQuery(gaViewId, startDate, endDate)),
+        fetch(popularInputsQuery(gaViewId, startDate, endDate)),
+      ]).then((result) => {
+        const result1 = result[0].rows
+        const result2 = result[1].rows
+        this.setState({
+          popularBlocks: result1,
+          popularInputs: result2,
+        })
+      })
+    )
+
+    promises.push(
+      Promise.all([
+        fetch(numUsersQuery(gaViewId, startDate, endDate)),
+        fetch(numNewUsersQuery(gaViewId, startDate, endDate)),
+      ]).then((result) => {
+        const numUsers = parseInt(result[0].rows[0][0], 10)
+        const numNewUsers = parseInt(result[1].rows[0][0], 10)
+        this.setState({
+          numUsers, numNewUsers,
+        })
+      })
+    )
+
+    return Promise.all(promises)
   }
 
   render() {
@@ -323,39 +255,101 @@ class Diagrams extends React.Component {
         <div
           style={{ display: this.state.loading ? 'none' : 'initial' }}
         >
-          <Paper style={styles.rows}>
-            <div id="user-session-line" style={styles.item} />
-            <div
-              id="user-session-table"
-              style={{
-                ...styles.item,
-                ...styles.tableContainer,
-              }}
-            />
-          </Paper>
-          <Paper style={styles.rows}>
-            <div style={styles.item}>
-              <div id="user-type-pie" />
-              <div
-                id="user-type-table"
-                style={styles.tableContainer}
+          <div
+            style={styles.overview.container}
+          >
+            <Paper
+              style={styles.overview.item}
+            >
+              <h5> Number of New Users </h5>
+              <h5> { this.state.numNewUsers } </h5>
+            </Paper>
+            <Paper
+              style={styles.overview.item}
+            >
+              <h5> Number of Active Users </h5>
+              <h5> { this.state.numUsers } </h5>
+            </Paper>
+          </div>
+
+          <canvas
+            style={{
+              backgroundColor: '#ffffff',
+            }}
+            id="usageChart"
+            width="200"
+            height="100"
+          />
+
+          <div style={styles.canvasRowContainer}>
+            <div style={styles.canvasRowItem}>
+              <canvas
+                style={{
+                  backgroundColor: '#ffffff',
+                }}
+                id="platformChart"
               />
             </div>
-            <div style={styles.item}>
-              <div id="event-catagory-pie" />
-              <div id="event-catagory-table" style={styles.tableContainer} />
+
+            <div style={styles.canvasRowItem}>
+              <canvas
+                style={{
+                  backgroundColor: '#ffffff',
+                }}
+                id="userTypes"
+              />
             </div>
-          </Paper>
-          <Paper style={styles.rows}>
-            <div id="pagepath-pie" style={styles.item} />
-            <div
-              id="pagepath-table"
-              style={{
-                ...styles.item,
-                ...styles.tableContainer,
-              }}
-            />
-          </Paper>
+          </div>
+
+          <h5> Popular blocks </h5>
+          <Table>
+            <TableHeader
+              displaySelectAll={false}
+              adjustForCheckbox={false}
+            >
+              <TableRow>
+                <TableHeaderColumn>Blocks</TableHeaderColumn>
+                <TableHeaderColumn>Count</TableHeaderColumn>
+              </TableRow>
+            </TableHeader>
+            <TableBody
+              displayRowCheckbox={false}
+            >
+              {
+                this.state.popularBlocks.map(b => (
+                  <TableRow>
+                    <TableRowColumn> { b[0] } </TableRowColumn>
+                    <TableRowColumn> { b[1] } </TableRowColumn>
+                  </TableRow>
+                ))
+              }
+            </TableBody>
+          </Table>
+
+          <h5> Popular User Inputs </h5>
+          <Table>
+            <TableHeader
+              displaySelectAll={false}
+              adjustForCheckbox={false}
+            >
+              <TableRow>
+                <TableHeaderColumn>Inputs</TableHeaderColumn>
+                <TableHeaderColumn>Count</TableHeaderColumn>
+              </TableRow>
+            </TableHeader>
+            <TableBody
+              displayRowCheckbox={false}
+            >
+              {
+                this.state.popularInputs.map(b => (
+                  <TableRow>
+                    <TableRowColumn> { b[0] } </TableRowColumn>
+                    <TableRowColumn> { b[1] } </TableRowColumn>
+                  </TableRow>
+                ))
+              }
+            </TableBody>
+          </Table>
         </div>
       </div>
     )

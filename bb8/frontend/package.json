@@ -29,6 +29,7 @@
     "babel-preset-es2015": "^6.13.2",
     "babel-preset-react": "^6.16.0",
     "babelify": "^7.3.0",
+    "chart.js": "git+https://github.com/chartjs/Chart.js.git",
     "es6-promise": "^4.0.5",
     "eslint": "^3.7.1",
     "eslint-config-airbnb": "^12.0.0",
